@@ -1,1 +1,1 @@
-Source claim text for formalize_stabilizer_commutation_statement.
+All stabilizer generators of a stabilizer code pairwise commute under Pauli multiplication.
