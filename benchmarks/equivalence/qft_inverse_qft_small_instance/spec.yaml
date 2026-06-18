@@ -1,0 +1,101 @@
+qspecbench_version: "0.1"
+id: qft_inverse_qft_small_instance
+title: "QFT and inverse QFT are mutual inverses (small instance)"
+track: equivalence
+domain: circuit_equivalence
+claim_type: unitary_equivalence
+difficulty: intermediate
+
+informal_claim:
+  statement: "QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: circuit
+  secondary: []
+
+objects:
+  - name: source
+    type: circuit
+    path: artifacts/source.qasm
+    format: qasm3
+    role: source
+  - name: target
+    type: circuit
+    path: artifacts/target.qasm
+    format: qasm3
+    role: target
+
+specification:
+  mode: exact
+  preconditions:
+    - "two-qubit scaffold instance"
+    - "qubit ordering declared in artifacts"
+  postconditions:
+    - "QFT composed with inverse QFT equals identity on declared register"
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: true
+    qubits: "2"
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: "0"
+    measurements: "0"
+    other: []
+
+assumptions:
+  mathematical:
+    - "standard two-qubit semantics"
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+
+acceptable_evidence:
+  - type: qasm_parse
+    checker: "qasm parser adapter"
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
+
+evidence:
+  - id: qasm_parse_source
+    type: qasm_parse
+    path: artifacts/source.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/source.qasm"
+    status: passing
+    notes: "Syntax only."
+  - id: qasm_parse_target
+    type: qasm_parse
+    path: artifacts/target.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/target.qasm"
+    status: passing
+    notes: "Syntax only."
+
+trust_boundary:
+  checked_by:
+    - "QASM syntax parse"
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+    - "semantic QFT/inverse-QFT equivalence"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+
+references: []
