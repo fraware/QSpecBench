@@ -34,3 +34,41 @@ def test_simulation_cannot_be_checked_acceptable():
     })
     errors = validate_trust_rules(spec)
     assert any("simulation" in e for e in errors)
+
+
+def test_reference_requires_checked_passing_evidence():
+    spec = yaml.safe_load((REPO / "schema/examples/minimal.spec.yaml").read_text(encoding="utf-8"))
+    spec["status"] = {
+        "informal_claim": "complete",
+        "machine_spec": "complete",
+        "artifacts": "complete",
+        "evidence": "partial",
+        "ci": "passing",
+        "maturity": "reference",
+    }
+    spec["evidence"] = [
+        {
+            "id": "review_only",
+            "type": "human_review",
+            "path": "notes/informal_derivation.md",
+            "checker": "reviewer",
+            "status": "partial",
+        }
+    ]
+    errors = validate_trust_rules(spec)
+    assert any("reference maturity" in e for e in errors)
+
+
+def test_ai_draft_passing_evidence_rejected():
+    spec = yaml.safe_load((REPO / "schema/examples/minimal.spec.yaml").read_text(encoding="utf-8"))
+    spec["evidence"] = [
+        {
+            "id": "bad_draft",
+            "type": "ai_draft",
+            "path": "artifacts/draft.lean",
+            "checker": "none",
+            "status": "passing",
+        }
+    ]
+    errors = validate_trust_rules(spec)
+    assert any("ai_draft cannot be passing" in e for e in errors)
