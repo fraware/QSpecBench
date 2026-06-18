@@ -1,0 +1,11 @@
+adapter_name: lean_proof
+supported_evidence_types:
+  - lean_proof
+required_files:
+  - "*.lean"
+check_command: "python parse_result.py {path}"
+success_condition: "lake build exits 0 in lean/ project"
+failure_condition: "lake build fails or evidence missing"
+trust_level: checked
+output_format: json
+role: checker
