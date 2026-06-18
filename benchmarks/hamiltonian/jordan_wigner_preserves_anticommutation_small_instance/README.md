@@ -1,0 +1,37 @@
+# Jordan Wigner Preserves Anticommutation Small Instance
+
+## Claim
+
+Hamiltonian simulation claim: jordan wigner preserves anticommutation small instance.
+
+## Why this matters
+
+Scientific-intent Hamiltonian benchmark separating physics, algebra, and resources.
+
+## Objects
+
+- `artifacts/hamiltonian.json`
+
+## Specification
+
+Exact algebraic/scientific claim.
+
+## Evidence
+
+- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+
+## Trust boundary
+
+Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+
+## Status
+
+Current maturity: **seed**.
+
+## Known gaps
+
+Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+
+## References
+
+- (add references when promoting beyond seed)
