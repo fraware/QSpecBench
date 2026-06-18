@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0", "ruff>=0.1"]
+dev = ["pytest>=7.0", "ruff>=0.1", "mqt.qcec==3.6.0"]
 
 [project.scripts]
 qspecbench = "qspecbench.cli:main"
