@@ -1,0 +1,10 @@
+adapter_name: qcec
+supported_evidence_types:
+  - qcec_result
+required_files:
+  - "*"
+check_command: "python parse_result.py {path} {path2}"
+success_condition: "exit code 0"
+failure_condition: "nonzero exit"
+trust_level: externally_trusted
+output_format: json
