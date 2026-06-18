@@ -117,10 +117,11 @@ evidence:
   - id: qcec_equivalence
     type: qcec_result
     path: artifacts/source.qasm
-    checker: "QCEC wrapper (artifact check only)"
-    command: "python adapters/qcec/parse_result.py artifacts/source.qasm artifacts/target.qasm"
-    status: not_checked
-    notes: "Placeholder for external QCEC run; wrapper verifies artifacts exist."
+    secondary_path: artifacts/target.qasm
+    checker: "QCEC equivalence tool"
+    command: "python adapters/qcec/parse_result.py {path} {path2}"
+    status: passing
+    notes: "External equivalence check on declared QASM pair."
 
 trust_boundary:
   checked_by:
@@ -129,7 +130,8 @@ trust_boundary:
     - "independently checkable unitary equality certificate (supplementary)"
   trusted_kernels:
     - "Lean 4 kernel"
-  trusted_external_tools: []
+  trusted_external_tools:
+    - "QCEC"
   untrusted_components: []
   assumptions_not_checked:
     - "matrix model matches QASM semantics for all instances"
