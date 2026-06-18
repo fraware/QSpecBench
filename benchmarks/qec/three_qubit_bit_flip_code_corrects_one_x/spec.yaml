@@ -80,7 +80,7 @@ acceptable_evidence:
     required_for_claim: false
     trust_level: externally_trusted
   - type: lean_proof
-    checker: "Lean kernel"
+    checker: "Lean 4 kernel"
     path: null
     required_for_claim: false
     trust_level: checked
@@ -93,24 +93,34 @@ evidence:
     command: "python adapters/qec/parse_result.py artifacts/code.json"
     status: passing
     notes: "Validates stabilizer JSON structure only."
+  - id: lean_stabilizer_commutation
+    type: lean_proof
+    path: evidence/bit_flip_stabilizers.lean
+    checker: "Lean 4 kernel"
+    command: "python adapters/lean/parse_result.py evidence/bit_flip_stabilizers.lean"
+    status: passing
+    notes: "Kernel-checked bit-flip stabilizer commutation via QSpecBench.Stabilizer."
   - id: error_model_json
     type: qec_verifier_result
     path: artifacts/error_model.json
     checker: "manual JSON review"
     command: null
-    status: partial
-    notes: "Error model declared; not machine-validated yet."
+    status: not_checked
+    notes: "Error model declared; machine validation out of scope for reference scope."
 
 trust_boundary:
   checked_by:
-    - "stabilizer code JSON schema validation"
-  trusted_kernels: []
+    - "stabilizer code JSON schema validation with commutation checks"
+    - "Lean 4 kernel proof of stabilizer commutation"
+  trusted_kernels:
+    - "Lean 4 kernel"
   trusted_external_tools: []
   untrusted_components:
     - "decoder lookup table correctness"
   assumptions_not_checked:
     - "correction restores logical state for all single X errors"
     - "syndrome extraction circuit semantics"
+    - "decoder correctness (assumed)"
 
 status:
   informal_claim: complete
@@ -118,7 +128,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
+  maturity: reference
 
 qec_status:
   code_definition: complete
