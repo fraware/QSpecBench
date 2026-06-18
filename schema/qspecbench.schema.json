@@ -246,6 +246,7 @@
         "id": { "type": "string" },
         "type": { "type": "string" },
         "path": { "type": "string" },
+        "secondary_path": { "type": ["string", "null"] },
         "checker": { "type": "string" },
         "command": { "type": ["string", "null"] },
         "status": {
