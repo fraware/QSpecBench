@@ -5,18 +5,14 @@ Defines the standard 4×4 CNOT unitary in the computational basis and proves `CN
 This is the kernel-checked evidence for `cnot_self_inverse_cancellation`.
 -/
 
+import QSpecBench.Matrix
+
 namespace QSpecBench
 
-abbrev Matrix4 := Fin 4 → Fin 4 → Nat
-
-def mul4 (A B : Matrix4) (i j : Fin 4) : Nat :=
-  A i 0 * B 0 j + A i 1 * B 1 j + A i 2 * B 2 j + A i 3 * B 3 j
-
-def id4 (i j : Fin 4) : Nat :=
-  if i = j then 1 else 0
+open QSpecBench (Matrix4 mul4 id4)
 
 /-- CNOT with control qubit 0 and target qubit 1 in lexicographic basis |00⟩,|01⟩,|10⟩,|11⟩. -/
-def cnot4 (i j : Fin 4) : Nat :=
+def cnot4 (i j : Fin 4) : Int :=
   match i, j with
   | ⟨0, _⟩, ⟨0, _⟩ => 1
   | ⟨1, _⟩, ⟨1, _⟩ => 1
