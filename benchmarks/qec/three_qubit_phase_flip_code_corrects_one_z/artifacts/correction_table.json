@@ -1,0 +1,11 @@
+{
+  "id": "phase_flip_correction_table",
+  "type": "correction_table",
+  "decoder": "lookup_table_assumed_correct",
+  "entries": [
+    { "syndrome": "00", "physical_correction": "III" },
+    { "syndrome": "10", "physical_correction": "ZII" },
+    { "syndrome": "01", "physical_correction": "IZI" },
+    { "syndrome": "11", "physical_correction": "IIZ" }
+  ]
+}

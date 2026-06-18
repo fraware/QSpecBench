@@ -1,0 +1,10 @@
+{
+  "id": "phase_flip_pauli_channel",
+  "type": "error_model",
+  "pauli_only": true,
+  "allowed_errors": ["Z"],
+  "max_weight": 1,
+  "correlated_errors": false,
+  "leakage": false,
+  "measurement_errors": false
+}
