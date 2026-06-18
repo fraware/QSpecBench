@@ -12,7 +12,7 @@ It turns quantum-computing correctness claims into structured benchmark entries 
 - current evidence status;
 - explicit trust boundaries.
 
-[![CI](https://github.com/qspecbench/qspecbench/actions/workflows/validate.yml/badge.svg)](https://github.com/qspecbench/qspecbench/actions/workflows/validate.yml)
+[![CI](https://github.com/fraware/QSpecBench/actions/workflows/validate.yml/badge.svg)](https://github.com/fraware/QSpecBench/actions/workflows/validate.yml)
 
 ## Why this exists
 
@@ -60,13 +60,16 @@ See the [dashboard](docs/status.md).
 | 34 benchmarks across 5 tracks | Done |
 | Claim cards + `spec.yaml` per benchmark | Done |
 | Lean 4 proofs in CI | Done (`lake build`) |
-| Reference benchmark with kernel-checked proof | Done (`cnot_self_inverse_cancellation`) |
+| Reference benchmarks with kernel-checked proof | Done (3: CNOT, QFT inverse, bit-flip stabilizers) |
+| QCEC equivalence in CI | Done (Docker job + mqt.qcec in dev extras) |
+| Semantic bridge artifacts | Done (equivalence Lean benchmarks) |
+| Zero-evidence benchmarks | Done (0 empty evidence lists) |
 | Explicit trust boundaries | Done |
 | Tool-neutral evidence adapters | Done (Lean-only PA) |
 | Public dashboard | Done |
 | Contributor docs + templates | Done |
 
-Remaining frontier work: more kernel-checked Lean proofs, QCEC in CI, additional reference benchmarks.
+Remaining frontier work: full OpenQASM semantics in Lean, additional QEC correction proofs, SMT certificates.
 
 ## Contributing
 
