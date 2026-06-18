@@ -1,1 +1,1 @@
-Source claim text for formalize_small_hamiltonian_hermiticity_statement.
+A small Pauli-decomposed Hamiltonian with real coefficients represents a Hermitian operator.
