@@ -1,0 +1,20 @@
+---
+name: AI formalization result
+about: Submit an AI formalization attempt for an AI-track benchmark
+title: "[ai-formalization] "
+labels: ai-formalization
+---
+
+## Benchmark ID
+
+## Source text reference
+
+## Generated formal artifact path/attachment
+
+## Syntactic status
+
+## Semantic rubric score (0-5)
+
+## Trust labeling
+
+Confirm AI output is untrusted unless independently checked.
