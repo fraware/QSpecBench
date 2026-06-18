@@ -1,0 +1,122 @@
+qspecbench_version: "0.1"
+id: teleportation_preserves_state_up_to_pauli_correction
+title: "Teleportation preserves an unknown qubit up to Pauli correction"
+track: algorithm
+domain: quantum_algorithm
+claim_type: protocol_correctness
+difficulty: introductory
+
+informal_claim:
+  statement: "The teleportation circuit transfers an arbitrary one-qubit state to the receiver after applying the Pauli correction determined by the two classical measurement bits."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: algorithmic
+  secondary: ["circuit", "measurement", "protocol"]
+
+objects:
+  - name: teleportation_circuit
+    type: circuit
+    path: artifacts/teleportation.qasm
+    format: qasm3
+    role: source
+
+specification:
+  mode: relational
+  preconditions:
+    - "profile: fixed-size, exact, relational, non-oracle"
+    - "semantic object: pure-state input/output relation on receiver qubit"
+    - "qubit ordering: q[0]=input, q[1]=Alice Bell, q[2]=Bob Bell"
+    - "input qubit is an arbitrary normalized pure state"
+    - "shared pair is initialized in the Bell state (|00>+|11>)/sqrt(2)"
+  postconditions:
+    - "receiver qubit equals the original input state after Pauli correction"
+    - "sender measurement bits (c[0], c[1]) determine the correction operator"
+  invariants:
+    - "no clone of the input state remains with the sender after correction"
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: true
+    qubits: "3"
+    gates: "H, CX, measurement, classically controlled Pauli corrections"
+    depth: null
+    t_count: "0"
+    t_depth: "0"
+    ancilla: "0"
+    measurements: "2"
+    other: []
+
+assumptions:
+  mathematical:
+    - "standard finite-dimensional qubit semantics"
+    - "ideal gates and projective measurement"
+  physical: []
+  tool: []
+  artifact:
+    - "QASM artifact uses declared qubit ordering"
+  unverified:
+    - "classical feed-forward control semantics in QASM"
+
+acceptable_evidence:
+  - type: lean_proof
+    checker: "Lean 4 kernel"
+    path: null
+    required_for_claim: false
+    trust_level: checked
+  - type: qasm_parse
+    checker: "qasm parser adapter"
+    path: artifacts/teleportation.qasm
+    required_for_claim: false
+    trust_level: externally_trusted
+  - type: human_review
+    checker: "domain expert review"
+    path: notes/informal_derivation.md
+    required_for_claim: false
+    trust_level: externally_trusted
+
+evidence:
+  - id: qasm_syntax
+    type: qasm_parse
+    path: artifacts/teleportation.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/teleportation.qasm"
+    status: passing
+    notes: "Syntax check only; not semantic protocol proof."
+  - id: informal_derivation
+    type: human_review
+    path: notes/informal_derivation.md
+    checker: "manual review"
+    command: null
+    status: partial
+    notes: "Informal derivation included; no kernel-checked proof yet."
+
+trust_boundary:
+  checked_by:
+    - "QASM syntax parse"
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+    - "informal derivation"
+    - "unexpanded classical corrections in QASM"
+  assumptions_not_checked:
+    - "semantic equivalence of QASM to relational claim"
+    - "idealized measurement semantics"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+
+references:
+  - key: nielsen_chuang_teleportation
+    type: lecture
+    title: "Quantum teleportation (standard presentation)"
+    url: null
+    notes: "Textbook protocol reference"
