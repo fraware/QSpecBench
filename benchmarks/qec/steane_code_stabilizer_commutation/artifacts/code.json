@@ -1,0 +1,8 @@
+{
+  "id": "steane_code_stabilizer_commutation",
+  "type": "stabilizer_code",
+  "parameters": {
+    "n": 3,
+    "k": 1
+  }
+}
