@@ -1,1 +1,1 @@
-Source claim text for extract_teleportation_correctness_statement.
+Quantum teleportation transfers an unknown qubit state to a remote party up to Pauli corrections.
