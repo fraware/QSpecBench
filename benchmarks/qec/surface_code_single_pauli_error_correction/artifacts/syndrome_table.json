@@ -1,0 +1,30 @@
+{
+  "id": "bit_flip_syndrome_table",
+  "type": "syndrome_table",
+  "syndrome_bits": [
+    "s0",
+    "s1"
+  ],
+  "entries": [
+    {
+      "syndrome": "00",
+      "error": "I",
+      "correction": "III"
+    },
+    {
+      "syndrome": "10",
+      "error": "X0",
+      "correction": "XII"
+    },
+    {
+      "syndrome": "01",
+      "error": "X1",
+      "correction": "IXI"
+    },
+    {
+      "syndrome": "11",
+      "error": "X2",
+      "correction": "IIX"
+    }
+  ]
+}
