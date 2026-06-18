@@ -1,0 +1,24 @@
+---
+name: QEC benchmark proposal
+about: Propose a new quantum error correction benchmark
+title: "[qec] "
+labels: qec
+---
+
+## Proposed QEC claim
+
+## Code type and parameters (n, k, d)
+
+## Error model scope
+
+Pauli-only? leakage? correlated errors? measurement errors?
+
+## Decoder status
+
+proved / assumed / simulated / out of scope
+
+## Artifacts planned
+
+code JSON, syndrome extraction, decoder, correction tables
+
+## Difficulty estimate
