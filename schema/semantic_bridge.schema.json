@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/semantic_bridge.schema.json",
+  "title": "QSpecBench Semantic Bridge",
+  "type": "object",
+  "required": [
+    "artifact_gate_model",
+    "lean_module",
+    "lean_theorem",
+    "normalization",
+    "claimed_link"
+  ],
+  "properties": {
+    "artifact_gate_model": { "type": "string", "minLength": 1 },
+    "lean_module": { "type": "string", "minLength": 1 },
+    "lean_theorem": { "type": "string", "minLength": 1 },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "claimed_link": {
+      "type": "string",
+      "enum": ["documented_not_proved", "kernel_checked"]
+    }
+  },
+  "additionalProperties": false
+}
