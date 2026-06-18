@@ -1,0 +1,100 @@
+qspecbench_version: "0.1"
+id: small_fermionic_hamiltonian_is_hermitian
+title: "Small fermionic Hamiltonian is Hermitian"
+track: hamiltonian
+domain: hamiltonian_simulation
+claim_type: hermiticity
+difficulty: introductory
+
+informal_claim:
+  statement: "The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents a Hermitian operator (H = H†)."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: mathematical
+  secondary: ["physical"]
+
+objects:
+  - name: hamiltonian
+    type: hamiltonian
+    path: artifacts/hamiltonian.json
+    format: json
+    role: source
+
+specification:
+  mode: exact
+  preconditions:
+    - "source representation: fermionic second-quantized (documented)"
+    - "target representation: Pauli spin-orbital strings"
+    - "mapping: Jordan-Wigner (declared, not verified here)"
+    - "coefficients are real"
+  postconditions:
+    - "assembled Pauli operator equals its Hermitian conjugate"
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+
+assumptions:
+  mathematical:
+    - "Pauli algebra on finite qubit register"
+  physical:
+    - "physics-level fermionic intent documented in artifact metadata"
+  tool: []
+  artifact:
+    - "JW mapping conventions stated in hamiltonian.json"
+  unverified:
+    - "fermionic-to-Pauli mapping fidelity"
+
+acceptable_evidence:
+  - type: simulation
+    checker: "python numeric Pauli check"
+    path: evidence/check_hermitian.py
+    required_for_claim: false
+    trust_level: heuristic
+  - type: lean_proof
+    checker: "Lean kernel"
+    path: null
+    required_for_claim: false
+    trust_level: checked
+
+evidence:
+  - id: python_hermiticity
+    type: simulation
+    path: evidence/check_hermitian.py
+    checker: "python numeric Pauli check"
+    command: "python adapters/python/parse_result.py evidence/check_hermitian.py"
+    status: passing
+    notes: "Heuristic numeric check over Pauli matrices; not a formal proof."
+
+trust_boundary:
+  checked_by:
+    - "numeric Hermiticity script execution"
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+    - "mapping from fermionic source to Pauli artifact"
+    - "formal proof of Hermiticity"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+
+references: []

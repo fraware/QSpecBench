@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "adapter": "python_simulation",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\hamiltonian\\small_fermionic_hamiltonian_is_hermitian\\evidence\\check_hermitian.py",
+  "trust_level": "heuristic",
+  "exit_code": 0,
+  "stdout": "{\"ok\": true, \"trust_level\": \"heuristic\", \"message\": \"Hermitian under numeric Pauli check\"}",
+  "stderr": "",
+  "error": null
+}

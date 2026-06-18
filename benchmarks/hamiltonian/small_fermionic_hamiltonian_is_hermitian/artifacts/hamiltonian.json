@@ -1,0 +1,19 @@
+{
+  "id": "small_fermionic_hamiltonian",
+  "type": "fermionic_hamiltonian",
+  "representation": {
+    "source": "fermionic_second_quantized",
+    "target": "pauli_spin_orbital"
+  },
+  "mapping": "jordan_wigner",
+  "ordering": "lexicographic by orbital index",
+  "terms": [
+    {"coeff": 1.0, "operators": "Z0 Z1"},
+    {"coeff": 0.5, "operators": "X0"},
+    {"coeff": -0.25, "operators": "Y1"}
+  ],
+  "claims": {
+    "hermiticity": true,
+    "particle_number_preservation": false
+  }
+}
