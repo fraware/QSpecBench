@@ -30,6 +30,11 @@ def _has_resource_contract(spec: dict[str, Any]) -> bool:
     return spec.get("specification", {}).get("resources", {}).get("enabled", False)
 
 
+def zero_evidence_count(root: Path) -> int:
+    rows = collect_statuses(root)
+    return sum(1 for r in rows if not r["spec"].get("evidence"))
+
+
 def generate_dashboard(root: Path) -> str:
     rows = collect_statuses(root)
     specs = [r["spec"] for r in rows]
