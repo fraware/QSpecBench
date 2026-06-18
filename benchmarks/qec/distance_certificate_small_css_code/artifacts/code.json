@@ -1,0 +1,8 @@
+{
+  "id": "distance_certificate_small_css_code",
+  "type": "stabilizer_code",
+  "parameters": {
+    "n": 3,
+    "k": 1
+  }
+}
