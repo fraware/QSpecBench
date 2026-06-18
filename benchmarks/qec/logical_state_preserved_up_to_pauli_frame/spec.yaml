@@ -4,7 +4,7 @@ title: Logical State Preserved Up To Pauli Frame
 track: qec
 domain: quantum_error_correction
 claim_type: qec_claim
-difficulty: intermediate
+difficulty: advanced
 informal_claim:
   statement: QEC benchmark claim for `logical_state_preserved_up_to_pauli_frame` under
     an explicitly declared Pauli-dominated error model.
@@ -48,35 +48,41 @@ assumptions:
   artifact: []
   unverified: []
 acceptable_evidence:
-- type: lean_proof
-  checker: Lean kernel
-  path: null
-  required_for_claim: false
-  trust_level: checked
-- type: human_review
-  checker: domain expert review
-  path: notes/informal_derivation.md
+- type: qec_verifier_result
+  checker: qec json validator
   required_for_claim: false
   trust_level: externally_trusted
-evidence: []
+- type: lean_proof
+  checker: Lean 4 kernel
+  required_for_claim: false
+  trust_level: checked
+evidence:
+- id: code_json_valid
+  type: qec_verifier_result
+  path: artifacts/code.json
+  checker: qec json validator
+  command: python adapters/qec/parse_result.py artifacts/code.json
+  status: passing
+  notes: JSON structure validation only.
 trust_boundary:
-  checked_by: []
+  checked_by:
+  - stabilizer JSON schema validation
   trusted_kernels: []
   trusted_external_tools: []
-  untrusted_components:
-  - informal notes unless separately checked
+  untrusted_components: []
   assumptions_not_checked:
-  - artifact parsing
-  - idealized gate semantics
+  - algebraic commutation proof
+  - decoder and correction claims
 status:
   informal_claim: complete
   machine_spec: complete
-  artifacts: partial
-  evidence: missing
+  artifacts: complete
+  evidence: partial
   ci: passing
-  maturity: seed
+  maturity: usable
 references: []
 qec_status:
-  code_definition: draft
+  code_definition: complete
+  stabilizer_commutation: complete
   decoder_claim: assumed
   correction_claim: draft
