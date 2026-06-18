@@ -1,0 +1,14 @@
+---
+name: Semantic ambiguity report
+about: Report unclear semantics in a benchmark specification
+title: "[semantics] "
+labels: semantics
+---
+
+## Benchmark ID
+
+## Ambiguous field or prose
+
+## Interpretations considered
+
+## Preferred resolution
