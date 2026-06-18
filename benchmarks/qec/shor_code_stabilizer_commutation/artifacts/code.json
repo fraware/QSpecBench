@@ -6,10 +6,13 @@
   "stabilizers": [
     { "label": "Z0Z1", "pauli": "ZZIIIIIII" },
     { "label": "Z1Z2", "pauli": "IZZIIIIII" },
-    { "label": "X0X3", "pauli": "XIIIXIIII" }
+    { "label": "Z3Z4", "pauli": "IIIZZIIII" },
+    { "label": "Z4Z5", "pauli": "IIIIZZIII" },
+    { "label": "Z6Z7", "pauli": "IIIIIIZZI" },
+    { "label": "Z7Z8", "pauli": "IIIIIIIZZ" }
   ],
   "logical_operators": [
     { "label": "logical_Z", "pauli": "ZZZZZZZZZ" }
   ],
-  "notes": "Scaffold Shor code stabilizer specification for commutation benchmark."
+  "notes": "Shor-code stabilizer scaffold with commuting Z-chain generators per block."
 }
