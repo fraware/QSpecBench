@@ -1,0 +1,10 @@
+adapter_name: qec
+supported_evidence_types:
+  - qec_verifier_result
+required_files:
+  - "*"
+check_command: "python parse_result.py {path}"
+success_condition: "exit code 0"
+failure_condition: "nonzero exit"
+trust_level: tool_checked
+output_format: json
