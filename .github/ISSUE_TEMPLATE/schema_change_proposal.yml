@@ -1,0 +1,16 @@
+---
+name: Schema change proposal
+about: Propose a versioned QSpecBench schema change
+title: "[schema] "
+labels: schema
+---
+
+## Problem
+
+What benchmark need requires this change?
+
+## Proposed change
+
+## Migration plan
+
+## Examples/tests to update
