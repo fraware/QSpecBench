@@ -48,32 +48,36 @@ assumptions:
   tool: []
   artifact: []
   unverified: []
-acceptable_evidence:
-- type: lean_proof
-  checker: Lean kernel
-  path: null
-  required_for_claim: false
-  trust_level: checked
-- type: human_review
-  checker: domain expert review
-  path: notes/informal_derivation.md
-  required_for_claim: false
-  trust_level: externally_trusted
-evidence: []
+evidence:
+- id: qasm_syntax
+  type: qasm_parse
+  path: artifacts/circuit.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
+  status: passing
+  notes: Syntax only; semantic claim not verified.
 trust_boundary:
-  checked_by: []
+  checked_by:
+  - QASM syntax parse
   trusted_kernels: []
   trusted_external_tools: []
-  untrusted_components:
-  - informal notes unless separately checked
+  untrusted_components: []
   assumptions_not_checked:
-  - artifact parsing
-  - idealized gate semantics
+  - semantic correctness of circuit vs claim
 status:
   informal_claim: complete
   machine_spec: complete
-  artifacts: partial
-  evidence: missing
+  artifacts: complete
+  evidence: partial
   ci: passing
-  maturity: seed
+  maturity: usable
+acceptable_evidence:
+- type: qasm_parse
+  checker: qasm parser adapter
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  required_for_claim: false
+  trust_level: checked
 references: []
