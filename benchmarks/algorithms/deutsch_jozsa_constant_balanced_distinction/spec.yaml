@@ -1,0 +1,97 @@
+qspecbench_version: "0.1"
+id: deutsch_jozsa_constant_balanced_distinction
+title: "Deutsch–Jozsa distinguishes constant from balanced oracles"
+track: algorithm
+domain: quantum_algorithm
+claim_type: oracle_distinction
+difficulty: intermediate
+
+informal_claim:
+  statement: "For the declared small instance, Deutsch–Jozsa distinguishes constant from balanced oracle functions."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: algorithmic
+  secondary: ["oracle"]
+
+objects:
+  - name: dj_circuit
+    type: circuit
+    path: artifacts/circuit.qasm
+    format: qasm3
+    role: source
+
+specification:
+  mode: exact
+  preconditions:
+    - "oracle is constant or balanced on declared domain"
+    - "fixed small qubit count"
+  postconditions:
+    - "measurement outcome distinguishes constant vs balanced under oracle assumptions"
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: true
+    qubits: "2"
+    gates: "H, measure, oracle placeholder"
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: "1"
+    other: []
+
+assumptions:
+  mathematical:
+    - "standard finite-dimensional quantum semantics"
+  physical: []
+  tool: []
+  artifact:
+    - "oracle implemented as placeholder in scaffold circuit"
+  unverified:
+    - "oracle semantics"
+
+acceptable_evidence:
+  - type: qasm_parse
+    checker: "qasm parser adapter"
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
+  - type: lean_proof
+    checker: "Lean 4 kernel"
+    path: null
+    required_for_claim: false
+    trust_level: checked
+
+evidence:
+  - id: qasm_syntax
+    type: qasm_parse
+    path: artifacts/circuit.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/circuit.qasm"
+    status: passing
+    notes: "Syntax only; oracle not verified."
+
+trust_boundary:
+  checked_by:
+    - "QASM syntax parse"
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+    - "oracle placeholder"
+  assumptions_not_checked:
+    - "DJ correctness for constant vs balanced"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+
+references: []
