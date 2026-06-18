@@ -1,0 +1,115 @@
+qspecbench_version: "0.1"
+id: single_qubit_gate_cancellation
+title: "Single-qubit gate cancellation"
+track: equivalence
+domain: circuit_equivalence
+claim_type: unitary_equivalence
+difficulty: introductory
+
+informal_claim:
+  statement: "Consecutive inverse single-qubit gates on the same wire cancel to identity."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: circuit
+  secondary: ["compiler"]
+
+objects:
+  - name: source
+    type: circuit
+    path: artifacts/source.qasm
+    format: qasm3
+    role: source
+  - name: target
+    type: circuit
+    path: artifacts/target.qasm
+    format: qasm3
+    role: target
+
+specification:
+  mode: exact
+  preconditions:
+    - "equivalence relation: exact unitary equality on one qubit"
+    - "ancillae allowed: false"
+    - "measurements present: false"
+  postconditions:
+    - "source and target unitaries are equal"
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: true
+    qubits: "1"
+    gates: "H H vs identity"
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: "0"
+    measurements: "0"
+    other: []
+
+assumptions:
+  mathematical:
+    - "standard single-qubit unitary semantics"
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+
+acceptable_evidence:
+  - type: qasm_parse
+    checker: "qasm parser adapter"
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
+  - type: lean_proof
+    checker: "Lean 4 kernel"
+    path: null
+    required_for_claim: false
+    trust_level: checked
+
+evidence:
+  - id: lean_hadamard_cancel
+    type: lean_proof
+    path: evidence/hadamard_cancel.lean
+    checker: "Lean 4 kernel"
+    command: "python adapters/lean/parse_result.py evidence/hadamard_cancel.lean"
+    status: passing
+    notes: "Proves unnormalized H*H = 2I; QASM H includes 1/sqrt(2) scaling per assumptions."
+  - id: qasm_parse_source
+    type: qasm_parse
+    path: artifacts/source.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/source.qasm"
+    status: passing
+    notes: "Syntax only."
+  - id: qasm_parse_target
+    type: qasm_parse
+    path: artifacts/target.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/target.qasm"
+    status: passing
+    notes: "Syntax only."
+
+trust_boundary:
+  checked_by:
+    - "QASM syntax parse"
+  trusted_kernels:
+    - "Lean 4 kernel"
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+    - "OpenQASM H normalization factor links to integer matrix model"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+
+references: []
