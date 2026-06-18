@@ -1,0 +1,83 @@
+qspecbench_version: '0.1'
+id: single_trotter_step_declares_error_contract
+title: Single Trotter Step Declares Error Contract
+track: hamiltonian
+domain: hamiltonian_simulation
+claim_type: hamiltonian_claim
+difficulty: intermediate
+informal_claim:
+  statement: 'Hamiltonian simulation claim: single trotter step declares error contract.'
+  source: null
+  reference_key: null
+semantic_level:
+  primary: mathematical
+  secondary: []
+objects:
+- name: hamiltonian
+  type: hamiltonian
+  path: artifacts/hamiltonian.json
+  format: json
+  role: source
+specification:
+  mode: approximate
+  preconditions:
+  - declared mapping conventions
+  postconditions:
+    - "declared single-step Trotter error contract uses fidelity metric with bound 1e-6"
+  invariants:
+    - "approximation enabled with explicit metric and bound"
+  approximation:
+    enabled: true
+    metric: fidelity
+    bound: 1e-6
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+- type: lean_proof
+  checker: Lean kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: human_review
+  checker: domain expert review
+  path: notes/informal_derivation.md
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence:
+  - id: error_contract_review
+    type: human_review
+    path: notes/informal_derivation.md
+    checker: "domain expert review"
+    command: null
+    status: partial
+    notes: "Contract documented; no numeric verification."
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+    - "fidelity bound is achieved by the declared step"
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []

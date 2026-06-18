@@ -1,0 +1,12 @@
+{
+  "id": "single_trotter_step",
+  "type": "trotter_step",
+  "order": 1,
+  "step_time": "0.1",
+  "hamiltonian_terms": 2,
+  "error_contract": {
+    "metric": "fidelity",
+    "bound": "1e-6",
+    "notes": "Declared first-order product-formula error budget for one step."
+  }
+}
