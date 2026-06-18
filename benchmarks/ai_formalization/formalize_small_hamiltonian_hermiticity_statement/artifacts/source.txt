@@ -1,0 +1,1 @@
+Source claim text for formalize_small_hamiltonian_hermiticity_statement.
