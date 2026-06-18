@@ -1,0 +1,22 @@
+{
+  "id": "bit_flip_correction_table",
+  "type": "correction_table",
+  "entries": [
+    {
+      "syndrome": "00",
+      "correction": "III"
+    },
+    {
+      "syndrome": "10",
+      "correction": "XII"
+    },
+    {
+      "syndrome": "01",
+      "correction": "IXI"
+    },
+    {
+      "syndrome": "11",
+      "correction": "IIX"
+    }
+  ]
+}
