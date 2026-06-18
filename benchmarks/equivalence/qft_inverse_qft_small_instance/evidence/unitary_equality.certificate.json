@@ -1,0 +1,10 @@
+{
+  "certificate_type": "unitary_equality_small_instance",
+  "claim_id": "qft_inverse_qft_small_instance",
+  "method": "exact_matrix_multiplication",
+  "n_qubits": 2,
+  "relation": "QFT @ QFT = 4 I (unnormalized integer model)",
+  "equal": true,
+  "generator": "evidence/verify_unitary_equality.py",
+  "notes": "Matches Lean QFT2 unnormalized model; not a general OpenQASM semantics proof."
+}

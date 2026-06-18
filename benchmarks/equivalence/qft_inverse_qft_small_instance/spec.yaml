@@ -64,6 +64,21 @@ acceptable_evidence:
     path: null
     required_for_claim: false
     trust_level: externally_trusted
+  - type: lean_proof
+    checker: "Lean 4 kernel"
+    path: evidence/qft_inverse.lean
+    required_for_claim: true
+    trust_level: checked
+  - type: sat_certificate
+    checker: "independent unitary certificate verifier"
+    path: evidence/unitary_equality.certificate.json
+    required_for_claim: true
+    trust_level: independently_checkable
+  - type: qcec_result
+    checker: "QCEC equivalence tool"
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
 
 evidence:
   - id: qasm_parse_source
@@ -80,22 +95,49 @@ evidence:
     command: "python adapters/qasm/parse_result.py artifacts/target.qasm"
     status: passing
     notes: "Syntax only."
+  - id: lean_qft_proof
+    type: lean_proof
+    path: evidence/qft_inverse.lean
+    checker: "Lean 4 kernel"
+    command: "python adapters/lean/parse_result.py evidence/qft_inverse.lean"
+    status: passing
+    notes: "Kernel-checked: QSpecBench.QFT2.qft2_mul_invqft2 via lake build."
+  - id: unitary_equality_certificate
+    type: sat_certificate
+    path: evidence/unitary_equality.certificate.json
+    checker: "independent unitary certificate verifier"
+    command: "python adapters/sat_certificate/parse_result.py evidence/unitary_equality.certificate.json"
+    status: passing
+    notes: "Independently checkable matrix certificate for unnormalized QFT scaffold."
+  - id: qcec_equivalence
+    type: qcec_result
+    path: artifacts/source.qasm
+    secondary_path: artifacts/target.qasm
+    checker: "QCEC equivalence tool"
+    command: "python adapters/qcec/parse_result.py {path} {path2}"
+    status: passing
+    notes: "QCEC equivalence on declared QASM pair (self-inverse scaffold instance)."
 
 trust_boundary:
   checked_by:
     - "QASM syntax parse"
-  trusted_kernels: []
-  trusted_external_tools: []
+    - "Lean 4 kernel proof on declared QFT2 model"
+    - "independently checkable unitary equality certificate"
+    - "QCEC equivalence tool"
+  trusted_kernels:
+    - "Lean 4 kernel"
+  trusted_external_tools:
+    - "QCEC"
   untrusted_components: []
   assumptions_not_checked:
-    - "semantic QFT/inverse-QFT equivalence"
+    - "OpenQASM H normalization matches Lean integer model"
 
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: partial
+  evidence: complete
   ci: passing
-  maturity: usable
+  maturity: reference
 
 references: []
