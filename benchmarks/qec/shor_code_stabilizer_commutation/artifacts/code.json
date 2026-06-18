@@ -1,0 +1,15 @@
+{
+  "id": "shor_nine_qubit_code",
+  "type": "stabilizer_code",
+  "parameters": { "n": 9, "k": 1, "d": 3 },
+  "qubit_order": ["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
+  "stabilizers": [
+    { "label": "Z0Z1", "pauli": "ZZIIIIIII" },
+    { "label": "Z1Z2", "pauli": "IZZIIIIII" },
+    { "label": "X0X3", "pauli": "XIIIXIIII" }
+  ],
+  "logical_operators": [
+    { "label": "logical_Z", "pauli": "ZZZZZZZZZ" }
+  ],
+  "notes": "Scaffold Shor code stabilizer specification for commutation benchmark."
+}
