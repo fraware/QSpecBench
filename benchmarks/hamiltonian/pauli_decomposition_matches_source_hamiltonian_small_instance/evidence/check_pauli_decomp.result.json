@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "adapter": "python_simulation",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\hamiltonian\\pauli_decomposition_matches_source_hamiltonian_small_instance\\evidence\\check_pauli_decomp.py",
+  "trust_level": "heuristic",
+  "exit_code": 0,
+  "stdout": "{\"ok\": true, \"trust_level\": \"heuristic\", \"message\": \"Pauli terms present with coefficients\"}",
+  "stderr": "",
+  "error": null
+}
