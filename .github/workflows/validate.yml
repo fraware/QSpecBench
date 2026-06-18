@@ -31,3 +31,14 @@ jobs:
       - run: qspecbench check-evidence benchmarks/
       - run: qspecbench dashboard benchmarks/ --out docs/status.md
       - run: pytest
+
+  qcec:
+    runs-on: ubuntu-latest
+    needs: validate
+    container:
+      image: python:3.11-slim-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -e ".[dev]"
+      - run: qspecbench check-evidence benchmarks/equivalence/cnot_self_inverse_cancellation/
+      - run: qspecbench check-evidence benchmarks/equivalence/qft_inverse_qft_small_instance/
