@@ -1,0 +1,38 @@
+---
+name: New benchmark proposal
+about: Propose a new QSpecBench benchmark claim
+title: "[benchmark] "
+labels: benchmark
+---
+
+## Proposed claim
+
+State the informal claim.
+
+## Track
+
+Choose one: algorithm, equivalence, qec, hamiltonian, ai_formalization.
+
+## Why this claim matters
+
+Explain why this benchmark is useful.
+
+## Objects involved
+
+List circuits, programs, codes, Hamiltonians, protocols, or theorems.
+
+## Expected specification mode
+
+Exact, approximate, relational, temporal, resource, negative, or mixed.
+
+## Possible evidence paths
+
+Lean 4, QCEC, SMT, simulation, human review, other.
+
+## Known assumptions
+
+List assumptions.
+
+## Difficulty estimate
+
+Introductory, intermediate, advanced, or frontier.
