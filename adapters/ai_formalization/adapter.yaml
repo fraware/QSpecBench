@@ -1,0 +1,10 @@
+adapter_name: ai_formalization
+supported_evidence_types:
+  - ai_draft
+required_files:
+  - "*"
+check_command: "python parse_result.py {path}"
+success_condition: "exit code 0"
+failure_condition: "nonzero exit"
+trust_level: untrusted
+output_format: json
