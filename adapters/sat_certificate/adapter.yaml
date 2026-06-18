@@ -1,0 +1,11 @@
+adapter_name: sat_certificate
+supported_evidence_types:
+  - sat_certificate
+required_files:
+  - "*.certificate.json"
+check_command: "python parse_result.py {path}"
+success_condition: "exit code 0"
+failure_condition: "nonzero exit"
+trust_level: independently_checkable
+output_format: json
+role: checker
