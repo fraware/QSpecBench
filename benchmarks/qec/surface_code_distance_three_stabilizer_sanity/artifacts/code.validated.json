@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "adapter": "qec_json_validator",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\surface_code_distance_three_stabilizer_sanity\\artifacts\\code.json",
+  "trust_level": "tool_checked",
+  "checks_run": [
+    "schema_structure",
+    "stabilizer_commutation",
+    "logical_stabilizer_commutation",
+    "distance_consistency"
+  ],
+  "warnings": [
+    "fewer stabilizers than n-k; code may be under-specified"
+  ],
+  "errors": []
+}

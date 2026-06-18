@@ -1,8 +1,16 @@
 {
   "id": "surface_code_distance_three_stabilizer_sanity",
   "type": "stabilizer_code",
-  "parameters": {
-    "n": 3,
-    "k": 1
-  }
+  "parameters": { "n": 9, "k": 1, "d": 3 },
+  "qubit_order": ["q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
+  "stabilizers": [
+    { "label": "Z_plaq_0", "pauli": "ZZIIIIIII" },
+    { "label": "Z_plaq_1", "pauli": "IZZIIIIII" },
+    { "label": "Z_plaq_2", "pauli": "IIIZZIIII" },
+    { "label": "Z_plaq_3", "pauli": "IIIIZZIII" }
+  ],
+  "logical_operators": [
+    { "label": "logical_Z", "pauli": "ZZZZZZZZZ" }
+  ],
+  "notes": "Distance-3 surface-code stabilizer sanity scaffold (Z-plaquette generators only)."
 }
