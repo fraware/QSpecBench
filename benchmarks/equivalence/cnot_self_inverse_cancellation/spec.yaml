@@ -1,0 +1,146 @@
+qspecbench_version: "0.1"
+id: cnot_self_inverse_cancellation
+title: "CNOT self-inverse cancellation"
+track: equivalence
+domain: circuit_equivalence
+claim_type: unitary_equivalence
+difficulty: introductory
+
+informal_claim:
+  statement: "Two consecutive CNOT gates on the same control-target pair implement the identity on the declared two-qubit register."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: circuit
+  secondary: ["compiler"]
+
+objects:
+  - name: source_circuit
+    type: circuit
+    path: artifacts/source.qasm
+    format: qasm3
+    role: source
+  - name: target_circuit
+    type: circuit
+    path: artifacts/target.qasm
+    format: qasm3
+    role: target
+
+specification:
+  mode: exact
+  preconditions:
+    - "equivalence relation: exact unitary equality on two qubits"
+    - "ancillae allowed: false"
+    - "garbage qubits allowed: false"
+    - "classical bits or measurements present: false"
+    - "parameterized gates present: false"
+    - "qubit ordering fixed: q[0] control, q[1] target"
+  postconditions:
+    - "source unitary equals target unitary (identity)"
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: true
+    qubits: "2"
+    gates: "CX x2 vs empty"
+    depth: null
+    t_count: "0"
+    t_depth: null
+    ancilla: "0"
+    measurements: "0"
+    other: []
+
+assumptions:
+  mathematical:
+    - "standard two-qubit unitary semantics"
+  physical: []
+  tool: []
+  artifact:
+    - "QASM files share qubit register declaration"
+  unverified: []
+
+acceptable_evidence:
+  - type: qasm_parse
+    checker: "qasm parser adapter"
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
+  - type: lean_proof
+    checker: "Lean 4 kernel"
+    path: evidence/cnot_self_inverse.lean
+    required_for_claim: true
+    trust_level: checked
+  - type: sat_certificate
+    checker: "independent unitary certificate verifier"
+    path: evidence/unitary_equality.certificate.json
+    required_for_claim: true
+    trust_level: independently_checkable
+  - type: qcec_result
+    checker: "QCEC equivalence tool"
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
+
+evidence:
+  - id: qasm_parse_source
+    type: qasm_parse
+    path: artifacts/source.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/source.qasm"
+    status: passing
+    notes: "Syntax check only."
+  - id: qasm_parse_target
+    type: qasm_parse
+    path: artifacts/target.qasm
+    checker: "qasm parser adapter"
+    command: "python adapters/qasm/parse_result.py artifacts/target.qasm"
+    status: passing
+    notes: "Syntax check only."
+  - id: lean_cnot_proof
+    type: lean_proof
+    path: evidence/cnot_self_inverse.lean
+    checker: "Lean 4 kernel"
+    command: "python adapters/lean/parse_result.py evidence/cnot_self_inverse.lean"
+    status: passing
+    notes: "Kernel-checked: QSpecBench.CNOT.cnot_mul_self via lake build."
+  - id: unitary_equality_certificate
+    type: sat_certificate
+    path: evidence/unitary_equality.certificate.json
+    checker: "independent unitary certificate verifier"
+    command: "python adapters/sat_certificate/parse_result.py evidence/unitary_equality.certificate.json"
+    status: passing
+    notes: "Independently checkable exact matrix certificate for 2-qubit CX.CX=I; not a general formal proof."
+  - id: qcec_equivalence
+    type: qcec_result
+    path: artifacts/source.qasm
+    checker: "QCEC wrapper (artifact check only)"
+    command: "python adapters/qcec/parse_result.py artifacts/source.qasm artifacts/target.qasm"
+    status: not_checked
+    notes: "Placeholder for external QCEC run; wrapper verifies artifacts exist."
+
+trust_boundary:
+  checked_by:
+    - "QASM syntax parse on source and target"
+    - "Lean 4 kernel proof of CX.CX = I on declared 4×4 matrix model"
+    - "independently checkable unitary equality certificate (supplementary)"
+  trusted_kernels:
+    - "Lean 4 kernel"
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+    - "matrix model matches QASM semantics for all instances"
+    - "general n-qubit extension of cancellation rule"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: complete
+  ci: passing
+  maturity: reference
+
+references: []

@@ -1,0 +1,9 @@
+{
+  "certificate_type": "unitary_equality_small_instance",
+  "claim_id": "cnot_self_inverse_cancellation",
+  "method": "exact_matrix_multiplication",
+  "n_qubits": 2,
+  "relation": "CX @ CX = I",
+  "equal": true,
+  "notes": "Independently checkable for this fixed 2-qubit instance; not a general formal proof."
+}
