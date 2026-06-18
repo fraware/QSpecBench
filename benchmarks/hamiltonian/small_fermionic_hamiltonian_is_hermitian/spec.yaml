@@ -65,7 +65,7 @@ acceptable_evidence:
     required_for_claim: false
     trust_level: heuristic
   - type: lean_proof
-    checker: "Lean kernel"
+    checker: "Lean 4 kernel"
     path: null
     required_for_claim: false
     trust_level: checked
