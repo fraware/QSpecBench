@@ -7,7 +7,7 @@ claim_type: formalization_faithfulness
 difficulty: intermediate
 informal_claim:
   statement: Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
-  source: null
+  source: artifacts/source.txt
   reference_key: null
 semantic_level:
   primary: ai_formalization
@@ -18,6 +18,16 @@ objects:
   path: artifacts/source.txt
   format: markdown
   role: source
+- name: draft_formal
+  type: theorem
+  path: artifacts/draft.lean
+  format: lean
+  role: generated
+- name: semantic_rubric
+  type: other
+  path: notes/semantic_rubric.md
+  format: markdown
+  role: specification
 specification:
   mode: relational
   preconditions:
@@ -47,31 +57,45 @@ assumptions:
   artifact: []
   unverified: []
 acceptable_evidence:
-- type: lean_proof
-  checker: Lean kernel
-  path: null
+- type: ai_draft
+  checker: none
+  path: artifacts/draft.lean
   required_for_claim: false
-  trust_level: checked
+  trust_level: untrusted
 - type: human_review
-  checker: domain expert review
-  path: notes/informal_derivation.md
+  checker: semantic rubric reviewer
+  path: notes/semantic_rubric.md
   required_for_claim: false
   trust_level: externally_trusted
-evidence: []
+evidence:
+- id: ai_draft_lean
+  type: ai_draft
+  path: artifacts/draft.lean
+  checker: none
+  command: null
+  status: draft
+  notes: Untrusted AI output.
+- id: rubric_review
+  type: human_review
+  path: notes/semantic_rubric.md
+  checker: semantic review rubric
+  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
+  status: partial
+  notes: 'Score 2: partial capture; seed rubric.'
 trust_boundary:
-  checked_by: []
+  checked_by:
+  - rubric file structure validation
   trusted_kernels: []
   trusted_external_tools: []
   untrusted_components:
-  - informal notes unless separately checked
+  - artifacts/draft.lean AI draft
   assumptions_not_checked:
-  - artifact parsing
-  - idealized gate semantics
+  - faithfulness of formalization to source text
 status:
   informal_claim: complete
   machine_spec: complete
-  artifacts: partial
-  evidence: missing
+  artifacts: complete
+  evidence: partial
   ci: passing
-  maturity: seed
+  maturity: usable
 references: []

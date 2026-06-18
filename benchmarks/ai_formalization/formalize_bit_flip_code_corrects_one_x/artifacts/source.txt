@@ -1,1 +1,1 @@
-Source claim text for formalize_bit_flip_code_corrects_one_x.
+The three-qubit bit-flip code detects and corrects a single X error on the data qubits.
