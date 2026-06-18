@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "adapter": "qasm_parse",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\single_qubit_gate_cancellation\\artifacts\\source.qasm",
+  "trust_level": "syntax_only",
+  "errors": []
+}
