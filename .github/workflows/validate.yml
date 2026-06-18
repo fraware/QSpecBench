@@ -1,0 +1,33 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Build Lean proofs
+        run: |
+          cd lean
+          lake build
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: python -m pip install -e ".[dev]"
+      - run: qspecbench validate benchmarks/
+      - run: qspecbench check-evidence benchmarks/equivalence/cnot_self_inverse_cancellation
+      - run: qspecbench check-evidence benchmarks/
+      - run: qspecbench dashboard benchmarks/ --out docs/status.md
+      - run: pytest
