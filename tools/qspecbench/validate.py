@@ -12,6 +12,7 @@ import yaml
 
 from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
 from qspecbench.schema import load_schema
+from qspecbench.models import validate_spec_trust_slice
 from qspecbench.trust import validate_trust_rules
 
 SNAKE_CASE = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -99,6 +100,7 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
         if "deprecat" not in readme.lower():
             errors.append("deprecated benchmark README must explain deprecation")
 
+    errors.extend(validate_spec_trust_slice(spec))
     errors.extend(check_layout(claim_dir))
     errors.extend(validate_trust_rules(spec))
     return errors
