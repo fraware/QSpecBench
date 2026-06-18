@@ -1,0 +1,8 @@
+{
+  "id": "repeated_round_qec_temporal_specification",
+  "type": "stabilizer_code",
+  "parameters": {
+    "n": 3,
+    "k": 1
+  }
+}
