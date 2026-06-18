@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "adapter": "python_simulation",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\hamiltonian\\resource_contract_for_small_hamiltonian_simulation\\evidence\\check_resource_contract.py",
+  "trust_level": "heuristic",
+  "exit_code": 0,
+  "stdout": "{\"ok\": true, \"trust_level\": \"heuristic\", \"resource_contract\": {\"qubits\": 2, \"terms\": 3, \"max_coeff\": 1.0}}",
+  "stderr": "",
+  "error": null
+}

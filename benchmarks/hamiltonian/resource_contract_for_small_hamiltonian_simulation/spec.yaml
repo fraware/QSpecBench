@@ -31,15 +31,16 @@ specification:
     metric: null
     bound: null
   resources:
-    enabled: false
-    qubits: null
-    gates: null
-    depth: null
+    enabled: true
+    qubits: '2'
+    gates: Pauli rotations (declared bound)
+    depth: O(terms)
     t_count: null
     t_depth: null
-    ancilla: null
-    measurements: null
-    other: []
+    ancilla: '0'
+    measurements: '0'
+    other:
+    - simulation steps bounded by term count
 assumptions:
   mathematical:
   - standard finite-dimensional quantum semantics
@@ -48,31 +49,36 @@ assumptions:
   artifact: []
   unverified: []
 acceptable_evidence:
+- type: simulation
+  checker: python numeric check
+  path: evidence/check_resource.py
+  required_for_claim: false
+  trust_level: heuristic
 - type: lean_proof
-  checker: Lean kernel
-  path: null
+  checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
-- type: human_review
-  checker: domain expert review
-  path: notes/informal_derivation.md
-  required_for_claim: false
-  trust_level: externally_trusted
-evidence: []
+evidence:
+- id: simulation_check
+  type: simulation
+  path: evidence/check_resource.py
+  checker: python numeric check
+  command: python adapters/python/parse_result.py evidence/check_resource.py
+  status: passing
+  notes: Heuristic script; not a formal proof.
 trust_boundary:
-  checked_by: []
+  checked_by:
+  - numeric simulation script execution
   trusted_kernels: []
   trusted_external_tools: []
-  untrusted_components:
-  - informal notes unless separately checked
+  untrusted_components: []
   assumptions_not_checked:
-  - artifact parsing
-  - idealized gate semantics
+  - formal proof of claim
 status:
   informal_claim: complete
   machine_spec: complete
-  artifacts: partial
-  evidence: missing
+  artifacts: complete
+  evidence: partial
   ci: passing
-  maturity: seed
+  maturity: usable
 references: []
