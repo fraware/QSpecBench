@@ -1,0 +1,16 @@
+{
+  "score": 2,
+  "reviewer_role": "QSpecBench seed reviewer (anonymous role acceptable for public repo)",
+  "assumptions": [
+    "source claim identified correctly",
+    "cloning map model stated",
+    "linearity and unitarity assumptions explicit"
+  ],
+  "source_rubric": "notes\\semantic_rubric.md",
+  "draft_lean": "artifacts\\draft.lean",
+  "syntactically_valid": null,
+  "lean_check": "skipped",
+  "lean_errors": [
+    "error: error during download\ninfo: caused by: [35] SSL connect error (schannel: next InitializeSecurityContext failed: CRYPT_E_NO_REVOCATION_CHECK (0x80092012) - The revocation function was unable to check revocation for the certificate.)"
+  ]
+}

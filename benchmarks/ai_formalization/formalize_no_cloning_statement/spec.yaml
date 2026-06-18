@@ -1,49 +1,49 @@
-qspecbench_version: "0.1"
+qspecbench_version: '0.1'
 id: formalize_no_cloning_statement
-title: "Formalize no-cloning statement"
+title: Formalize no-cloning statement
 track: ai_formalization
 domain: ai_formalization
 claim_type: formalization_faithfulness
 difficulty: introductory
-
 informal_claim:
-  statement: "Evaluate whether an AI-generated formalization faithfully captures the standard no-cloning claim from the provided source text."
+  statement: Evaluate whether an AI-generated formalization faithfully captures the
+    standard no-cloning claim from the provided source text.
   source: artifacts/source.txt
   reference_key: null
-
 semantic_level:
   primary: ai_formalization
-  secondary: ["mathematical"]
-
+  secondary:
+  - mathematical
 objects:
-  - name: source_text
-    type: other
-    path: artifacts/source.txt
-    format: markdown
-    role: source
-  - name: draft_formal
-    type: theorem
-    path: artifacts/draft.lean
-    format: lean
-    role: generated
-  - name: semantic_rubric
-    type: other
-    path: notes/semantic_rubric.md
-    format: markdown
-    role: specification
-
+- name: source_text
+  type: other
+  path: artifacts/source.txt
+  format: markdown
+  role: source
+- name: draft_formal
+  type: theorem
+  path: artifacts/draft.lean
+  format: lean
+  role: generated
+- name: semantic_rubric
+  type: other
+  path: notes/semantic_rubric.md
+  format: markdown
+  role: specification
 specification:
   mode: relational
   preconditions:
-    - "target formal system: Lean 4 (placeholder)"
-    - "expected statement shape: impossibility of a unitary cloner for arbitrary non-orthogonal states"
-    - "forbidden shortcuts: encoding no-cloning as a trivially false theorem without cloning model"
-    - "accepted definitions: standard qubit/state types must be explicit in final formalization"
+  - 'target formal system: Lean 4 (placeholder)'
+  - 'expected statement shape: impossibility of a unitary cloner for arbitrary non-orthogonal
+    states'
+  - 'forbidden shortcuts: encoding no-cloning as a trivially false theorem without
+    cloning model'
+  - 'accepted definitions: standard qubit/state types must be explicit in final formalization'
   postconditions:
-    - "rubric score documents semantic faithfulness (0-5)"
-    - "AI output remains untrusted until kernel check and semantic review"
+  - rubric score documents semantic faithfulness (0-5)
+  - AI output remains untrusted until kernel check and semantic review
   invariants:
-    - "syntactic validity does not imply semantic faithfulness"
+  - syntactic validity does not imply semantic faithfulness
   approximation:
     enabled: false
     metric: null
@@ -58,55 +58,51 @@ specification:
     ancilla: null
     measurements: null
     other: []
-
 assumptions:
   mathematical: []
   physical: []
   tool:
-    - "AI draft generated offline; not checked by Lean kernel in CI"
+  - AI draft generated offline; not checked by Lean 4 kernel in CI
   artifact: []
   unverified:
-    - "AI-generated Lean statement"
-
+  - AI-generated Lean statement
 acceptable_evidence:
-  - type: ai_draft
-    checker: "none"
-    path: artifacts/draft.lean
-    required_for_claim: false
-    trust_level: untrusted
-  - type: human_review
-    checker: "semantic rubric reviewer"
-    path: notes/semantic_rubric.md
-    required_for_claim: false
-    trust_level: externally_trusted
-
+- type: ai_draft
+  checker: none
+  path: artifacts/draft.lean
+  required_for_claim: false
+  trust_level: untrusted
+- type: human_review
+  checker: semantic rubric reviewer
+  path: notes/semantic_rubric.md
+  required_for_claim: false
+  trust_level: externally_trusted
 evidence:
-  - id: ai_draft_lean
-    type: ai_draft
-    path: artifacts/draft.lean
-    checker: "none"
-    command: null
-    status: draft
-    notes: "Untrusted AI output."
-  - id: rubric_review
-    type: human_review
-    path: notes/semantic_rubric.md
-    checker: "semantic review rubric"
-    command: "python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md"
-    status: partial
-    notes: "Score 2: partial capture; missing orthogonal-state assumptions."
-
+- id: ai_draft_lean
+  type: ai_draft
+  path: artifacts/draft.lean
+  checker: none
+  command: null
+  status: draft
+  notes: Untrusted AI output.
+- id: rubric_review
+  type: human_review
+  path: notes/semantic_rubric.md
+  checker: semantic review rubric
+  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
+    artifacts/draft.lean
+  status: partial
+  notes: 'Score 2: partial capture; missing orthogonal-state assumptions.'
 trust_boundary:
   checked_by:
-    - "rubric file structure validation"
+  - rubric file structure validation
   trusted_kernels: []
   trusted_external_tools: []
   untrusted_components:
-    - "artifacts/draft.lean AI draft"
+  - artifacts/draft.lean AI draft
   assumptions_not_checked:
-    - "faithfulness of formalization to source text"
-    - "Lean kernel type-check of draft"
-
+  - faithfulness of formalization to source text
+  - Lean 4 kernel type-check of draft
 status:
   informal_claim: complete
   machine_spec: complete
@@ -114,5 +110,4 @@ status:
   evidence: partial
   ci: passing
   maturity: usable
-
 references: []

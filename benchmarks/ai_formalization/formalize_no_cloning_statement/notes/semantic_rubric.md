@@ -19,3 +19,9 @@ QSpecBench seed reviewer (anonymous role acceptable for public repo)
 - [ ] Linearity/unitarity assumptions explicit
 - [ ] Statement matches source under documented conventions
 - [ ] Library-compatible statement shape
+
+## Assumptions
+
+- source claim identified correctly
+- cloning map model stated
+- linearity and unitarity assumptions explicit
