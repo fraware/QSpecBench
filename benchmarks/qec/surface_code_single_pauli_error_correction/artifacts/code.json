@@ -1,0 +1,8 @@
+{
+  "id": "surface_code_single_pauli_error_correction",
+  "type": "stabilizer_code",
+  "parameters": {
+    "n": 3,
+    "k": 1
+  }
+}

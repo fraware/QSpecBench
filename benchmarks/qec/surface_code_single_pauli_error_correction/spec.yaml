@@ -1,0 +1,82 @@
+qspecbench_version: '0.1'
+id: surface_code_single_pauli_error_correction
+title: Surface Code Single Pauli Error Correction
+track: qec
+domain: quantum_error_correction
+claim_type: qec_claim
+difficulty: intermediate
+informal_claim:
+  statement: QEC benchmark claim for `surface_code_single_pauli_error_correction`
+    under an explicitly declared Pauli-dominated error model.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: qec
+  secondary: []
+objects:
+- name: code
+  type: stabilizer_code
+  path: artifacts/code.json
+  format: json
+  role: specification
+specification:
+  mode: exact
+  preconditions:
+  - Pauli-only error model unless stated otherwise
+  postconditions:
+  - declared QEC postcondition
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+- type: lean_proof
+  checker: Lean kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: human_review
+  checker: domain expert review
+  path: notes/informal_derivation.md
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence: []
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+  - informal notes unless separately checked
+  assumptions_not_checked:
+  - artifact parsing
+  - idealized gate semantics
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: partial
+  evidence: missing
+  ci: passing
+  maturity: seed
+references: []
+qec_status:
+  code_definition: draft
+  decoder_claim: assumed
+  correction_claim: draft
