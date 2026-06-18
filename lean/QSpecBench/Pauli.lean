@@ -5,18 +5,11 @@
 OpenQASM `H` up to the global factor `1/√2` per gate (declared in benchmark assumptions).
 -/
 
+import QSpecBench.Matrix
+
 namespace QSpecBench
 
-abbrev Matrix2 := Fin 2 → Fin 2 → Int
-
-def mul2 (A B : Matrix2) (i j : Fin 2) : Int :=
-  A i 0 * B 0 j + A i 1 * B 1 j
-
-def id2 (i j : Fin 2) : Int :=
-  if i = j then 1 else 0
-
-def scale2 (k : Int) (M : Matrix2) (i j : Fin 2) : Int :=
-  k * M i j
+open QSpecBench (Matrix2 mul2 id2 scale2)
 
 /-- Unnormalized Hadamard matrix. -/
 def hadamard2 (i j : Fin 2) : Int :=
