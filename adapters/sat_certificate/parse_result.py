@@ -14,7 +14,11 @@ def verify(cert_path: Path) -> dict:
         return {"ok": False, "errors": ["certificate missing"]}
     cert = json.loads(cert_path.read_text(encoding="utf-8"))
     claim_dir = cert_path.parent.parent
-    generator = claim_dir / "evidence" / "verify_unitary_equality.py"
+    generator_rel = cert.get("generator")
+    if generator_rel:
+        generator = (claim_dir / generator_rel).resolve()
+    else:
+        generator = claim_dir / "evidence" / "verify_unitary_equality.py"
     if generator.is_file():
         proc = subprocess.run([sys.executable, str(generator)], capture_output=True, text=True)
         if proc.returncode != 0:
