@@ -9,7 +9,7 @@
   ],
   "logical_operators": [
     { "label": "logical_X", "pauli": "XXX" },
-    { "label": "logical_Z", "pauli": "ZII" }
+    { "label": "logical_Z", "pauli": "ZZZ" }
   ],
   "notes": "Phase-flip code; corrects single Z errors under declared Pauli Z error model."
 }
