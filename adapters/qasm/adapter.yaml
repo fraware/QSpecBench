@@ -1,0 +1,10 @@
+adapter_name: qasm_parse
+supported_evidence_types:
+  - qasm_parse
+required_files:
+  - "*.qasm"
+check_command: "python parse_result.py {path}"
+success_condition: "parser exits with code 0"
+failure_condition: "parser exits with nonzero code"
+trust_level: syntax_only
+output_format: json
