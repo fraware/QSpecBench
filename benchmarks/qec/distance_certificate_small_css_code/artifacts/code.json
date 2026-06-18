@@ -1,8 +1,15 @@
 {
   "id": "distance_certificate_small_css_code",
   "type": "stabilizer_code",
-  "parameters": {
-    "n": 3,
-    "k": 1
-  }
+  "parameters": { "n": 5, "k": 1, "d": 3 },
+  "qubit_order": ["q0", "q1", "q2", "q3", "q4"],
+  "stabilizers": [
+    { "label": "Z_chain_1", "pauli": "ZZIII" },
+    { "label": "Z_chain_2", "pauli": "IZZII" },
+    { "label": "Z_chain_3", "pauli": "IIZZI" }
+  ],
+  "logical_operators": [
+    { "label": "logical_Z", "pauli": "ZIIII" }
+  ],
+  "notes": "Small CSS distance certificate scaffold with commuting Z-chain stabilizers."
 }
