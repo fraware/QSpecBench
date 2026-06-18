@@ -32,12 +32,28 @@ class EvidenceRunResult:
         return not self.errors and not self.skipped and self.exit_code == 0
 
 
-def _resolve_command(command: str, claim_dir: Path, artifact: Path | None) -> list[str]:
+def _resolve_command(
+    command: str,
+    claim_dir: Path,
+    artifact: Path | None,
+    secondary: Path | None = None,
+) -> list[str]:
     cmd = command
+    uses_placeholders = "{path}" in command or "{path2}" in command
     if artifact:
         cmd = cmd.replace("{path}", str(artifact))
-        rel = str(artifact.relative_to(claim_dir)) if artifact.is_relative_to(claim_dir) else str(artifact)
-        cmd = cmd.replace(rel, str(artifact))
+        if not uses_placeholders:
+            rel = str(artifact.relative_to(claim_dir)) if artifact.is_relative_to(claim_dir) else str(artifact)
+            cmd = cmd.replace(rel, str(artifact))
+    if secondary:
+        cmd = cmd.replace("{path2}", str(secondary))
+        if not uses_placeholders:
+            rel2 = (
+                str(secondary.relative_to(claim_dir))
+                if secondary.is_relative_to(claim_dir)
+                else str(secondary)
+            )
+            cmd = cmd.replace(rel2, str(secondary))
     parts = shlex.split(cmd, posix=(sys.platform != "win32"))
     resolved: list[str] = []
     for part in parts:
@@ -66,6 +82,13 @@ def _default_adapter_command(evidence_type: str, artifact_path: Path) -> str | N
     return f"{template} {{path}}"
 
 
+def _resolve_secondary_path(entry: dict, claim_dir: Path) -> Path | None:
+    rel = entry.get("secondary_path")
+    if not rel:
+        return None
+    return (claim_dir / rel).resolve()
+
+
 def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[EvidenceRunResult]:
     claim_dir = claim_dir.resolve()
     spec = load_spec(claim_dir / "spec.yaml")
@@ -75,13 +98,16 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
         eid = entry.get("id", "?")
         rel_path = entry.get("path", "")
         artifact = (claim_dir / rel_path).resolve() if rel_path else None
+        secondary = _resolve_secondary_path(entry, claim_dir)
         command = entry.get("command")
         etype = entry.get("type", "")
 
-        if not command and artifact:
+        if not command and artifact and entry.get("status") == "passing":
             command = _default_adapter_command(etype, artifact)
             if command:
                 command = command.replace("{path}", str(artifact))
+                if secondary and etype == "qcec_result":
+                    command = f"{command} {{path2}}"
 
         if not command:
             results.append(
@@ -109,7 +135,7 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
             )
             continue
 
-        cmd = _resolve_command(command, claim_dir, artifact)
+        cmd = _resolve_command(command, claim_dir, artifact, secondary)
         if dry_run:
             results.append(
                 EvidenceRunResult(
