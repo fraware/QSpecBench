@@ -1,35 +1,33 @@
-qspecbench_version: "0.1"
+qspecbench_version: '0.1'
 id: no_cloning_negative_claim
-title: "No-cloning theorem (negative claim)"
+title: No-cloning theorem (negative claim)
 track: algorithm
 domain: quantum_algorithm
 claim_type: negative_claim
-difficulty: introductory
-
+difficulty: frontier
 informal_claim:
-  statement: "No unitary quantum channel copies an arbitrary unknown pure qubit state to two outputs."
+  statement: No unitary quantum channel copies an arbitrary unknown pure qubit state
+    to two outputs.
   source: null
   reference_key: null
-
 semantic_level:
   primary: mathematical
-  secondary: ["algorithmic"]
-
+  secondary:
+  - algorithmic
 objects:
-  - name: cloning_channel_schematic
-    type: channel
-    path: notes/cloning_channel.md
-    format: markdown
-    role: specification
-
+- name: cloning_channel_schematic
+  type: channel
+  path: notes/cloning_channel.md
+  format: markdown
+  role: specification
 specification:
   mode: negative
   preconditions:
-    - "profile: fixed-size, exact, negative claim"
-    - "semantic object: impossibility of a universal cloner channel"
-    - "states considered: arbitrary non-orthogonal pure qubit states"
+  - 'profile: fixed-size, exact, negative claim'
+  - 'semantic object: impossibility of a universal cloner channel'
+  - 'states considered: arbitrary non-orthogonal pure qubit states'
   postconditions:
-    - "no unitary U exists implementing universal cloning"
+  - no unitary U exists implementing universal cloning
   invariants: []
   approximation:
     enabled: false
@@ -45,46 +43,41 @@ specification:
     ancilla: null
     measurements: null
     other: []
-
 assumptions:
   mathematical:
-    - "finite-dimensional Hilbert space"
-    - "linearity and unitarity of allowed processes"
+  - finite-dimensional Hilbert space
+  - linearity and unitarity of allowed processes
   physical: []
   tool: []
   artifact: []
   unverified: []
-
 acceptable_evidence:
-  - type: lean_proof
-    checker: "Lean kernel"
-    path: null
-    required_for_claim: false
-    trust_level: checked
-  - type: human_review
-    checker: "domain expert review"
-    path: notes/informal_derivation.md
-    required_for_claim: false
-    trust_level: externally_trusted
-
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: human_review
+  checker: domain expert review
+  path: notes/informal_derivation.md
+  required_for_claim: false
+  trust_level: externally_trusted
 evidence:
-  - id: informal_proof_sketch
-    type: human_review
-    path: notes/informal_derivation.md
-    checker: "manual review"
-    command: null
-    status: partial
-    notes: "Standard proof sketch; not kernel-checked."
-
+- id: informal_proof_sketch
+  type: human_review
+  path: notes/informal_derivation.md
+  checker: human review adapter
+  command: python adapters/human_review/parse_result.py notes/informal_derivation.md
+  status: partial
+  notes: Standard proof sketch; not kernel-checked.
 trust_boundary:
   checked_by: []
   trusted_kernels: []
   trusted_external_tools: []
   untrusted_components:
-    - "informal proof sketch"
+  - informal proof sketch
   assumptions_not_checked:
-    - "formalization of cloning impossibility"
-
+  - formalization of cloning impossibility
 status:
   informal_claim: complete
   machine_spec: complete
@@ -92,10 +85,9 @@ status:
   evidence: partial
   ci: passing
   maturity: seed
-
 references:
-  - key: no_cloning_original
-    type: paper
-    title: "No-cloning theorem"
-    url: null
-    notes: "Historical references in track documentation"
+- key: no_cloning_original
+  type: paper
+  title: No-cloning theorem
+  url: null
+  notes: Historical references in track documentation
