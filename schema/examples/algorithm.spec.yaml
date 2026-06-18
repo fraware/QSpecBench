@@ -1,0 +1,77 @@
+qspecbench_version: '0.1'
+id: teleportation_preserves_state_up_to_pauli_correction
+title: Teleportation
+track: algorithm
+domain: quantum_algorithm
+claim_type: protocol_correctness
+difficulty: introductory
+informal_claim:
+  statement: Teleportation claim.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: algorithmic
+  secondary: []
+objects:
+- name: c
+  type: circuit
+  path: null
+  format: qasm3
+  role: source
+specification:
+  mode: relational
+  preconditions:
+  - pre
+  postconditions:
+  - post
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+- type: lean_proof
+  checker: Lean kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: human_review
+  checker: domain expert review
+  path: notes/informal_derivation.md
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence: []
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+  - informal notes unless separately checked
+  assumptions_not_checked:
+  - artifact parsing
+  - idealized gate semantics
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: partial
+  evidence: missing
+  ci: passing
+  maturity: seed
+references: []
