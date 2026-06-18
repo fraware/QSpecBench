@@ -1,0 +1,93 @@
+qspecbench_version: '0.1'
+id: superdense_coding_decodes_two_classical_bits
+title: Superdense Coding Decodes Two Classical Bits
+track: algorithm
+domain: quantum_algorithm
+claim_type: protocol_correctness
+difficulty: introductory
+informal_claim:
+  statement: A shared Bell pair and one qubit transmission let Bob decode two classical
+    bits after a Bell measurement and Pauli correction.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: algorithmic
+  secondary:
+  - protocol
+  - measurement
+objects:
+- name: circuit
+  type: circuit
+  path: artifacts/circuit.qasm
+  format: qasm3
+  role: source
+specification:
+  mode: relational
+  preconditions:
+  - standard qubit semantics
+  postconditions:
+  - Bob's decoded bits equal Alice's two-bit message after correction
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+  - type: qasm_parse
+    checker: "qasm parser adapter"
+    path: artifacts/circuit.qasm
+    required_for_claim: false
+    trust_level: externally_trusted
+  - type: lean_proof
+    checker: "Lean 4 kernel"
+    path: null
+    required_for_claim: false
+    trust_level: checked
+  - type: human_review
+    checker: domain expert review
+    path: notes/informal_derivation.md
+    required_for_claim: false
+    trust_level: externally_trusted
+evidence:
+  - id: qasm_syntax
+    type: qasm_parse
+    path: artifacts/circuit.qasm
+    checker: qasm parser adapter
+    command: "python adapters/qasm/parse_result.py artifacts/circuit.qasm"
+    status: passing
+    notes: "Syntax only."
+trust_boundary:
+  checked_by:
+    - "QASM syntax parse"
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+    - informal notes unless separately checked
+  assumptions_not_checked:
+    - artifact parsing semantics
+    - idealized gate semantics
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []
