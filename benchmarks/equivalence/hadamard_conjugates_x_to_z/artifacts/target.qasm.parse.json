@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "adapter": "qasm_parse",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\hadamard_conjugates_x_to_z\\artifacts\\target.qasm",
+  "trust_level": "syntax_only",
+  "errors": []
+}
