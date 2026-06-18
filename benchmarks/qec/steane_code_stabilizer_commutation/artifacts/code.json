@@ -1,8 +1,18 @@
 {
   "id": "steane_code_stabilizer_commutation",
   "type": "stabilizer_code",
-  "parameters": {
-    "n": 3,
-    "k": 1
-  }
+  "parameters": { "n": 7, "k": 1, "d": 3 },
+  "qubit_order": ["q0", "q1", "q2", "q3", "q4", "q5", "q6"],
+  "stabilizers": [
+    { "label": "Z01", "pauli": "ZZIIIII" },
+    { "label": "Z12", "pauli": "IZZIIII" },
+    { "label": "Z23", "pauli": "IIZZIII" },
+    { "label": "Z34", "pauli": "IIIZZII" },
+    { "label": "Z45", "pauli": "IIIIZZI" },
+    { "label": "Z56", "pauli": "IIIIIIZ" }
+  ],
+  "logical_operators": [
+    { "label": "logical_Z", "pauli": "ZZZZZZZ" }
+  ],
+  "notes": "Steane-track scaffold: six commuting Z-type stabilizers on seven qubits."
 }
