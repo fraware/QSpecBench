@@ -1,0 +1,20 @@
+---
+name: New evidence adapter
+about: Propose a new QSpecBench evidence adapter
+title: "[adapter] "
+labels: adapter
+---
+
+## Adapter name
+
+## Supported evidence types
+
+## Checker trust level
+
+## Required files
+
+## Check command
+
+## CI or local/manual?
+
+## Example benchmark
