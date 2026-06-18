@@ -258,4 +258,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "lift_seed_evidence":
+        import runpy
+
+        runpy.run_path(str(ROOT / "scripts" / "lift_seed_evidence.py"), run_name="__main__")
+    else:
+        main()
