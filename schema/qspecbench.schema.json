@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/qspecbench.schema.json",
+  "title": "QSpecBench Specification",
+  "type": "object",
+  "required": [
+    "qspecbench_version",
+    "id",
+    "title",
+    "track",
+    "domain",
+    "claim_type",
+    "difficulty",
+    "informal_claim",
+    "semantic_level",
+    "objects",
+    "specification",
+    "assumptions",
+    "acceptable_evidence",
+    "evidence",
+    "trust_boundary",
+    "status",
+    "references"
+  ],
+  "properties": {
+    "qspecbench_version": { "type": "string", "const": "0.1" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "title": { "type": "string", "minLength": 1 },
+    "track": {
+      "type": "string",
+      "enum": ["algorithm", "equivalence", "qec", "hamiltonian", "ai_formalization"]
+    },
+    "domain": { "type": "string", "minLength": 1 },
+    "claim_type": { "type": "string", "minLength": 1 },
+    "difficulty": {
+      "type": "string",
+      "enum": ["introductory", "intermediate", "advanced", "frontier"]
+    },
+    "informal_claim": {
+      "type": "object",
+      "required": ["statement"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "source": { "type": ["string", "null"] },
+        "reference_key": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "semantic_level": {
+      "type": "object",
+      "required": ["primary"],
+      "properties": {
+        "primary": {
+          "type": "string",
+          "enum": [
+            "mathematical",
+            "algorithmic",
+            "circuit",
+            "compiler",
+            "qec",
+            "physical",
+            "protocol",
+            "ai_formalization"
+          ]
+        },
+        "secondary": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "objects": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/object_entry" }
+    },
+    "specification": { "$ref": "#/$defs/specification" },
+    "assumptions": { "$ref": "#/$defs/assumptions" },
+    "acceptable_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/acceptable_evidence_entry" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_entry" }
+    },
+    "trust_boundary": { "$ref": "#/$defs/trust_boundary" },
+    "status": { "$ref": "#/$defs/status" },
+    "qec_status": { "$ref": "#/$defs/qec_status" },
+    "references": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reference_entry" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "object_entry": {
+      "type": "object",
+      "required": ["name", "type", "format", "role"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "circuit",
+            "program",
+            "hamiltonian",
+            "stabilizer_code",
+            "protocol",
+            "theorem",
+            "channel",
+            "measurement",
+            "oracle",
+            "decoder",
+            "other"
+          ]
+        },
+        "path": { "type": ["string", "null"] },
+        "format": {
+          "type": "string",
+          "enum": [
+            "qasm2",
+            "qasm3",
+            "json",
+            "yaml",
+            "lean",
+            "python",
+            "markdown",
+            "latex",
+            "other"
+          ]
+        },
+        "role": {
+          "type": "string",
+          "enum": ["source", "target", "specification", "witness", "reference", "generated"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "specification": {
+      "type": "object",
+      "required": ["mode", "preconditions", "postconditions", "invariants", "approximation", "resources"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["exact", "approximate", "relational", "temporal", "resource", "negative", "mixed"]
+        },
+        "preconditions": { "type": "array", "items": { "type": "string" } },
+        "postconditions": { "type": "array", "items": { "type": "string" } },
+        "invariants": { "type": "array", "items": { "type": "string" } },
+        "approximation": { "$ref": "#/$defs/approximation" },
+        "resources": { "$ref": "#/$defs/resources" }
+      },
+      "additionalProperties": false
+    },
+    "approximation": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "metric": {
+          "type": ["string", "null"],
+          "enum": [
+            "trace_distance",
+            "fidelity",
+            "diamond_norm",
+            "total_variation",
+            "operator_norm",
+            "logical_error_rate",
+            "other",
+            null
+          ]
+        },
+        "bound": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "resources": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "qubits": { "type": ["string", "null"] },
+        "gates": { "type": ["string", "null"] },
+        "depth": { "type": ["string", "null"] },
+        "t_count": { "type": ["string", "null"] },
+        "t_depth": { "type": ["string", "null"] },
+        "ancilla": { "type": ["string", "null"] },
+        "measurements": { "type": ["string", "null"] },
+        "other": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "assumptions": {
+      "type": "object",
+      "required": ["mathematical", "physical", "tool", "artifact", "unverified"],
+      "properties": {
+        "mathematical": { "type": "array", "items": { "type": "string" } },
+        "physical": { "type": "array", "items": { "type": "string" } },
+        "tool": { "type": "array", "items": { "type": "string" } },
+        "artifact": { "type": "array", "items": { "type": "string" } },
+        "unverified": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "acceptable_evidence_entry": {
+      "type": "object",
+      "required": ["type", "checker", "required_for_claim", "trust_level"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "lean_proof",
+            "smt_certificate",
+            "sat_certificate",
+            "qcec_result",
+            "qbricks_result",
+            "qec_verifier_result",
+            "zx_certificate",
+            "simulation",
+            "human_review",
+            "ai_draft",
+            "qasm_parse",
+            "other"
+          ]
+        },
+        "checker": { "type": "string", "minLength": 1 },
+        "path": { "type": ["string", "null"] },
+        "required_for_claim": { "type": "boolean" },
+        "trust_level": {
+          "type": "string",
+          "enum": [
+            "checked",
+            "independently_checkable",
+            "externally_trusted",
+            "heuristic",
+            "untrusted"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence_entry": {
+      "type": "object",
+      "required": ["id", "type", "path", "checker", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "path": { "type": "string" },
+        "checker": { "type": "string" },
+        "command": { "type": ["string", "null"] },
+        "status": {
+          "type": "string",
+          "enum": ["passing", "failing", "partial", "not_checked", "draft"]
+        },
+        "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "trust_boundary": {
+      "type": "object",
+      "required": [
+        "checked_by",
+        "trusted_kernels",
+        "trusted_external_tools",
+        "untrusted_components",
+        "assumptions_not_checked"
+      ],
+      "properties": {
+        "checked_by": { "type": "array", "items": { "type": "string" } },
+        "trusted_kernels": { "type": "array", "items": { "type": "string" } },
+        "trusted_external_tools": { "type": "array", "items": { "type": "string" } },
+        "untrusted_components": { "type": "array", "items": { "type": "string" } },
+        "assumptions_not_checked": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "object",
+      "required": [
+        "informal_claim",
+        "machine_spec",
+        "artifacts",
+        "evidence",
+        "ci",
+        "maturity"
+      ],
+      "properties": {
+        "informal_claim": { "type": "string", "enum": ["missing", "draft", "complete"] },
+        "machine_spec": { "type": "string", "enum": ["missing", "draft", "complete"] },
+        "artifacts": { "type": "string", "enum": ["missing", "partial", "complete"] },
+        "evidence": { "type": "string", "enum": ["missing", "partial", "complete"] },
+        "ci": { "type": "string", "enum": ["not_applicable", "failing", "passing"] },
+        "maturity": { "type": "string", "enum": ["seed", "usable", "reference", "deprecated"] }
+      },
+      "additionalProperties": false
+    },
+    "qec_status": {
+      "type": "object",
+      "properties": {
+        "code_definition": {
+          "type": "string",
+          "enum": ["missing", "draft", "complete", "checked"]
+        },
+        "stabilizer_commutation": {
+          "type": "string",
+          "enum": ["missing", "draft", "complete", "checked"]
+        },
+        "distance_claim": {
+          "type": "string",
+          "enum": ["missing", "assumed", "externally_checked", "kernel_checked"]
+        },
+        "syndrome_extraction": {
+          "type": "string",
+          "enum": ["missing", "draft", "simulated", "checked"]
+        },
+        "decoder_claim": {
+          "type": "string",
+          "enum": ["out_of_scope", "assumed", "simulated", "checked"]
+        },
+        "correction_claim": {
+          "type": "string",
+          "enum": ["missing", "draft", "simulated", "checked"]
+        },
+        "repeated_round_claim": {
+          "type": "string",
+          "enum": ["out_of_scope", "draft", "checked"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "reference_entry": {
+      "type": "object",
+      "required": ["key", "type", "title"],
+      "properties": {
+        "key": { "type": "string" },
+        "type": { "type": "string", "enum": ["paper", "repo", "documentation", "lecture", "other"] },
+        "title": { "type": "string" },
+        "url": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}
