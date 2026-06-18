@@ -1,0 +1,8 @@
+{
+  "id": "logical_state_preserved_up_to_pauli_frame",
+  "type": "stabilizer_code",
+  "parameters": {
+    "n": 3,
+    "k": 1
+  }
+}
