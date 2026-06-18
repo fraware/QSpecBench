@@ -1,0 +1,11 @@
+{
+  "id": "bit_flip_pauli_channel",
+  "type": "error_model",
+  "pauli_only": true,
+  "allowed_errors": ["X"],
+  "max_weight": 1,
+  "correlated_errors": false,
+  "leakage": false,
+  "measurement_errors": false,
+  "notes": "Single independent X error on one physical qubit."
+}

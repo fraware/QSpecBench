@@ -1,0 +1,132 @@
+qspecbench_version: "0.1"
+id: three_qubit_bit_flip_code_corrects_one_x
+title: "Three-qubit bit-flip code corrects one X error"
+track: qec
+domain: quantum_error_correction
+claim_type: error_correction
+difficulty: intermediate
+
+informal_claim:
+  statement: "The three-qubit bit-flip code corrects any single X error on physical qubits under the declared Pauli bit-flip error model."
+  source: null
+  reference_key: null
+
+semantic_level:
+  primary: qec
+  secondary: ["algebraic", "circuit"]
+
+objects:
+  - name: bit_flip_code
+    type: stabilizer_code
+    path: artifacts/code.json
+    format: json
+    role: specification
+  - name: error_model
+    type: other
+    path: artifacts/error_model.json
+    format: json
+    role: specification
+  - name: syndrome_table
+    type: decoder
+    path: artifacts/syndrome_table.json
+    format: json
+    role: reference
+  - name: correction_table
+    type: decoder
+    path: artifacts/correction_table.json
+    format: json
+    role: reference
+
+specification:
+  mode: exact
+  preconditions:
+    - "code type: stabilizer CSS-style bit-flip code, n=3, k=1"
+    - "error model: Pauli-only, single X error, uncorrelated"
+    - "non-Pauli errors, leakage, correlated errors, measurement errors: out of scope"
+    - "decoder correctness: assumed (lookup table), not proved"
+  postconditions:
+    - "logical state preserved up to Pauli frame after correction"
+  invariants:
+    - "code definition separate from decoder proof obligation"
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+
+assumptions:
+  mathematical:
+    - "stabilizer formalism on three qubits"
+  physical: []
+  tool: []
+  artifact:
+    - "syndrome/correction tables match standard bit-flip lookup"
+  unverified:
+    - "decoder implementation correctness"
+
+acceptable_evidence:
+  - type: qec_verifier_result
+    checker: "qec json validator"
+    path: artifacts/code.json
+    required_for_claim: false
+    trust_level: externally_trusted
+  - type: lean_proof
+    checker: "Lean kernel"
+    path: null
+    required_for_claim: false
+    trust_level: checked
+
+evidence:
+  - id: code_json_valid
+    type: qec_verifier_result
+    path: artifacts/code.json
+    checker: "qec json validator"
+    command: "python adapters/qec/parse_result.py artifacts/code.json"
+    status: passing
+    notes: "Validates stabilizer JSON structure only."
+  - id: error_model_json
+    type: qec_verifier_result
+    path: artifacts/error_model.json
+    checker: "manual JSON review"
+    command: null
+    status: partial
+    notes: "Error model declared; not machine-validated yet."
+
+trust_boundary:
+  checked_by:
+    - "stabilizer code JSON schema validation"
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+    - "decoder lookup table correctness"
+  assumptions_not_checked:
+    - "correction restores logical state for all single X errors"
+    - "syndrome extraction circuit semantics"
+
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+
+qec_status:
+  code_definition: complete
+  stabilizer_commutation: complete
+  distance_claim: assumed
+  syndrome_extraction: draft
+  decoder_claim: assumed
+  correction_claim: draft
+  repeated_round_claim: out_of_scope
+
+references: []

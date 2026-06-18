@@ -1,0 +1,12 @@
+{
+  "id": "bit_flip_correction_table",
+  "type": "correction_table",
+  "decoder": "lookup_table_assumed_correct",
+  "entries": [
+    { "syndrome": "00", "physical_correction": "III" },
+    { "syndrome": "10", "physical_correction": "XII" },
+    { "syndrome": "01", "physical_correction": "IXI" },
+    { "syndrome": "11", "physical_correction": "IIX" }
+  ],
+  "notes": "Decoder correctness is assumed, not kernel-checked."
+}

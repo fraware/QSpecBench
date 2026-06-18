@@ -1,0 +1,15 @@
+{
+  "id": "three_qubit_bit_flip_code",
+  "type": "stabilizer_code",
+  "parameters": { "n": 3, "k": 1, "d": 3 },
+  "qubit_order": ["q0", "q1", "q2"],
+  "stabilizers": [
+    { "label": "Z0 Z1", "pauli": "ZZI" },
+    { "label": "Z1 Z2", "pauli": "IZZ" }
+  ],
+  "logical_operators": [
+    { "label": "logical_X", "pauli": "XXX" },
+    { "label": "logical_Z", "pauli": "ZII" }
+  ],
+  "notes": "Distance 3 against bit-flip errors only; single X error correction claim."
+}
