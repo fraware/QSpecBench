@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "adapter": "qasm_parse",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\qft_then_inverse_qft_identity_up_to_ordering\\artifacts\\circuit.qasm",
+  "trust_level": "syntax_only",
+  "errors": []
+}
