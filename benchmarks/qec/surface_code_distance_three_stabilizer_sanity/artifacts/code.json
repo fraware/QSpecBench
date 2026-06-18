@@ -1,0 +1,8 @@
+{
+  "id": "surface_code_distance_three_stabilizer_sanity",
+  "type": "stabilizer_code",
+  "parameters": {
+    "n": 3,
+    "k": 1
+  }
+}
