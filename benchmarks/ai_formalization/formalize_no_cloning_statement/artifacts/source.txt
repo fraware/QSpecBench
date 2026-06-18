@@ -1,0 +1,1 @@
+An unknown quantum state cannot be copied perfectly: there is no unitary process that takes an arbitrary unknown qubit and produces two identical copies.

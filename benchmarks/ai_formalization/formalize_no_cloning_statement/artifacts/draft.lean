@@ -1,0 +1,2 @@
+-- AI draft placeholder (untrusted)
+-- theorem no_cloning : False := sorry
