@@ -125,6 +125,21 @@ def check_evidence(
         raise typer.Exit(code=1)
 
 
+@app.command("extract-matrix")
+def extract_matrix(
+    qasm: Path = typer.Argument(..., help="OpenQASM 3 circuit file"),
+    out: Path = typer.Option(..., "--out", help="Output JSON matrix path"),
+) -> None:
+    """Extract a small-gate-set unitary matrix from OpenQASM."""
+    from qspecbench.qasm_matrix import write_matrix
+
+    if not qasm.is_file():
+        console.print(f"[red]QASM file not found: {qasm}[/red]")
+        raise typer.Exit(code=1)
+    data = write_matrix(qasm, out)
+    console.print(f"Wrote {out} ({data['n_qubits']} qubits, {len(data['gates_applied'])} gates)")
+
+
 @app.command("list")
 def list_benchmarks(
     track: Optional[str] = typer.Option(None, "--track", help="Filter by track folder name"),
