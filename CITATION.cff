@@ -3,6 +3,6 @@ title: QSpecBench
 message: "If you use QSpecBench, please cite this repository."
 authors:
   - name: QSpecBench contributors
-repository-code: "https://github.com/qspecbench/qspecbench"
+repository-code: "https://github.com/fraware/QSpecBench"
 license: MIT
 version: 0.1.0
