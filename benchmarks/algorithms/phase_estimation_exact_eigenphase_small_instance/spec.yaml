@@ -1,0 +1,78 @@
+qspecbench_version: '0.1'
+id: phase_estimation_exact_eigenphase_small_instance
+title: Phase Estimation Exact Eigenphase Small Instance
+track: algorithm
+domain: quantum_algorithm
+claim_type: eigenphase_estimation
+difficulty: frontier
+informal_claim:
+  statement: Phase estimation on a declared small unitary eigenstate reports the correct
+    eigenphase bits in ideal semantics.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: algorithmic
+  secondary: []
+objects:
+- name: circuit
+  type: circuit
+  path: artifacts/circuit.qasm
+  format: qasm3
+  role: source
+specification:
+  mode: exact
+  preconditions:
+  - standard qubit semantics
+  postconditions:
+  - estimated phase bits match eigenphase for declared instance
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+- type: lean_proof
+  checker: Lean kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: human_review
+  checker: domain expert review
+  path: notes/informal_derivation.md
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence: []
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+  - informal notes unless separately checked
+  assumptions_not_checked:
+  - artifact parsing
+  - idealized gate semantics
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: partial
+  evidence: missing
+  ci: passing
+  maturity: seed
+references: []
