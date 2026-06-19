@@ -1,0 +1,8 @@
+{
+  "id": "distance_claim_small_css",
+  "claim": "declared_code_distance_at_least_3",
+  "smt_file": "distance_claim.smt2",
+  "expected": "sat",
+  "generator": null,
+  "notes": "Toy SMT certificate for declared d>=3 parameter; not a full code-distance proof."
+}
