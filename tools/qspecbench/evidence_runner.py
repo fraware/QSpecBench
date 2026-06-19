@@ -76,7 +76,8 @@ def _default_adapter_command(evidence_type: str, artifact_path: Path) -> str | N
         "sat_certificate": f"python {ADAPTERS_ROOT / 'sat_certificate' / 'parse_result.py'}",
         "smt_certificate": f"python {ADAPTERS_ROOT / 'smt' / 'parse_result.py'}",
         "qcec_result": f"python {ADAPTERS_ROOT / 'qcec' / 'parse_result.py'}",
-        "smt_certificate": f"python {ADAPTERS_ROOT / 'smt' / 'parse_result.py'}",
+        "human_review": f"python {ADAPTERS_ROOT / 'human_review' / 'parse_result.py'}",
+        "bridge_verify": f"python {ADAPTERS_ROOT / 'bridge' / 'parse_result.py'}",
     }
     template = mapping.get(evidence_type)
     if not template:
