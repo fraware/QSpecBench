@@ -163,23 +163,17 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
   exact pauliZEntry_herm i j
 
 private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
-  ext i j; fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Matrix.of_apply, pauliXEntry, pauliX1Entry]
+  have h : pauliX1 = pauliX0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
+  rw [h, mul_comm]
 
 private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
-  ext i j; fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Matrix.of_apply, pauliYEntry, pauliY1Entry]
+  have h : pauliY1 = pauliY0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
+  rw [h, mul_comm]
 
 private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
-  apply Matrix.ext
-  intro i j
-  have hz0 : ∀ a b, pauliZ1Entry a b = if a = b then pauliZ1Entry a a else 0 := by
-    intro a b; fin_cases a <;> fin_cases b <;> rfl
-  have hz1 : ∀ a b, pauliZEntry a b = if a = b then pauliZEntry a a else 0 := by
-    intro a b; fin_cases a <;> fin_cases b <;> rfl
-  simp only [Matrix.mul_apply, Matrix.of_apply, hz0, hz1, mul_ite, mul_zero, zero_add, ite_mul]
-  split_ifs with hij
-  · subst hij
-    fin_cases i <;> simp [pauliZ1Entry, pauliZEntry, mul_comm]
-  · fin_cases i <;> fin_cases j <;> simp [pauliZ1Entry, pauliZEntry, hij]
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [Matrix.mul_apply, Matrix.of_apply, pauliZ1Entry, pauliZEntry, Fin.sum_univ_four, mul_comm]
 
 /-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
 noncomputable def heisenbergSmallInstance : HamMatrix :=
