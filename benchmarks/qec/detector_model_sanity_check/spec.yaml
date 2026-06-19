@@ -1,0 +1,82 @@
+qspecbench_version: '0.2'
+id: detector_model_sanity_check
+title: Detector model sanity check
+track: qec
+domain: quantum_error_correction
+claim_type: model_sanity
+difficulty: introductory
+informal_claim:
+  statement: A toy detector model JSON satisfies declared field bounds for QEC experiment
+    scaffolding.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: physical
+  secondary:
+  - qec
+objects:
+- name: detector_model
+  type: measurement
+  path: artifacts/detector_model.json
+  format: json
+  role: specification
+specification:
+  mode: exact
+  preconditions:
+  - efficiency in (0,1]
+  postconditions:
+  - detector list non-empty
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical: []
+  physical:
+  - detector model is toy, not calibrated
+  tool: []
+  artifact: []
+  unverified:
+  - calibration against hardware
+acceptable_evidence:
+- type: simulation
+  checker: detector model script
+  path: evidence/check_detector.py
+  required_for_claim: false
+  trust_level: heuristic
+evidence:
+- id: detector_sanity
+  type: simulation
+  path: evidence/check_detector.py
+  checker: detector model script
+  command: python adapters/python/parse_result.py evidence/check_detector.py
+  status: passing
+  notes: Field bound checks only.
+trust_boundary:
+  checked_by:
+  - detector model sanity script
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+  - detector model
+  assumptions_not_checked:
+  - hardware calibration
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: missing
+  ci: passing
+  maturity: usable
+references: []

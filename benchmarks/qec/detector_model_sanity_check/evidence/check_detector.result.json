@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "adapter": "python_simulation",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\detector_model_sanity_check\\evidence\\check_detector.py",
+  "trust_level": "heuristic",
+  "exit_code": 0,
+  "stdout": "{\"ok\": true, \"trust_level\": \"heuristic\"}",
+  "stderr": "",
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "detector_model_sanity_check",
+  "detectors": [
+    {
+      "id": "D0",
+      "efficiency": 0.95
+    },
+    {
+      "id": "D1",
+      "efficiency": 0.93
+    }
+  ],
+  "dark_counts": 100,
+  "notes": "Toy detector model for QEC experiment scaffolding."
+}
