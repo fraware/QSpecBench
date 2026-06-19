@@ -17,6 +17,9 @@ KERNEL_CHECKED = [
     "benchmarks/equivalence/clifford_simplification_preserves_unitary",
     "benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance",
     "benchmarks/equivalence/phase_polynomial_equivalence_small_instance",
+    "benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction",
+    "benchmarks/equivalence/rx_gate_equivalence_small_instance",
+    "benchmarks/algorithms/bell_state_preparation",
 ]
 
 
