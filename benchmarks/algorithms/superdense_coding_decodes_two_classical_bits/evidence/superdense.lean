@@ -1,0 +1,3 @@
+import QSpecBench.Algorithms
+
+#check QSpecBench.superdense_bell_pair_entangled
