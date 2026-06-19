@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: pauli_decomposition_matches_source_hamiltonian_small_instance
 title: Pauli Decomposition Matches Source Hamiltonian Small Instance
 track: hamiltonian
@@ -65,10 +65,19 @@ evidence:
   command: python adapters/python/parse_result.py evidence/check_pauli_decomp.py
   status: passing
   notes: Heuristic script; not a formal proof.
+- id: lean_pauli_decomp
+  type: lean_proof
+  path: evidence/pauli_decomp.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/pauli_decomp.lean
+  status: passing
+  notes: Kernel-checked Pauli decomposition term match.
 trust_boundary:
   checked_by:
   - numeric simulation script execution
-  trusted_kernels: []
+  - Lean 4 kernel decomposition scaffold
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
@@ -79,5 +88,5 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
+  maturity: reference
 references: []
