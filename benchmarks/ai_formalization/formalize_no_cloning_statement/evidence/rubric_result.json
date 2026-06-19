@@ -12,6 +12,6 @@
   "syntactically_valid": null,
   "lean_check": "skipped",
   "lean_errors": [
-    "error: error during download\ninfo: caused by: [35] SSL connect error (schannel: next InitializeSecurityContext failed: CRYPT_E_NO_REVOCATION_CHECK (0x80092012) - The revocation function was unable to check revocation for the certificate.)"
+    "lean not in PATH"
   ]
 }
