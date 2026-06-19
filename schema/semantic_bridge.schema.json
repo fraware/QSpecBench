@@ -21,7 +21,10 @@
     "claimed_link": {
       "type": "string",
       "enum": ["documented_not_proved", "kernel_checked"]
-    }
+    },
+    "bridge_evidence_id": { "type": ["string", "null"] },
+    "gate_set": { "type": ["string", "null"] },
+    "qasm_artifact": { "type": "string", "minLength": 1 }
   },
   "additionalProperties": false
 }
