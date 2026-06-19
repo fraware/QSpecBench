@@ -1,0 +1,107 @@
+qspecbench_version: '0.2'
+id: toffoli_decomposition_equivalence
+title: Toffoli decomposition equivalence
+track: equivalence
+domain: circuit_equivalence
+claim_type: unitary_equivalence
+difficulty: intermediate
+informal_claim:
+  statement: A standard Toffoli decomposition using H, T, CX matches native CCX on
+    three qubits.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: circuit
+  secondary:
+  - compiler
+objects:
+- name: source
+  type: circuit
+  path: artifacts/source.qasm
+  format: qasm3
+  role: source
+- name: target
+  type: circuit
+  path: artifacts/target.qasm
+  format: qasm3
+  role: target
+specification:
+  mode: exact
+  preconditions:
+  - 'equivalence relation: exact unitary equality'
+  - q[2] target for CCX
+  postconditions:
+  - decomposed circuit equals CCX
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard unitary semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []
+acceptable_evidence:
+- type: qasm_parse
+  checker: qasm parser adapter
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: qcec_result
+  checker: QCEC equivalence tool
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence:
+- id: qasm_parse_source
+  type: qasm_parse
+  path: artifacts/source.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/source.qasm
+  status: passing
+  notes: Syntax only.
+- id: qasm_parse_target
+  type: qasm_parse
+  path: artifacts/target.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/target.qasm
+  status: passing
+  notes: Syntax only.
+- id: qcec_equivalence
+  type: qcec_result
+  path: artifacts/source.qasm
+  secondary_path: artifacts/target.qasm
+  checker: QCEC equivalence tool
+  command: python adapters/qcec/parse_result.py {path} {path2}
+  status: passing
+  notes: External equivalence check on declared QASM pair.
+trust_boundary:
+  checked_by:
+  - QASM syntax parse
+  trusted_kernels: []
+  trusted_external_tools:
+  - QCEC
+  untrusted_components: []
+  assumptions_not_checked:
+  - unitary equivalence beyond declared gate set
