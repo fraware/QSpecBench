@@ -41,9 +41,7 @@ theorem qft_then_inverse_qft_identity (i j : Fin 4) :
     mul4 qft2 invqft2 i j = scale4 4 id4 i j :=
   qft2_mul_invqft2 i j
 
-/-- Phase-estimation scaffold: Z has eigenvalue −1 on |1⟩. -/
-theorem phase_estimation_z_eigenvalue_on_one :
-    mul2 pauliZ2 (show Fin 2 from 1) (show Fin 2 from 1) = (-1 : Int) := by
-  simp [mul2, pauliZ2]
+/-- Phase-estimation scaffold: Z has eigenvalue −1 on |1⟩ (diagonal entry). -/
+theorem phase_estimation_z_eigenvalue_on_one : pauliZ2 (1 : Fin 2) (1 : Fin 2) = (-1 : Int) := rfl
 
 end QSpecBench
