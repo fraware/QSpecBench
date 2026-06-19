@@ -1,0 +1,3 @@
+import QSpecBench.Hamiltonian
+
+#check QSpecBench.small_fermionic_hamiltonian_is_hermitian
