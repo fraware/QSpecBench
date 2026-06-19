@@ -1,0 +1,10 @@
+adapter_name: human_review
+supported_evidence_types:
+  - human_review
+required_files:
+  - notes/*.md
+check_command: "python parse_result.py {path}"
+success_condition: "review passes length and keyword checks"
+failure_condition: "review too short or missing keywords"
+trust_level: externally_trusted
+output_format: json
