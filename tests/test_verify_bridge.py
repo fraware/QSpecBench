@@ -1,9 +1,15 @@
 """Tests for verify-bridge CLI and semantic bridge validation."""
 
+from __future__ import annotations
+
+import tempfile
+from fractions import Fraction
 from pathlib import Path
 
 import yaml
 
+from qspecbench.denotate import denotate_ops, matrices_equal, matrix_from_qasm_json, ops_from_qasm_matrix
+from qspecbench.qasm_matrix import _cnot, extract_matrix
 from qspecbench.validate import validate_path
 from qspecbench.verify_bridge import verify_bridge, write_bridge_result
 
@@ -44,3 +50,27 @@ def test_kernel_checked_validates_with_bridge_evidence():
     assert any(e.get("id") == "bridge_verify" for e in spec.get("evidence", []))
     results = validate_path(claim)
     assert results and results[0].ok
+
+
+def test_cnot_control_target_directions_differ():
+    cx01 = _cnot(2, 0, 1)
+    cx10 = _cnot(2, 1, 0)
+    assert cx01 != cx10
+    assert cx01[1][3] == Fraction(1)
+    assert cx10[2][3] == Fraction(1)
+
+
+def test_denotate_cx_10_matches_qasm_matrix():
+    qasm = "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[1], q[0];\n"
+    with tempfile.NamedTemporaryFile("w", suffix=".qasm", delete=False, encoding="utf-8") as f:
+        f.write(qasm)
+        path = Path(f.name)
+    try:
+        data = extract_matrix(path)
+        ops = ops_from_qasm_matrix(data)
+        denoted = denotate_ops(data["n_qubits"], ops)
+        qasm_mat = matrix_from_qasm_json(data)
+        assert matrices_equal(qasm_mat, denoted)
+        assert denoted == _cnot(2, 1, 0)
+    finally:
+        path.unlink(missing_ok=True)

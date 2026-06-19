@@ -12,7 +12,7 @@ import QSpecBench.Quantum.Gate
 namespace QSpecBench.Quantum.OpenQASM3
 
 open QSpecBench (Matrix2 Matrix4 Matrix8 mul2 mul4 mul8 id2 id4 id8 ccx8 swap4 kron2I kronI2 scale2 scale4 qft2 invqft2 qft2_mul_invqft2
-  hadamard_conjugates_x hadamard_mul_self cnot_mul_self mul2_assoc)
+  hadamard_conjugates_x hadamard_mul_self cnot_mul_self cnot4_ctrl_tgt_mul_self mul2_assoc)
 open QSpecBench.Quantum (pauliY)
 
 inductive SingleGate where
@@ -47,10 +47,16 @@ theorem qasm_X_denotes_pauliX (i j : Fin 2) :
 theorem qasm_Z_denotes_pauliZ (i j : Fin 2) :
     denotateGate .Z i j = pauliZ2 i j := rfl
 
-def denotateCX : Matrix4 := cnot4
+def denotateCX (ctrl tgt : Nat) : Matrix4 :=
+  let c : Fin 2 := if ctrl = 0 then 0 else 1
+  let t : Fin 2 := if tgt = 0 then 0 else 1
+  cnot4_ctrl_tgt c t
 
-theorem qasm_CX_denotes_cnot (i j : Fin 4) :
-    denotateCX i j = cnot4 i j := rfl
+theorem qasm_CX_denotes_cnot (ctrl tgt : Nat) (i j : Fin 4) :
+    denotateCX ctrl tgt i j = cnot4_ctrl_tgt (if ctrl = 0 then 0 else 1) (if tgt = 0 then 0 else 1) i j := rfl
+
+theorem qasm_CX_denotes_cnot01 (i j : Fin 4) :
+    denotateCX 0 1 i j = cnot4 i j := rfl
 
 def denotateOps1 (ops : List QasmOp) : Matrix2 :=
   ops.foldl (fun acc op =>
@@ -67,7 +73,7 @@ def denotateOps2 (ops : List QasmOp) : Matrix4 :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g q => fun i j => mul4 (applySingle2 g q) acc i j
-    | .cx _ _ => fun i j => mul4 denotateCX acc i j
+    | .cx c t => fun i j => mul4 (denotateCX c t) acc i j
     | .ccx _ _ _ => acc
     | .swap _ _ => fun i j => mul4 swap4 acc i j) id4
 
@@ -154,6 +160,28 @@ def cnot_single : List QasmOp := [.cx 0 1]
 theorem bridge_cnot_single (i j : Fin 4) :
     denotateOps2 cnot_single i j = cnot4 i j := by
   fin_cases i <;> fin_cases j <;> rfl
+
+def cnot_cx10 : List QasmOp := [.cx 1 0]
+
+def cnot_cx10Mat (i j : Fin 4) : Int := cnot4_ctrl_tgt 1 0 i j
+
+theorem denotateOps2_cnot_cx10 (i j : Fin 4) :
+    denotateOps2 cnot_cx10 i j = cnot_cx10Mat i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+def cnot_cx10_cx10 : List QasmOp := [.cx 1 0, .cx 1 0]
+
+def cnot_cx10_cx10Mat (i j : Fin 4) : Int :=
+  mul4 (cnot4_ctrl_tgt 1 0) (mul4 (cnot4_ctrl_tgt 1 0) id4) i j
+
+theorem denotateOps2_cnot_cx10_cx10 (i j : Fin 4) :
+    denotateOps2 cnot_cx10_cx10 i j = cnot_cx10_cx10Mat i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_cnot10_self_inverse (i j : Fin 4) :
+    denotateOps2 cnot_cx10_cx10 i j = id4 i j := by
+  rw [denotateOps2_cnot_cx10_cx10]
+  exact cnot4_ctrl_tgt_mul_self 1 0 i j
 
 def xx_cancel : List QasmOp := [.gate .X 0, .gate .X 0]
 
