@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: grover_single_iteration_amplitude_amplification
 title: Grover Single Iteration Amplitude Amplification
 track: algorithm
@@ -56,10 +56,19 @@ evidence:
   command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
+- id: lean_grover_scaffold
+  type: lean_proof
+  path: evidence/grover.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/grover.lean
+  status: passing
+  notes: Kernel-checked Grover diffuser nontriviality scaffold.
 trust_boundary:
   checked_by:
   - QASM syntax parse
-  trusted_kernels: []
+  - Lean 4 kernel diffuser scaffold
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
@@ -70,7 +79,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
+  maturity: reference
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
