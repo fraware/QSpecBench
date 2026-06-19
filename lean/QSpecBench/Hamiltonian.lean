@@ -133,22 +133,43 @@ private theorem pauliY1Entry_herm (i j : Fin 4) : star (pauliY1Entry j i) = paul
     simp [pauliY1Entry, star, Complex.conj_re, Complex.conj_im, Complex.I_mul_I, Complex.ext_iff]
 
 private theorem pauliX0_herm : pauliX0.conjTranspose = pauliX0 := by
-  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliXEntry_herm i j]
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliXEntry_herm i j
 
 private theorem pauliX1_herm : pauliX1.conjTranspose = pauliX1 := by
-  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliX1Entry_herm i j]
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliX1Entry_herm i j
 
 private theorem pauliY0_herm : pauliY0.conjTranspose = pauliY0 := by
-  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliYEntry_herm i j]
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliYEntry_herm i j
 
 private theorem pauliY1_herm : pauliY1.conjTranspose = pauliY1 := by
-  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliY1Entry_herm i j]
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliY1Entry_herm i j
 
 private theorem pauliZ0_herm : pauliZ0.conjTranspose = pauliZ0 := by
-  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliZ1Entry_herm i j]
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliZ1Entry_herm i j
 
 private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
-  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliZEntry_herm i j]
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliZEntry_herm i j
+
+private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Matrix.of_apply, pauliXEntry, pauliX1Entry]
+
+private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Matrix.of_apply, pauliYEntry, pauliY1Entry]
+
+private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
+  ext i j; fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Matrix.of_apply, pauliZ1Entry, pauliZEntry]
 
 /-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
 noncomputable def heisenbergSmallInstance : HamMatrix :=
@@ -158,6 +179,7 @@ theorem heisenberg_small_instance_is_hermitian :
     heisenbergSmallInstance.conjTranspose = heisenbergSmallInstance := by
   simp [heisenbergSmallInstance, pauliX0_herm, pauliX1_herm, pauliY0_herm, pauliY1_herm,
     pauliZ0_herm, pauliZ1_herm, Matrix.conjTranspose_add, Matrix.conjTranspose_smul,
-    Matrix.conjTranspose_mul]
+    Matrix.conjTranspose_mul, pauliX0_mul_pauliX1_commute, pauliY0_mul_pauliY1_commute,
+    pauliZ0_mul_pauliZ1_commute]
 
 end QSpecBench
