@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: three_qubit_bit_flip_code_corrects_one_x
 title: Bit flip
 track: qec
