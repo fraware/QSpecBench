@@ -26,12 +26,6 @@ def _has_lean_evidence(spec: dict[str, Any]) -> bool:
     return any(e.get("type") == "lean_proof" for e in spec.get("evidence", []))
 
 
-def _has_qasm_and_lean(spec: dict[str, Any]) -> bool:
-    has_qasm = any(obj.get("format") == "qasm3" for obj in spec.get("objects", []))
-    has_lean = any(e.get("type") == "lean_proof" for e in spec.get("evidence", []))
-    return has_qasm and has_lean
-
-
 def validate_trust_rules(spec: dict[str, Any], claim_dir: Path | None = None) -> list[str]:
     errors: list[str] = []
 
