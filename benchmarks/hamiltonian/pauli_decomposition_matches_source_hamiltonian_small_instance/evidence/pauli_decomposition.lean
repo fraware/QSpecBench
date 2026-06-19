@@ -1,0 +1,3 @@
+import QSpecBench.Hamiltonian
+
+#check QSpecBench.pauli_decomposition_matches_declared_terms
