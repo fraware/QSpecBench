@@ -1,10 +1,10 @@
 {
   "artifact_gate_model": "openqasm3_1q2q_clifford",
-  "lean_module": "QSpecBench.CNOT",
-  "lean_theorem": "cnot_mul_self",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_cnot_self_inverse",
   "normalization": {
     "cnot": "standard_01_control_target",
     "qasm_factor": "exact_permutation_matrix"
   },
-  "claimed_link": "documented_not_proved"
+  "claimed_link": "kernel_checked"
 }
