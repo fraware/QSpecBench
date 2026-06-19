@@ -1,10 +1,10 @@
 {
   "artifact_gate_model": "openqasm3_1q_pauli_clifford",
-  "lean_module": "QSpecBench.Pauli",
-  "lean_theorem": "hadamard_conjugates_x",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_hadamard_conjugates_x",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "documented_not_proved"
+  "claimed_link": "kernel_checked"
 }
