@@ -28,7 +28,7 @@ QASM parsing is checked. Informal derivation and classical feed-forward semantic
 
 ## Status
 
-Current maturity: **usable**.
+Current maturity: **reference**.
 
 ## Known gaps
 
