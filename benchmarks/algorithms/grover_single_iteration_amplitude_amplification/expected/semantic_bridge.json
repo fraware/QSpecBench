@@ -1,0 +1,11 @@
+{
+  "artifact_gate_model": "openqasm3_scaffold",
+  "lean_module": "QSpecBench.Algorithms",
+  "lean_theorem": "grover_diffuser_nontrivial",
+  "normalization": {
+    "hadamard": "unnormalized_int_model",
+    "measurement": "excluded_from_matrix"
+  },
+  "claimed_link": "documented_not_proved",
+  "qasm_artifact": "artifacts/circuit.qasm"
+}
