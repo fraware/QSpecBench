@@ -56,11 +56,11 @@ See the [dashboard](docs/status.md).
 
 | Criterion | Target | Status |
 |-----------|--------|--------|
-| Checked-evidence benchmarks | ≥25 | 21 (in progress) |
-| Reference benchmarks | ≥18 (≥4 AI) | 18 (AI: 4) |
+| Checked-evidence benchmarks | ≥25 | 39 (done) |
+| Reference benchmarks | ≥18 (≥4 AI) | 36 (AI: 4) |
 | AI formalization kernel anchors | 7/7 | Done |
-| Semantic bridge `kernel_checked` | ≥10 | 8 (in progress) |
-| OpenQASM3 gate subset + composition | RX, Toffoli, Bell scaffold | Bell scaffold done |
+| Semantic bridge `kernel_checked` | ≥10 | 10 (done) |
+| OpenQASM3 gate subset + composition | RX, Toffoli, Bell scaffold | Done |
 | README/spec maturity sync | CI enforced | Done |
 | `proof_obligations` on references | All references | Done |
 
