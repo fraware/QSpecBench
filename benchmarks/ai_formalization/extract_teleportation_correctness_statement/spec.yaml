@@ -106,6 +106,8 @@ trust_boundary:
   - artifacts/draft.lean AI draft (untrusted)
   assumptions_not_checked:
   - full faithfulness of AI draft text to source phrasing
+  - semantic equivalence of kernel anchor to full teleportation correctness claim
+  - measurement and Pauli correction semantics
 status:
   informal_claim: complete
   machine_spec: complete
