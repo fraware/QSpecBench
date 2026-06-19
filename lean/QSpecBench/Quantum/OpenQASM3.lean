@@ -11,19 +11,22 @@ import QSpecBench.Quantum.Gate
 
 namespace QSpecBench.Quantum.OpenQASM3
 
-open QSpecBench (Matrix2 Matrix4 mul2 mul4 id2 id4 kron2I kronI2 scale2 scale4 qft2 invqft2 qft2_mul_invqft2
+open QSpecBench (Matrix2 Matrix4 Matrix8 mul2 mul4 mul8 id2 id4 id8 ccx8 swap4 kron2I kronI2 scale2 scale4 qft2 invqft2 qft2_mul_invqft2
   hadamard_conjugates_x hadamard_mul_self cnot_mul_self mul2_assoc)
 open QSpecBench.Quantum (pauliY)
 
 inductive SingleGate where
-  | I | X | Y | Z | H | S | T
+  | I | X | Y | Z | H | S | T | Sdg | Tdg
   deriving DecidableEq, Repr
 
 inductive QasmOp where
   | gate (g : SingleGate) (q : Nat)
   | cx (control target : Nat)
+  | ccx (c0 c1 target : Nat)
+  | swap (a b : Nat)
   deriving Repr
 
+/-- Integer matrix scaffold: S/T phase on |1⟩ is not represented (see Python complex model). -/
 def denotateGate : SingleGate → Matrix2
   | .I => id2
   | .X => pauliX2
@@ -32,6 +35,8 @@ def denotateGate : SingleGate → Matrix2
   | .H => hadamard2
   | .S => id2
   | .T => id2
+  | .Sdg => id2
+  | .Tdg => id2
 
 theorem qasm_H_denotes_hadamard (i j : Fin 2) :
     denotateGate .H i j = hadamard2 i j := rfl
@@ -51,7 +56,9 @@ def denotateOps1 (ops : List QasmOp) : Matrix2 :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => fun i j => mul2 (denotateGate g) acc i j
-    | .cx _ _ => acc) id2
+    | .cx _ _ => acc
+    | .ccx _ _ _ => acc
+    | .swap _ _ => acc) id2
 
 def applySingle2 (g : SingleGate) (q : Nat) : Matrix4 :=
   if q = 0 then kron2I (denotateGate g) else kronI2 (denotateGate g)
@@ -60,7 +67,17 @@ def denotateOps2 (ops : List QasmOp) : Matrix4 :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g q => fun i j => mul4 (applySingle2 g q) acc i j
-    | .cx _ _ => fun i j => mul4 denotateCX acc i j) id4
+    | .cx _ _ => fun i j => mul4 denotateCX acc i j
+    | .ccx _ _ _ => acc
+    | .swap _ _ => fun i j => mul4 swap4 acc i j) id4
+
+def denotateOps3 (ops : List QasmOp) : Matrix8 :=
+  ops.foldl (fun acc op =>
+    match op with
+    | .gate _ _ => acc
+    | .cx _ _ => acc
+    | .ccx _ _ _ => fun i j => mul8 ccx8 acc i j
+    | .swap _ _ => acc) id8
 
 def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
@@ -208,5 +225,40 @@ theorem denotateOps2_bell_prep (i j : Fin 4) :
 theorem bridge_teleportation_scaffold (i j : Fin 4) :
     denotateOps2 bell_prep_ops i j = bellPrepMatrix i j :=
   denotateOps2_bell_prep i j
+
+theorem bridge_bell_prep (i j : Fin 4) :
+    denotateOps2 bell_prep_ops i j = bellPrepMatrix i j :=
+  denotateOps2_bell_prep i j
+
+/-- RX(π/2) scaffold: denoted as unnormalized H on one qubit. -/
+def rx_pi2_ops : List QasmOp := [.gate .H 0]
+
+theorem denotateOps1_rx_pi2 (i j : Fin 2) :
+    denotateOps1 rx_pi2_ops i j = hadamard2 i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_rx_pi2_eq_h (i j : Fin 2) :
+    denotateOps1 rx_pi2_ops i j = hadamard2 i j :=
+  denotateOps1_rx_pi2 i j
+
+def ccx_single : List QasmOp := [.ccx 0 1 2]
+
+theorem denotateOps3_ccx_single (i j : Fin 8) :
+    denotateOps3 ccx_single i j = ccx8 i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_ccx_single (i j : Fin 8) :
+    denotateOps3 ccx_single i j = ccx8 i j :=
+  denotateOps3_ccx_single i j
+
+def swap_single : List QasmOp := [.swap 0 1]
+
+theorem denotateOps2_swap_single (i j : Fin 4) :
+    denotateOps2 swap_single i j = swap4 i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_swap_single (i j : Fin 4) :
+    denotateOps2 swap_single i j = swap4 i j :=
+  denotateOps2_swap_single i j
 
 end QSpecBench.Quantum.OpenQASM3
