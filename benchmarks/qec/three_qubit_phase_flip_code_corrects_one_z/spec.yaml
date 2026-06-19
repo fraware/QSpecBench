@@ -1,49 +1,47 @@
-qspecbench_version: "0.1"
+qspecbench_version: '0.2'
 id: three_qubit_phase_flip_code_corrects_one_z
-title: "Three-qubit phase-flip code corrects one Z error"
+title: Three-qubit phase-flip code corrects one Z error
 track: qec
 domain: quantum_error_correction
 claim_type: error_correction
 difficulty: intermediate
-
 informal_claim:
-  statement: "The three-qubit phase-flip code corrects any single Z error under the declared Pauli phase-flip error model."
+  statement: The three-qubit phase-flip code corrects any single Z error under the
+    declared Pauli phase-flip error model.
   source: null
   reference_key: null
-
 semantic_level:
   primary: qec
-  secondary: ["algebraic"]
-
+  secondary:
+  - algebraic
 objects:
-  - name: phase_flip_code
-    type: stabilizer_code
-    path: artifacts/code.json
-    format: json
-    role: specification
-  - name: error_model
-    type: other
-    path: artifacts/error_model.json
-    format: json
-    role: specification
-  - name: syndrome_table
-    type: decoder
-    path: artifacts/syndrome_table.json
-    format: json
-    role: reference
-  - name: correction_table
-    type: decoder
-    path: artifacts/correction_table.json
-    format: json
-    role: reference
-
+- name: phase_flip_code
+  type: stabilizer_code
+  path: artifacts/code.json
+  format: json
+  role: specification
+- name: error_model
+  type: other
+  path: artifacts/error_model.json
+  format: json
+  role: specification
+- name: syndrome_table
+  type: decoder
+  path: artifacts/syndrome_table.json
+  format: json
+  role: reference
+- name: correction_table
+  type: decoder
+  path: artifacts/correction_table.json
+  format: json
+  role: reference
 specification:
   mode: exact
   preconditions:
-    - "Pauli-only phase-flip (Z) error model, single error"
-    - "decoder correctness assumed"
+  - Pauli-only phase-flip (Z) error model, single error
+  - decoder correctness assumed
   postconditions:
-    - "logical state preserved up to Pauli frame after correction"
+  - logical state preserved up to Pauli frame after correction
   invariants: []
   approximation:
     enabled: false
@@ -59,55 +57,58 @@ specification:
     ancilla: null
     measurements: null
     other: []
-
 assumptions:
   mathematical:
-    - "stabilizer formalism on three qubits"
+  - stabilizer formalism on three qubits
   physical: []
   tool: []
   artifact: []
   unverified:
-    - "decoder lookup correctness"
-
+  - decoder lookup correctness
 acceptable_evidence:
-  - type: qec_verifier_result
-    checker: "qec json validator"
-    path: artifacts/code.json
-    required_for_claim: false
-    trust_level: externally_trusted
-  - type: lean_proof
-    checker: "Lean 4 kernel"
-    path: null
-    required_for_claim: false
-    trust_level: checked
-
+- type: qec_verifier_result
+  checker: qec json validator
+  path: artifacts/code.json
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
 evidence:
-  - id: code_json_valid
-    type: qec_verifier_result
-    path: artifacts/code.json
-    checker: "qec json validator"
-    command: "python adapters/qec/parse_result.py artifacts/code.json"
-    status: passing
-    notes: "Stabilizer JSON structure validation only."
-
+- id: code_json_valid
+  type: qec_verifier_result
+  path: artifacts/code.json
+  checker: qec json validator
+  command: python adapters/qec/parse_result.py artifacts/code.json
+  status: passing
+  notes: Stabilizer JSON structure validation only.
+- id: lean_stabilizer_commutation
+  type: lean_proof
+  path: evidence/phase_flip_stabilizers.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/phase_flip_stabilizers.lean
+  status: passing
+  notes: Kernel-checked phase-flip stabilizer commutation.
 trust_boundary:
   checked_by:
-    - "stabilizer code JSON validation"
-  trusted_kernels: []
+  - stabilizer code JSON validation
+  - Lean 4 kernel stabilizer commutation
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
-    - "decoder lookup tables"
+  - decoder lookup tables
   assumptions_not_checked:
-    - "correction restores logical state"
-
+  - correction restores logical state
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
-
+  maturity: reference
 qec_status:
   code_definition: complete
   stabilizer_commutation: complete
@@ -116,5 +117,11 @@ qec_status:
   decoder_claim: assumed
   correction_claim: draft
   repeated_round_claim: out_of_scope
-
 references: []
+proof_obligations:
+- id: stabilizer_commutation
+  status: passing
+  notes: Phase-flip stabilizer commutation
+- id: decoder_correctness
+  status: not_applicable
+  notes: Decoder assumed per trust boundary
