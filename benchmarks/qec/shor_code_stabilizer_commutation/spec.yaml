@@ -1,33 +1,30 @@
-qspecbench_version: "0.1"
+qspecbench_version: '0.2'
 id: shor_code_stabilizer_commutation
-title: "Shor code stabilizer commutation"
+title: Shor code stabilizer commutation
 track: qec
 domain: quantum_error_correction
 claim_type: stabilizer_commutation
 difficulty: intermediate
-
 informal_claim:
-  statement: "Declared Shor-code stabilizer generators pairwise commute (scaffold specification)."
+  statement: Declared Shor-code stabilizer generators pairwise commute (scaffold specification).
   source: null
   reference_key: null
-
 semantic_level:
   primary: qec
-  secondary: ["algebraic"]
-
+  secondary:
+  - algebraic
 objects:
-  - name: shor_code
-    type: stabilizer_code
-    path: artifacts/code.json
-    format: json
-    role: specification
-
+- name: shor_code
+  type: stabilizer_code
+  path: artifacts/code.json
+  format: json
+  role: specification
 specification:
   mode: exact
   preconditions:
-    - "stabilizer generators from artifacts/code.json"
+  - stabilizer generators from artifacts/code.json
   postconditions:
-    - "all stabilizer generators pairwise commute"
+  - all stabilizer generators pairwise commute
   invariants: []
   approximation:
     enabled: false
@@ -43,54 +40,66 @@ specification:
     ancilla: null
     measurements: null
     other: []
-
 assumptions:
   mathematical:
-    - "Pauli group commutation rules"
+  - Pauli group commutation rules
   physical: []
   tool: []
   artifact: []
   unverified:
-    - "full Shor code distance and correction claims"
-
+  - full Shor code distance and correction claims
 acceptable_evidence:
-  - type: qec_verifier_result
-    checker: "qec json validator"
-    path: artifacts/code.json
-    required_for_claim: false
-    trust_level: externally_trusted
-
+- type: qec_verifier_result
+  checker: qec json validator
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  required_for_claim: false
+  trust_level: checked
 evidence:
-  - id: code_json_valid
-    type: qec_verifier_result
-    path: artifacts/code.json
-    checker: "qec json validator"
-    command: "python adapters/qec/parse_result.py artifacts/code.json"
-    status: passing
-    notes: "JSON structure validation only."
-
+- id: code_json_valid
+  type: qec_verifier_result
+  path: artifacts/code.json
+  checker: qec json validator
+  command: python adapters/qec/parse_result.py artifacts/code.json
+  status: passing
+  notes: JSON structure validation only.
+- id: lean_stabilizer_commutation
+  type: lean_proof
+  path: evidence/shor_stabilizers.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/shor_stabilizers.lean
+  status: passing
+  notes: Kernel-checked Shor stabilizer commutation scaffold.
 trust_boundary:
   checked_by:
-    - "stabilizer JSON schema validation"
-  trusted_kernels: []
+  - stabilizer JSON schema validation
+  - Lean 4 kernel stabilizer commutation
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
-    - "algebraic commutation proof"
-    - "correction and distance claims"
-
+  - algebraic commutation proof beyond scaffold
+  - correction and distance claims
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
-
+  maturity: reference
 qec_status:
   code_definition: complete
-  stabilizer_commutation: draft
+  stabilizer_commutation: complete
   decoder_claim: out_of_scope
   correction_claim: missing
-
+proof_obligations:
+- id: stabilizer_commutation
+  status: passing
+  notes: Lean shor_stabilizers_commute
+- id: decoder_correctness
+  status: not_applicable
+  notes: Decoder out of scope
 references: []
