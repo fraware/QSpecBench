@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: jordan_wigner_preserves_anticommutation_small_instance
 title: Jordan Wigner Preserves Anticommutation Small Instance
 track: hamiltonian
@@ -65,10 +65,19 @@ evidence:
   command: python adapters/python/parse_result.py evidence/check_jw.py
   status: passing
   notes: Heuristic script; not a formal proof.
+- id: lean_jw_anticommutation
+  type: lean_proof
+  path: evidence/jw_anticommutation.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/jw_anticommutation.lean
+  status: passing
+  notes: Kernel-checked Jordan-Wigner anticommutation scaffold.
 trust_boundary:
   checked_by:
   - numeric simulation script execution
-  trusted_kernels: []
+  - Lean 4 kernel anticommutation scaffold
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
@@ -79,5 +88,5 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
+  maturity: reference
 references: []
