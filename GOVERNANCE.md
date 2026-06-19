@@ -1,18 +1,30 @@
 # Governance
 
-QSpecBench uses three maintainer roles:
+QSpecBench uses three maintainer roles. Initial maintainership is open to community volunteers via issue discussion.
 
 ## Schema maintainers
 
 Responsible for schema design, validation rules, and compatibility.
 
+**Invitation process:** open a discussion or comment on a schema-change issue; schema maintainers confirm by track record of merged schema PRs.
+
 ## Track maintainers
 
 Responsible for algorithms, equivalence, QEC, Hamiltonian, and AI-formalization tracks.
 
+| Track | Scope |
+|-------|--------|
+| Algorithms | Protocol and circuit correctness claims |
+| Equivalence | Unitary and compiler equivalence |
+| QEC | Codes, decoders, correction (honest trust boundaries) |
+| Hamiltonian | Simulation, mappings, resource contracts |
+| AI formalization | Draft formalization and semantic rubric |
+
+**Invitation process:** propose yourself on a track-related PR or benchmark issue; existing contributors nominate in review.
+
 ## Evidence maintainers
 
-Responsible for adapters, checker integration, trust-level rules, and CI behavior.
+Responsible for adapters, checker integration, trust-level rules, and CI behavior (Lean, QCEC, SMT, certificates).
 
 ## Review policy
 
