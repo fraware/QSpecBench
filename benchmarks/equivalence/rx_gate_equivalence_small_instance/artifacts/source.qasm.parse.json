@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "adapter": "qasm_parse",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\rx_gate_equivalence_small_instance\\artifacts\\source.qasm",
+  "trust_level": "syntax_only",
+  "errors": []
+}
