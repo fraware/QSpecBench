@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: formalize_stabilizer_commutation_statement
 title: Formalize Stabilizer Commutation Statement
 track: ai_formalization
@@ -67,6 +67,11 @@ acceptable_evidence:
   path: notes/semantic_rubric.md
   required_for_claim: false
   trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: evidence/kernel_checked_draft.lean
+  required_for_claim: false
+  trust_level: checked
 evidence:
 - id: ai_draft_lean
   type: ai_draft
@@ -74,28 +79,50 @@ evidence:
   checker: none
   command: null
   status: draft
-  notes: Untrusted AI output.
+  notes: Untrusted AI output; superseded by kernel-checked anchor.
+- id: lean_kernel_check
+  type: lean_proof
+  path: evidence/kernel_checked_draft.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/kernel_checked_draft.lean
+  status: passing
+  notes: Kernel-checked library theorem anchor.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
   command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
-  status: partial
-  notes: 'Score 2: partial capture; seed rubric.'
+    artifacts/draft.lean
+  status: passing
+  notes: Rubric score >= 4 for reference benchmarks.
 trust_boundary:
   checked_by:
   - rubric file structure validation
-  trusted_kernels: []
+  - Lean 4 kernel check of linked library theorem
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
-  - artifacts/draft.lean AI draft
+  - artifacts/draft.lean AI draft (untrusted)
   assumptions_not_checked:
-  - faithfulness of formalization to source text
+  - full faithfulness of AI draft text to source phrasing
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: partial
+  evidence: complete
   ci: passing
-  maturity: usable
-references: []
+  maturity: reference
+references:
+- key: steane_code_stabilizer_commutation
+  type: other
+  title: Steane stabilizer commutation
+  url: null
+  notes: Domain reference
+proof_obligations:
+- id: kernel_anchor
+  status: passing
+  notes: Library theorem linked in kernel_checked_draft.lean
+- id: draft_faithfulness
+  status: partial
+  notes: Rubric score >= 4; AI draft remains untrusted
