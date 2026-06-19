@@ -1,0 +1,11 @@
+{
+  "artifact_gate_model": "openqasm3_scaffold",
+  "lean_module": "QSpecBench.Algorithms",
+  "lean_theorem": "phase_estimation_z_eigenvalue_on_one",
+  "normalization": {
+    "oracle": "declared_in_notes",
+    "measurement": "excluded_from_matrix"
+  },
+  "claimed_link": "documented_not_proved",
+  "qasm_artifact": "artifacts/circuit.qasm"
+}
