@@ -1,0 +1,81 @@
+qspecbench_version: '0.2'
+id: bell_state_preparation
+title: Bell state preparation
+track: algorithm
+domain: quantum_algorithm
+claim_type: state_preparation
+difficulty: introductory
+informal_claim:
+  statement: Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+> on two
+    qubits.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: algorithmic
+  secondary:
+  - circuit
+objects:
+- name: circuit
+  type: circuit
+  path: artifacts/circuit.qasm
+  format: qasm3
+  role: source
+specification:
+  mode: exact
+  preconditions:
+  - standard qubit semantics
+  - initial state |00>
+  postconditions:
+  - output is |Phi+> up to global phase
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: true
+    qubits: '2'
+    gates: H, CX
+    depth: null
+    t_count: '0'
+    t_depth: null
+    ancilla: '0'
+    measurements: '0'
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []
+acceptable_evidence:
+- type: qasm_parse
+  checker: qasm parser adapter
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence:
+- id: qasm_syntax
+  type: qasm_parse
+  path: artifacts/circuit.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
+  status: passing
+  notes: Syntax only; algorithm correctness not verified.
+trust_boundary:
+  checked_by:
+  - QASM syntax parse
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - algorithm correctness
