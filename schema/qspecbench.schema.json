@@ -23,7 +23,7 @@
     "references"
   ],
   "properties": {
-    "qspecbench_version": { "type": "string", "const": "0.1" },
+    "qspecbench_version": { "type": "string", "enum": ["0.1", "0.2"] },
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
     "title": { "type": "string", "minLength": 1 },
     "track": {
@@ -89,6 +89,11 @@
     "references": {
       "type": "array",
       "items": { "$ref": "#/$defs/reference_entry" }
+    },
+    "semantic_bridge": { "$ref": "#/$defs/semantic_bridge" },
+    "proof_obligations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/proof_obligation" }
     }
   },
   "additionalProperties": false,
@@ -337,6 +342,45 @@
         "type": { "type": "string", "enum": ["paper", "repo", "documentation", "lecture", "other"] },
         "title": { "type": "string" },
         "url": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "semantic_bridge": {
+      "type": "object",
+      "required": [
+        "artifact_gate_model",
+        "lean_module",
+        "lean_theorem",
+        "normalization",
+        "claimed_link"
+      ],
+      "properties": {
+        "artifact_gate_model": { "type": "string", "minLength": 1 },
+        "lean_module": { "type": "string", "minLength": 1 },
+        "lean_theorem": { "type": "string", "minLength": 1 },
+        "normalization": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "claimed_link": {
+          "type": "string",
+          "enum": ["documented_not_proved", "kernel_checked"]
+        },
+        "bridge_evidence_id": { "type": ["string", "null"] },
+        "gate_set": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "proof_obligation": {
+      "type": "object",
+      "required": ["id", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["missing", "partial", "passing", "not_applicable"]
+        },
         "notes": { "type": ["string", "null"] }
       },
       "additionalProperties": false
