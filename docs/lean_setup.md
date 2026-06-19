@@ -50,6 +50,21 @@ If `elan` or `lake` fails with `CRYPT_E_NO_REVOCATION_CHECK`, `SEC_E_CERT_EXPIRE
 
 Local Lean failures do **not** block contribution if `qspecbench validate`, `qspecbench check-evidence` (non-Lean paths), and `pytest` pass. CI remains authoritative for kernel-checked proofs.
 
+## Mathlib (Layer 3)
+
+The `lean/` project depends on **Mathlib** pinned to the repository `lean-toolchain` (Lean 4.14.0). First builds download Mathlib and can take 30–45 minutes without cache.
+
+```bash
+cd lean
+lake exe cache get   # optional; CI runs this
+lake build
+```
+
+Library layout:
+
+- `QSpecBench.Legacy.*` — integer matrix proofs (backward-compatible evidence anchors)
+- `QSpecBench.Quantum.*` — OpenQASM denotation semantics and Mathlib scaffolds
+
 ## Verify local build
 
 ```bash
