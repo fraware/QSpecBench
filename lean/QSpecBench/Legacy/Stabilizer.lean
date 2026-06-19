@@ -27,6 +27,9 @@ theorem bit_flip_stabilizers_commute : pauliCommutes3 bitFlipZ0Z1 bitFlipZ1Z2 :=
   intro i j hne hboth
   fin_cases i <;> fin_cases j <;> first | contradiction | trivial
 
+theorem repetition_stabilizers_commute : pauliCommutes3 bitFlipZ0Z1 bitFlipZ1Z2 :=
+  bit_flip_stabilizers_commute
+
 def phaseFlipX0X1 : Pauli3 := fun i =>
   match i with
   | ⟨0, _⟩ => 2
@@ -86,5 +89,22 @@ theorem shor_stabilizers_commute :
   all_goals
     intro i j hne hboth
     fin_cases i <;> fin_cases j <;> first | contradiction | simp [shorZ01, shorZ12, shorZ34, shorZ45, shorZ67, shorZ78]
+
+def surfaceZPlaq0 : Pauli9 := fun i => if i.val ≤ 1 then 1 else 0
+def surfaceZPlaq1 : Pauli9 := fun i => if i.val = 1 ∨ i.val = 2 then 1 else 0
+def surfaceZPlaq2 : Pauli9 := fun i => if i.val = 3 ∨ i.val = 4 then 1 else 0
+def surfaceZPlaq3 : Pauli9 := fun i => if i.val = 4 ∨ i.val = 5 then 1 else 0
+
+theorem surface_stabilizers_commute :
+    pauliCommutes9 surfaceZPlaq0 surfaceZPlaq1 ∧
+    pauliCommutes9 surfaceZPlaq1 surfaceZPlaq2 ∧
+    pauliCommutes9 surfaceZPlaq2 surfaceZPlaq3 ∧
+    pauliCommutes9 surfaceZPlaq0 surfaceZPlaq2 ∧
+    pauliCommutes9 surfaceZPlaq0 surfaceZPlaq3 ∧
+    pauliCommutes9 surfaceZPlaq1 surfaceZPlaq3 := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  all_goals
+    intro i j hne hboth
+    fin_cases i <;> fin_cases j <;> first | contradiction | simp [surfaceZPlaq0, surfaceZPlaq1, surfaceZPlaq2, surfaceZPlaq3]
 
 end QSpecBench
