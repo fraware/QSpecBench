@@ -1,0 +1,16 @@
+{
+  "score": 2,
+  "reviewer_role": "QSpecBench seed reviewer",
+  "assumptions": [
+    "step size declared in artifact",
+    "bound is O(step^3) contract language only",
+    "no operator-norm proof attached"
+  ],
+  "source_rubric": "notes\\semantic_rubric.md",
+  "draft_lean": "artifacts\\hamiltonian.json",
+  "syntactically_valid": null,
+  "lean_check": "skipped",
+  "lean_errors": [
+    "error: error during download\ninfo: caused by: [35] SSL connect error (schannel: next InitializeSecurityContext failed: CRYPT_E_NO_REVOCATION_CHECK (0x80092012) - The revocation function was unable to check revocation for the certificate.)"
+  ]
+}

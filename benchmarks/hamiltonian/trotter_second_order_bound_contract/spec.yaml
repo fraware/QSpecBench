@@ -1,0 +1,81 @@
+qspecbench_version: '0.2'
+id: trotter_second_order_bound_contract
+title: Trotter second-order bound contract
+track: hamiltonian
+domain: hamiltonian_simulation
+claim_type: error_bound_contract
+difficulty: intermediate
+informal_claim:
+  statement: A second-order Trotter step declares an error-bound contract without
+    formal proof.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: mathematical
+  secondary:
+  - resource
+objects:
+- name: hamiltonian
+  type: hamiltonian
+  path: artifacts/hamiltonian.json
+  format: json
+  role: specification
+specification:
+  mode: approximate
+  preconditions:
+  - second-order Trotter declared
+  postconditions:
+  - error bound field documented
+  invariants: []
+  approximation:
+    enabled: true
+    metric: operator_norm
+    bound: O(step^3) contract only
+  resources:
+    enabled: true
+    qubits: '2'
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other:
+    - Trotter order 2
+assumptions:
+  mathematical: []
+  physical: []
+  tool: []
+  artifact: []
+  unverified:
+  - bound proof
+acceptable_evidence:
+- type: human_review
+  checker: semantic review rubric
+  path: notes/semantic_rubric.md
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence:
+- id: bound_contract_review
+  type: human_review
+  path: notes/semantic_rubric.md
+  checker: semantic review rubric
+  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md artifacts/hamiltonian.json
+  status: partial
+  notes: Contract documented; bound not proved.
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+  - error bound
+  assumptions_not_checked:
+  - Trotter error proof
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []
