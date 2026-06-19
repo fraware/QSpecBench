@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "adapter": "qec_json_validator",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\repetition_code_three_one_three\\artifacts\\code.json",
+  "trust_level": "tool_checked",
+  "checks_run": [
+    "schema_structure",
+    "stabilizer_commutation",
+    "logical_stabilizer_commutation",
+    "distance_consistency"
+  ],
+  "warnings": [],
+  "errors": []
+}

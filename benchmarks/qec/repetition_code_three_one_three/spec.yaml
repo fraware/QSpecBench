@@ -1,0 +1,84 @@
+qspecbench_version: '0.2'
+id: repetition_code_three_one_three
+title: Repetition code [[3,1,3]]
+track: qec
+domain: quantum_error_correction
+claim_type: qec_claim
+difficulty: introductory
+informal_claim:
+  statement: The three-qubit repetition code has parameters [[3,1,3]] under declared
+    stabilizer generators.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: qec
+  secondary: []
+objects:
+- name: code
+  type: stabilizer_code
+  path: artifacts/code.json
+  format: json
+  role: specification
+specification:
+  mode: exact
+  preconditions:
+  - Pauli-only error model
+  postconditions:
+  - code parameters n=3,k=1,d=3 declared
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard stabilizer code semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+- type: qec_verifier_result
+  checker: qec json validator
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence:
+- id: code_json_valid
+  type: qec_verifier_result
+  path: artifacts/code.json
+  checker: qec json validator
+  command: python adapters/qec/parse_result.py artifacts/code.json
+  status: passing
+  notes: JSON structure validation only.
+trust_boundary:
+  checked_by:
+  - stabilizer JSON schema validation
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - distance proof
+  - decoder correctness
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+qec_status:
+  code_definition: complete
+  stabilizer_commutation: draft
+  decoder_claim: out_of_scope
+  correction_claim: missing
+references: []
