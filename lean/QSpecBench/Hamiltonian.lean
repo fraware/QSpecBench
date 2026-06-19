@@ -100,23 +100,31 @@ def pauliZ1Entry : Fin 4 → Fin 4 → ℂ
   | ⟨3, _⟩, ⟨3, _⟩ => (-1 : ℂ)
   | _, _ => (0 : ℂ)
 
+/-- Pauli X on qubit 0 (flip indices 0↔1, 2↔3). -/
+def pauliX0Entry : Fin 4 → Fin 4 → ℂ := pauliXEntry
+
+/-- Pauli X on qubit 1 (flip indices 0↔2, 1↔3). -/
 def pauliX1Entry : Fin 4 → Fin 4 → ℂ
-  | ⟨0, _⟩, ⟨1, _⟩ => (1 : ℂ)
-  | ⟨1, _⟩, ⟨0, _⟩ => (1 : ℂ)
-  | ⟨2, _⟩, ⟨3, _⟩ => (1 : ℂ)
-  | ⟨3, _⟩, ⟨2, _⟩ => (1 : ℂ)
+  | ⟨0, _⟩, ⟨2, _⟩ => (1 : ℂ)
+  | ⟨2, _⟩, ⟨0, _⟩ => (1 : ℂ)
+  | ⟨1, _⟩, ⟨3, _⟩ => (1 : ℂ)
+  | ⟨3, _⟩, ⟨1, _⟩ => (1 : ℂ)
   | _, _ => (0 : ℂ)
 
+/-- Pauli Y on qubit 0 (flip indices 0↔1, 2↔3 with phase). -/
+def pauliY0Entry : Fin 4 → Fin 4 → ℂ := pauliYEntry
+
+/-- Pauli Y on qubit 1 (flip indices 0↔2, 1↔3 with phase). -/
 def pauliY1Entry : Fin 4 → Fin 4 → ℂ
-  | ⟨0, _⟩, ⟨1, _⟩ => (-I : ℂ)
-  | ⟨1, _⟩, ⟨0, _⟩ => (I : ℂ)
-  | ⟨2, _⟩, ⟨3, _⟩ => (-I : ℂ)
-  | ⟨3, _⟩, ⟨2, _⟩ => (I : ℂ)
+  | ⟨0, _⟩, ⟨2, _⟩ => (-I : ℂ)
+  | ⟨2, _⟩, ⟨0, _⟩ => (I : ℂ)
+  | ⟨1, _⟩, ⟨3, _⟩ => (-I : ℂ)
+  | ⟨3, _⟩, ⟨1, _⟩ => (I : ℂ)
   | _, _ => (0 : ℂ)
 
-def pauliX0 : HamMatrix := Matrix.of pauliXEntry
+def pauliX0 : HamMatrix := Matrix.of pauliX0Entry
 def pauliX1 : HamMatrix := Matrix.of pauliX1Entry
-def pauliY0 : HamMatrix := Matrix.of pauliYEntry
+def pauliY0 : HamMatrix := Matrix.of pauliY0Entry
 def pauliY1 : HamMatrix := Matrix.of pauliY1Entry
 def pauliZ0 : HamMatrix := Matrix.of pauliZ1Entry
 def pauliZ1 : HamMatrix := Matrix.of pauliZEntry
@@ -124,6 +132,12 @@ def pauliZ1 : HamMatrix := Matrix.of pauliZEntry
 private theorem pauliZ1Entry_herm (i j : Fin 4) : star (pauliZ1Entry j i) = pauliZ1Entry i j := by
   fin_cases i <;> fin_cases j <;>
     simp [pauliZ1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
+
+private theorem pauliX0Entry_herm (i j : Fin 4) : star (pauliX0Entry j i) = pauliX0Entry i j :=
+  pauliXEntry_herm i j
+
+private theorem pauliY0Entry_herm (i j : Fin 4) : star (pauliY0Entry j i) = pauliY0Entry i j :=
+  pauliYEntry_herm i j
 
 private theorem pauliX1Entry_herm (i j : Fin 4) : star (pauliX1Entry j i) = pauliX1Entry i j := by
   fin_cases i <;> fin_cases j <;>
@@ -136,7 +150,7 @@ private theorem pauliY1Entry_herm (i j : Fin 4) : star (pauliY1Entry j i) = paul
 private theorem pauliX0_herm : pauliX0.conjTranspose = pauliX0 := by
   ext i j
   simp [Matrix.conjTranspose_apply, Matrix.of_apply]
-  exact pauliXEntry_herm i j
+  exact pauliX0Entry_herm i j
 
 private theorem pauliX1_herm : pauliX1.conjTranspose = pauliX1 := by
   ext i j
@@ -146,7 +160,7 @@ private theorem pauliX1_herm : pauliX1.conjTranspose = pauliX1 := by
 private theorem pauliY0_herm : pauliY0.conjTranspose = pauliY0 := by
   ext i j
   simp [Matrix.conjTranspose_apply, Matrix.of_apply]
-  exact pauliYEntry_herm i j
+  exact pauliY0Entry_herm i j
 
 private theorem pauliY1_herm : pauliY1.conjTranspose = pauliY1 := by
   ext i j
@@ -163,13 +177,20 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
   simp [Matrix.conjTranspose_apply, Matrix.of_apply]
   exact pauliZEntry_herm i j
 
+theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
+  intro h
+  have : pauliX0 0 2 = pauliX1 0 2 := by rw [h]
+  simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry] at this
+
 private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
-  have h : pauliX1 = pauliX0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
-  simp [h]
+  ext i j
+  simp [Matrix.mul_apply, Matrix.of_apply, pauliX0Entry, pauliX1Entry]
+  fin_cases i <;> fin_cases j <;> simp <;> ring
 
 private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
-  have h : pauliY1 = pauliY0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
-  simp [h]
+  ext i j
+  simp [Matrix.mul_apply, Matrix.of_apply, pauliY0Entry, pauliY1Entry]
+  fin_cases i <;> fin_cases j <;> simp <;> ring
 
 private theorem pauliZ0_eq_diagonal : pauliZ0 = Matrix.diagonal fun i => pauliZ1Entry i i := by
   ext i j
