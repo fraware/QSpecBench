@@ -74,7 +74,9 @@ def _default_adapter_command(evidence_type: str, artifact_path: Path) -> str | N
         "ai_draft": f"python {ADAPTERS_ROOT / 'ai_formalization' / 'parse_result.py'}",
         "lean_proof": f"python {ADAPTERS_ROOT / 'lean' / 'parse_result.py'}",
         "sat_certificate": f"python {ADAPTERS_ROOT / 'sat_certificate' / 'parse_result.py'}",
+        "smt_certificate": f"python {ADAPTERS_ROOT / 'smt' / 'parse_result.py'}",
         "qcec_result": f"python {ADAPTERS_ROOT / 'qcec' / 'parse_result.py'}",
+        "smt_certificate": f"python {ADAPTERS_ROOT / 'smt' / 'parse_result.py'}",
     }
     template = mapping.get(evidence_type)
     if not template:
@@ -154,6 +156,8 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
                 cwd=str(REPO_ROOT),
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 shell=(sys.platform == "win32" and cmd[0].endswith(".sh")),
             )
             result = EvidenceRunResult(
