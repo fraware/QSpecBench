@@ -10,17 +10,19 @@ Source text, target formal system, expected statement shape, rubric, trust bound
 
 ## Accepted evidence
 
-`ai_draft` (untrusted), human semantic review, kernel check (if available).
+`ai_draft` (untrusted), human semantic review, kernel-checked anchor linking to library theorems.
 
-## Good first claims
+## Reference exemplars
 
-- `formalize_no_cloning_statement` (introductory, usable)
-- `extract_teleportation_correctness_statement` (intermediate, seed)
+- `formalize_no_cloning_statement` (reference)
+- `formalize_small_hamiltonian_hermiticity_statement` (reference)
+- `formalize_stabilizer_commutation_statement` (reference)
+- `formalize_bit_flip_code_corrects_one_x` (reference)
 
 ## Semantic rubric (0–5)
 
-See `docs/ai_formalization_track.md`.
+See `docs/ai_formalization_track.md`. Reference maturity requires score >= 4.
 
 ## Known limitations
 
-Syntactic validity and kernel checking do not imply semantic faithfulness to source text.
+Syntactic validity and kernel checking do not imply semantic faithfulness to source text. AI drafts remain untrusted; kernel anchors import library theorems only.
