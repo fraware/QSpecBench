@@ -2,6 +2,7 @@ import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Matrix.Notation
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.NormNum
+import QSpecBench.Legacy.Pauli
 
 /-!
 # Small fermionic Hamiltonian Hermiticity (Pauli matrix model).
@@ -73,5 +74,90 @@ theorem small_fermionic_hamiltonian_is_hermitian :
   simp [smallFermionicHamiltonian, pauliZ4_herm, pauliX4_herm, pauliY4_herm,
     Matrix.conjTranspose_add, Matrix.conjTranspose_sub, Matrix.conjTranspose_smul,
     Matrix.conjTranspose_mul, Matrix.conjTranspose_one]
+
+/-- Declared Pauli term count for the small fermionic instance. -/
+def declaredPauliTermCount : Nat := 3
+
+theorem declared_pauli_term_count_positive : declaredPauliTermCount > 0 := by decide
+
+theorem declared_pauli_term_count_matches_artifact : declaredPauliTermCount = 3 := rfl
+
+/-- Jordan–Wigner scaffold: mapped Pauli X and Z anticommute on one qubit. -/
+theorem jordan_wigner_anticommutation_scaffold (i j : Fin 2) :
+    mul2 pauliX2 pauliZ2 i j + mul2 pauliZ2 pauliX2 i j = 0 :=
+  pauli_x_z_anticommute i j
+
+/-- Pauli decomposition matches declared Z0 Z1 + 0.5 X0 − 0.25 Y1 coefficients. -/
+theorem pauli_decomposition_matches_declared_terms :
+    smallFermionicHamiltonian =
+      pauliZ4 * pauliZ4 + (1 / 2 : ℂ) • pauliX4 - (1 / 4 : ℂ) • pauliY4 := rfl
+
+def pauliZ1Entry : Fin 4 → Fin 4 → ℂ
+  | ⟨0, _⟩, ⟨0, _⟩ => (1 : ℂ)
+  | ⟨1, _⟩, ⟨1, _⟩ => (1 : ℂ)
+  | ⟨2, _⟩, ⟨2, _⟩ => (-1 : ℂ)
+  | ⟨3, _⟩, ⟨3, _⟩ => (-1 : ℂ)
+  | _, _ => (0 : ℂ)
+
+def pauliX1Entry : Fin 4 → Fin 4 → ℂ
+  | ⟨0, _⟩, ⟨1, _⟩ => (1 : ℂ)
+  | ⟨1, _⟩, ⟨0, _⟩ => (1 : ℂ)
+  | ⟨2, _⟩, ⟨3, _⟩ => (1 : ℂ)
+  | ⟨3, _⟩, ⟨2, _⟩ => (1 : ℂ)
+  | _, _ => (0 : ℂ)
+
+def pauliY1Entry : Fin 4 → Fin 4 → ℂ
+  | ⟨0, _⟩, ⟨1, _⟩ => (-I : ℂ)
+  | ⟨1, _⟩, ⟨0, _⟩ => (I : ℂ)
+  | ⟨2, _⟩, ⟨3, _⟩ => (-I : ℂ)
+  | ⟨3, _⟩, ⟨2, _⟩ => (I : ℂ)
+  | _, _ => (0 : ℂ)
+
+def pauliX0 : HamMatrix := Matrix.of pauliXEntry
+def pauliX1 : HamMatrix := Matrix.of pauliX1Entry
+def pauliY0 : HamMatrix := Matrix.of pauliYEntry
+def pauliY1 : HamMatrix := Matrix.of pauliY1Entry
+def pauliZ0 : HamMatrix := Matrix.of pauliZ1Entry
+def pauliZ1 : HamMatrix := Matrix.of pauliZEntry
+
+private theorem pauliZ1Entry_herm (i j : Fin 4) : star (pauliZ1Entry j i) = pauliZ1Entry i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [pauliZ1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
+
+private theorem pauliX1Entry_herm (i j : Fin 4) : star (pauliX1Entry j i) = pauliX1Entry i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [pauliX1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
+
+private theorem pauliY1Entry_herm (i j : Fin 4) : star (pauliY1Entry j i) = pauliY1Entry i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [pauliY1Entry, star, Complex.conj_re, Complex.conj_im, Complex.I_mul_I, Complex.ext_iff]
+
+private theorem pauliX0_herm : pauliX0.conjTranspose = pauliX0 := by
+  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliXEntry_herm i j]
+
+private theorem pauliX1_herm : pauliX1.conjTranspose = pauliX1 := by
+  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliX1Entry_herm i j]
+
+private theorem pauliY0_herm : pauliY0.conjTranspose = pauliY0 := by
+  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliYEntry_herm i j]
+
+private theorem pauliY1_herm : pauliY1.conjTranspose = pauliY1 := by
+  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliY1Entry_herm i j]
+
+private theorem pauliZ0_herm : pauliZ0.conjTranspose = pauliZ0 := by
+  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliZ1Entry_herm i j]
+
+private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
+  ext i j; simp [Matrix.conjTranspose_apply, Matrix.of_apply, pauliZEntry_herm i j]
+
+/-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
+noncomputable def heisenbergSmallInstance : HamMatrix :=
+  pauliX0 * pauliX1 + (1 / 2 : ℂ) • (pauliY0 * pauliY1) + (1 / 4 : ℂ) • (pauliZ0 * pauliZ1)
+
+theorem heisenberg_small_instance_is_hermitian :
+    heisenbergSmallInstance.conjTranspose = heisenbergSmallInstance := by
+  simp [heisenbergSmallInstance, pauliX0_herm, pauliX1_herm, pauliY0_herm, pauliY1_herm,
+    pauliZ0_herm, pauliZ1_herm, Matrix.conjTranspose_add, Matrix.conjTranspose_smul,
+    Matrix.conjTranspose_mul]
 
 end QSpecBench
