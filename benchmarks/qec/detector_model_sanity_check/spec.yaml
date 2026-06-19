@@ -76,7 +76,7 @@ status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: missing
+  evidence: partial
   ci: passing
   maturity: usable
 references: []
