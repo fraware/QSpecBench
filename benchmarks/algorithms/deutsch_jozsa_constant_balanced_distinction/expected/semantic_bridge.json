@@ -1,0 +1,11 @@
+{
+  "artifact_gate_model": "openqasm3_scaffold",
+  "lean_module": "QSpecBench.Algorithms",
+  "lean_theorem": "dj_constant_oracle_hadamard_square",
+  "normalization": {
+    "hadamard": "unnormalized_int_model",
+    "oracle": "placeholder_not_kernel_linked"
+  },
+  "claimed_link": "documented_not_proved",
+  "qasm_artifact": "artifacts/circuit.qasm"
+}
