@@ -2,36 +2,42 @@
 
 ## Claim
 
-Evaluate AI-assisted formalization faithfulness for `extract_teleportation_correctness_statement`.
+Evaluate AI-assisted formalization faithfulness for extracting a teleportation correctness statement from source text.
 
 ## Why this matters
 
-AI formalization track requires explicit untrusted labels and semantic rubric.
+Mission-corpus AI formalization requires explicit untrusted labels, semantic rubric scoring, and honest kernel-anchor scope. This benchmark tests extraction (not full protocol proof).
 
 ## Objects
 
-- `artifacts/source.txt`
+- `artifacts/source.txt` — informal teleportation correctness claim
+- `artifacts/draft.lean` — untrusted AI draft placeholder
+- `notes/semantic_rubric.md` — semantic faithfulness rubric (score 0–5)
 
 ## Specification
 
-Relational faithfulness claim; rubric score 0–5.
+Relational faithfulness claim; rubric score documents how well the kernel-checked anchor captures the source.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- `evidence/kernel_checked_draft.lean` — imports `QSpecBench.teleportation_preserves_state` (Bell-prep scaffold only)
+- `evidence/rubric_result.json` — parsed rubric (score 2 at current maturity)
+- `notes/semantic_rubric.md` — human review rubric (partial; score < 4)
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+The Lean anchor proves Bell-pair preparation is nontrivial; it does **not** prove state transfer, measurement, or Pauli correction from the source text. AI draft remains untrusted.
 
 ## Status
 
-Current maturity: **usable**.
+Current maturity: **usable** (reference requires rubric score >= 4 with honest anchor scope).
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+- Kernel anchor scope mismatch with full teleportation correctness claim
+- Rubric score 2: partial capture; measurement and correction not encoded
+- Reference promotion blocked until anchor and rubric align honestly
 
 ## References
 
-- (add references when promoting beyond seed)
+- [`teleportation_preserves_state_up_to_pauli_correction`](../../algorithms/teleportation_preserves_state_up_to_pauli_correction/) — full protocol benchmark
