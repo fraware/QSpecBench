@@ -1,0 +1,3 @@
+import QSpecBench.Algorithms
+
+#check QSpecBench.phase_estimation_z_eigenvalue_on_one
