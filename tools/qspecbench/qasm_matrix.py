@@ -3,19 +3,23 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
 _GATE_LINE = re.compile(
-    r"^\s*(h|x|y|z|s|t|sdg|tdg|cx|cnot|swap)\s+(.*);?\s*$",
+    r"^\s*(h|x|y|z|s|t|sdg|tdg|cx|cnot|swap|ccx)\s+(.*);?\s*$",
     re.IGNORECASE,
 )
 _RX_LINE = re.compile(
     r"^\s*rx\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
     re.IGNORECASE,
 )
+
+# Phase gates use identity on the real matrix scaffold; phase quarters documented separately.
+_PHASE_QUADRANTS = {"s": 2, "t": 1, "sdg": 6, "tdg": 7}
 
 
 def _eye(n: int) -> list[list[Fraction]]:
@@ -32,9 +36,18 @@ def _single_qubit_gate(name: str) -> list[list[Fraction]]:
         return [[Fraction(0), Fraction(-1)], [Fraction(1), Fraction(0)]]
     if g == "z":
         return [[Fraction(1), Fraction(0)], [Fraction(0), Fraction(-1)]]
-    if g in {"s", "t", "sdg", "tdg"}:
+    if g in _PHASE_QUADRANTS:
         return _eye(2)
     raise ValueError(f"unsupported single-qubit gate: {name}")
+
+
+def _rx_matrix(theta: float) -> list[list[Fraction]]:
+    if abs(theta - 1.57079632679) < 1e-6:
+        return _single_qubit_gate("h")
+    half = theta / 2.0
+    c = Fraction(math.cos(half)).limit_denominator(10**12)
+    s = Fraction(math.sin(half)).limit_denominator(10**12)
+    return [[c, -s], [-s, c]]
 
 
 def _mat_mul(a: list[list[Fraction]], b: list[list[Fraction]]) -> list[list[Fraction]]:
@@ -65,6 +78,17 @@ def _apply_single(n_qubits: int, gate: str, qubit: int) -> list[list[Fraction]]:
     return result
 
 
+def _apply_rx(n_qubits: int, theta: float, qubit: int) -> list[list[Fraction]]:
+    op = _rx_matrix(theta)
+    mats: list[list[list[Fraction]]] = []
+    for q in range(n_qubits):
+        mats.append(op if q == qubit else _eye(2))
+    result = mats[0]
+    for m in mats[1:]:
+        result = _kron(result, m)
+    return result
+
+
 def _cnot(n_qubits: int, control: int, target: int) -> list[list[Fraction]]:
     dim = 1 << n_qubits
     result = _eye(dim)
@@ -72,6 +96,20 @@ def _cnot(n_qubits: int, control: int, target: int) -> list[list[Fraction]]:
         bits = [(row >> q) & 1 for q in range(n_qubits)]
         col_bits = list(bits)
         if bits[control] == 1:
+            col_bits[target] ^= 1
+        col = sum(col_bits[q] << q for q in range(n_qubits))
+        for c in range(dim):
+            result[row][c] = Fraction(1 if c == col else 0)
+    return result
+
+
+def _ccx(n_qubits: int, c1: int, c2: int, target: int) -> list[list[Fraction]]:
+    dim = 1 << n_qubits
+    result = _eye(dim)
+    for row in range(dim):
+        bits = [(row >> q) & 1 for q in range(n_qubits)]
+        col_bits = list(bits)
+        if bits[c1] == 1 and bits[c2] == 1:
             col_bits[target] ^= 1
         col = sum(col_bits[q] << q for q in range(n_qubits))
         for c in range(dim):
@@ -127,6 +165,7 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
     n = _register_size(text)
     unitary = _eye(1 << n)
     gates_applied: list[str] = []
+    phase_quadrants: list[dict[str, Any]] = []
 
     for raw in text.splitlines():
         line = raw.strip()
@@ -139,10 +178,7 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
         if rx:
             angle = float(rx.group(1))
             q = _parse_qubit_index(rx.group(2), n)
-            if abs(angle - 1.57079632679) < 1e-6:
-                op = _apply_single(n, "h", q)
-            else:
-                raise ValueError(f"unsupported rx angle: {angle}")
+            op = _apply_rx(n, angle, q)
             unitary = _mat_mul(op, unitary)
             gates_applied.append(line)
             continue
@@ -156,6 +192,10 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
             if len(args) != 2:
                 raise ValueError(f"CX expects two arguments: {line}")
             op = _cnot(n, args[0], args[1])
+        elif gate == "ccx":
+            if len(args) != 3:
+                raise ValueError(f"CCX expects three arguments: {line}")
+            op = _ccx(n, args[0], args[1], args[2])
         elif gate == "swap":
             if len(args) != 2:
                 raise ValueError(f"SWAP expects two arguments: {line}")
@@ -163,6 +203,8 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
         else:
             if len(args) != 1:
                 raise ValueError(f"single-qubit gate expects one argument: {line}")
+            if gate in _PHASE_QUADRANTS:
+                phase_quadrants.append({"gate": gate, "qubit": args[0], "quadrant": _PHASE_QUADRANTS[gate]})
             op = _apply_single(n, gate, args[0])
         unitary = _mat_mul(op, unitary)
         gates_applied.append(line)
@@ -188,7 +230,9 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
         "normalization": {
             "hadamard": "unnormalized_int_model",
             "qasm_factor": "1/sqrt(2) per gate",
+            "phase_gates": "identity_matrix_with_quadrant_metadata",
         },
+        "phase_quadrants": phase_quadrants,
         "gates_applied": gates_applied,
         "gate_trace": gate_trace,
         "matrix": [
