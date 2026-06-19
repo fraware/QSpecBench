@@ -14,21 +14,32 @@ At minimum two artifacts per claim: `source` and `target` QASM (or formal object
 
 ## Accepted evidence
 
-QASM parse (syntax only), QCEC results, ZX certificates, independently checkable small-instance certificates.
+QASM parse (syntax only), QCEC results, SAT-style certificates, kernel-checked semantic bridges.
 
 ## Good first claims
 
 - `cnot_self_inverse_cancellation` (introductory, **reference** with checkable certificate)
-- `single_qubit_gate_cancellation` (introductory, seed)
+- `rx_gate_equivalence_small_instance` (introductory, usable)
 
 ## Examples
 
 | ID | Difficulty | Maturity | Notes |
 |----|------------|----------|-------|
-| cnot_self_inverse_cancellation | introductory | reference | SAT-style unitary certificate |
-| hadamard_conjugates_x_to_z | intermediate | seed | Pauli conjugation |
-| source_optimized_qasm_equivalence_small_instance | intermediate | seed | Compiler output pattern |
+| circuit_identity_after_layout | introductory | usable | Auto-synced from spec.yaml |
+| clifford_simplification_preserves_unitary | advanced | reference | Auto-synced from spec.yaml |
+| cnot_self_inverse_cancellation | introductory | reference | Auto-synced from spec.yaml |
+| hadamard_conjugates_x_to_z | intermediate | reference | Auto-synced from spec.yaml |
+| phase_polynomial_equivalence_small_instance | intermediate | reference | Auto-synced from spec.yaml |
+| qft_inverse_qft_small_instance | intermediate | reference | Auto-synced from spec.yaml |
+| rx_gate_equivalence_small_instance | introductory | reference | Auto-synced from spec.yaml |
+| single_qubit_gate_cancellation | introductory | reference | Auto-synced from spec.yaml |
+| source_optimized_qasm_equivalence_small_instance | intermediate | reference | Auto-synced from spec.yaml |
+| toffoli_decomposition_equivalence | intermediate | usable | Auto-synced from spec.yaml |
 
 ## Known limitations
 
-QASM parsing does not establish semantic equivalence. Reference benchmark certificate applies only to the declared fixed instance.
+QASM parsing does not establish semantic equivalence. Reference benchmark certificates apply only to the declared fixed instance.
+
+## Reference promotion
+
+See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md). Usable benchmarks without Lean kernel proof and semantic bridge (e.g. `circuit_identity_after_layout`, `toffoli_decomposition_equivalence`) require that stack before promotion. Toffoli decompositions with T gates rely on QCEC externally; Lean S/T gates are identity stubs — see [docs/semantic_bridge.md](../../docs/semantic_bridge.md).
