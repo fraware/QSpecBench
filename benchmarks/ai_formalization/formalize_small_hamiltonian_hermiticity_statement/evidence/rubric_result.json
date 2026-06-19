@@ -3,5 +3,10 @@
   "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
   "assumptions": [],
   "source_rubric": "notes\\semantic_rubric.md",
-  "draft_lean": null
+  "draft_lean": "artifacts\\draft.lean",
+  "syntactically_valid": null,
+  "lean_check": "skipped",
+  "lean_errors": [
+    "lean not in PATH"
+  ]
 }
