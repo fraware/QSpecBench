@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
-from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
-from qspecbench.denotate import matrices_equal, ops_from_qasm_matrix
+from qspecbench.denotate import (
+    denotate_ops,
+    matrices_equal,
+    matrix_from_qasm_json,
+    ops_from_qasm_matrix,
+)
 from qspecbench.qasm_matrix import extract_matrix
 
 
@@ -66,12 +70,8 @@ def verify_bridge(claim_dir: Path) -> dict[str, Any]:
     qasm_data = extract_matrix(qasm)
     n = qasm_data["n_qubits"]
     ops = ops_from_qasm_matrix(qasm_data)
-    from qspecbench.denotate import denotate_ops
-
     denoted = denotate_ops(n, ops)
-    qasm_mat = [
-        [Fraction(cell[0], cell[1]) for cell in row] for row in qasm_data["matrix"]
-    ]
+    qasm_mat = matrix_from_qasm_json(qasm_data)
     match = matrices_equal(qasm_mat, denoted)
 
     result = {
