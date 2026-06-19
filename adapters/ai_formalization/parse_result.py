@@ -60,13 +60,15 @@ def _load_rubric(path: Path) -> dict[str, Any]:
     return parsed
 
 
-def validate_rubric_data(data: dict[str, Any]) -> list[str]:
+def validate_rubric_data(data: dict[str, Any], *, min_score_for_reference: int | None = None) -> list[str]:
     errors: list[str] = []
     score = data.get("score")
     if score is None:
         errors.append("missing score field (0-5)")
     elif not isinstance(score, int) or score < 0 or score > 5:
         errors.append("score must be integer 0-5")
+    elif min_score_for_reference is not None and score < min_score_for_reference:
+        errors.append(f"reference maturity requires rubric score >= {min_score_for_reference}")
 
     reviewer = data.get("reviewer_role")
     if not reviewer or not str(reviewer).strip():
@@ -137,7 +139,17 @@ def check(path: Path, draft_path: Path | None = None) -> dict[str, Any]:
             "score": None,
         }
 
-    errors.extend(validate_rubric_data(data))
+    claim_dir = path.parent.parent if path.parent.name in ("notes", "evidence", "artifacts") else path.parent
+    min_score: int | None = None
+    spec_path = claim_dir / "spec.yaml"
+    if spec_path.is_file():
+        import yaml
+
+        spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
+        if spec.get("status", {}).get("maturity") == "reference":
+            min_score = 4
+
+    errors.extend(validate_rubric_data(data, min_score_for_reference=min_score))
     for warning in data.get("_warnings", []):
         errors.append(warning)
 
