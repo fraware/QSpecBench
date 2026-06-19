@@ -1,0 +1,18 @@
+{
+  "id": "heisenberg_model_hermiticity_small_instance",
+  "terms": [
+    {
+      "coeff": 1.0,
+      "operators": "X0 X1"
+    },
+    {
+      "coeff": 0.5,
+      "operators": "Y0 Y1"
+    },
+    {
+      "coeff": 0.25,
+      "operators": "Z0 Z1"
+    }
+  ],
+  "notes": "Two-qubit Heisenberg-type Pauli sum with real coefficients."
+}

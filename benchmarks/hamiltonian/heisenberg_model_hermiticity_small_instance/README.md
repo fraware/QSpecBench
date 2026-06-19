@@ -1,0 +1,37 @@
+# Heisenberg model hermiticity
+
+## Claim
+
+A small Heisenberg-type Pauli Hamiltonian with real coefficients is Hermitian.
+
+## Why this matters
+
+Hamiltonian track algebraic sanity.
+
+## Objects
+
+- hamiltonian.json
+
+## Specification
+
+Hermiticity claim.
+
+## Evidence
+
+Numeric script.
+
+## Trust boundary
+
+spec.yaml
+
+## Status
+
+Current maturity: **usable**.
+
+## Known gaps
+
+No Lean proof.
+
+## References
+
+- (add references when promoting beyond usable)
