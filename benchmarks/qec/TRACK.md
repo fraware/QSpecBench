@@ -14,21 +14,35 @@ Stabilizer JSON (`artifacts/code.json`), error models, syndrome/correction table
 
 ## Accepted evidence
 
-QEC JSON validator, formal proofs, simulation (heuristic), external QEC verifiers.
+QEC JSON validator, formal proofs, simulation (heuristic), external QEC verifiers, SMT distance scaffolds.
 
 ## Good first claims
 
-- `three_qubit_bit_flip_code_corrects_one_x` (intermediate, usable)
-- `shor_code_stabilizer_commutation` (intermediate, seed)
+- `three_qubit_bit_flip_code_corrects_one_x` (intermediate, reference)
+- `shor_code_stabilizer_commutation` (intermediate, usable)
 
 ## Examples
 
-| ID | Difficulty | Notes |
-|----|------------|-------|
-| three_qubit_bit_flip_code_corrects_one_x | intermediate | Full code + tables; decoder assumed |
-| surface_code_single_pauli_error_correction | advanced | Surface-code pattern |
-| repeated_round_qec_temporal_specification | advanced | Temporal specification |
+| ID | Difficulty | Maturity | Notes |
+|----|------------|----------|-------|
+| bb84_sifted_key_partial_claim | intermediate | usable | Auto-synced from spec.yaml |
+| detector_model_sanity_check | introductory | usable | Auto-synced from spec.yaml |
+| distance_certificate_small_css_code | intermediate | reference | Auto-synced from spec.yaml |
+| logical_state_preserved_up_to_pauli_frame | advanced | reference | Auto-synced from spec.yaml |
+| repeated_round_qec_temporal_specification | intermediate | reference | Auto-synced from spec.yaml |
+| repetition_code_three_one_three | introductory | reference | Auto-synced from spec.yaml |
+| shor_code_stabilizer_commutation | intermediate | reference | Auto-synced from spec.yaml |
+| steane_code_stabilizer_commutation | intermediate | reference | Auto-synced from spec.yaml |
+| surface_code_distance_three_stabilizer_sanity | intermediate | reference | Auto-synced from spec.yaml |
+| surface_code_single_pauli_error_correction | intermediate | reference | Auto-synced from spec.yaml |
+| surface_code_single_round_syndrome_extraction | intermediate | reference | Auto-synced from spec.yaml |
+| three_qubit_bit_flip_code_corrects_one_x | intermediate | reference | Auto-synced from spec.yaml |
+| three_qubit_phase_flip_code_corrects_one_z | intermediate | reference | Auto-synced from spec.yaml |
 
 ## Known limitations
 
 Decoder correctness is often **assumed** explicitly. Separate code definition from decoder proof obligations using `qec_status`.
+
+## Reference promotion
+
+See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md). Partial protocol claims (`bb84_sifted_key_partial_claim`) and simulation-only sanity checks (`detector_model_sanity_check`) remain **usable** by design.
