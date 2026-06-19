@@ -11,6 +11,22 @@ Thank you for contributing. Every benchmark must include:
 
 Follow [docs/adding_a_benchmark.md](docs/adding_a_benchmark.md). Copy an existing seed benchmark in the appropriate track and adapt it.
 
+## Good first benchmark
+
+Start from the shared scaffold, then copy a track seed that matches your claim type:
+
+1. **Scaffold** — [`benchmarks/_template/`](benchmarks/_template/) (`spec.yaml`, `README.md`, `artifacts/`, `notes/`)
+2. **Track seeds** — pick one reference exemplar in the target track:
+   - Algorithms: [`teleportation_preserves_state_up_to_pauli_correction`](benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction/)
+   - Equivalence: [`cnot_self_inverse_cancellation`](benchmarks/equivalence/cnot_self_inverse_cancellation/)
+   - QEC: [`three_qubit_bit_flip_code_corrects_one_x`](benchmarks/qec/three_qubit_bit_flip_code_corrects_one_x/)
+   - Hamiltonian: [`small_fermionic_hamiltonian_is_hermitian`](benchmarks/hamiltonian/small_fermionic_hamiltonian_is_hermitian/)
+   - AI formalization: [`formalize_no_cloning_statement`](benchmarks/ai_formalization/formalize_no_cloning_statement/)
+3. **Schema examples** — non-runnable templates in [`schema/examples/`](schema/examples/) (v0.2 field shapes)
+4. **Validate** — `qspecbench validate benchmarks/<your_id>/` before opening a PR
+
+Usable maturity is fine for a first contribution; reference promotion follows [docs/reference_benchmarks.md](docs/reference_benchmarks.md).
+
 ## Pull request checklist
 
 - [ ] Directory placed under correct track
