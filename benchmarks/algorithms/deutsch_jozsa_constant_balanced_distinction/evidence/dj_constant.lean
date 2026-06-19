@@ -1,0 +1,3 @@
+import QSpecBench.Algorithms
+
+#check QSpecBench.dj_constant_oracle_hadamard_square
