@@ -19,7 +19,7 @@ def test_reference_benchmark_exists():
         spec = yaml.safe_load(p.read_text(encoding="utf-8"))
         if spec.get("status", {}).get("maturity") == "reference":
             refs.append(p)
-    assert len(refs) >= 3
+    assert len(refs) >= 8
 
 
 def test_cnot_reference_validates():
