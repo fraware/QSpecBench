@@ -52,24 +52,36 @@ pytest
 
 See the [dashboard](docs/status.md).
 
-## Release readiness
+## Release readiness (v1.0 targets)
 
-| Criterion | Status |
-|-----------|--------|
-| Versioned schema + validator | Done |
-| 34 benchmarks across 5 tracks | Done |
-| Claim cards + `spec.yaml` per benchmark | Done |
-| Lean 4 proofs in CI | Done (`lake build`) |
-| Reference benchmarks with kernel-checked proof | Done (3: CNOT, QFT inverse, bit-flip stabilizers) |
-| QCEC equivalence in CI | Done (Docker job + mqt.qcec in dev extras) |
-| Semantic bridge artifacts | Done (equivalence Lean benchmarks) |
-| Zero-evidence benchmarks | Done (0 empty evidence lists) |
-| Explicit trust boundaries | Done |
-| Tool-neutral evidence adapters | Done (Lean-only PA) |
-| Public dashboard | Done |
-| Contributor docs + templates | Done |
+| Criterion | Target | Status |
+|-----------|--------|--------|
+| Checked-evidence benchmarks | ≥25 | 21 (in progress) |
+| Reference benchmarks | ≥18 (≥4 AI) | 18 (AI: 4) |
+| AI formalization kernel anchors | 7/7 | Done |
+| Semantic bridge `kernel_checked` | ≥10 | 8 (in progress) |
+| OpenQASM3 gate subset + composition | RX, Toffoli, Bell scaffold | Bell scaffold done |
+| README/spec maturity sync | CI enforced | Done |
+| `proof_obligations` on references | All references | Done |
 
-Remaining frontier work: full OpenQASM semantics in Lean, additional QEC correction proofs, SMT certificates.
+## Release readiness (v0.2.0 — prior release)
+
+| Criterion | Target | Status |
+|-----------|--------|--------|
+| Schema v0.2 + migration guide | Done | Done |
+| 44–49 benchmarks across 5 tracks | 44–49 | Done (48) |
+| 8–10 reference benchmarks | 8–10 | Done (12) |
+| ≥15 kernel-checked / checked evidence | ≥15 | Done |
+| QCEC on equivalence track | All usable+ | Done (CI job) |
+| Real SMT adapter (z3/cvc5) | 1+ benchmark | Done |
+| Semantic bridge `kernel_checked` | ≥6 | Done (7) |
+| Bridge CI job | verify-bridge | Done |
+| Public dashboard v2 | trust levels + bridges | Done |
+| Contributor docs + reference template | Done | Done |
+
+Layer 2 baseline: 34 benchmarks, 3 references, 5 checked, zero-evidence 0.
+
+## Release readiness (v0.1 — historical)
 
 ## Contributing
 
