@@ -171,11 +171,18 @@ private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * paul
   have h : pauliY1 = pauliY0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
   simp [h]
 
-private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
+private theorem pauliZ0_eq_diagonal : pauliZ0 = Matrix.diagonal fun i => pauliZ1Entry i i := by
   ext i j
-  fin_cases i <;> fin_cases j <;>
-    simp only [Matrix.mul_apply, Matrix.of_apply, pauliZ1Entry, pauliZEntry, Fin.sum_univ_four]
-  all_goals ring
+  fin_cases i <;> fin_cases j <;> simp [Matrix.diagonal_apply, pauliZ1Entry]
+
+private theorem pauliZ1_eq_diagonal : pauliZ1 = Matrix.diagonal fun i => pauliZEntry i i := by
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [Matrix.diagonal_apply, pauliZEntry]
+
+private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
+  rw [pauliZ0_eq_diagonal, pauliZ1_eq_diagonal]
+  ext i j
+  simp [Matrix.diagonal_mul, mul_comm]
 
 /-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
 noncomputable def heisenbergSmallInstance : HamMatrix :=
