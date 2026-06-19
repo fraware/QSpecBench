@@ -18,17 +18,28 @@ Lean 4 proofs, human review, QASM parse (syntax), simulation (heuristic only).
 
 ## Good first claims
 
-- `teleportation_preserves_state_up_to_pauli_correction` (introductory, relational)
-- `no_cloning_negative_claim` (introductory, negative)
+- `teleportation_preserves_state_up_to_pauli_correction` (introductory, reference)
+- `no_cloning_negative_claim` (introductory, reference)
 
 ## Examples
 
-| ID | Difficulty | Notes |
-|----|------------|-------|
-| teleportation_preserves_state_up_to_pauli_correction | introductory | Relational protocol, usable |
-| no_cloning_negative_claim | introductory | Negative claim, seed |
-| phase_estimation_exact_eigenphase_small_instance | frontier | Small-instance exact phase |
+| ID | Difficulty | Maturity | Notes |
+|----|------------|----------|-------|
+| amplitude_damping_channel_specification | intermediate | usable | Auto-synced from spec.yaml |
+| bell_state_preparation | introductory | reference | Auto-synced from spec.yaml |
+| deutsch_jozsa_constant_balanced_distinction | intermediate | reference | Auto-synced from spec.yaml |
+| grover_single_iteration_amplitude_amplification | intermediate | reference | Auto-synced from spec.yaml |
+| no_cloning_negative_claim | frontier | reference | Auto-synced from spec.yaml |
+| phase_estimation_exact_eigenphase_small_instance | frontier | reference | Auto-synced from spec.yaml |
+| qft_then_inverse_qft_identity_up_to_ordering | intermediate | reference | Auto-synced from spec.yaml |
+| superdense_coding_decodes_two_classical_bits | introductory | reference | Auto-synced from spec.yaml |
+| swap_from_three_cx | introductory | usable | Auto-synced from spec.yaml |
+| teleportation_preserves_state_up_to_pauli_correction | introductory | reference | Auto-synced from spec.yaml |
 
 ## Known limitations
 
-Most seed benchmarks lack kernel-checked proofs. Algorithm profile metadata appears in `specification.preconditions` until a dedicated schema field is justified.
+Most usable benchmarks lack kernel-checked proofs. Algorithm profile metadata appears in `specification.preconditions` until a dedicated schema field is justified.
+
+## Reference promotion
+
+See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md). `swap_from_three_cx` and `amplitude_damping_channel_specification` remain **usable**: the former needs a Lean bridge with correct CX direction semantics; the latter lacks a kernel-checked channel proof.
