@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "claim": "single_qubit_gate_cancellation",
+  "claimed_link": "kernel_checked",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_hadamard_cancel",
+  "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\single_qubit_gate_cancellation\\artifacts\\source.qasm",
+  "n_qubits": 1,
+  "gates": 2,
+  "matrix_match": true,
+  "errors": []
+}
