@@ -1,7 +1,22 @@
 {
   "score": 2,
   "reviewer_role": "QSpecBench seed reviewer",
-  "assumptions": [],
+  "assumptions": [
+    "source claim requires transfer up to Pauli corrections",
+    "kernel anchor is Bell-prep scaffold only",
+    "AI draft is untrusted placeholder text",
+    "measurement and classical feed-forward remain outside checked scope",
+    "[x] Source claim identified correctly",
+    "[ ] Transfer relation formalized",
+    "[ ] Pauli correction frame explicit",
+    "[ ] Measurement semantics encoded",
+    "[ ] Library-compatible full protocol statement"
+  ],
   "source_rubric": "notes\\semantic_rubric.md",
-  "draft_lean": null
+  "draft_lean": "artifacts\\draft.lean",
+  "syntactically_valid": null,
+  "lean_check": "skipped",
+  "lean_errors": [
+    "lean not in PATH"
+  ]
 }
