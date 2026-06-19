@@ -1,10 +1,10 @@
 {
   "artifact_gate_model": "openqasm3_1q2q_clifford",
-  "lean_module": "QSpecBench.QFT2",
-  "lean_theorem": "qft2_mul_invqft2",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_qft2_inverse",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per H gate"
   },
-  "claimed_link": "documented_not_proved"
+  "claimed_link": "kernel_checked"
 }

@@ -1,39 +1,36 @@
-qspecbench_version: "0.1"
+qspecbench_version: '0.2'
 id: qft_inverse_qft_small_instance
-title: "QFT and inverse QFT are mutual inverses (small instance)"
+title: QFT and inverse QFT are mutual inverses (small instance)
 track: equivalence
 domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: intermediate
-
 informal_claim:
-  statement: "QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold."
+  statement: QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit
+    scaffold.
   source: null
   reference_key: null
-
 semantic_level:
   primary: circuit
   secondary: []
-
 objects:
-  - name: source
-    type: circuit
-    path: artifacts/source.qasm
-    format: qasm3
-    role: source
-  - name: target
-    type: circuit
-    path: artifacts/target.qasm
-    format: qasm3
-    role: target
-
+- name: source
+  type: circuit
+  path: artifacts/source.qasm
+  format: qasm3
+  role: source
+- name: target
+  type: circuit
+  path: artifacts/target.qasm
+  format: qasm3
+  role: target
 specification:
   mode: exact
   preconditions:
-    - "two-qubit scaffold instance"
-    - "qubit ordering declared in artifacts"
+  - two-qubit scaffold instance
+  - qubit ordering declared in artifacts
   postconditions:
-    - "QFT composed with inverse QFT equals identity on declared register"
+  - QFT composed with inverse QFT equals identity on declared register
   invariants: []
   approximation:
     enabled: false
@@ -41,97 +38,99 @@ specification:
     bound: null
   resources:
     enabled: true
-    qubits: "2"
+    qubits: '2'
     gates: null
     depth: null
     t_count: null
     t_depth: null
-    ancilla: "0"
-    measurements: "0"
+    ancilla: '0'
+    measurements: '0'
     other: []
-
 assumptions:
   mathematical:
-    - "standard two-qubit semantics"
+  - standard two-qubit semantics
   physical: []
   tool: []
   artifact: []
   unverified: []
-
 acceptable_evidence:
-  - type: qasm_parse
-    checker: "qasm parser adapter"
-    path: null
-    required_for_claim: false
-    trust_level: externally_trusted
-  - type: lean_proof
-    checker: "Lean 4 kernel"
-    path: evidence/qft_inverse.lean
-    required_for_claim: true
-    trust_level: checked
-  - type: sat_certificate
-    checker: "independent unitary certificate verifier"
-    path: evidence/unitary_equality.certificate.json
-    required_for_claim: true
-    trust_level: independently_checkable
-  - type: qcec_result
-    checker: "QCEC equivalence tool"
-    path: null
-    required_for_claim: false
-    trust_level: externally_trusted
-
+- type: qasm_parse
+  checker: qasm parser adapter
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: evidence/qft_inverse.lean
+  required_for_claim: true
+  trust_level: checked
+- type: sat_certificate
+  checker: independent unitary certificate verifier
+  path: evidence/unitary_equality.certificate.json
+  required_for_claim: true
+  trust_level: independently_checkable
+- type: qcec_result
+  checker: QCEC equivalence tool
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
 evidence:
-  - id: qasm_parse_source
-    type: qasm_parse
-    path: artifacts/source.qasm
-    checker: "qasm parser adapter"
-    command: "python adapters/qasm/parse_result.py artifacts/source.qasm"
-    status: passing
-    notes: "Syntax only."
-  - id: qasm_parse_target
-    type: qasm_parse
-    path: artifacts/target.qasm
-    checker: "qasm parser adapter"
-    command: "python adapters/qasm/parse_result.py artifacts/target.qasm"
-    status: passing
-    notes: "Syntax only."
-  - id: lean_qft_proof
-    type: lean_proof
-    path: evidence/qft_inverse.lean
-    checker: "Lean 4 kernel"
-    command: "python adapters/lean/parse_result.py evidence/qft_inverse.lean"
-    status: passing
-    notes: "Kernel-checked: QSpecBench.QFT2.qft2_mul_invqft2 via lake build."
-  - id: unitary_equality_certificate
-    type: sat_certificate
-    path: evidence/unitary_equality.certificate.json
-    checker: "independent unitary certificate verifier"
-    command: "python adapters/sat_certificate/parse_result.py evidence/unitary_equality.certificate.json"
-    status: passing
-    notes: "Independently checkable matrix certificate for unnormalized QFT scaffold."
-  - id: qcec_equivalence
-    type: qcec_result
-    path: artifacts/source.qasm
-    secondary_path: artifacts/target.qasm
-    checker: "QCEC equivalence tool"
-    command: "python adapters/qcec/parse_result.py {path} {path2}"
-    status: passing
-    notes: "QCEC equivalence on declared QASM pair (self-inverse scaffold instance)."
-
+- id: qasm_parse_source
+  type: qasm_parse
+  path: artifacts/source.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/source.qasm
+  status: passing
+  notes: Syntax only.
+- id: qasm_parse_target
+  type: qasm_parse
+  path: artifacts/target.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/target.qasm
+  status: passing
+  notes: Syntax only.
+- id: lean_qft_proof
+  type: lean_proof
+  path: evidence/qft_inverse.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/qft_inverse.lean
+  status: passing
+  notes: 'Kernel-checked: QSpecBench.QFT2.qft2_mul_invqft2 via lake build.'
+- id: unitary_equality_certificate
+  type: sat_certificate
+  path: evidence/unitary_equality.certificate.json
+  checker: independent unitary certificate verifier
+  command: python adapters/sat_certificate/parse_result.py evidence/unitary_equality.certificate.json
+  status: passing
+  notes: Independently checkable matrix certificate for unnormalized QFT scaffold.
+- id: qcec_equivalence
+  type: qcec_result
+  path: artifacts/source.qasm
+  secondary_path: artifacts/target.qasm
+  checker: QCEC equivalence tool
+  command: python adapters/qcec/parse_result.py {path} {path2}
+  status: passing
+  notes: QCEC equivalence on declared QASM pair (self-inverse scaffold instance).
+- id: bridge_verify
+  type: simulation
+  path: evidence/bridge_verify.result.json
+  checker: verify-bridge CLI
+  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
+  status: passing
+  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
 trust_boundary:
   checked_by:
-    - "QASM syntax parse"
-    - "Lean 4 kernel proof on declared QFT2 model"
-    - "independently checkable unitary equality certificate"
-    - "QCEC equivalence tool"
+  - QASM syntax parse
+  - Lean 4 kernel proof on declared QFT2 model
+  - independently checkable unitary equality certificate
+  - QCEC equivalence tool
   trusted_kernels:
-    - "Lean 4 kernel"
+  - Lean 4 kernel
   trusted_external_tools:
-    - "QCEC"
+  - QCEC
   untrusted_components: []
   assumptions_not_checked:
-    - "OpenQASM H normalization matches Lean integer model"
-
+  - OpenQASM H normalization matches Lean integer model
 status:
   informal_claim: complete
   machine_spec: complete
@@ -139,5 +138,11 @@ status:
   evidence: complete
   ci: passing
   maturity: reference
-
 references: []
+proof_obligations:
+- id: lean_kernel_proof
+  status: passing
+  notes: QFT2 inverse scaffold
+- id: semantic_bridge
+  status: passing
+  notes: kernel_checked verify-bridge
