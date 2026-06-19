@@ -1,0 +1,2 @@
+-- AI draft placeholder
+-- def codeDistance (C : StabilizerCode) : Nat := sorry
