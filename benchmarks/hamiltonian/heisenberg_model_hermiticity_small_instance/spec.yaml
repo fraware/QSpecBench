@@ -53,6 +53,11 @@ acceptable_evidence:
   path: evidence/check_hermitian.py
   required_for_claim: false
   trust_level: heuristic
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: evidence/heisenberg_hermitian.lean
+  required_for_claim: false
+  trust_level: checked
 evidence:
 - id: python_hermiticity
   type: simulation
@@ -61,10 +66,19 @@ evidence:
   command: python adapters/python/parse_result.py evidence/check_hermitian.py
   status: passing
   notes: Heuristic numeric check.
+- id: lean_hermitian
+  type: lean_proof
+  path: evidence/heisenberg_hermitian.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/heisenberg_hermitian.lean
+  status: passing
+  notes: Kernel-checked Hermiticity for declared Heisenberg Pauli sum.
 trust_boundary:
   checked_by:
   - numeric Hermiticity script
-  trusted_kernels: []
+  - Lean 4 kernel Hermiticity proof
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
@@ -75,5 +89,5 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
+  maturity: reference
 references: []
