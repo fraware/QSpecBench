@@ -184,7 +184,10 @@ private theorem pauliZ1_eq_diagonal : pauliZ1 = Matrix.diagonal fun i => pauliZE
 private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
   rw [pauliZ0_eq_diagonal, pauliZ1_eq_diagonal]
   ext i j
-  simp [Matrix.diagonal_mul_diagonal, mul_comm]
+  by_cases hij : i = j
+  · subst hij
+    simp [Matrix.diagonal_mul_diagonal, Matrix.diagonal_apply, mul_comm]
+  · simp [Matrix.diagonal_mul_diagonal, Matrix.diagonal_apply, hij]
 
 /-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
 noncomputable def heisenbergSmallInstance : HamMatrix :=
