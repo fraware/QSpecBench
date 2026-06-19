@@ -55,8 +55,8 @@ jobs:
       - run: qspecbench verify-bridge benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance
       - run: qspecbench verify-bridge benchmarks/equivalence/phase_polynomial_equivalence_small_instance
       - run: qspecbench verify-bridge benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction
-
-      - run: qspecbench verify-bridge benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction
+      - run: qspecbench verify-bridge benchmarks/equivalence/rx_gate_equivalence_small_instance
+      - run: qspecbench verify-bridge benchmarks/algorithms/bell_state_preparation
 
   ai_formalization:
     runs-on: ubuntu-latest
