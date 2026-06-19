@@ -1,4 +1,4 @@
-qspecbench_version: "0.1"
+qspecbench_version: "0.2"
 id: your_claim_id_here
 title: "Human-readable claim title"
 track: algorithm
