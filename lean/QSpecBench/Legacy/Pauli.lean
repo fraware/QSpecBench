@@ -38,4 +38,8 @@ theorem hadamard_conjugates_x (i j : Fin 2) :
     mul2 (mul2 hadamard2 pauliX2) hadamard2 i j = scale2 2 pauliZ2 i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
+theorem pauli_x_z_anticommute (i j : Fin 2) :
+    mul2 pauliX2 pauliZ2 i j + mul2 pauliZ2 pauliX2 i j = 0 := by
+  fin_cases i <;> fin_cases j <;> rfl
+
 end QSpecBench
