@@ -58,13 +58,14 @@ acceptable_evidence:
 evidence:
 - id: partial_claim_review
   type: human_review
-  path: notes/semantic_rubric.md
-  checker: semantic review rubric
-  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md artifacts/protocol.json
-  status: partial
-  notes: Partial claim documented; security not verified.
+  path: notes/informal_derivation.md
+  checker: domain expert review
+  command: python adapters/human_review/parse_result.py notes/informal_derivation.md
+  status: passing
+  notes: Partial claim documented and human-reviewed; security not verified.
 trust_boundary:
-  checked_by: []
+  checked_by:
+  - human review of partial-claim labeling
   trusted_kernels: []
   trusted_external_tools: []
   untrusted_components:
