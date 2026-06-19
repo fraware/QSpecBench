@@ -36,6 +36,8 @@ def validate(
             console.print(f"[red]FAIL[/red] {result.spec_path}")
             for err in result.errors:
                 console.print(f"  - {err}")
+            for warn in result.warnings:
+                console.print(f"  [yellow]warn[/yellow] {warn}")
 
     if failed:
         raise typer.Exit(code=1)
@@ -122,6 +124,29 @@ def check_evidence(
                 for err in result.errors:
                     console.print(f"    - {err}")
     if failed:
+        raise typer.Exit(code=1)
+
+
+@app.command("verify-bridge")
+def verify_bridge_cmd(
+    target: Path = typer.Argument(..., help="Claim directory with expected/semantic_bridge.json"),
+    out: Optional[Path] = typer.Option(None, "--out", help="Optional result JSON path"),
+) -> None:
+    """Verify QASM matrix matches OpenQASM3 denotation model."""
+    from qspecbench.verify_bridge import write_bridge_result
+
+    if not (target / "expected" / "semantic_bridge.json").is_file():
+        console.print("[red]expected/semantic_bridge.json not found[/red]")
+        raise typer.Exit(code=1)
+    result = write_bridge_result(target, out)
+    if result.get("ok"):
+        console.print(f"[green]OK[/green] bridge verify for {result.get('claim')}")
+        console.print(f"  claimed_link: {result.get('claimed_link')}")
+        console.print(f"  theorem: {result.get('lean_module')}.{result.get('lean_theorem')}")
+    else:
+        console.print(f"[red]FAIL[/red] bridge verify for {result.get('claim')}")
+        for err in result.get("errors", []):
+            console.print(f"  - {err}")
         raise typer.Exit(code=1)
 
 
