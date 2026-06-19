@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "claim": "bell_state_preparation",
+  "claimed_link": "kernel_checked",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_bell_prep",
+  "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\bell_state_preparation\\artifacts\\circuit.qasm",
+  "n_qubits": 2,
+  "gates": 2,
+  "matrix_match": true,
+  "errors": []
+}
