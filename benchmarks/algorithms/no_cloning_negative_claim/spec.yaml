@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: no_cloning_negative_claim
 title: No-cloning theorem (negative claim)
 track: algorithm
@@ -63,31 +63,47 @@ acceptable_evidence:
   required_for_claim: false
   trust_level: externally_trusted
 evidence:
+- id: lean_no_cloning
+  type: lean_proof
+  path: evidence/no_cloning.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/no_cloning.lean
+  status: passing
+  notes: Kernel-checked no-cloning obstruction for basis-state cloners.
 - id: informal_proof_sketch
   type: human_review
   path: notes/informal_derivation.md
   checker: human review adapter
   command: python adapters/human_review/parse_result.py notes/informal_derivation.md
   status: partial
-  notes: Standard proof sketch; not kernel-checked.
+  notes: Standard proof sketch; complements kernel-checked obstruction.
 trust_boundary:
-  checked_by: []
-  trusted_kernels: []
+  checked_by:
+  - Lean 4 kernel no-cloning obstruction
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
   - informal proof sketch
   assumptions_not_checked:
-  - formalization of cloning impossibility
+  - full universal cloner formalization beyond basis+linearity scaffold
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: partial
   evidence: partial
   ci: passing
-  maturity: seed
+  maturity: reference
 references:
 - key: no_cloning_original
   type: paper
   title: No-cloning theorem
   url: null
   notes: Historical references in track documentation
+proof_obligations:
+- id: impossibility_scaffold
+  status: passing
+  notes: Lean matrix no-cloning obstruction
+- id: full_hilbert_space_model
+  status: not_applicable
+  notes: Finite matrix scaffold only
