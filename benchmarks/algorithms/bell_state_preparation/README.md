@@ -26,7 +26,7 @@ See spec.yaml trust_boundary.
 
 ## Status
 
-Current maturity: **usable**.
+Current maturity: **reference**.
 
 ## Known gaps
 
