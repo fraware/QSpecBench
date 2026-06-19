@@ -1,0 +1,6 @@
+{
+  "id": "example_smt_certificate",
+  "smt_file": "sample.smt2",
+  "expected": "sat",
+  "notes": "Toy QF_LIA instance for adapter documentation."
+}
