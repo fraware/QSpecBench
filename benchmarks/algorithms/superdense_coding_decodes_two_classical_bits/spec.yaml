@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: superdense_coding_decodes_two_classical_bits
 title: Superdense Coding Decodes Two Classical Bits
 track: algorithm
@@ -73,10 +73,19 @@ evidence:
     command: "python adapters/qasm/parse_result.py artifacts/circuit.qasm"
     status: passing
     notes: "Syntax only."
+  - id: lean_superdense_bell
+    type: lean_proof
+    path: evidence/superdense.lean
+    checker: Lean 4 kernel
+    command: python adapters/lean/parse_result.py evidence/superdense.lean
+    status: passing
+    notes: Kernel-checked Bell-pair scaffold for superdense coding.
 trust_boundary:
   checked_by:
     - "QASM syntax parse"
-  trusted_kernels: []
+    - "Lean 4 kernel Bell-pair preparation scaffold"
+  trusted_kernels:
+    - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
     - informal notes unless separately checked
@@ -89,5 +98,12 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
+  maturity: reference
 references: []
+proof_obligations:
+- id: kernel_anchor
+  status: passing
+  notes: Lean superdense_bell_pair_entangled
+- id: relational_protocol
+  status: partial
+  notes: Bell measurement and Pauli encoding not kernel-checked
