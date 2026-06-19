@@ -1,3 +1,3 @@
-import QSpecBench.Pauli
+import QSpecBench.Hamiltonian
 
-#check QSpecBench.hadamard_mul_self
+#check QSpecBench.jordan_wigner_anticommutation_scaffold
