@@ -1,0 +1,3 @@
+import QSpecBench.Hamiltonian
+
+#check QSpecBench.heisenberg_small_instance_is_hermitian
