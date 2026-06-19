@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: formalize_no_cloning_statement
 title: No cloning AI
 track: ai_formalization
