@@ -1,0 +1,11 @@
+adapter_name: bridge_verify
+supported_evidence_types:
+  - bridge_verify
+  - simulation
+required_files:
+  - evidence/bridge_verify.result.json
+check_command: "python parse_result.py {path}"
+success_condition: "verify-bridge ok=true"
+failure_condition: "verify-bridge ok=false"
+trust_level: checked
+output_format: json
