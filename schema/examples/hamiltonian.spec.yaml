@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: small_fermionic_hamiltonian_is_hermitian
 title: Hermitian
 track: hamiltonian
