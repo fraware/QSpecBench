@@ -1,0 +1,82 @@
+qspecbench_version: '0.2'
+id: bb84_sifted_key_partial_claim
+title: BB84 sifted key partial claim
+track: qec
+domain: quantum_cryptography
+claim_type: protocol_claim
+difficulty: intermediate
+informal_claim:
+  statement: BB84 sifted-key generation is documented as a partial claim without full
+    security proof.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: protocol
+  secondary:
+  - qec
+objects:
+- name: protocol
+  type: protocol
+  path: artifacts/protocol.json
+  format: json
+  role: specification
+specification:
+  mode: negative
+  preconditions:
+  - honest partial claim labeling
+  postconditions:
+  - security and privacy not claimed checked
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical: []
+  physical:
+  - ideal qubit channels unless noted
+  tool: []
+  artifact: []
+  unverified:
+  - full QKD security proof
+acceptable_evidence:
+- type: human_review
+  checker: semantic review rubric
+  path: notes/semantic_rubric.md
+  required_for_claim: false
+  trust_level: externally_trusted
+evidence:
+- id: partial_claim_review
+  type: human_review
+  path: notes/semantic_rubric.md
+  checker: semantic review rubric
+  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md artifacts/protocol.json
+  status: partial
+  notes: Partial claim documented; security not verified.
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components:
+  - protocol security
+  assumptions_not_checked:
+  - eavesdropper model
+  - privacy amplification
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []

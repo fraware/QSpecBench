@@ -1,0 +1,7 @@
+{
+  "id": "bb84_sifted_key_partial_claim",
+  "protocol": "BB84",
+  "claim": "partial",
+  "sifted_key_rate": "declared_not_proved",
+  "notes": "Negative/partial protocol benchmark; security not verified."
+}
