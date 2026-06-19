@@ -1,0 +1,2 @@
+-- AI draft placeholder
+-- structure TeleportationSpec : Prop := sorry

@@ -1,0 +1,1 @@
+Teleportation uses entanglement, Bell measurement, and conditional Pauli corrections.
