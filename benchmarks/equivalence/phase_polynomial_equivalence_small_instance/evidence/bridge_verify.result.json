@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "claim": "phase_polynomial_equivalence_small_instance",
+  "claimed_link": "kernel_checked",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_hs_gate",
+  "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\phase_polynomial_equivalence_small_instance\\artifacts\\source.qasm",
+  "n_qubits": 1,
+  "gates": 2,
+  "matrix_match": true,
+  "errors": []
+}

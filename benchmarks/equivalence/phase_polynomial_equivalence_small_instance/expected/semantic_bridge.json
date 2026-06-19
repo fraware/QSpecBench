@@ -1,0 +1,12 @@
+{
+  "artifact_gate_model": "openqasm3_1q_clifford",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_hs_gate",
+  "normalization": {
+    "hadamard": "unnormalized_int_model",
+    "s_gate": "identity_scaffold"
+  },
+  "claimed_link": "kernel_checked",
+  "gate_set": "openqasm3_1q_clifford",
+  "bridge_evidence_id": "bridge_verify"
+}
