@@ -1,7 +1,20 @@
 {
-  "score": 2,
-  "reviewer_role": "QSpecBench seed reviewer",
-  "assumptions": [],
+  "score": 4,
+  "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
+  "assumptions": [
+    "Pauli stabilizer generators act on disjoint support or commute by construction",
+    "Steane [[7,1,3]] generator pairing matches source text",
+    "[x] Source claim identified correctly",
+    "[x] Stabilizer commutation predicate stated",
+    "[x] Generator set matches Steane scaffold",
+    "[x] Statement matches source under documented conventions",
+    "[x] Library-compatible statement shape"
+  ],
   "source_rubric": "notes\\semantic_rubric.md",
-  "draft_lean": null
+  "draft_lean": "artifacts\\draft.lean",
+  "syntactically_valid": null,
+  "lean_check": "skipped",
+  "lean_errors": [
+    "lean not in PATH"
+  ]
 }
