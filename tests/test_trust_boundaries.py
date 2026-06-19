@@ -1,6 +1,5 @@
 """Trust boundary rule tests."""
 
-import copy
 
 import yaml
 from qspecbench.trust import validate_trust_rules
