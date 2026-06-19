@@ -1,6 +1,6 @@
 {
-  "score": 2,
-  "reviewer_role": "QSpecBench seed reviewer",
+  "score": 4,
+  "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
   "assumptions": [],
   "source_rubric": "notes\\semantic_rubric.md",
   "draft_lean": null
