@@ -1,34 +1,32 @@
-qspecbench_version: "0.1"
+qspecbench_version: '0.2'
 id: deutsch_jozsa_constant_balanced_distinction
-title: "Deutsch–Jozsa distinguishes constant from balanced oracles"
+title: Deutsch–Jozsa distinguishes constant from balanced oracles
 track: algorithm
 domain: quantum_algorithm
 claim_type: oracle_distinction
 difficulty: intermediate
-
 informal_claim:
-  statement: "For the declared small instance, Deutsch–Jozsa distinguishes constant from balanced oracle functions."
+  statement: For the declared small instance, Deutsch–Jozsa distinguishes constant
+    from balanced oracle functions.
   source: null
   reference_key: null
-
 semantic_level:
   primary: algorithmic
-  secondary: ["oracle"]
-
+  secondary:
+  - oracle
 objects:
-  - name: dj_circuit
-    type: circuit
-    path: artifacts/circuit.qasm
-    format: qasm3
-    role: source
-
+- name: dj_circuit
+  type: circuit
+  path: artifacts/circuit.qasm
+  format: qasm3
+  role: source
 specification:
   mode: exact
   preconditions:
-    - "oracle is constant or balanced on declared domain"
-    - "fixed small qubit count"
+  - oracle is constant or balanced on declared domain
+  - fixed small qubit count
   postconditions:
-    - "measurement outcome distinguishes constant vs balanced under oracle assumptions"
+  - measurement outcome distinguishes constant vs balanced under oracle assumptions
   invariants: []
   approximation:
     enabled: false
@@ -36,62 +34,65 @@ specification:
     bound: null
   resources:
     enabled: true
-    qubits: "2"
-    gates: "H, measure, oracle placeholder"
+    qubits: '2'
+    gates: H, measure, oracle placeholder
     depth: null
     t_count: null
     t_depth: null
     ancilla: null
-    measurements: "1"
+    measurements: '1'
     other: []
-
 assumptions:
   mathematical:
-    - "standard finite-dimensional quantum semantics"
+  - standard finite-dimensional quantum semantics
   physical: []
   tool: []
   artifact:
-    - "oracle implemented as placeholder in scaffold circuit"
+  - oracle implemented as placeholder in scaffold circuit
   unverified:
-    - "oracle semantics"
-
+  - oracle semantics
 acceptable_evidence:
-  - type: qasm_parse
-    checker: "qasm parser adapter"
-    path: null
-    required_for_claim: false
-    trust_level: externally_trusted
-  - type: lean_proof
-    checker: "Lean 4 kernel"
-    path: null
-    required_for_claim: false
-    trust_level: checked
-
+- type: qasm_parse
+  checker: qasm parser adapter
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
 evidence:
-  - id: qasm_syntax
-    type: qasm_parse
-    path: artifacts/circuit.qasm
-    checker: "qasm parser adapter"
-    command: "python adapters/qasm/parse_result.py artifacts/circuit.qasm"
-    status: passing
-    notes: "Syntax only; oracle not verified."
-
+- id: qasm_syntax
+  type: qasm_parse
+  path: artifacts/circuit.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
+  status: passing
+  notes: Syntax only; oracle not verified.
+- id: lean_dj_scaffold
+  type: lean_proof
+  path: evidence/dj_constant.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/dj_constant.lean
+  status: passing
+  notes: Kernel-checked DJ constant-oracle Hadamard scaffold.
 trust_boundary:
   checked_by:
-    - "QASM syntax parse"
-  trusted_kernels: []
+  - QASM syntax parse
+  - Lean 4 kernel Hadamard-square scaffold
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
-    - "oracle placeholder"
+  - oracle placeholder
   assumptions_not_checked:
-    - "DJ correctness for constant vs balanced"
-
+  - DJ correctness for constant vs balanced
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: usable
-
+  maturity: reference
 references: []
