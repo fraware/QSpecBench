@@ -1,0 +1,10 @@
+{
+  "certificate_type": "unitary_equality_small_instance",
+  "claim_id": "adapter_example",
+  "method": "exact_matrix_multiplication",
+  "n_qubits": 1,
+  "relation": "H @ H = I (up to global phase in general; exact here for unnormalized H)",
+  "equal": true,
+  "generator": null,
+  "notes": "Example certificate for sat_certificate adapter documentation."
+}
