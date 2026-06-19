@@ -1,0 +1,11 @@
+{
+  "artifact_gate_model": "openqasm3_scaffold",
+  "lean_module": "QSpecBench.Algorithms",
+  "lean_theorem": "qft_then_inverse_qft_identity",
+  "normalization": {
+    "qft": "unnormalized_int_model",
+    "ordering": "declared_in_notes"
+  },
+  "claimed_link": "documented_not_proved",
+  "qasm_artifact": "artifacts/circuit.qasm"
+}
