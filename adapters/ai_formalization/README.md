@@ -1,3 +1,3 @@
 # ai_formalization adapter
 
-Stub adapter for QSpecBench CI.
+Scores AI Lean drafts against semantic rubrics. AI drafts remain untrusted.
