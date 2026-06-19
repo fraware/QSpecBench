@@ -26,6 +26,16 @@ Follow [docs/adding_a_benchmark.md](docs/adding_a_benchmark.md). Copy an existin
 
 Reference maturity requires checked evidence, declared checker, passing CI, and explicit assumptions.
 
+**Promotion workflow:**
+
+1. Open a [Reference promotion proposal](.github/ISSUE_TEMPLATE/reference_promotion.yml) issue.
+2. Ensure evidence stack meets [reference_benchmarks.md](docs/reference_benchmarks.md) checklist (when published) and track norms.
+3. Add or update `semantic_bridge` when both QASM and Lean evidence are present.
+4. Document `proof_obligations` for multi-lemma reference claims (schema 0.2).
+5. Obtain scientific, specification, and evidence review per [GOVERNANCE.md](GOVERNANCE.md).
+
+See [docs/schema_migration_0.2.md](docs/schema_migration_0.2.md) for schema fields introduced in v0.2.
+
 ## Proof assistants
 
 **Lean 4 only.** Add proofs under `lean/QSpecBench/` and wire `lean_proof` evidence. CI runs `lake build`.
