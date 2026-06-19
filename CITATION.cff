@@ -1,8 +1,30 @@
 cff-version: 1.2.0
 title: QSpecBench
-message: "If you use QSpecBench, please cite this repository."
+message: >-
+  If you use QSpecBench in research or tooling, please cite this repository
+  using the preferred citation below.
+type: software
 authors:
   - name: QSpecBench contributors
 repository-code: "https://github.com/fraware/QSpecBench"
+url: "https://github.com/fraware/QSpecBench"
 license: MIT
 version: 0.2.0
+date-released: 2026-06-19
+keywords:
+  - quantum computing
+  - formal verification
+  - benchmark
+  - Lean 4
+  - OpenQASM
+preferred-citation:
+  type: software
+  title: "QSpecBench: A benchmark and evidence format for quantum formal verification"
+  authors:
+    - name: QSpecBench contributors
+  year: 2026
+  url: "https://github.com/fraware/QSpecBench"
+  notes: >-
+    Structured quantum correctness claims with machine-readable specifications,
+    declared trust boundaries, and reproducible evidence paths across algorithms,
+    equivalence, QEC, Hamiltonian simulation, and AI formalization tracks.
