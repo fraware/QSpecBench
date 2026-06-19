@@ -1,4 +1,4 @@
-.PHONY: install validate status dashboard test lint
+.PHONY: install validate status dashboard test lint check-evidence bridge lean
 
 install:
 	python -m pip install -e ".[dev]"
@@ -11,6 +11,15 @@ status:
 
 dashboard:
 	qspecbench dashboard benchmarks/ --out docs/status.md
+
+check-evidence:
+	qspecbench check-evidence benchmarks/
+
+bridge:
+	qspecbench verify-bridge benchmarks/equivalence/cnot_self_inverse_cancellation
+
+lean:
+	cd lean && lake build
 
 test:
 	pytest
