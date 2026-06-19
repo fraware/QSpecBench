@@ -2,6 +2,7 @@ import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Matrix.Notation
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Ring
 import QSpecBench.Legacy.Pauli
 
 /-!
@@ -164,16 +165,17 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
 
 private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
   have h : pauliX1 = pauliX0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
-  rw [h, mul_comm]
+  simp [h]
 
 private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
   have h : pauliY1 = pauliY0 := Matrix.ext fun i j => by fin_cases i <;> fin_cases j <;> rfl
-  rw [h, mul_comm]
+  simp [h]
 
 private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [Matrix.mul_apply, Matrix.of_apply, pauliZ1Entry, pauliZEntry, Fin.sum_univ_four, mul_comm]
+    simp only [Matrix.mul_apply, Matrix.of_apply, pauliZ1Entry, pauliZEntry, Fin.sum_univ_four]
+  all_goals ring
 
 /-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
 noncomputable def heisenbergSmallInstance : HamMatrix :=
