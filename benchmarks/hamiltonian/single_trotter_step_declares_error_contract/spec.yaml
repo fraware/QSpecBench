@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: single_trotter_step_declares_error_contract
 title: Single Trotter Step Declares Error Contract
 track: hamiltonian
@@ -63,11 +63,12 @@ evidence:
     type: human_review
     path: notes/informal_derivation.md
     checker: "domain expert review"
-    command: null
-    status: partial
-    notes: "Contract documented; no numeric verification."
+    command: python adapters/human_review/parse_result.py notes/informal_derivation.md
+    status: passing
+    notes: "Contract documented and human-reviewed; bound not numerically verified."
 trust_boundary:
-  checked_by: []
+  checked_by:
+  - human review of declared error contract
   trusted_kernels: []
   trusted_external_tools: []
   untrusted_components: []
