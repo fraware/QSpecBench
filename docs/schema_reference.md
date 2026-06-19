@@ -4,6 +4,12 @@ Specifications are YAML files validated by `schema/qspecbench.schema.json` and `
 
 Migration from 0.1: see [schema_migration_0.2.md](schema_migration_0.2.md).
 
+## Schema examples (`schema/examples/`)
+
+Files under `schema/examples/` are **non-runnable templates**: they illustrate valid field shapes at schema v0.2 but use `path: null` placeholders and empty `evidence` blocks. They validate with `qspecbench validate schema/examples/<file>` but are not benchmark entries.
+
+For runnable seeds, use [`benchmarks/_template/`](../benchmarks/_template/) or a track reference benchmark listed in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
 ## Root fields
 
 | Field | Type | Required | Description |
