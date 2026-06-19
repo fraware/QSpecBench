@@ -1,12 +1,14 @@
-# Schema reference (QSpecBench 0.1)
+# Schema reference (QSpecBench 0.2)
 
 Specifications are YAML files validated by `schema/qspecbench.schema.json` and `qspecbench validate`.
+
+Migration from 0.1: see [schema_migration_0.2.md](schema_migration_0.2.md).
 
 ## Root fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `qspecbench_version` | string | yes | Must be `"0.1"` |
+| `qspecbench_version` | string | yes | `"0.1"` or `"0.2"` |
 | `id` | string | yes | Lowercase snake_case; must equal directory name |
 | `title` | string | yes | Human title |
 | `track` | enum | yes | `algorithm`, `equivalence`, `qec`, `hamiltonian`, `ai_formalization` |
@@ -24,6 +26,8 @@ Specifications are YAML files validated by `schema/qspecbench.schema.json` and `
 | `status` | object | yes | See below |
 | `qec_status` | object | no | QEC sub-status |
 | `references` | array | yes | Bibliography (may be empty) |
+| `semantic_bridge` | object | no | OpenQASM ↔ Lean bridge metadata (v0.2) |
+| `proof_obligations` | array | no | Named lemma obligations for reference maturity (v0.2) |
 
 ## `informal_claim`
 
@@ -96,6 +100,29 @@ Lists: `mathematical`, `physical`, `tool`, `artifact`, `unverified` (each string
 | `command` | string \| null | evidence only |
 | `status` | enum | `passing`, `failing`, `partial`, `not_checked`, `draft` |
 | `notes` | string \| null | evidence only |
+| `secondary_path` | string \| null | evidence only; second artifact (e.g. QCEC target) |
+
+## `semantic_bridge` (optional, v0.2)
+
+| Field | Type | Required |
+|-------|------|----------|
+| `artifact_gate_model` | string | yes |
+| `lean_module` | string | yes |
+| `lean_theorem` | string | yes |
+| `normalization` | object | yes |
+| `claimed_link` | enum | yes | `documented_not_proved`, `kernel_checked` |
+| `bridge_evidence_id` | string \| null | no |
+| `gate_set` | string \| null | no |
+
+May also live in `expected/semantic_bridge.json`.
+
+## `proof_obligations[]` (optional, v0.2)
+
+| Field | Type | Required |
+|-------|------|----------|
+| `id` | string | yes |
+| `status` | enum | yes | `missing`, `partial`, `passing`, `not_applicable` |
+| `notes` | string \| null | no |
 
 ## `trust_boundary`
 
