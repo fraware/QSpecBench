@@ -38,6 +38,18 @@ Both are optional but recommended whenever a benchmark has parallel QASM and Lea
 
 `claimed_link: documented_not_proved` remains the default until a real OpenQASM semantics formalization exists in Lean. Passing QCEC or SAT matrix certificates narrows the **practical** gap but does not upgrade the link to `kernel_checked`.
 
+## Integer scaffold limitations (S/T gates)
+
+The Lean module `QSpecBench.Quantum.OpenQASM3` uses an **integer matrix scaffold** for kernel-checked composition proofs. Clifford gates (`H`, `X`, `Y`, `Z`, `CX`, `SWAP`, `CCX`) denotate to the expected integer models on fixed small instances.
+
+**S, T, Sdg, and Tdg are identity stubs** in Lean (`denotateGate .S => id2`, etc.). Phase on \(|1\rangle\) is not represented in the integer model. The Python matrix extractor uses complex arithmetic and matches OpenQASM semantics for phase gates; Lean bridge theorems that include S/T therefore prove **Clifford-only equivalence** (e.g. `H·H·S` equals `H·H` in the scaffold), not full phase-correct unitary equality.
+
+Implications:
+
+- Do not set `claimed_link: kernel_checked` on benchmarks whose QASM artifacts rely on non-trivial S/T phase unless the bridge theorem and verify step are scoped to the stub model.
+- Document normalization in `expected/semantic_bridge.json` when Toffoli or other decompositions include T gates checked only via QCEC externally.
+- Prefer QCEC or SAT certificates for phase-sensitive equivalence; use Lean bridges for Clifford subsets or instances where S/T are absent or provably cancel.
+
 ## Tooling
 
 Use matrix extraction to compare QASM artifacts with Lean integer models:
