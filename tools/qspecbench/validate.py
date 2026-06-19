@@ -36,11 +36,6 @@ def load_spec(spec_path: Path) -> dict[str, Any]:
         return yaml.safe_load(f)
 
 
-def load_spec(spec_path: Path) -> dict[str, Any]:
-    with spec_path.open(encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-
 def _load_semantic_bridge(spec: dict[str, Any], claim_dir: Path) -> dict[str, Any] | None:
     inline = spec.get("semantic_bridge")
     if isinstance(inline, dict):
