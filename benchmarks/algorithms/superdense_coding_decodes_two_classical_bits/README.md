@@ -18,19 +18,16 @@ Exact relational claim on decoded classical bits; fixed 2+1 qubit profile.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- QASM syntax parse
+- Lean 4 kernel Bell-pair preparation scaffold (`superdense_bell_pair_entangled`)
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+Explicit in `spec.yaml` trust_boundary; relational decoding and measurement remain outside kernel scope.
 
 ## Status
 
-Current maturity: **usable**.
-
-## Known gaps
-
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+Current maturity: **reference**.
 
 ## References
 
