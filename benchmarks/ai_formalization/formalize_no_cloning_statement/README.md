@@ -26,7 +26,7 @@ AI output untrusted until kernel check and semantic review.
 
 ## Status
 
-Current maturity: **usable**.
+Current maturity: **reference**.
 
 ## Known gaps
 

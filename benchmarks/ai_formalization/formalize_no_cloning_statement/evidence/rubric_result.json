@@ -1,10 +1,11 @@
 {
-  "score": 2,
-  "reviewer_role": "QSpecBench seed reviewer (anonymous role acceptable for public repo)",
+  "score": 4,
+  "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
   "assumptions": [
     "source claim identified correctly",
     "cloning map model stated",
-    "linearity and unitarity assumptions explicit"
+    "linearity and unitarity assumptions explicit",
+    "universal cloner scaffold uses computational basis + |+\u27e9 linearity obstruction"
   ],
   "source_rubric": "notes\\semantic_rubric.md",
   "draft_lean": "artifacts\\draft.lean",
