@@ -47,5 +47,5 @@ def test_deprecated_readme_must_explain():
         spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
         if spec.get("status", {}).get("maturity") != "deprecated":
             continue
-        errors = validate_spec_dict(spec, spec_path.parent, benchmarks_root)
+        errors, _warnings = validate_spec_dict(spec, spec_path.parent, benchmarks_root)
         assert not any("deprecated benchmark README" in e for e in errors)
