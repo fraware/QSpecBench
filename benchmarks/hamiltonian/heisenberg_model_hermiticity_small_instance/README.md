@@ -26,7 +26,7 @@ spec.yaml
 
 ## Status
 
-Current maturity: **usable**.
+Current maturity: **reference**.
 
 ## Known gaps
 
