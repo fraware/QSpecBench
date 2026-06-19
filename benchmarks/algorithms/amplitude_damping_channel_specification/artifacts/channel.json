@@ -1,0 +1,37 @@
+{
+  "id": "amplitude_damping_channel_specification",
+  "type": "channel",
+  "family": "amplitude_damping",
+  "parameter": {
+    "gamma": 0.1
+  },
+  "kraus": [
+    {
+      "label": "K0",
+      "matrix": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          0.948683
+        ]
+      ]
+    },
+    {
+      "label": "K1",
+      "matrix": [
+        [
+          0,
+          0.316228
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    }
+  ],
+  "notes": "Toy Kraus operators for gamma=0.1; not a full CPTP proof artifact."
+}

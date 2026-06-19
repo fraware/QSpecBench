@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "adapter": "python_simulation",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\amplitude_damping_channel_specification\\evidence\\check_channel.py",
+  "trust_level": "heuristic",
+  "exit_code": 0,
+  "stdout": "{\"ok\": true, \"trust_level\": \"heuristic\"}",
+  "stderr": "",
+  "error": null
+}

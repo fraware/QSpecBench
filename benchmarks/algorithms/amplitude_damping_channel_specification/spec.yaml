@@ -1,0 +1,81 @@
+qspecbench_version: '0.2'
+id: amplitude_damping_channel_specification
+title: Amplitude damping channel specification
+track: algorithm
+domain: open_systems
+claim_type: channel_specification
+difficulty: intermediate
+informal_claim:
+  statement: A declared amplitude-damping channel with Kraus operators satisfies the
+    benchmark channel schema.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: physical
+  secondary:
+  - channel
+objects:
+- name: channel
+  type: channel
+  path: artifacts/channel.json
+  format: json
+  role: specification
+specification:
+  mode: exact
+  preconditions:
+  - declared damping parameter gamma in (0,1)
+  postconditions:
+  - Kraus operators listed with correct dimensions
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard CPTP semantics assumed, not proved here
+  physical: []
+  tool: []
+  artifact: []
+  unverified:
+  - complete positivity and trace preservation
+acceptable_evidence:
+- type: simulation
+  checker: channel JSON validator
+  path: evidence/check_channel.py
+  required_for_claim: false
+  trust_level: heuristic
+evidence:
+- id: channel_json_check
+  type: simulation
+  path: evidence/check_channel.py
+  checker: channel JSON validator
+  command: python adapters/python/parse_result.py evidence/check_channel.py
+  status: passing
+  notes: Structure check only; CPTP not verified.
+trust_boundary:
+  checked_by:
+  - channel JSON structure script
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - CPTP property proof
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []
