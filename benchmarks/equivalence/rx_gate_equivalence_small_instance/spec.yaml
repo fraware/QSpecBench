@@ -52,26 +52,27 @@ assumptions:
   tool: []
   artifact: []
   unverified: []
-status:
-  informal_claim: complete
-  machine_spec: complete
-  artifacts: complete
-  evidence: partial
-  ci: passing
-  maturity: usable
-references: []
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
-  path: null
   required_for_claim: false
   trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  required_for_claim: false
+  trust_level: checked
 - type: qcec_result
   checker: QCEC equivalence tool
-  path: null
   required_for_claim: false
   trust_level: externally_trusted
 evidence:
+- id: lean_rx_pi2
+  type: lean_proof
+  path: evidence/rx_pi2.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/rx_pi2.lean
+  status: passing
+  notes: Kernel-checked RX(pi/2) denoted as unnormalized H on int model.
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
@@ -94,12 +95,38 @@ evidence:
   command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
+- id: bridge_verify
+  type: simulation
+  path: evidence/bridge_verify.result.json
+  checker: verify-bridge CLI
+  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
+  status: passing
+  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
-  trusted_kernels: []
+  - Lean 4 kernel RX(pi/2) denotation proof
+  - verify-bridge matrix match
+  trusted_kernels:
+  - Lean 4 kernel
   trusted_external_tools:
   - QCEC
   untrusted_components: []
   assumptions_not_checked:
-  - unitary equivalence beyond declared gate set
+  - OpenQASM RX parameter semantics beyond pi/2 instance
+  - global phase between RX and H
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: reference
+references: []
+proof_obligations:
+- id: lean_kernel_proof
+  status: passing
+  notes: bridge_rx_pi2_eq_h on int model
+- id: semantic_bridge
+  status: passing
+  notes: kernel_checked verify-bridge
