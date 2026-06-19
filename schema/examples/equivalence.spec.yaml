@@ -1,4 +1,4 @@
-qspecbench_version: '0.1'
+qspecbench_version: '0.2'
 id: cnot_self_inverse_cancellation
 title: CNOT cancel
 track: equivalence
