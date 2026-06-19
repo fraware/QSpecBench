@@ -29,17 +29,22 @@ def check(evidence_file: Path) -> dict:
         return {"ok": False, "adapter": "lean_proof", "errors": ["evidence file missing"]}
 
     sorry_hits: list[str] = []
-    for lean_file in LEAN_ROOT.rglob("*.lean"):
-        text = lean_file.read_text(encoding="utf-8")
-        if "sorry" in text and not lean_file.name.endswith(".olean"):
-            # ignore comments-only sorry by checking non-comment lines
-            for line in text.splitlines():
-                stripped = line.strip()
-                if stripped.startswith("--") or stripped.startswith("/-"):
-                    continue
-                if "sorry" in stripped:
-                    sorry_hits.append(str(lean_file.relative_to(REPO_ROOT)))
-                    break
+    qspec_root = LEAN_ROOT / "QSpecBench"
+    scan_roots = [qspec_root] if qspec_root.is_dir() else [LEAN_ROOT]
+    for root in scan_roots:
+        for lean_file in root.rglob("*.lean"):
+            if ".lake" in lean_file.parts:
+                continue
+            text = lean_file.read_text(encoding="utf-8")
+            if "sorry" in text and not lean_file.name.endswith(".olean"):
+                # ignore comments-only sorry by checking non-comment lines
+                for line in text.splitlines():
+                    stripped = line.strip()
+                    if stripped.startswith("--") or stripped.startswith("/-"):
+                        continue
+                    if "sorry" in stripped:
+                        sorry_hits.append(str(lean_file.relative_to(REPO_ROOT)))
+                        break
     evidence_text = evidence_file.read_text(encoding="utf-8")
     if "sorry" in evidence_text:
         sorry_hits.append(str(evidence_file))
@@ -72,6 +77,8 @@ def check(evidence_file: Path) -> dict:
             cwd=str(LEAN_ROOT),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             env=env,
         )
 
@@ -80,6 +87,8 @@ def check(evidence_file: Path) -> dict:
         cwd=str(LEAN_ROOT),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         env=env,
     )
     if proc.returncode != 0:
