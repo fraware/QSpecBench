@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "adapter": "qasm_parse",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\swap_from_three_cx\\artifacts\\target.qasm",
+  "trust_level": "syntax_only",
+  "errors": []
+}
