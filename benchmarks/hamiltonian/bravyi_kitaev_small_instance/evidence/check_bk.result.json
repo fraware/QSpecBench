@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "adapter": "python_simulation",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\hamiltonian\\bravyi_kitaev_small_instance\\evidence\\check_bk.py",
+  "trust_level": "heuristic",
+  "exit_code": 0,
+  "stdout": "{\"ok\": true, \"trust_level\": \"heuristic\", \"message\": \"BK mapping declared with multi-term Hamiltonian\"}",
+  "stderr": "",
+  "error": null
+}

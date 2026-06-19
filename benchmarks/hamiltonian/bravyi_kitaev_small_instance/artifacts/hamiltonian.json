@@ -1,0 +1,16 @@
+{
+  "id": "bravyi_kitaev_small_instance",
+  "terms": [
+    {
+      "coeff": -1.0,
+      "operators": "Z0"
+    },
+    {
+      "coeff": 0.5,
+      "operators": "Z1"
+    }
+  ],
+  "mapping": "bravyi_kitaev",
+  "fermion_modes": 2,
+  "notes": "Toy BK mapping metadata on two modes."
+}

@@ -1,0 +1,80 @@
+qspecbench_version: '0.2'
+id: bravyi_kitaev_small_instance
+title: Bravyi-Kitaev small instance
+track: hamiltonian
+domain: fermion_mapping
+claim_type: mapping_sanity
+difficulty: intermediate
+informal_claim:
+  statement: A two-mode Hamiltonian declares Bravyi-Kitaev mapping metadata for simulation
+    scaffolding.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: mathematical
+  secondary: []
+objects:
+- name: hamiltonian
+  type: hamiltonian
+  path: artifacts/hamiltonian.json
+  format: json
+  role: specification
+specification:
+  mode: exact
+  preconditions:
+  - two fermion modes
+  postconditions:
+  - mapping field set to bravyi_kitaev
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - BK mapping definition standard
+  physical: []
+  tool: []
+  artifact: []
+  unverified:
+  - mapping correctness proof
+acceptable_evidence:
+- type: simulation
+  checker: BK mapping script
+  path: evidence/check_bk.py
+  required_for_claim: false
+  trust_level: heuristic
+evidence:
+- id: bk_mapping_check
+  type: simulation
+  path: evidence/check_bk.py
+  checker: BK mapping script
+  command: python adapters/python/parse_result.py evidence/check_bk.py
+  status: passing
+  notes: Metadata sanity only.
+trust_boundary:
+  checked_by:
+  - BK mapping metadata script
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - formal anticommutation preservation
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: partial
+  ci: passing
+  maturity: usable
+references: []
