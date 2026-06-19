@@ -1,0 +1,3 @@
+import QSpecBench.Stabilizer
+
+#check QSpecBench.repetition_stabilizers_commute
