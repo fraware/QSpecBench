@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import re
-from fractions import Fraction
 from typing import Any
 
 from qspecbench.qasm_matrix import (
+    ComplexMatrix,
     _apply_rx,
     _apply_single,
     _ccx,
@@ -15,12 +15,14 @@ from qspecbench.qasm_matrix import (
     _mat_mul,
     _parse_qubit_index,
     _swap,
+    matrices_equal,
+    matrix_from_json_rows,
 )
 
 Op = tuple[str, tuple[int, ...], float | None]
 
 
-def denotate_ops(n_qubits: int, ops: list[Op]) -> list[list[Fraction]]:
+def denotate_ops(n_qubits: int, ops: list[Op]) -> ComplexMatrix:
     """Denotate a gate list with the same left-multiply order as qasm_matrix."""
     unitary = _eye(1 << n_qubits)
     for gate, args, angle in ops:
@@ -76,9 +78,15 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
     return ops
 
 
-def matrices_equal(a: list[list[Fraction]], b: list[list[Fraction]]) -> bool:
-    return all(x == y for row_a, row_b in zip(a, b) for x, y in zip(row_a, row_b))
+def matrix_from_qasm_json(data: dict[str, Any]) -> ComplexMatrix:
+    return matrix_from_json_rows(data["matrix"])
 
 
-def matrix_from_qasm_json(data: dict[str, Any]) -> list[list[Fraction]]:
-    return [[Fraction(cell[0], cell[1]) for cell in row] for row in data["matrix"]]
+__all__ = [
+    "ComplexMatrix",
+    "Op",
+    "denotate_ops",
+    "matrices_equal",
+    "matrix_from_qasm_json",
+    "ops_from_qasm_matrix",
+]
