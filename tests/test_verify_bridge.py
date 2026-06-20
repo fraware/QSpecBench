@@ -8,8 +8,8 @@ from pathlib import Path
 
 import yaml
 
-from qspecbench.denotate import denotate_ops, matrices_equal, matrix_from_qasm_json, ops_from_qasm_matrix
-from qspecbench.qasm_matrix import _cnot, extract_matrix
+from qspecbench.denotate import denotate_ops, matrix_from_qasm_json, ops_from_qasm_matrix
+from qspecbench.qasm_matrix import _cnot, extract_matrix, matrices_equal
 from qspecbench.validate import validate_path
 from qspecbench.verify_bridge import verify_bridge, write_bridge_result
 
@@ -26,6 +26,10 @@ KERNEL_CHECKED = [
     "benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction",
     "benchmarks/equivalence/rx_gate_equivalence_small_instance",
     "benchmarks/algorithms/bell_state_preparation",
+    "benchmarks/algorithms/swap_from_three_cx",
+    "benchmarks/equivalence/toffoli_decomposition_equivalence",
+    "benchmarks/equivalence/circuit_identity_after_layout",
+    "benchmarks/algorithms/qft_then_inverse_qft_identity_up_to_ordering",
 ]
 
 
@@ -56,8 +60,8 @@ def test_cnot_control_target_directions_differ():
     cx01 = _cnot(2, 0, 1)
     cx10 = _cnot(2, 1, 0)
     assert cx01 != cx10
-    assert cx01[1][3] == Fraction(1)
-    assert cx10[2][3] == Fraction(1)
+    assert cx01[1][3] == (Fraction(1), Fraction(0))
+    assert cx10[2][3] == (Fraction(1), Fraction(0))
 
 
 def test_denotate_cx_10_matches_qasm_matrix():
