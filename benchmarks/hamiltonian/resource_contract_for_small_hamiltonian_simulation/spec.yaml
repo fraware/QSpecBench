@@ -91,3 +91,7 @@ status:
   ci: passing
   maturity: reference
 references: []
+proof_obligations:
+- id: resource_contract
+  status: partial
+  notes: Contract declared; simulation not proved
