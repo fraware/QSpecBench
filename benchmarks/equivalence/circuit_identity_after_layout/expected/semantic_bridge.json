@@ -1,0 +1,12 @@
+{
+  "artifact_gate_model": "openqasm3_complex_unitary",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_circuit_identity_after_layout",
+  "normalization": {
+    "hadamard": "unnormalized_int_model",
+    "layout": "register_rename_preserves_matrix"
+  },
+  "claimed_link": "kernel_checked",
+  "qasm_artifact": "artifacts/source.qasm",
+  "bridge_evidence_id": "bridge_verify"
+}
