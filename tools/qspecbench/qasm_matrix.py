@@ -7,7 +7,10 @@ import math
 import re
 from fractions import Fraction
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeAlias
+
+Cell: TypeAlias = tuple[Fraction, Fraction]
+ComplexMatrix: TypeAlias = list[list[Cell]]
 
 _GATE_LINE = re.compile(
     r"^\s*(h|x|y|z|s|t|sdg|tdg|cx|cnot|swap|ccx)\s+(.*);?\s*$",
@@ -18,58 +21,98 @@ _RX_LINE = re.compile(
     re.IGNORECASE,
 )
 
-# Phase gates use identity on the real matrix scaffold; phase quarters documented separately.
-_PHASE_QUADRANTS = {"s": 2, "t": 1, "sdg": 6, "tdg": 7}
+_COMPLEX_TOLERANCE = Fraction(1, 10**9)
+_SQRT2_HALF = Fraction(math.cos(math.pi / 4)).limit_denominator(10**12)
 
 
-def _eye(n: int) -> list[list[Fraction]]:
-    return [[Fraction(1 if i == j else 0) for j in range(n)] for i in range(n)]
+def _cell(re: Fraction | int = 0, im: Fraction | int = 0) -> Cell:
+    return (Fraction(re), Fraction(im))
 
 
-def _single_qubit_gate(name: str) -> list[list[Fraction]]:
+def _eye(n: int) -> ComplexMatrix:
+    return [[_cell(1 if i == j else 0) for j in range(n)] for i in range(n)]
+
+
+def _phase_gate(name: str) -> ComplexMatrix:
+    g = name.lower()
+    if g == "s":
+        return [[_cell(1), _cell()], [_cell(), _cell(im=1)]]
+    if g == "sdg":
+        return [[_cell(1), _cell()], [_cell(), _cell(im=-1)]]
+    if g == "t":
+        c = _SQRT2_HALF
+        return [[_cell(1), _cell()], [_cell(), _cell(c, c)]]
+    if g == "tdg":
+        c = _SQRT2_HALF
+        return [[_cell(1), _cell()], [_cell(), _cell(c, -c)]]
+    raise ValueError(f"unsupported phase gate: {name}")
+
+
+def _single_qubit_gate(name: str) -> ComplexMatrix:
     g = name.lower()
     if g == "h":
-        return [[Fraction(1), Fraction(1)], [Fraction(1), Fraction(-1)]]
+        return [[_cell(1), _cell(1)], [_cell(1), _cell(-1)]]
     if g == "x":
-        return [[Fraction(0), Fraction(1)], [Fraction(1), Fraction(0)]]
+        return [[_cell(), _cell(1)], [_cell(1), _cell()]]
     if g == "y":
-        return [[Fraction(0), Fraction(-1)], [Fraction(1), Fraction(0)]]
+        return [[_cell(), _cell(im=-1)], [_cell(im=1), _cell()]]
     if g == "z":
-        return [[Fraction(1), Fraction(0)], [Fraction(0), Fraction(-1)]]
-    if g in _PHASE_QUADRANTS:
-        return _eye(2)
+        return [[_cell(1), _cell()], [_cell(), _cell(-1)]]
+    if g in {"s", "t", "sdg", "tdg"}:
+        return _phase_gate(g)
     raise ValueError(f"unsupported single-qubit gate: {name}")
 
 
-def _rx_matrix(theta: float) -> list[list[Fraction]]:
+def _rx_matrix(theta: float) -> ComplexMatrix:
     if abs(theta - 1.57079632679) < 1e-6:
         return _single_qubit_gate("h")
     half = theta / 2.0
     c = Fraction(math.cos(half)).limit_denominator(10**12)
     s = Fraction(math.sin(half)).limit_denominator(10**12)
-    return [[c, -s], [-s, c]]
+    return [[_cell(c), _cell(im=-s)], [_cell(im=-s), _cell(c)]]
 
 
-def _mat_mul(a: list[list[Fraction]], b: list[list[Fraction]]) -> list[list[Fraction]]:
+def _sum_cells(cells: list[Cell]) -> Cell:
+    re = sum(c[0] for c in cells)
+    im = sum(c[1] for c in cells)
+    return (re, im)
+
+
+def _mat_mul(a: ComplexMatrix, b: ComplexMatrix) -> ComplexMatrix:
     n = len(a)
+
+    def mul_cell(x: Cell, y: Cell) -> Cell:
+        xr, xi = x
+        yr, yi = y
+        return (xr * yr - xi * yi, xr * yi + xi * yr)
+
     return [
-        [sum(a[i][k] * b[k][j] for k in range(n)) for j in range(n)]
+        [
+            _sum_cells([mul_cell(a[i][k], b[k][j]) for k in range(n)])
+            for j in range(n)
+        ]
         for i in range(n)
     ]
 
 
-def _kron(a: list[list[Fraction]], b: list[list[Fraction]]) -> list[list[Fraction]]:
+def _kron(a: ComplexMatrix, b: ComplexMatrix) -> ComplexMatrix:
     ra, ca = len(a), len(a[0])
     rb, cb = len(b), len(b[0])
+
+    def mul_cell(x: Cell, y: Cell) -> Cell:
+        xr, xi = x
+        yr, yi = y
+        return (xr * yr - xi * yi, xr * yi + xi * yr)
+
     return [
-        [a[i // rb][j // cb] * b[i % rb][j % cb] for j in range(ca * cb)]
+        [mul_cell(a[i // rb][j // cb], b[i % rb][j % cb]) for j in range(ca * cb)]
         for i in range(ra * rb)
     ]
 
 
-def _apply_single(n_qubits: int, gate: str, qubit: int) -> list[list[Fraction]]:
+def _apply_single(n_qubits: int, gate: str, qubit: int) -> ComplexMatrix:
     op = _single_qubit_gate(gate)
-    mats: list[list[list[Fraction]]] = []
+    mats: list[ComplexMatrix] = []
     for q in range(n_qubits):
         mats.append(op if q == qubit else _eye(2))
     result = mats[0]
@@ -78,9 +121,9 @@ def _apply_single(n_qubits: int, gate: str, qubit: int) -> list[list[Fraction]]:
     return result
 
 
-def _apply_rx(n_qubits: int, theta: float, qubit: int) -> list[list[Fraction]]:
+def _apply_rx(n_qubits: int, theta: float, qubit: int) -> ComplexMatrix:
     op = _rx_matrix(theta)
-    mats: list[list[list[Fraction]]] = []
+    mats: list[ComplexMatrix] = []
     for q in range(n_qubits):
         mats.append(op if q == qubit else _eye(2))
     result = mats[0]
@@ -89,7 +132,7 @@ def _apply_rx(n_qubits: int, theta: float, qubit: int) -> list[list[Fraction]]:
     return result
 
 
-def _cnot(n_qubits: int, control: int, target: int) -> list[list[Fraction]]:
+def _cnot(n_qubits: int, control: int, target: int) -> ComplexMatrix:
     dim = 1 << n_qubits
     result = _eye(dim)
     for row in range(dim):
@@ -99,11 +142,11 @@ def _cnot(n_qubits: int, control: int, target: int) -> list[list[Fraction]]:
             col_bits[target] ^= 1
         col = sum(col_bits[q] << q for q in range(n_qubits))
         for c in range(dim):
-            result[row][c] = Fraction(1 if c == col else 0)
+            result[row][c] = _cell(1 if c == col else 0)
     return result
 
 
-def _ccx(n_qubits: int, c1: int, c2: int, target: int) -> list[list[Fraction]]:
+def _ccx(n_qubits: int, c1: int, c2: int, target: int) -> ComplexMatrix:
     dim = 1 << n_qubits
     result = _eye(dim)
     for row in range(dim):
@@ -113,11 +156,11 @@ def _ccx(n_qubits: int, c1: int, c2: int, target: int) -> list[list[Fraction]]:
             col_bits[target] ^= 1
         col = sum(col_bits[q] << q for q in range(n_qubits))
         for c in range(dim):
-            result[row][c] = Fraction(1 if c == col else 0)
+            result[row][c] = _cell(1 if c == col else 0)
     return result
 
 
-def _swap(n_qubits: int, a: int, b: int) -> list[list[Fraction]]:
+def _swap(n_qubits: int, a: int, b: int) -> ComplexMatrix:
     dim = 1 << n_qubits
     result = _eye(dim)
     for row in range(dim):
@@ -127,7 +170,7 @@ def _swap(n_qubits: int, a: int, b: int) -> list[list[Fraction]]:
             col_bits[a], col_bits[b] = col_bits[b], col_bits[a]
         col = sum(col_bits[q] << q for q in range(n_qubits))
         for c in range(dim):
-            result[row][c] = Fraction(1 if c == col else 0)
+            result[row][c] = _cell(1 if c == col else 0)
     return result
 
 
@@ -160,12 +203,42 @@ def _register_size(text: str) -> int:
     return int(m.group(1))
 
 
+def cell_to_json(cell: Cell) -> list[list[int]]:
+    return [[cell[0].numerator, cell[0].denominator], [cell[1].numerator, cell[1].denominator]]
+
+
+def cell_from_json(data: list[Any]) -> Cell:
+    if len(data) == 2 and isinstance(data[0], int):
+        return (Fraction(data[0], data[1]), Fraction(0))
+    if len(data) == 2 and isinstance(data[0], list):
+        return (Fraction(data[0][0], data[0][1]), Fraction(data[1][0], data[1][1]))
+    raise ValueError(f"unsupported matrix cell format: {data!r}")
+
+
+def matrix_from_json_rows(rows: list[list[Any]]) -> ComplexMatrix:
+    return [[cell_from_json(cell) for cell in row] for row in rows]
+
+
+def cells_close(a: Cell, b: Cell, tol: Fraction = _COMPLEX_TOLERANCE) -> bool:
+    return abs(a[0] - b[0]) <= tol and abs(a[1] - b[1]) <= tol
+
+
+def matrices_equal(
+    a: ComplexMatrix,
+    b: ComplexMatrix,
+    *,
+    tol: Fraction = _COMPLEX_TOLERANCE,
+) -> bool:
+    if len(a) != len(b) or any(len(r1) != len(r2) for r1, r2 in zip(a, b)):
+        return False
+    return all(cells_close(x, y, tol=tol) for row_a, row_b in zip(a, b) for x, y in zip(row_a, row_b))
+
+
 def extract_matrix(qasm_path: Path) -> dict[str, Any]:
     text = qasm_path.read_text(encoding="utf-8")
     n = _register_size(text)
     unitary = _eye(1 << n)
     gates_applied: list[str] = []
-    phase_quadrants: list[dict[str, Any]] = []
 
     for raw in text.splitlines():
         line = raw.strip()
@@ -203,8 +276,6 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
         else:
             if len(args) != 1:
                 raise ValueError(f"single-qubit gate expects one argument: {line}")
-            if gate in _PHASE_QUADRANTS:
-                phase_quadrants.append({"gate": gate, "qubit": args[0], "quadrant": _PHASE_QUADRANTS[gate]})
             op = _apply_single(n, gate, args[0])
         unitary = _mat_mul(op, unitary)
         gates_applied.append(line)
@@ -220,25 +291,18 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
             args = _parse_qubit_args(" ".join(parts[1:]), n)
         gate_trace.append({"gate": gate, "args": args})
 
-    def frac_cell(x: Fraction) -> list[int]:
-        return [x.numerator, x.denominator]
-
     return {
         "source": str(qasm_path),
         "n_qubits": n,
-        "gate_model": "openqasm3_1q2q_clifford",
+        "gate_model": "openqasm3_complex_unitary",
         "normalization": {
             "hadamard": "unnormalized_int_model",
             "qasm_factor": "1/sqrt(2) per gate",
-            "phase_gates": "identity_matrix_with_quadrant_metadata",
+            "phase_gates": "complex_diagonal",
         },
-        "phase_quadrants": phase_quadrants,
         "gates_applied": gates_applied,
         "gate_trace": gate_trace,
-        "matrix": [
-            [frac_cell(unitary[i][j]) for j in range(len(unitary))]
-            for i in range(len(unitary))
-        ],
+        "matrix": [[cell_to_json(unitary[i][j]) for j in range(len(unitary))] for i in range(len(unitary))],
     }
 
 
