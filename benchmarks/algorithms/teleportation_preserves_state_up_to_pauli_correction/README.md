@@ -11,20 +11,26 @@ This is the canonical **relational** algorithm benchmark: correctness is a relat
 ## Objects
 
 - `artifacts/teleportation.qasm` — three-qubit teleportation circuit (q[0] input, q[1]/q[2] Bell pair)
+- `artifacts/bell_prep_scaffold.qasm` — two-qubit Bell-pair fragment for semantic bridge verification
 
 ## Specification
 
-Fixed-size, exact, relational claim on pure states. Qubit ordering is explicit in preconditions. Resource contract: 3 qubits, 2 measurements, no T gates.
+Fixed-size, exact, relational claim on pure states. Qubit ordering is explicit in preconditions. Resource contract: 3 qubits, 2 measurements, no T gates. Postconditions distinguish kernel-checked unitary fragment from documented (unchecked) relational transfer.
 
 ## Evidence
 
-- QASM syntax check (passing; syntax only)
+- QASM syntax check on full circuit (passing)
+- Lean 4 kernel: `teleportation_unitary_fragment_checked` and documented correction table (`evidence/teleportation.lean`)
+- verify-bridge on Bell-prep scaffold (`kernel_checked` against OpenQASM3 denotation)
 - Informal derivation in `notes/informal_derivation.md` (partial human review)
-- Acceptable future evidence: Lean 4 kernel proof
 
 ## Trust boundary
 
-QASM parsing is checked. Informal derivation and classical feed-forward semantics are **not** kernel-checked. This benchmark is **not** marked proved.
+**Checked:** Bell-pair preparation denotation matches OpenQASM3; Alice entangling unitary fragment is nontrivial on declared ordering.
+
+**Not checked:** arbitrary-state transfer after measurement; Pauli correction correctness; classical feed-forward in QASM; full relational protocol.
+
+See `spec.yaml` `trust_boundary` and `proof_obligations` (`relational_protocol: partial`).
 
 ## Status
 
@@ -32,9 +38,9 @@ Current maturity: **reference**.
 
 ## Known gaps
 
-- Kernel-checked proof in a proof assistant
+- Kernel-checked proof of full relational transfer for arbitrary `|ψ⟩`
 - Fully expanded classically controlled Pauli corrections in QASM
-- Semantic validation linking QASM to the relational specification
+- Three-qubit semantic bridge for the complete pre-measurement unitary
 
 ## References
 
