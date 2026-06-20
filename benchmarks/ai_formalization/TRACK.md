@@ -20,7 +20,7 @@ Source text, target formal system, expected statement shape, rubric, trust bound
 | formalize_small_hamiltonian_hermiticity_statement | reference | Hermiticity formalization |
 | formalize_stabilizer_commutation_statement | reference | Stabilizer commutation |
 | formalize_bit_flip_code_corrects_one_x | reference | QEC code formalization |
-| extract_teleportation_correctness_statement | usable | Extraction task |
+| extract_teleportation_correctness_statement | reference | Rubric 4 + unitary-fragment anchor |
 | formalize_qec_distance_claim_statement | usable | Distance claim draft |
 | formalize_teleportation_spec_statement | usable | Teleportation spec draft |
 
@@ -34,4 +34,4 @@ Syntactic validity and kernel checking do not imply semantic faithfulness to sou
 
 ## Reference promotion
 
-See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md) for the AI track stack (kernel anchor + rubric score >= 4 + named reviewer). Mission-corpus benchmark `extract_teleportation_correctness_statement` remains **usable**: its kernel anchor (`teleportation_preserves_state`) is a Bell-prep scaffold only and does not encode measurement or Pauli correction from the source claim.
+See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md) for the AI track stack (kernel anchor + rubric score >= 4 + named reviewer). Mission benchmark `extract_teleportation_correctness_statement` is **reference** with kernel anchor `teleportation_unitary_fragment_checked`; full measurement and Pauli correction remain outside checked scope per trust boundary.
