@@ -57,6 +57,10 @@ jobs:
       - run: qspecbench verify-bridge benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction
       - run: qspecbench verify-bridge benchmarks/equivalence/rx_gate_equivalence_small_instance
       - run: qspecbench verify-bridge benchmarks/algorithms/bell_state_preparation
+      - run: qspecbench verify-bridge benchmarks/algorithms/swap_from_three_cx
+      - run: qspecbench verify-bridge benchmarks/equivalence/toffoli_decomposition_equivalence
+      - run: qspecbench verify-bridge benchmarks/equivalence/circuit_identity_after_layout
+      - run: qspecbench verify-bridge benchmarks/algorithms/qft_then_inverse_qft_identity_up_to_ordering
 
   ai_formalization:
     runs-on: ubuntu-latest
