@@ -289,4 +289,29 @@ theorem bridge_swap_single (i j : Fin 4) :
     denotateOps2 swap_single i j = swap4 i j :=
   denotateOps2_swap_single i j
 
+/-- Three CX gates in standard order implement SWAP (CX_{0,1} CX_{1,0} CX_{0,1}). -/
+def swap_from_three_cx_ops : List QasmOp := [.cx 0 1, .cx 1 0, .cx 0 1]
+
+theorem denotateOps2_swap_from_three_cx (i j : Fin 4) :
+    denotateOps2 swap_from_three_cx_ops i j = swap4 i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_swap_from_three_cx (i j : Fin 4) :
+    denotateOps2 swap_from_three_cx_ops i j = swap4 i j :=
+  denotateOps2_swap_from_three_cx i j
+
+/-- Layout-identity scaffold: H then CX on qubits 0,1. -/
+def layout_identity_ops : List QasmOp := [.gate .H 0, .cx 0 1]
+
+def layoutIdentityMatrix (i j : Fin 4) : Int :=
+  mul4 cnot4 (kron2I hadamard2) i j
+
+theorem denotateOps2_layout_identity (i j : Fin 4) :
+    denotateOps2 layout_identity_ops i j = layoutIdentityMatrix i j := by
+  fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_circuit_identity_after_layout (i j : Fin 4) :
+    denotateOps2 layout_identity_ops i j = layoutIdentityMatrix i j :=
+  denotateOps2_layout_identity i j
+
 end QSpecBench.Quantum.OpenQASM3
