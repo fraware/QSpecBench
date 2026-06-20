@@ -30,7 +30,7 @@ The Lean anchor proves Bell-pair preparation is nontrivial; it does **not** prov
 
 ## Status
 
-Current maturity: **usable** (reference requires rubric score >= 4 with honest anchor scope).
+Current maturity: **reference**.
 
 ## Known gaps
 
