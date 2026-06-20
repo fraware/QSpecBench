@@ -92,3 +92,10 @@ acceptable_evidence:
   required_for_claim: false
   trust_level: checked
 references: []
+proof_obligations:
+- id: z_eigenvalue
+  status: passing
+  notes: Z eigenvalue on |1>
+- id: eigenphase_relation
+  status: partial
+  notes: Full PE unitary not checked
