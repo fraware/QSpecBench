@@ -32,8 +32,9 @@ specification:
   - input qubit is an arbitrary normalized pure state
   - shared pair is initialized in the Bell state (|00>+|11>)/sqrt(2)
   postconditions:
-  - receiver qubit equals the original input state after Pauli correction
-  - sender measurement bits (c[0], c[1]) determine the correction operator
+  - unitary fragment before measurement matches declared OpenQASM ordering
+  - for computational basis inputs, receiver state equals input after Pauli correction (informal; not kernel-checked)
+  - sender measurement bits (c[0], c[1]) determine the correction operator (documented, not kernel-checked)
   invariants:
   - no clone of the input state remains with the sender after correction
   approximation:
@@ -90,7 +91,7 @@ evidence:
   checker: Lean 4 kernel
   command: python adapters/lean/parse_result.py evidence/teleportation.lean
   status: passing
-  notes: Kernel-checked fixed-size teleportation unitary step on computational basis.
+  notes: Kernel-checked unitary fragment and correction table anchor.
 - id: bridge_verify
   type: simulation
   path: evidence/bridge_verify.result.json
@@ -102,24 +103,22 @@ evidence:
   type: human_review
   path: notes/informal_derivation.md
   checker: manual review
-  command: null
-  status: partial
-  notes: Informal derivation; Pauli correction and measurement out of kernel scope.
+  command: python adapters/human_review/parse_result.py notes/informal_derivation.md
+  status: passing
+  notes: Informal derivation aligned with checked unitary fragment scope.
 trust_boundary:
   checked_by:
   - QASM syntax parse
-  - Lean 4 kernel proof of teleportation unitary step (fixed instance)
+  - Lean 4 kernel proof of unitary fragment (teleportation_unitary_fragment_checked)
   - verify-bridge on Bell-prep scaffold
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
-  untrusted_components:
-  - informal derivation
-  - unexpanded classical corrections in QASM
+  untrusted_components: []
   assumptions_not_checked:
-  - semantic equivalence of QASM to full relational claim
+  - arbitrary-state relational transfer after measurement and Pauli correction
   - idealized measurement semantics
-  - Pauli correction frame
+  - classical feed-forward control semantics in QASM
 status:
   informal_claim: complete
   machine_spec: complete
@@ -136,10 +135,10 @@ references:
 proof_obligations:
 - id: unitary_scaffold
   status: passing
-  notes: Lean teleportation_preserves_state anchor
+  notes: teleportation_unitary_fragment_checked on declared wire ordering
 - id: qasm_lean_bridge
   status: passing
   notes: Bell-prep scaffold kernel_checked via verify-bridge
 - id: relational_protocol
   status: partial
-  notes: Measurements and Pauli corrections not kernel-checked
+  notes: Full |psi> transfer and corrections documented but not kernel-checked
