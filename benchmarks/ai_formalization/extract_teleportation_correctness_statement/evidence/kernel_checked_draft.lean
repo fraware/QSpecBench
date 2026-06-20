@@ -1,3 +1,3 @@
 import QSpecBench.Teleportation
 
-#check QSpecBench.teleportation_preserves_state
+#check QSpecBench.teleportation_unitary_fragment_checked
