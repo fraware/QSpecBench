@@ -90,3 +90,10 @@ acceptable_evidence:
   required_for_claim: false
   trust_level: checked
 references: []
+proof_obligations:
+- id: diffuser_scaffold
+  status: passing
+  notes: Grover diffuser nontrivial
+- id: amplitude_lift
+  status: partial
+  notes: Probability lift not proved
