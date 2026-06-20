@@ -7,21 +7,22 @@ import tempfile
 from fractions import Fraction
 from pathlib import Path
 
-from qspecbench.qasm_matrix import extract_matrix
+from qspecbench.qasm_matrix import cells_close, extract_matrix, matrix_from_json_rows, matrices_equal
 
 
-def _matrix_from_qasm(qasm: str) -> list[list[Fraction]]:
+def _matrix_from_qasm(qasm: str):
     with tempfile.NamedTemporaryFile("w", suffix=".qasm", delete=False, encoding="utf-8") as f:
         f.write(qasm)
         path = Path(f.name)
     try:
         data = extract_matrix(path)
-        return [
-            [Fraction(num, den) for num, den in row]
-            for row in data["matrix"]
-        ]
+        return matrix_from_json_rows(data["matrix"])
     finally:
         path.unlink(missing_ok=True)
+
+
+def _cell(re: Fraction | int = 0, im: Fraction | int = 0):
+    return (Fraction(re), Fraction(im))
 
 
 def test_rx_pi2_matches_h():
@@ -30,18 +31,62 @@ def test_rx_pi2_matches_h():
     assert m_rx == m_h
 
 
+def test_s_gate_phase_on_one():
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ns q[0];\n")
+    assert m[0][0] == _cell(1)
+    assert m[1][1] == _cell(im=1)
+
+
+def test_t_gate_phase_on_one():
+    c = Fraction(math.cos(math.pi / 4)).limit_denominator(10**12)
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nt q[0];\n")
+    assert m[0][0] == _cell(1)
+    assert m[1][1] == _cell(c, c)
+
+
+def test_sdg_gate_phase_on_one():
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nsdg q[0];\n")
+    assert m[0][0] == _cell(1)
+    assert m[1][1] == _cell(im=-1)
+
+
+def test_tdg_gate_phase_on_one():
+    c = Fraction(math.cos(math.pi / 4)).limit_denominator(10**12)
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ntdg q[0];\n")
+    assert m[0][0] == _cell(1)
+    assert m[1][1] == _cell(c, -c)
+
+
+def test_t_squared_equals_s_phase():
+    m_t2 = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nt q[0];\nt q[0];\n")
+    m_s = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ns q[0];\n")
+    assert cells_close(m_t2[1][1], m_s[1][1])
+
+
+def test_phase_cancellation_s_sdg():
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ns q[0];\nsdg q[0];\n")
+    eye = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\n")
+    assert m == eye
+
+
+def test_phase_cancellation_t_tdg():
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nt q[0];\ntdg q[0];\n")
+    eye = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\n")
+    assert matrices_equal(m, eye)
+
+
 def test_ccx_is_permutation():
     m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[3] q;\nccx q[0], q[1], q[2];\n")
     dim = 8
     for row in m:
-        assert sum(1 for x in row if x != 0) == 1
+        assert sum(1 for x in row if x != _cell()) == 1
     assert len(m) == dim
 
 
 def test_swap_exchanges_qubits():
     m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[2] q;\nswap q[0], q[1];\n")
     col = 1
-    row_one = next(i for i in range(4) if m[i][col] == Fraction(1))
+    row_one = next(i for i in range(4) if m[i][col] == _cell(1))
     assert row_one == 2
 
 
@@ -51,7 +96,7 @@ def test_general_rx_theta():
     half = theta / 2.0
     c = Fraction(math.cos(half)).limit_denominator(10**12)
     s = Fraction(math.sin(half)).limit_denominator(10**12)
-    assert m[0][0] == c
-    assert m[0][1] == -s
-    assert m[1][0] == -s
-    assert m[1][1] == c
+    assert m[0][0] == _cell(c)
+    assert m[0][1] == _cell(im=-s)
+    assert m[1][0] == _cell(im=-s)
+    assert m[1][1] == _cell(c)
