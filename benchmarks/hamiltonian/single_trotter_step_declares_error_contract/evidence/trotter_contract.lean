@@ -1,0 +1,3 @@
+import QSpecBench.Hamiltonian
+
+#check QSpecBench.single_trotter_step_declares_error_contract
