@@ -18,11 +18,16 @@ Probabilistic exact claim on measurement distribution after one iteration.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- QASM syntax parse (passing)
+- Lean 4 kernel: `grover_diffuser_nontrivial` (diffuser scaffold `H·X·H` is nontrivial)
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+**Checked:** QASM syntax; Grover diffuser matrix scaffold is nontrivial.
+
+**Not checked:** probability lift on marked state; oracle and measurement semantics.
+
+Semantic bridge: `documented_not_proved` — see `expected/semantic_bridge.json`.
 
 ## Status
 
@@ -30,8 +35,9 @@ Current maturity: **reference**.
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+- Kernel-checked amplitude amplification on declared marked basis state
+- Oracle and measurement semantics linked to QASM artifact
 
 ## References
 
-- (add references when promoting beyond seed)
+- Standard Grover search presentation
