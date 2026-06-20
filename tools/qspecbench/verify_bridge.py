@@ -8,11 +8,10 @@ from typing import Any
 
 from qspecbench.denotate import (
     denotate_ops,
-    matrices_equal,
     matrix_from_qasm_json,
     ops_from_qasm_matrix,
 )
-from qspecbench.qasm_matrix import extract_matrix
+from qspecbench.qasm_matrix import extract_matrix, matrices_equal
 
 
 def _find_qasm_artifact(claim_dir: Path, bridge: dict[str, Any] | None = None) -> Path | None:
