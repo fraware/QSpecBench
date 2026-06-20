@@ -18,11 +18,17 @@ Exact algorithm identity; ordering conventions must be read from assumptions.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- QASM syntax parse (passing)
+- Lean 4 kernel: `qft_then_inverse_qft_identity` (QFT·IQFT = 4I on 2-qubit scaffold)
+- verify-bridge (`kernel_checked`) matrix match on declared circuit
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+**Checked:** QASM syntax; QFT identity theorem; OpenQASM3 denotation bridge on artifact.
+
+**Not checked:** bit-ordering conventions beyond declared scaffold normalization.
+
+Semantic bridge: `kernel_checked` — see `expected/semantic_bridge.json`.
 
 ## Status
 
@@ -30,8 +36,8 @@ Current maturity: **reference**.
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+- General n-qubit QFT ordering conventions beyond fixed 2-qubit instance
 
 ## References
 
-- (add references when promoting beyond seed)
+- Standard QFT presentation
