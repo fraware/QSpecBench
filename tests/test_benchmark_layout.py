@@ -49,3 +49,15 @@ def test_deprecated_readme_must_explain():
             continue
         errors, _warnings = validate_spec_dict(spec, spec_path.parent, benchmarks_root)
         assert not any("deprecated benchmark README" in e for e in errors)
+
+
+def test_reference_benchmarks_have_proof_obligations():
+    benchmarks_root = REPO / "benchmarks"
+    missing = []
+    for spec_path in find_spec_files(benchmarks_root):
+        spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
+        if spec.get("status", {}).get("maturity") != "reference":
+            continue
+        if not spec.get("proof_obligations"):
+            missing.append(spec.get("id"))
+    assert not missing, f"reference benchmarks missing proof_obligations: {missing}"
