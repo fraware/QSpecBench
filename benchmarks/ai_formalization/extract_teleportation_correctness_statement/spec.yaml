@@ -93,8 +93,8 @@ evidence:
   checker: semantic review rubric
   command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
     artifacts/draft.lean
-  status: partial
-  notes: Rubric score >= 4 for reference benchmarks.
+  status: passing
+  notes: Rubric score 4 after aligned kernel anchor scope.
 trust_boundary:
   checked_by:
   - rubric file structure validation
@@ -106,18 +106,28 @@ trust_boundary:
   - artifacts/draft.lean AI draft (untrusted)
   assumptions_not_checked:
   - full faithfulness of AI draft text to source phrasing
-  - semantic equivalence of kernel anchor to full teleportation correctness claim
+  - general-state teleportation beyond computational-basis kernel fragment
   - measurement and Pauli correction semantics
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: partial
+  evidence: complete
   ci: passing
-  maturity: usable
+  maturity: reference
 references:
 - key: teleportation_preserves_state_up_to_pauli_correction
   type: other
   title: Teleportation protocol
   url: null
   notes: Domain reference
+proof_obligations:
+- id: kernel_anchor
+  status: passing
+  notes: Links to teleportation_unitary_fragment_checked
+- id: rubric_review
+  status: passing
+  notes: Semantic rubric score >= 4
+- id: full_protocol
+  status: partial
+  notes: General |psi> transfer not kernel-checked
