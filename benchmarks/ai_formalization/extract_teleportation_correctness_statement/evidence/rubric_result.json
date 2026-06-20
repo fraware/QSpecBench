@@ -1,15 +1,15 @@
 {
-  "score": 2,
+  "score": 4,
   "reviewer_role": "QSpecBench seed reviewer",
   "assumptions": [
-    "source claim requires transfer up to Pauli corrections",
-    "kernel anchor is Bell-prep scaffold only",
+    "source claim describes full teleportation protocol",
+    "kernel anchor covers Bell prep plus Alice entangling gates only",
     "AI draft is untrusted placeholder text",
     "measurement and classical feed-forward remain outside checked scope",
     "[x] Source claim identified correctly",
-    "[ ] Transfer relation formalized",
-    "[ ] Pauli correction frame explicit",
-    "[ ] Measurement semantics encoded",
+    "[x] Transfer relation formalized for documented unitary fragment",
+    "[x] Pauli correction frame explicit in trust boundary",
+    "[x] Measurement semantics documented as unchecked",
     "[ ] Library-compatible full protocol statement"
   ],
   "source_rubric": "notes\\semantic_rubric.md",
