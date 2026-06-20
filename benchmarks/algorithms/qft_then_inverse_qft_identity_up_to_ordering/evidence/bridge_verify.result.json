@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "claim": "qft_then_inverse_qft_identity_up_to_ordering",
+  "claimed_link": "kernel_checked",
+  "lean_module": "QSpecBench.Algorithms",
+  "lean_theorem": "qft_then_inverse_qft_identity",
+  "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\qft_then_inverse_qft_identity_up_to_ordering\\artifacts\\circuit.qasm",
+  "n_qubits": 2,
+  "gates": 9,
+  "matrix_match": true,
+  "errors": []
+}
