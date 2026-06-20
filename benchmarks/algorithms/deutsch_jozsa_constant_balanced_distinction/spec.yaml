@@ -1,13 +1,13 @@
 qspecbench_version: '0.2'
 id: deutsch_jozsa_constant_balanced_distinction
-title: Deutsch–Jozsa distinguishes constant from balanced oracles
+title: "Deutsch\u2013Jozsa distinguishes constant from balanced oracles"
 track: algorithm
 domain: quantum_algorithm
 claim_type: oracle_distinction
 difficulty: intermediate
 informal_claim:
-  statement: For the declared small instance, Deutsch–Jozsa distinguishes constant
-    from balanced oracle functions.
+  statement: "For the declared small instance, Deutsch\u2013Jozsa distinguishes constant\
+    \ from balanced oracle functions."
   source: null
   reference_key: null
 semantic_level:
@@ -96,3 +96,10 @@ status:
   ci: passing
   maturity: reference
 references: []
+proof_obligations:
+- id: hadamard_layer
+  status: passing
+  notes: H^2 scaffold on query qubit
+- id: oracle_distinction
+  status: partial
+  notes: Oracle not kernel-linked
