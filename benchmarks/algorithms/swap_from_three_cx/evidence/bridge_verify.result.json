@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "claim": "swap_from_three_cx",
+  "claimed_link": "kernel_checked",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_swap_from_three_cx",
+  "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\swap_from_three_cx\\artifacts\\source.qasm",
+  "n_qubits": 2,
+  "gates": 3,
+  "matrix_match": true,
+  "errors": []
+}
