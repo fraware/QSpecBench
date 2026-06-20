@@ -50,48 +50,48 @@ assumptions:
   artifact: []
   unverified: []
 acceptable_evidence:
-  - type: qasm_parse
-    checker: "qasm parser adapter"
-    path: artifacts/circuit.qasm
-    required_for_claim: false
-    trust_level: externally_trusted
-  - type: lean_proof
-    checker: "Lean 4 kernel"
-    path: null
-    required_for_claim: false
-    trust_level: checked
-  - type: human_review
-    checker: domain expert review
-    path: notes/informal_derivation.md
-    required_for_claim: false
-    trust_level: externally_trusted
+- type: qasm_parse
+  checker: qasm parser adapter
+  path: artifacts/circuit.qasm
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: human_review
+  checker: domain expert review
+  path: notes/informal_derivation.md
+  required_for_claim: false
+  trust_level: externally_trusted
 evidence:
-  - id: qasm_syntax
-    type: qasm_parse
-    path: artifacts/circuit.qasm
-    checker: qasm parser adapter
-    command: "python adapters/qasm/parse_result.py artifacts/circuit.qasm"
-    status: passing
-    notes: "Syntax only."
-  - id: lean_superdense_bell
-    type: lean_proof
-    path: evidence/superdense.lean
-    checker: Lean 4 kernel
-    command: python adapters/lean/parse_result.py evidence/superdense.lean
-    status: passing
-    notes: Kernel-checked Bell-pair scaffold for superdense coding.
+- id: qasm_syntax
+  type: qasm_parse
+  path: artifacts/circuit.qasm
+  checker: qasm parser adapter
+  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
+  status: passing
+  notes: Syntax only.
+- id: lean_superdense_bell
+  type: lean_proof
+  path: evidence/superdense.lean
+  checker: Lean 4 kernel
+  command: python adapters/lean/parse_result.py evidence/superdense.lean
+  status: passing
+  notes: Kernel-checked Bell-pair scaffold for superdense coding.
 trust_boundary:
   checked_by:
-    - "QASM syntax parse"
-    - "Lean 4 kernel Bell-pair preparation scaffold"
+  - QASM syntax parse
+  - Lean 4 kernel Bell-pair preparation scaffold
   trusted_kernels:
-    - Lean 4 kernel
+  - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
-    - informal notes unless separately checked
+  - informal notes unless separately checked
   assumptions_not_checked:
-    - artifact parsing semantics
-    - idealized gate semantics
+  - artifact parsing semantics
+  - idealized gate semantics
 status:
   informal_claim: complete
   machine_spec: complete
@@ -101,9 +101,9 @@ status:
   maturity: reference
 references: []
 proof_obligations:
-- id: kernel_anchor
+- id: bell_pair_prep
   status: passing
-  notes: Lean superdense_bell_pair_entangled
-- id: relational_protocol
+  notes: Bell-pair entanglement scaffold
+- id: decoding_relation
   status: partial
-  notes: Bell measurement and Pauli encoding not kernel-checked
+  notes: Two-bit decoding not kernel-checked
