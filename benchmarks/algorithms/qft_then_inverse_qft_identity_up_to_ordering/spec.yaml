@@ -62,6 +62,13 @@ evidence:
   command: python adapters/lean/parse_result.py evidence/qft_identity.lean
   status: passing
   notes: Kernel-checked QFT/inverse-QFT identity on 2-qubit scaffold.
+- id: bridge_verify
+  type: simulation
+  path: evidence/bridge_verify.result.json
+  checker: verify-bridge CLI
+  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
+  status: passing
+  notes: kernel_checked verify-bridge
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -76,7 +83,7 @@ status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: partial
+  evidence: complete
   ci: passing
   maturity: reference
 acceptable_evidence:
@@ -89,3 +96,10 @@ acceptable_evidence:
   required_for_claim: false
   trust_level: checked
 references: []
+proof_obligations:
+- id: qft_inverse_identity
+  status: passing
+  notes: "QFT\xB7IQFT = 4I scaffold"
+- id: semantic_bridge
+  status: passing
+  notes: kernel_checked verify-bridge
