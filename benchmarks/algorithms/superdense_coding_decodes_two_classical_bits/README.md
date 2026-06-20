@@ -18,17 +18,26 @@ Exact relational claim on decoded classical bits; fixed 2+1 qubit profile.
 
 ## Evidence
 
-- QASM syntax parse
+- QASM syntax parse (passing)
 - Lean 4 kernel Bell-pair preparation scaffold (`superdense_bell_pair_entangled`)
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; relational decoding and measurement remain outside kernel scope.
+**Checked:** QASM syntax; Bell-pair preparation matches teleportation Bell prep scaffold.
+
+**Not checked:** two-bit decoding relation; measurement and Pauli frame.
+
+Semantic bridge: `documented_not_proved` — see `expected/semantic_bridge.json`.
 
 ## Status
 
 Current maturity: **reference**.
 
+## Known gaps
+
+- Kernel-checked decoding relation (two classical bits → Bob's qubit state)
+- Measurement semantics and correction frame
+
 ## References
 
-- (add references when promoting beyond seed)
+- Standard superdense coding presentation
