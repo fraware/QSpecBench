@@ -14,15 +14,20 @@ Oracle-based algorithm benchmark with explicit oracle semantics.
 
 ## Specification
 
-Oracle-based, fixed-size exact decision claim on measurement outcome.
+Oracle-based, fixed-size exact decision claim on measurement outcome. Oracle is a placeholder in the scaffold circuit.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- QASM syntax parse (passing)
+- Lean 4 kernel: `dj_constant_oracle_hadamard_square` (Hadamard-square scaffold on query qubit)
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+**Checked:** QASM syntax; Hadamard-layer scaffold (`H² = 2I` on query qubit).
+
+**Not checked:** constant vs balanced oracle distinction; oracle placeholder semantics.
+
+Semantic bridge: `documented_not_proved` — see `expected/semantic_bridge.json`.
 
 ## Status
 
@@ -30,8 +35,9 @@ Current maturity: **reference**.
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+- Kernel-checked oracle distinction for constant vs balanced functions
+- Semantic bridge from QASM circuit to DJ decision claim
 
 ## References
 
-- (add references when promoting beyond seed)
+- Standard Deutsch–Jozsa presentation
