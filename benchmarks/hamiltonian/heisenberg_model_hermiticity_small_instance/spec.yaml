@@ -91,3 +91,10 @@ status:
   ci: passing
   maturity: reference
 references: []
+proof_obligations:
+- id: hermiticity
+  status: passing
+  notes: heisenberg_small_instance_is_hermitian
+- id: pauli_tensors
+  status: passing
+  notes: Distinct qubit-local Pauli tensors
