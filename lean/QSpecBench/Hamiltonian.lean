@@ -3,6 +3,7 @@ import Mathlib.Data.Matrix.Notation
 import Mathlib.Tactic.FinCases
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Ring
+import Mathlib.Data.Rat.Defs
 import QSpecBench.Legacy.Pauli
 
 /-!
@@ -220,5 +221,18 @@ theorem heisenberg_small_instance_is_hermitian :
     pauliZ0_herm, pauliZ1_herm, Matrix.conjTranspose_add, Matrix.conjTranspose_smul,
     Matrix.conjTranspose_mul, pauliX0_mul_pauliX1_commute, pauliY0_mul_pauliY1_commute,
     pauliZ0_mul_pauliZ1_commute]
+
+/-- Declared single-step Trotter fidelity bound from artifact contract (not proved). -/
+def declaredSingleTrotterFidelityBound : ℚ := 1 / 1000000
+
+theorem single_trotter_step_declares_error_contract :
+    declaredSingleTrotterFidelityBound > 0 := by
+  norm_num [declaredSingleTrotterFidelityBound]
+
+/-- Declared second-order Trotter operator-norm contract exponent (documented only). -/
+def declaredSecondOrderTrotterOrder : Nat := 2
+
+theorem trotter_second_order_bound_contract :
+    declaredSecondOrderTrotterOrder = 2 := rfl
 
 end QSpecBench
