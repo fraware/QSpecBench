@@ -1,0 +1,3 @@
+import QSpecBench.Hamiltonian
+
+#check QSpecBench.trotter_second_order_bound_contract
