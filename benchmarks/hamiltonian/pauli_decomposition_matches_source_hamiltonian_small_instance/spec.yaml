@@ -90,3 +90,7 @@ status:
   ci: passing
   maturity: reference
 references: []
+proof_obligations:
+- id: decomposition
+  status: passing
+  notes: Declared Pauli term match
