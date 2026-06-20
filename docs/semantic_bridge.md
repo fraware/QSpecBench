@@ -15,14 +15,14 @@ Both are optional but recommended whenever a benchmark has parallel QASM and Lea
 
 ```json
 {
-  "artifact_gate_model": "openqasm3_1q2q_clifford",
-  "lean_module": "QSpecBench.Pauli",
-  "lean_theorem": "hadamard_conjugates_x",
+  "artifact_gate_model": "openqasm3_complex_unitary",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_cnot_self_inverse",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "documented_not_proved"
+  "claimed_link": "kernel_checked"
 }
 ```
 
@@ -32,29 +32,32 @@ Both are optional but recommended whenever a benchmark has parallel QASM and Lea
 - **lean_module** — Lean namespace module containing the matrix model.
 - **lean_theorem** — theorem name anchoring the kernel-checked claim.
 - **normalization** — free-form map documenting scaling conventions (especially for `H`).
-- **claimed_link** — one of `documented_not_proved` (default) or `kernel_checked` when a formal QASM semantics proof exists.
+- **claimed_link** — one of `documented_not_proved` (default) or `kernel_checked` when verify-bridge passes.
 
 ## Honesty rule
 
-`claimed_link: documented_not_proved` remains the default until a real OpenQASM semantics formalization exists in Lean. Passing QCEC or SAT matrix certificates narrows the **practical** gap but does not upgrade the link to `kernel_checked`.
+`claimed_link: documented_not_proved` remains appropriate when the Lean theorem is a scaffold that does not cover the full informal claim. Passing QCEC or SAT matrix certificates narrows the **practical** gap but does not alone upgrade the link to `kernel_checked`.
 
-## Integer scaffold limitations (S/T gates)
+## Complex unitary model (authoritative for phase gates)
 
-The Lean module `QSpecBench.Quantum.OpenQASM3` uses an **integer matrix scaffold** for kernel-checked composition proofs. Clifford gates (`H`, `X`, `Y`, `Z`, `CX`, `SWAP`, `CCX`) denotate to the expected integer models on fixed small instances.
+The Python extractor (`tools/qspecbench/qasm_matrix.py`) and Lean module `QSpecBench.Quantum.ComplexGate` use a **complex unitary model** with exact rational entries where possible:
 
-**S, T, Sdg, and Tdg are identity stubs** in Lean (`denotateGate .S => id2`, etc.). Phase on \(|1\rangle\) is not represented in the integer model. The Python matrix extractor uses complex arithmetic and matches OpenQASM semantics for phase gates; Lean bridge theorems that include S/T therefore prove **Clifford-only equivalence** (e.g. `H·H·S` equals `H·H` in the scaffold), not full phase-correct unitary equality.
+- Clifford gates (`H`, `X`, `Y`, `Z`, indexed `CX`, `SWAP`, `CCX`) match the integer scaffold on real parts.
+- `S`, `T`, `Sdg`, `Tdg` use diagonal complex phases.
+- `RX(θ)` uses standard `exp(-i θ/2 X)`; `θ = π/2` aligns with unnormalized `H` in the bridge tooling.
+
+The legacy integer layer in `QSpecBench.Quantum.OpenQASM3.denotateGate` keeps `S`/`T` as identity stubs for backward-compatible Clifford-only proofs (e.g. `bridge_clifford_hhs`). **verify-bridge** uses the complex Python denotation path.
 
 Implications:
 
-- Do not set `claimed_link: kernel_checked` on benchmarks whose QASM artifacts rely on non-trivial S/T phase unless the bridge theorem and verify step are scoped to the stub model.
-- Document normalization in `expected/semantic_bridge.json` when Toffoli or other decompositions include T gates checked only via QCEC externally.
-- Prefer QCEC or SAT certificates for phase-sensitive equivalence; use Lean bridges for Clifford subsets or instances where S/T are absent or provably cancel.
+- Set `claimed_link: kernel_checked` only when `qspecbench verify-bridge` passes on the declared QASM artifact.
+- Document normalization in `expected/semantic_bridge.json` when decompositions include phase gates checked externally via QCEC.
+- Use `documented_not_proved` when the Lean theorem scope is intentionally narrower than the README claim.
 
 ## Tooling
 
-Use matrix extraction to compare QASM artifacts with Lean integer models:
-
 ```bash
+qspecbench verify-bridge benchmarks/equivalence/cnot_self_inverse_cancellation/
 qspecbench extract-matrix artifacts/source.qasm --out expected/matrix.json
 ```
 
