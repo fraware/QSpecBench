@@ -7,8 +7,17 @@
     "schema_structure",
     "stabilizer_commutation",
     "logical_stabilizer_commutation",
-    "distance_consistency"
+    "distance_consistency",
+    "distance_min_weight_bruteforce"
   ],
-  "warnings": [],
-  "errors": []
+  "warnings": [
+    "declared distance is metadata only; it is not a machine-checked distance proof"
+  ],
+  "errors": [],
+  "distance_result": {
+    "method": "bruteforce_min_weight_logical_operator",
+    "computed_min_weight": 1,
+    "error_model": {},
+    "n_qubits": 3
+  }
 }

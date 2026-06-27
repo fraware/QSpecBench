@@ -119,6 +119,13 @@ headline_claim_status:
   status: checked
   notes: All declared required obligations are kernel- or manifest-checked under the
     stated gate model.
+  checked_under:
+  - qspecbench.pauli_hamiltonian_model.v0
+  - finite_matrix_model
+  not_checked_under:
+  - fermionic_source_semantics
+  - jordan_wigner_mapping
+  - hardware_semantics
 formal_claims:
 - id: formal_lean_hermitian
   evidence_id: lean_hermitian

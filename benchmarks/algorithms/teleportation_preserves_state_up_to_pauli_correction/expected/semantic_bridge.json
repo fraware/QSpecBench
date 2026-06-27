@@ -6,7 +6,7 @@
     "hadamard": "unnormalized_int_model",
     "measurements": "excluded_from_matrix"
   },
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "python_denotation_consistency",
   "gate_set": "openqasm3_1q2q_clifford",
   "bridge_evidence_id": "bridge_verify",
   "qasm_artifact": "artifacts/bell_prep_scaffold.qasm",

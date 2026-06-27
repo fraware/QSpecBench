@@ -114,7 +114,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: python_consistency_checked verify-bridge on native CCX artifact.
+  notes: python_denotation_consistency verify-bridge on native CCX artifact.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -133,7 +133,7 @@ proof_obligations:
   notes: bridge_ccx_single anchor on source artifact
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 - id: decomposition_equivalence
   status: passing
   notes: QCEC on source/target pair

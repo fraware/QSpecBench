@@ -21,5 +21,23 @@
   "warnings": [
     "declared distance is metadata only; it is not a machine-checked distance proof"
   ],
-  "errors": []
+  "errors": [],
+  "distance_result": {
+    "method": "bruteforce_min_weight_logical_operator",
+    "computed_min_weight": 3,
+    "error_model": {
+      "id": "bit_flip_pauli_channel",
+      "type": "error_model",
+      "pauli_only": true,
+      "allowed_errors": [
+        "X"
+      ],
+      "max_weight": 1,
+      "correlated_errors": false,
+      "leakage": false,
+      "measurement_errors": false,
+      "notes": "Single independent X error on one physical qubit."
+    },
+    "n_qubits": 3
+  }
 }

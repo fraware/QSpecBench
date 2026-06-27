@@ -106,7 +106,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -133,7 +133,7 @@ proof_obligations:
   notes: Hadamard cancellation
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: single_qubit_gate_cancellation_headline
   headline_claim_text: Consecutive inverse single-qubit gates on the same wire cancel
@@ -149,7 +149,15 @@ proved_scope:
   - openqasm_h_normalization_factor_links_to_integer
 headline_claim_status:
   status: checked
-  notes: All declared required obligations are kernel- or manifest-checked under the stated gate model.
+  notes: All declared required obligations are kernel- or manifest-checked under the
+    stated gate model.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_openqasm3
+  - hardware_semantics
+  - general_n_qubit_rule
 formal_claims:
 - id: formal_lean_hadamard_cancel
   evidence_id: lean_hadamard_cancel

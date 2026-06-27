@@ -1,5 +1,5 @@
 {
-  "ok": true,
+  "ok": false,
   "adapter": "qec_json_validator",
   "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\surface_code_single_pauli_error_correction\\artifacts\\code.json",
   "trust_level": "tool_checked",
@@ -7,8 +7,41 @@
     "schema_structure",
     "stabilizer_commutation",
     "logical_stabilizer_commutation",
-    "distance_consistency"
+    "distance_consistency",
+    "syndrome_table_structure",
+    "syndrome_table_antcommutation",
+    "single_x_syndrome_injection",
+    "correction_table_structure",
+    "correction_table_syndrome_alignment",
+    "logical_preservation_bruteforce",
+    "single_pauli_error_correction_validator",
+    "distance_min_weight_bruteforce"
   ],
-  "warnings": [],
-  "errors": []
+  "warnings": [
+    "declared distance is metadata only; it is not a machine-checked distance proof"
+  ],
+  "errors": [
+    "syndrome mismatch for error 'X1': table='01' computed='11'",
+    "syndrome mismatch for error 'X2': table='11' computed='01'",
+    "logical preservation failed: error 'IIX' + correction 'IXI' = 'IXX' not in stabilizer group",
+    "logical preservation failed: error 'IXI' + correction 'IIX' = 'IXX' not in stabilizer group"
+  ],
+  "distance_result": {
+    "method": "bruteforce_min_weight_logical_operator",
+    "computed_min_weight": 3,
+    "error_model": {
+      "id": "bit_flip_pauli_channel",
+      "type": "error_model",
+      "pauli_only": true,
+      "allowed_errors": [
+        "X"
+      ],
+      "max_weight": 1,
+      "correlated_errors": false,
+      "leakage": false,
+      "measurement_errors": false,
+      "notes": "Single independent X error on one physical qubit."
+    },
+    "n_qubits": 3
+  }
 }

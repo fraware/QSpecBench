@@ -6,7 +6,7 @@
     "qft": "unnormalized_int_model",
     "ordering": "declared_in_notes"
   },
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "python_denotation_consistency",
   "qasm_artifact": "artifacts/circuit.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",

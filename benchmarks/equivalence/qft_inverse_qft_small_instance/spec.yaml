@@ -116,7 +116,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -144,7 +144,7 @@ proof_obligations:
   notes: QFT2 inverse scaffold
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: qft_inverse_qft_small_instance_headline
   headline_claim_text: QFT and inverse QFT circuits are mutual inverses on a fixed

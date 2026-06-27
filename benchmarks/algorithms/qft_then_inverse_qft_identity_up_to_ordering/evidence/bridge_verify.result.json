@@ -1,7 +1,7 @@
 {
   "ok": true,
   "claim": "qft_then_inverse_qft_identity_up_to_ordering",
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "python_denotation_consistency",
   "lean_module": "QSpecBench.Algorithms",
   "lean_theorem": "qft_then_inverse_qft_identity",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\qft_then_inverse_qft_identity_up_to_ordering\\artifacts\\circuit.qasm",

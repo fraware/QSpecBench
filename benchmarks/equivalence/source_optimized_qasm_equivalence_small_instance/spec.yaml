@@ -83,7 +83,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -128,7 +128,7 @@ proof_obligations:
   notes: Source/optimized equivalence scaffold
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: source_optimized_qasm_equivalence_small_instance_headline
   headline_claim_text: An optimized QASM artifact is equivalent to its source under

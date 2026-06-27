@@ -112,7 +112,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: python_consistency_checked verify-bridge on source circuit.
+  notes: python_denotation_consistency verify-bridge on source circuit.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -131,7 +131,7 @@ proof_obligations:
   notes: bridge_swap_from_three_cx anchor
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 - id: qcec_equivalence
   status: passing
   notes: External SWAP vs three-CX check
@@ -152,6 +152,13 @@ proved_scope:
 headline_claim_status:
   status: checked
   notes: All declared required obligations are checked under the declared gate subset.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_openqasm3
+  - hardware_semantics
+  - general_n_qubit_rule
 formal_claims:
 - id: formal_lean_swap_bridge
   evidence_id: lean_swap_bridge

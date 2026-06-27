@@ -1,4 +1,5 @@
 {
+  "type": "pauli_hamiltonian",
   "id": "bravyi_kitaev_small_instance",
   "terms": [
     {

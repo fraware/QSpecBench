@@ -102,7 +102,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: Bell-prep scaffold QASM matches OpenQASM3 denotation (python_consistency_checked
+  notes: Bell-prep scaffold QASM matches OpenQASM3 denotation (python_denotation_consistency
     bridge).
 - id: informal_derivation
   type: human_review
@@ -142,7 +142,7 @@ proof_obligations:
   notes: teleportation_unitary_fragment_checked on declared wire ordering
 - id: qasm_lean_bridge
   status: passing
-  notes: Bell-prep scaffold python_consistency_checked via verify-bridge
+  notes: Bell-prep scaffold python_denotation_consistency via verify-bridge
 - id: relational_protocol
   status: partial
   notes: Full |psi> transfer and corrections documented but not kernel-checked
@@ -201,3 +201,8 @@ provenance:
   - path: artifacts/teleportation.qasm
     sha256: bc91dd3738b28a75078ec0488c254c4e9a195ee086310325918cc96f63732d78
     role: source
+qasm_extraction:
+  mode: unitary_fragment
+  allowed_to_skip:
+  - measurement
+  - classical_control

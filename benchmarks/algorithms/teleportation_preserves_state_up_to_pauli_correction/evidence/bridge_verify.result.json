@@ -1,7 +1,7 @@
 {
   "ok": true,
   "claim": "teleportation_preserves_state_up_to_pauli_correction",
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "python_denotation_consistency",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
   "lean_theorem": "bridge_teleportation_scaffold",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\teleportation_preserves_state_up_to_pauli_correction\\artifacts\\bell_prep_scaffold.qasm",

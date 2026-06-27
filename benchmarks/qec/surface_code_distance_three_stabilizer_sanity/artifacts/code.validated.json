@@ -7,10 +7,13 @@
     "schema_structure",
     "stabilizer_commutation",
     "logical_stabilizer_commutation",
-    "distance_consistency"
+    "distance_consistency",
+    "distance_min_weight_bruteforce"
   ],
   "warnings": [
-    "fewer stabilizers than n-k; code may be under-specified"
+    "fewer stabilizers than n-k; code may be under-specified",
+    "declared distance is metadata only; it is not a machine-checked distance proof"
   ],
-  "errors": []
+  "errors": [],
+  "distance_result": null
 }

@@ -149,16 +149,18 @@ formal_claims:
   - correction_restores_logical_state
   benchmark_anchor: three_qubit_phase_flip_code_corrects_one_z
 qec_claim_scope:
-  code_definition: unchecked
   stabilizer_commutation: unchecked
   syndrome_table: assumed
   correction_table: assumed
-  decoder_correctness: assumed
-  logical_preservation: assumed
   repeated_rounds: out_of_scope
   distance:
     type: declared_parameter
     status: declared_only
+  code_definition_semantics: unchecked
+  decoder_algorithm: assumed
+  logical_preservation_small_code: assumed
+  code_schema: checked
+  logical_preservation_general: out_of_scope
 provenance:
   generated_at: '2026-06-27T13:35:51.624360+00:00'
   artifacts:

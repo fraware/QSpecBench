@@ -65,7 +65,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -104,7 +104,7 @@ proof_obligations:
   notes: QFT·IQFT = 4I scaffold
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: qft_then_inverse_qft_identity_up_to_ordering_headline
   headline_claim_text: Applying QFT followed by inverse QFT yields the identity on

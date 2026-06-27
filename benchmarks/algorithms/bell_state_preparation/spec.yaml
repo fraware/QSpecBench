@@ -81,7 +81,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -108,7 +108,7 @@ proof_obligations:
   notes: bell_prep_from_00 on int model
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: bell_state_preparation_headline
   headline_claim_text: Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+>

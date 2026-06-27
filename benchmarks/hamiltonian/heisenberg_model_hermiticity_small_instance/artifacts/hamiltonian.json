@@ -1,4 +1,5 @@
 {
+  "type": "pauli_hamiltonian",
   "id": "heisenberg_model_hermiticity_small_instance",
   "terms": [
     {

@@ -6,7 +6,7 @@
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "kernel_checked",
+  "claimed_link": "manifest_checked_theorem_binding",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "09b180357138f4448a4f62bf9bfb9b50f26002298fc3f53a4954aefd10ce328b",

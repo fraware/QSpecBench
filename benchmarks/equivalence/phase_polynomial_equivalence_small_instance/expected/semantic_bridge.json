@@ -6,7 +6,7 @@
     "hadamard": "unnormalized_int_model",
     "phase_gates": "complex_diagonal"
   },
-  "claimed_link": "kernel_checked",
+  "claimed_link": "manifest_checked_theorem_binding",
   "gate_set": "openqasm3_1q_clifford",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v0",

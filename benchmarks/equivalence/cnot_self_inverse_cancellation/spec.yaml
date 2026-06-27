@@ -123,7 +123,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches QSpecBench.Quantum.OpenQASM3 denotation (python_consistency_checked
+  notes: QASM matrix matches QSpecBench.Quantum.OpenQASM3 denotation (python_denotation_consistency
     bridge).
 trust_boundary:
   checked_by:
@@ -152,7 +152,7 @@ proof_obligations:
   notes: cnot_mul_self on 4x4 model
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 - id: openqasm_full_language
   status: not_applicable
   notes: Gate-subset denotation only
@@ -174,6 +174,13 @@ headline_claim_status:
   status: checked
   notes: All declared required obligations are kernel- or manifest-checked under the
     stated gate model.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_openqasm3
+  - hardware_semantics
+  - general_n_qubit_rule
 formal_claims:
 - id: formal_lean_cnot_proof
   evidence_id: lean_cnot_proof

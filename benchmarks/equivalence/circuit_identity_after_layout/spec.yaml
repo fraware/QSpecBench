@@ -113,7 +113,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: python_consistency_checked verify-bridge on source circuit.
+  notes: python_denotation_consistency verify-bridge on source circuit.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -132,7 +132,7 @@ proof_obligations:
   notes: bridge_circuit_identity_after_layout anchor
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 - id: layout_equivalence
   status: passing
   notes: QCEC on renamed register pair

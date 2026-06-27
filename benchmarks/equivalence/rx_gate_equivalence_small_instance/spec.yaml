@@ -101,7 +101,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -129,7 +129,7 @@ proof_obligations:
   notes: bridge_rx_pi2_eq_h on int model
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: rx_gate_equivalence_small_instance_headline
   headline_claim_text: Rx(pi/2) equals H up to global phase on one qubit for the declared

@@ -128,16 +128,18 @@ formal_claims:
   - decoder_and_correction_claims
   benchmark_anchor: steane_code_stabilizer_commutation
 qec_claim_scope:
-  code_definition: unchecked
   stabilizer_commutation: unchecked
   syndrome_table: unchecked
   correction_table: unchecked
-  decoder_correctness: out_of_scope
-  logical_preservation: assumed
   repeated_rounds: out_of_scope
   distance:
     type: declared_parameter
     status: declared_only
+  code_definition_semantics: unchecked
+  decoder_algorithm: out_of_scope
+  logical_preservation_small_code: assumed
+  code_schema: checked
+  logical_preservation_general: out_of_scope
 provenance:
   generated_at: '2026-06-27T13:35:51.361892+00:00'
   artifacts:
