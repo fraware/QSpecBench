@@ -21,9 +21,10 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [x] README status block auto-sync from dashboard metrics
 - [x] QEC logical-preservation validator wired as structured evidence
 - [x] Hamiltonian artifact `type` migration complete (legacy skip removed)
-- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2**
+- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2 partial** (adapter smoke tests in validate job; no kernel)
 - [x] Bridge codegen pilot (`ast_sha256` + `generated_lean_sha256` for CNOT) — **P2 partial** (see [bridge_codegen_design.md](bridge_codegen_design.md))
-- [ ] First `kernel_checked_artifact_semantics` bridge — **P2 blocked** (codegen hashes only; no kernel artifact-semantics proof)
+- [x] Bridge codegen expanded to `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation`
+- [ ] First `kernel_checked_artifact_semantics` bridge — **P2 blocked** (codegen hashes only; precise gap in [bridge_codegen_design.md](bridge_codegen_design.md))
 - [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress**
 - [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only; `qspecbench validate` rejects fail-closed; requirements below)
 - [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D)
@@ -58,7 +59,7 @@ Until then, validators fail closed with message directing callers to `unitary_fr
 | First `kernel_checked_artifact_semantics` bridge | Requires real artifact-semantics Lean proof, not manifest binding |
 | Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics |
 | QEC correction `reference_claim` | Decoder + logical preservation checked, not assumed tables |
-| Distance proofs | Bruteforce `distance_result` wired to checked status for small codes |
+| Distance proofs | Bruteforce `distance_result` wired to `bruteforce_min_weight` obligation for `distance_certificate_small_css_code` |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
 | RX(π/2) vs H | `QasmOp.rx` + `bridge_rx_pi2_eq_h` done; manifest promotion blocked on global phase — see [bridge_codegen_design.md](bridge_codegen_design.md) |
