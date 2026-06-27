@@ -1,6 +1,6 @@
 # Claim diff: rx_gate_equivalence_small_instance
 
-<!-- scope_fingerprint: 1f96bb31cb2c78805519e1708b99ee6d5ce6ed3f72fb1bac1c9b9573debd30cb -->
+<!-- scope_fingerprint: 42c274ec45f77f6c49af0e2009e17b89b235bb5bbc7839c19792c917b14e499c -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
@@ -9,7 +9,7 @@
 Rx(pi/2) equals H up to global phase on one qubit for the declared instance.
 
 ## Declared headline (claim_scope)
-Rx(pi/2) equals H up to global phase on one qubit for the declared instance.
+Rx(pi/2) complex denotation matches the declared OpenQASM rotation matrix; equivalence to H is int-scaffold only (global phase not checked).
 
 ## Required obligations
 - lean_kernel_proof

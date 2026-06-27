@@ -76,7 +76,7 @@ evidence:
   path: evidence/rx_pi2.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Lean RX(π/2) denotation via QasmOp.rx; manifest binding blocked on global phase.
+  notes: Complex RX(π/2) denotation manifest-bound; global phase vs H not claimed.
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
@@ -129,11 +129,11 @@ proof_obligations:
   notes: bridge_rx_pi2_denotation on complex model; int scaffold via bridge_rx_pi2_int_eq_h
 - id: semantic_bridge
   status: passing
-  notes: python_denotation_consistency verify-bridge
+  notes: manifest_checked_theorem_binding verify-bridge + bridge_rx_pi2_denotation
 claim_scope:
   headline_claim_id: rx_gate_equivalence_small_instance_headline
-  headline_claim_text: Rx(pi/2) equals H up to global phase on one qubit for the declared
-    instance.
+  headline_claim_text: Rx(pi/2) complex denotation matches the declared OpenQASM rotation
+    matrix; equivalence to H is int-scaffold only (global phase not checked).
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -168,4 +168,4 @@ provenance:
   - path: artifacts/target.qasm
     sha256: b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60
     role: target
-semantics_base: openqasm_fragment
+semantics_base: complex_matrix
