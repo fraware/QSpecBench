@@ -41,3 +41,6 @@ Current maturity: **reference_scaffold**.
 ## References
 
 - [`teleportation_preserves_state_up_to_pauli_correction`](../../algorithms/teleportation_preserves_state_up_to_pauli_correction/) — full protocol benchmark
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).

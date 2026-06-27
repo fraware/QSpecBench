@@ -35,3 +35,6 @@ Kernel check; score-4+ semantic review.
 ## References
 
 - (none yet)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
