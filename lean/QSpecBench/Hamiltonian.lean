@@ -207,25 +207,26 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
   exact pauliZEntry_herm i j
 
 theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
-  have h02 : pauliX0 0 2 ≠ pauliX1 0 2 := by
-    simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry]
+  have h01 : pauliX0 0 1 ≠ pauliX1 0 1 := by
+    simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry, pauliXEntry]
+    exact one_ne_zero
   intro h
-  exact h02 (congr_fun (congr_fun h 0) 2)
+  exact h01 (congr_fun (congr_fun h 0) 1)
 
 private theorem pauliX0X1Entry_herm (i j : Fin 4) :
     star (pauliX0X1Entry j i) = pauliX0X1Entry i j := by
   fin_cases i <;> fin_cases j <;>
-    simp [pauliX0X1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
+    simp [pauliX0X1Entry, star, Complex.conj_ofReal, Complex.ext_iff]
 
 private theorem pauliY0Y1Entry_herm (i j : Fin 4) :
     star (pauliY0Y1Entry j i) = pauliY0Y1Entry i j := by
   fin_cases i <;> fin_cases j <;>
-    simp [pauliY0Y1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
+    simp [pauliY0Y1Entry, star, Complex.conj_ofReal, Complex.ext_iff]
 
 private theorem pauliZ0Z1Entry_herm (i j : Fin 4) :
     star (pauliZ0Z1Entry j i) = pauliZ0Z1Entry i j := by
   fin_cases i <;> fin_cases j <;>
-    simp [pauliZ0Z1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
+    simp [pauliZ0Z1Entry, star, Complex.conj_ofReal, Complex.ext_iff]
 
 private theorem pauliX0X1_herm : pauliX0X1.conjTranspose = pauliX0X1 := by
   ext i j
