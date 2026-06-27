@@ -42,7 +42,7 @@ def denotateGate : SingleGate → Matrix2
   | .Tdg => id2
 
 /-- Complex unitary denotation matching Python `qasm_matrix` for the full gate subset. -/
-def denotateGateC : SingleGate → Mat2C
+noncomputable def denotateGateC : SingleGate → Mat2C
   | .I => identityGate
   | .X => pauliXC
   | .Y => pauliYC
@@ -53,7 +53,7 @@ def denotateGateC : SingleGate → Mat2C
   | .Sdg => sDagGate
   | .Tdg => tDagGate
 
-def denotateOps1C (ops : List QasmOp) : Mat2C :=
+noncomputable def denotateOps1C (ops : List QasmOp) : Mat2C :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => mul2C (denotateGateC g) acc
