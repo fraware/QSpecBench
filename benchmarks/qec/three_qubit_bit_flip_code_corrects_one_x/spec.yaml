@@ -88,6 +88,12 @@ evidence:
   checker: qec json validator
   status: passing
   notes: Validates stabilizer JSON structure only.
+- id: qec_full_validation
+  type: qec_verifier_result
+  path: evidence/qec_verifier_result.json
+  checker: qec json validator
+  status: passing
+  notes: Structure, syndrome/correction tables, logical preservation brute-force, and distance metadata.
 - id: lean_stabilizer_commutation
   type: lean_proof
   path: evidence/bit_flip_stabilizers.lean
@@ -105,15 +111,15 @@ trust_boundary:
   checked_by:
   - stabilizer code JSON schema validation with commutation checks
   - Lean 4 kernel proof of stabilizer commutation
+  - QEC validator syndrome/correction table alignment and logical-preservation brute force
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
-  - decoder lookup table correctness
+  - syndrome extraction circuit semantics (out of scope)
   assumptions_not_checked:
-  - correction restores logical state for all single X errors
-  - syndrome extraction circuit semantics
-  - decoder correctness (assumed)
+  - decoder algorithm beyond declared lookup tables
+  - repeated-round fault tolerance
 status:
   informal_claim: complete
   machine_spec: complete
@@ -139,7 +145,7 @@ proof_obligations:
   notes: Decoder assumed per trust boundary
 - id: correction_claim
   status: partial
-  notes: Correction tables not kernel-checked
+  notes: Lookup-table correction checked by brute-force validator; decoder algorithm assumed
 claim_scope:
   headline_claim_id: three_qubit_bit_flip_code_corrects_one_x_headline
   headline_claim_text: The three-qubit bit-flip code corrects any single X error on
@@ -151,15 +157,16 @@ claim_scope:
 proved_scope:
   checked_obligations:
   - stabilizer_commutation
-  unproved_obligations:
   - syndrome_decoding_correctness
   - correction_restores_logical_state
-  - correction_restores_logical_state_for_all_single
+  unproved_obligations:
   - syndrome_extraction_circuit_semantics
-  - decoder_correctness_assumed
+  - decoder_algorithm_beyond_lookup_tables
+  - repeated_round_fault_tolerance
 headline_claim_status:
   status: partially_checked
-  notes: null
+  notes: Syndrome/correction tables and logical preservation checked for declared single-X
+    error model; decoder algorithm and extraction circuits remain out of scope.
 formal_claims:
 - id: formal_lean_stabilizer_commutation
   evidence_id: lean_stabilizer_commutation
@@ -177,17 +184,18 @@ formal_claims:
   benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
 qec_claim_scope:
   stabilizer_commutation: checked
-  syndrome_table: assumed
-  correction_table: assumed
+  syndrome_table: checked
+  correction_table: checked
   repeated_rounds: out_of_scope
   distance:
-    type: declared_parameter
+    type: bit_flip_distance
     status: declared_only
   code_definition_semantics: unchecked
   decoder_algorithm: assumed
-  logical_preservation_small_code: assumed
+  logical_preservation_small_code: checked
   code_schema: checked
   logical_preservation_general: out_of_scope
+semantics_base: stabilizer_tableau
 provenance:
   generated_at: '2026-06-27T13:35:51.572041+00:00'
   artifacts:

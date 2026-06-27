@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "adapter": "qec_json_validator",
+  "path": "benchmarks\\qec\\three_qubit_bit_flip_code_corrects_one_x\\artifacts\\code.json",
+  "trust_level": "tool_checked",
+  "checks_run": [
+    "schema_structure",
+    "stabilizer_commutation",
+    "logical_stabilizer_commutation",
+    "distance_consistency",
+    "distance_type_consistency",
+    "syndrome_table_structure",
+    "syndrome_table_antcommutation",
+    "single_x_syndrome_injection",
+    "correction_table_structure",
+    "correction_table_syndrome_alignment",
+    "logical_preservation_bruteforce",
+    "single_pauli_error_correction_validator",
+    "distance_min_weight_bruteforce"
+  ],
+  "check_results": {
+    "structure": true,
+    "syndrome": true,
+    "correction": true,
+    "logical_preservation": true,
+    "distance": true
+  },
+  "warnings": [
+    "declared distance is metadata only; it is not a machine-checked distance proof"
+  ],
+  "errors": [],
+  "distance_result": {
+    "method": "bruteforce_min_weight_logical_operator",
+    "computed_min_weight": 3,
+    "error_model": {
+      "id": "bit_flip_pauli_channel",
+      "type": "error_model",
+      "pauli_only": true,
+      "allowed_errors": [
+        "X"
+      ],
+      "max_weight": 1,
+      "correlated_errors": false,
+      "leakage": false,
+      "measurement_errors": false,
+      "notes": "Single independent X error on one physical qubit."
+    },
+    "n_qubits": 3
+  }
+}
