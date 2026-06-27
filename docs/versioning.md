@@ -28,19 +28,22 @@ Suggested thresholds before bumping to `0.2.0`:
 | Criterion | Target |
 |-----------|--------|
 | `reference_claim` benchmarks | ≥ 8 across ≥ 3 tracks |
-| Kernel-checked semantic bridges | ≥ 5 equivalence entries with manifest + hashes |
+| Manifest-checked theorem bindings | ≥ 5 equivalence/algorithm entries with manifest + hashes |
 | QEC correction claims checked | ≥ 1 small code with logical-preservation validator passing |
 | Provenance wired | All file-backed artifacts listed in `spec.yaml` `provenance` |
+
+Note: **manifest-checked theorem bindings** (`manifest_checked_theorem_binding` in
+`semantic_bridge.json`) are distinct from **kernel-checked artifact semantics**
+(`kernel_checked_artifact_semantics`), which requires a real artifact-semantics Lean proof.
 
 Until those thresholds are met, keep `CORPUS_VERSION` at `0.1.0` even as tooling (`0.2.0`) and schema
 (`0.2`) evolve.
 
 ## Hamiltonian artifact schema migration
 
-Legacy Hamiltonian JSON artifacts without a top-level `type` field are tolerated only until corpus
-**v0.2.0**. After that deadline (documented in `GOVERNANCE.md`), all Hamiltonian artifacts must
-validate against `schema/hamiltonian.schema.json`. Migration started in v0.1.x: `heisenberg_model`
-and `bravyi_kitaev` artifacts now declare `type: pauli_hamiltonian`.
+Legacy Hamiltonian JSON artifacts without a top-level `type` field were tolerated until corpus
+**v0.2.0**. Migration completed in v0.1.x: all Hamiltonian artifacts now declare a typed schema
+(`pauli_hamiltonian`, `fermionic_hamiltonian`, `trotter_step`, etc.). Validators reject untyped files.
 
 ## Single source of truth
 

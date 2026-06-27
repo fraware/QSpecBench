@@ -36,6 +36,29 @@ Every benchmark PR is reviewed across:
 
 No maintainer should merge their own reference-level benchmark without review.
 
+### Dual review for `reference_claim`
+
+Promoting a benchmark to `reference_claim` requires two recorded reviews in `spec.yaml`:
+
+```yaml
+status:
+  reviews:
+    formal_evidence_review:
+      status: approved   # or required during bootstrap
+      reviewer: <handle>
+      date: YYYY-MM-DD
+    domain_semantics_review:
+      status: approved
+      reviewer: <handle>
+      date: YYYY-MM-DD
+```
+
+- **Formal evidence review** — Lean/kernel proofs, bridge manifests, checker output, obligation mapping
+- **Domain semantics review** — Claim wording, assumptions, `checked_under` / `not_checked_under` scope
+
+`qspecbench validate` rejects `reference_claim` without both reviews at `approved` or `required` status.
+Bootstrap corpus entries may use `maintainer-bootstrap` with documented notes; new promotions must use real reviewers.
+
 ## Reference-claim promotion
 
 Reference levels are scoped (see [docs/reference_benchmarks.md](docs/reference_benchmarks.md)). A
@@ -53,9 +76,7 @@ Breaking schema changes require a version bump and migration notes in `docs/sche
 
 ## Artifact schema deadlines
 
-- **Hamiltonian JSON:** legacy artifacts without top-level `type` are accepted only until corpus **v0.2.0**.
-  After v0.2.0, `qspecbench validate` will reject untyped Hamiltonian artifacts. Migrate to
-  `schema/hamiltonian.schema.json` (see `docs/versioning.md`).
+- **Hamiltonian JSON:** legacy artifacts without top-level `type` were rejected starting corpus **v0.2.0** tooling gate (migration completed in v0.1.x). All Hamiltonian artifacts must validate against `schema/hamiltonian.schema.json` (see `docs/versioning.md`).
 
 Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
 and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).

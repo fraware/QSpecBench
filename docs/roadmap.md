@@ -14,8 +14,18 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [x] Align Lean `ComplexGate` with Python for S/T; complex-scaffold manifest bridges
 - [x] QEC `single_pauli_error_correction_validator` brute-force logical preservation
 - [x] OpenQASM `rz`/`ry`/`cz`/`u`/`cp` in Python matrix extractor
-- [x] Release bundle CLI stub (`qspecbench release-bundle`)
-- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs)
+- [x] Release bundle CLI (`qspecbench release-bundle`)
+- [x] Provenance SHA256 drift fails validation in CI
+- [x] Stale `claim_diff.md` detection in `qspecbench validate`
+- [x] Dual review gate for `reference_claim` promotions
+- [x] README status block auto-sync from dashboard metrics
+- [x] QEC logical-preservation validator wired as structured evidence
+- [x] Hamiltonian artifact `type` migration complete (legacy skip removed)
+- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2**
+- [ ] First `kernel_checked_artifact_semantics` bridge — **P2** (see [bridge_codegen_design.md](bridge_codegen_design.md))
+- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2**
+- [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only today)
+- [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D)
 
 ### Manifest bridge status (2026-06-27)
 
@@ -38,7 +48,7 @@ Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds).
 | Distance proofs | Bruteforce `distance_result` wired to checked status for small codes |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
-| RX(π/2) vs H | Separate Lean denotation for parameterized RX, not H scaffold |
+| RX(π/2) vs H | Wire `ComplexGate.rxGate` through OpenQASM3 denotation; see [bridge_codegen_design.md](bridge_codegen_design.md) |
 
 ## Research (corpus milestones — not validator tasks)
 
