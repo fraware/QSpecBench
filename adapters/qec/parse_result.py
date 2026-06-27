@@ -133,6 +133,119 @@ def validate_correction_table(
     return errors, checks
 
 
+def _pauli_multiply(a: str, b: str) -> str:
+    """Multiply two Pauli strings (ignoring global phase)."""
+    n = max(len(a), len(b))
+    out: list[str] = []
+    for i in range(n):
+        pa = _pauli_char(a, i)
+        pb = _pauli_char(b, i)
+        if pa == "I":
+            out.append(pb)
+        elif pb == "I":
+            out.append(pa)
+        elif pa == pb:
+            out.append("I")
+        elif {pa, pb} == {"X", "Z"}:
+            out.append("Y")
+        elif {pa, pb} == {"X", "Y"}:
+            out.append("Z")
+        elif {pa, pb} == {"Y", "Z"}:
+            out.append("X")
+        else:
+            out.append("I")
+    return "".join(out)
+
+
+def _stabilizer_group_elements(stabilizers: list[str]) -> set[str]:
+    """Brute-force stabilizer group for small generator count."""
+    from itertools import product
+
+    gens = stabilizers or []
+    elements: set[str] = set()
+    for bits in product([0, 1], repeat=len(gens)):
+        acc = "I" * max((len(g) for g in gens), default=0)
+        for use, gen in zip(bits, gens):
+            if use:
+                acc = _pauli_multiply(acc, gen)
+        n = max(len(g) for g in gens) if gens else len(acc)
+        acc = acc.ljust(n, "I")[:n]
+        elements.add(acc)
+    return elements
+
+
+def _enumerate_allowed_errors(n: int, error_model: dict | None) -> list[str]:
+    from itertools import product
+
+    if not error_model:
+        return ["I" * n]
+    allowed = error_model.get("allowed_errors") or ["X", "Y", "Z"]
+    max_weight = error_model.get("max_weight", 1)
+    alphabet = ("I",) + tuple(allowed)
+
+    def weight(p: str) -> int:
+        return sum(1 for c in p if c in "XYZ")
+
+    errors: list[str] = []
+    for combo in product(alphabet, repeat=n):
+        p = "".join(combo)
+        if weight(p) <= max_weight:
+            errors.append(p)
+    return errors
+
+
+def validate_logical_preservation(
+    code: dict,
+    syndrome_table: dict,
+    correction_table: dict,
+    error_model: dict | None = None,
+) -> tuple[list[str], list[str]]:
+    """Brute-force: error then correction yields a stabilizer (logical state preserved)."""
+    errors: list[str] = []
+    checks: list[str] = ["logical_preservation_bruteforce"]
+    n = code.get("parameters", {}).get("n", 0)
+    stabilizers = [s.get("pauli", "") for s in code.get("stabilizers", [])]
+    if not isinstance(n, int) or n > 6 or not stabilizers:
+        return errors, checks
+
+    stab_group = _stabilizer_group_elements(stabilizers)
+    syn_entries = {
+        str(e.get("syndrome", "")).replace(" ", ""): e for e in syndrome_table.get("entries", [])
+    }
+    corr_entries = {
+        str(e.get("syndrome", "")).replace(" ", ""): (
+            e.get("physical_correction") or e.get("correction") or ""
+        )
+        for e in correction_table.get("entries", [])
+    }
+
+    for err_pauli in _enumerate_allowed_errors(n, error_model):
+        syndrome = _syndrome_from_error(stabilizers, err_pauli)
+        if syndrome not in corr_entries:
+            errors.append(f"correction table missing syndrome {syndrome!r} for error {err_pauli!r}")
+            continue
+        correction = corr_entries[syndrome]
+        residual = _pauli_multiply(err_pauli, correction)
+        if residual not in stab_group:
+            errors.append(
+                f"logical preservation failed: error {err_pauli!r} + correction {correction!r} "
+                f"= {residual!r} not in stabilizer group"
+            )
+        if syndrome in syn_entries:
+            expected_corr = (
+                syn_entries[syndrome].get("correction")
+                or syn_entries[syndrome].get("physical_correction")
+                or ""
+            )
+            if expected_corr and correction != expected_corr:
+                errors.append(
+                    f"correction table vs syndrome_table mismatch for syndrome {syndrome!r}"
+                )
+
+    checks.append("single_pauli_error_correction_validator")
+    return errors, checks
+
+
 def validate_min_weight_distance(
     code: dict, error_model: dict | None
 ) -> tuple[list[str], list[str], int | None]:
@@ -294,6 +407,11 @@ def check(path: Path) -> dict:
         corr_errors, corr_checks = validate_correction_table(syndrome_data, correction_data)
         errors.extend(corr_errors)
         checks_run.extend(corr_checks)
+        lp_errors, lp_checks = validate_logical_preservation(
+            data, syndrome_data, correction_data, error_model
+        )
+        errors.extend(lp_errors)
+        checks_run.extend(lp_checks)
 
     if data.get("type") == "stabilizer_code":
         dist_warnings, dist_checks, _ = validate_min_weight_distance(data, error_model)
