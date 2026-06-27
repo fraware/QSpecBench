@@ -1,5 +1,9 @@
 {
   "id": "trotter_second_order_bound_contract",
+  "type": "trotter_step",
+  "order": 2,
+  "step_time": "0.1",
+  "hamiltonian_terms": 2,
   "terms": [
     {
       "coeff": 1.0,
@@ -10,9 +14,9 @@
       "operators": "X0"
     }
   ],
-  "trotter": {
-    "order": 2,
-    "step": 0.1,
-    "error_bound": "O(step^3) declared not proved"
+  "error_contract": {
+    "metric": "operator_norm",
+    "bound": "O(step^3) declared not proved",
+    "notes": "Second-order product-formula error budget declared, not analytically proved."
   }
 }

@@ -383,6 +383,45 @@ def validate_code(data: dict) -> tuple[list[str], list[str], list[str]]:
     return errors, warnings, checks_run
 
 
+def _derive_check_results(
+    checks_run: list[str],
+    errors: list[str],
+    *,
+    distance_result: dict | None,
+) -> dict[str, bool | None]:
+    """Structured booleans for qec_verifier_result evidence artifacts."""
+    has = set(checks_run)
+    structure_ok = "schema_structure" in has and not any(
+        e.startswith("type must") or "parameters." in e or "stabilizer" in e.lower()
+        for e in errors
+        if "syndrome" not in e and "correction" not in e and "logical preservation" not in e
+    )
+    syndrome_ok = (
+        "syndrome_table_antcommutation" in has
+        and not any("syndrome" in e.lower() for e in errors)
+    ) if "syndrome_table_structure" in has else None
+    correction_ok = (
+        "correction_table_syndrome_alignment" in has
+        and not any("correction" in e.lower() for e in errors)
+    ) if "correction_table_structure" in has else None
+    logical_ok = (
+        "single_pauli_error_correction_validator" in has
+        and not any("logical preservation" in e for e in errors)
+    ) if "logical_preservation_bruteforce" in has else None
+    distance_ok: bool | None = None
+    if "distance_min_weight_bruteforce" in has:
+        distance_ok = distance_result is not None and not any(
+            "computed" in e and "distance" in e for e in errors
+        )
+    return {
+        "structure": structure_ok,
+        "syndrome": syndrome_ok,
+        "correction": correction_ok,
+        "logical_preservation": logical_ok,
+        "distance": distance_ok,
+    }
+
+
 def check(path: Path) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
     errors, warnings, checks_run = validate_code(data)
@@ -426,6 +465,12 @@ def check(path: Path) -> dict:
                 "error_model": error_model or {},
                 "n_qubits": data.get("parameters", {}).get("n"),
             }
+    else:
+        distance_result = None
+
+    check_results = _derive_check_results(
+        checks_run, errors, distance_result=distance_result if data.get("type") == "stabilizer_code" else None
+    )
 
     result = {
         "ok": not errors,
@@ -433,6 +478,7 @@ def check(path: Path) -> dict:
         "path": str(path),
         "trust_level": "tool_checked",
         "checks_run": checks_run,
+        "check_results": check_results,
         "warnings": warnings,
         "errors": errors,
     }
