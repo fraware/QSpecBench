@@ -77,13 +77,13 @@ evidence:
   path: evidence/clifford_anchor.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked OpenQASM3 denotation anchor for Clifford source circuit.
+  notes: Kernel-checked OpenQASM3 complex denotation anchor for Clifford source gate trace (H H S).
 - id: bridge_verify
   type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 complex denotation (kernel_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -128,7 +128,7 @@ proof_obligations:
   notes: Clifford simplification anchor
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: kernel_checked verify-bridge with complex S gate model
 claim_scope:
   headline_claim_id: clifford_simplification_preserves_unitary_headline
   headline_claim_text: A Clifford simplification pass preserves the circuit unitary

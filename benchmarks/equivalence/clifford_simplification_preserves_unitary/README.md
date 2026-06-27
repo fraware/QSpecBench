@@ -30,8 +30,14 @@ Current maturity: **reference_scaffold**.
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+Lean kernel anchor proves complex OpenQASM3 denotation of the **source** gate trace (H H S on one
+qubit), aligned with Python `qasm_matrix` for S/T phases. It does **not** prove source/target QASM
+equivalence or full compiler simplification correctness (`semantic_correctness_of_circuit_vs_claim`
+remains open). Maturity stays **reference_scaffold** until that obligation is discharged.
 
 ## References
 
 - (add references when promoting beyond seed)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
