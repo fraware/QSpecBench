@@ -180,17 +180,24 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
 
 theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
   intro h
-  have := congr_fun (congr_fun h 0) 1
-  simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry] at this
-  norm_num at this
+  have h01 := congr_fun (congr_fun h 0) 1
+  simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry] at h01
+  norm_num at h01
 
+set_option maxHeartbeats 400000 in
 private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
   ext i j
-  fin_cases i <;> fin_cases j <;> native_decide
+  fin_cases i <;> fin_cases j <;>
+    simp only [Matrix.mul_apply, Matrix.of_apply, pauliX0Entry, pauliX1Entry, Fin.sum_univ_four] <;>
+    norm_num
 
+set_option maxHeartbeats 400000 in
 private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
   ext i j
-  fin_cases i <;> fin_cases j <;> native_decide
+  fin_cases i <;> fin_cases j <;>
+    simp only [Matrix.mul_apply, Matrix.of_apply, pauliY0Entry, pauliY1Entry, Fin.sum_univ_four,
+      Complex.ext_iff, Complex.I_mul_I] <;>
+    norm_num
 
 private theorem pauliZ0_eq_diagonal : pauliZ0 = Matrix.diagonal fun i => pauliZ1Entry i i := by
   ext i j
