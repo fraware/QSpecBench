@@ -149,6 +149,26 @@ def generated_lean_sha256(text: str) -> str:
     return _sha256_bytes(normalized)
 
 
+def theorem_sha256(full_theorem: str) -> str:
+    """Stable hash of the kernel-checked theorem identifier (module + name)."""
+    payload = json.dumps(
+        {"theorem": full_theorem, "kind": "kernel_checked_artifact_semantics"},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return _sha256_bytes(payload.encode("utf-8"))
+
+
+# Benchmark-specific codegen kernel theorems (denotation on generated QasmOp trace).
+KERNEL_CHECKED_THEOREMS: dict[str, str] = {
+    "cnot_self_inverse_cancellation": "QSpecBench.Quantum.OpenQASM3.bridge_cnot_codegen_self_inverse",
+}
+
+
+def kernel_checked_theorem_name(benchmark_id: str) -> str | None:
+    return KERNEL_CHECKED_THEOREMS.get(benchmark_id)
+
+
 def codegen_output_path(claim_dir: Path, benchmark_id: str) -> Path:
     safe_id = re.sub(r"[^a-zA-Z0-9_]", "_", benchmark_id)
     return claim_dir / "evidence" / f"{safe_id}_codegen_ops.lean"
@@ -233,14 +253,45 @@ def update_manifest_entry(benchmark_id: str, result: dict[str, Any]) -> None:
     """Write ast_sha256 and generated_lean_sha256 into bridge_theorem_manifest.json."""
     manifest = load_manifest()
     updated = False
+    kernel_theorem = kernel_checked_theorem_name(benchmark_id)
     for entry in manifest.get("entries", []):
         if entry.get("benchmark_id") != benchmark_id:
             continue
         entry["ast_sha256"] = result["ast_sha256"]
         entry["generated_lean_sha256"] = result["generated_lean_sha256"]
         entry["obligation_ids"] = entry.get("obligation_ids") or ["semantic_bridge"]
+        if kernel_theorem:
+            entry["kernel_checked_theorem"] = kernel_theorem.split(".")[-1]
+            entry["theorem_sha256"] = theorem_sha256(kernel_theorem)
         updated = True
         break
     if not updated:
         raise KeyError(f"benchmark_id {benchmark_id!r} not in {MANIFEST_PATH}")
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+
+def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[str]:
+    """Verify full artifact-semantics codegen chain for kernel_checked bridges."""
+    errors = verify_manifest_codegen(entry, claim_dir)
+    benchmark_id = entry.get("benchmark_id", "")
+    expected_theorem = kernel_checked_theorem_name(benchmark_id)
+    if not expected_theorem:
+        errors.append(f"no kernel_checked_theorem mapping for {benchmark_id!r}")
+        return errors
+    if entry.get("kernel_checked_theorem") != expected_theorem.split(".")[-1]:
+        errors.append(
+            f"kernel_checked_theorem mismatch for {benchmark_id}: "
+            f"manifest {entry.get('kernel_checked_theorem')!r} != "
+            f"{expected_theorem.split('.')[-1]!r}"
+        )
+    expected_hash = theorem_sha256(expected_theorem)
+    if entry.get("theorem_sha256") and entry["theorem_sha256"] != expected_hash:
+        errors.append(f"theorem_sha256 drift for {benchmark_id}")
+    if not entry.get("ast_sha256") or not entry.get("generated_lean_sha256"):
+        errors.append(
+            f"kernel_checked_artifact_semantics requires ast_sha256 and "
+            f"generated_lean_sha256 for {benchmark_id}"
+        )
+    if not entry.get("theorem_sha256"):
+        errors.append(f"kernel_checked_artifact_semantics requires theorem_sha256 for {benchmark_id}")
+    return errors
