@@ -6,25 +6,110 @@
       "benchmark_id": "cnot_self_inverse_cancellation",
       "qasm_artifact": "artifacts/source.qasm",
       "artifact_sha256": "8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de",
-      "gate_trace": [
-        [
-          "cx",
-          [
-            0,
-            1
-          ]
-        ],
-        [
-          "cx",
-          [
-            0,
-            1
-          ]
-        ]
-      ],
+      "gate_trace": [["cx", [0, 1]], ["cx", [0, 1]]],
       "gate_trace_sha256": "a1ece7c215b3a433de1693804048c26d0c22134269c27605192947ec23826015",
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
       "lean_theorem": "bridge_cnot_self_inverse",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "hadamard_conjugates_x_to_z",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "09b180357138f4448a4f62bf9bfb9b50f26002298fc3f53a4954aefd10ce328b",
+      "gate_trace": [["h", [0]], ["x", [0]], ["h", [0]]],
+      "gate_trace_sha256": "133c43ba23c657e5712320177947e1712f02a44550210b21062445969484cbf6",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_hadamard_conjugates_x",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "single_qubit_gate_cancellation",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "90faff4ad649320098f82328250b15f2eaa595b44c7bb9f30afaf06cc5de8e22",
+      "gate_trace": [["h", [0]], ["h", [0]]],
+      "gate_trace_sha256": "cbd175e0734480d649b0768d8698257ab120816947553c7f2b570a840dceab53",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_hadamard_cancel",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "qft_inverse_qft_small_instance",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "4cd0a80b1e0147b3e8228c0b4b68d445893afd5f19cd931f403ea4b3678477b0",
+      "gate_trace": [["h", [0]], ["cx", [0, 1]], ["h", [0]]],
+      "gate_trace_sha256": "e4b529813cd6f08e609012bd82f526b5e2e8395963ce1ce6fa8a55688d7403f4",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_qft2_inverse",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "swap_from_three_cx",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "33f7ee1282995bfd6e039338f178853d74276c938114aef94c330c1c1e2f4910",
+      "gate_trace": [["cx", [0, 1]], ["cx", [1, 0]], ["cx", [0, 1]]],
+      "gate_trace_sha256": "fd0a1c25c003da3b501bc1049194492b29d4aec1c7145cf46b76f1411221bc99",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_swap_from_three_cx",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "toffoli_decomposition_equivalence",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "dd93e5017780e2fb1e3ec82d059fc8eee73972aecf205bb844e761fb80cc3b10",
+      "gate_trace": [["ccx", [0, 1, 2]]],
+      "gate_trace_sha256": "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d359be",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_ccx_single",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "circuit_identity_after_layout",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b",
+      "gate_trace": [["h", [0]], ["cx", [0, 1]]],
+      "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_circuit_identity_after_layout",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "source_optimized_qasm_equivalence_small_instance",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "1a8a859ad6f05d8ca76ea2791b442e0e0dd0d6c9ca1924b31c95320e59f65c6d",
+      "gate_trace": [["h", [0]], ["x", [0]], ["x", [0]]],
+      "gate_trace_sha256": "d84bdb1127c20f727286a024caef27d228cc25dbde53fa1e85e80763e820f0c1",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_hxx_gate",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "bell_state_preparation",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b",
+      "gate_trace": [["h", [0]], ["cx", [0, 1]]],
+      "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_bell_prep",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "clifford_simplification_preserves_unitary",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "b36d87ee22badf64677de5482b3751137468d2934811abfc35e8d36a5945fa74",
+      "gate_trace": [["h", [0]], ["h", [0]], ["s", [0]]],
+      "gate_trace_sha256": "8804cd386c5179b088ed07b9aa6d83143a11687ad2bb309e068173df5ac2fe1e",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_clifford_hhs",
+      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
+    },
+    {
+      "benchmark_id": "phase_polynomial_equivalence_small_instance",
+      "qasm_artifact": "artifacts/source.qasm",
+      "artifact_sha256": "60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1",
+      "gate_trace": [["h", [0]], ["s", [0]]],
+      "gate_trace_sha256": "64b3e84c84997d7742566cb7a640a3b2e4dc0093fef0127da0f1e23a55daf558",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_hs_gate",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace"
     }
   ]

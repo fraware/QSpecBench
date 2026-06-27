@@ -29,8 +29,16 @@ def _gate_trace(ops: list[Any]) -> list[list[Any]]:
         g = gate.lower()
         if g == "rx" and angle is not None:
             trace.append(["rx", list(args), angle])
+        elif g == "ry" and angle is not None:
+            trace.append(["ry", list(args), angle])
+        elif g == "rz" and angle is not None:
+            trace.append(["rz", list(args), angle])
+        elif g == "u" and len(args) >= 4:
+            trace.append(["u", [args[0]], args[1], args[2], args[3]])
         elif g in {"cx", "cnot"}:
             trace.append(["cx", list(args)])
+        elif g == "cz":
+            trace.append(["cz", list(args)])
         elif g == "ccx":
             trace.append(["ccx", list(args)])
         elif g == "swap":
