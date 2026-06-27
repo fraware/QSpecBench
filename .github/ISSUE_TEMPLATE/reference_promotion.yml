@@ -41,7 +41,9 @@ body:
       label: Promotion checklist
       options:
         - label: qspecbench validate passes
-        - label: qspecbench claim-diff reviewed
+        - label: qspecbench claim-diff reviewed (evidence/claim_diff.md fresh)
         - label: trust_boundary updated honestly
         - label: formal_claims bind theorems to obligations
         - label: CI evidence checks pass
+        - label: status.reviews.formal_evidence_review approved or required
+        - label: status.reviews.domain_semantics_review approved or required
