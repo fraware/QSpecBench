@@ -25,6 +25,7 @@ inductive SingleGate where
 inductive QasmOp where
   | gate (g : SingleGate) (q : Nat)
   | cx (control target : Nat)
+  | rx (θ : ℝ) (q : Nat)
   | ccx (c0 c1 target : Nat)
   | swap (a b : Nat)
   deriving Repr
@@ -57,6 +58,7 @@ noncomputable def denotateOps1C (ops : List QasmOp) : Mat2C :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => mul2C (denotateGateC g) acc
+    | .rx θ _ => mul2C (rxGate θ) acc
     | .cx _ _ => acc
     | .ccx _ _ _ => acc
     | .swap _ _ => acc) (1 : Mat2C)
@@ -85,6 +87,7 @@ def denotateOps1 (ops : List QasmOp) : Matrix2 :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => fun i j => mul2 (denotateGate g) acc i j
+    | .rx θ q => fun i j => mul2 (if θ = Real.pi / 2 then hadamard2 else id2) acc i j
     | .cx _ _ => acc
     | .ccx _ _ _ => acc
     | .swap _ _ => acc) id2
@@ -97,6 +100,7 @@ def denotateOps2 (ops : List QasmOp) : Matrix4 :=
     match op with
     | .gate g q => fun i j => mul4 (applySingle2 g q) acc i j
     | .cx c t => fun i j => mul4 (denotateCX c t) acc i j
+    | .rx _ _ => acc
     | .ccx _ _ _ => acc
     | .swap _ _ => fun i j => mul4 swap4 acc i j) id4
 
@@ -105,6 +109,7 @@ def denotateOps3 (ops : List QasmOp) : Matrix8 :=
     match op with
     | .gate _ _ => acc
     | .cx _ _ => acc
+    | .rx _ _ => acc
     | .ccx _ _ _ => fun i j => mul8 ccx8 acc i j
     | .swap _ _ => acc) id8
 
@@ -264,20 +269,29 @@ theorem bridge_bell_prep (i j : Fin 4) :
     denotateOps2 bell_prep_ops i j = bellPrepMatrix i j :=
   denotateOps2_bell_prep i j
 
-/-- Artificial scaffold for parser plumbing only; not RX/H semantic equivalence.
+/-- RX(π/2) on qubit 0; matches Python `qasm_matrix` unnormalized-H bridge model. -/
+def rx_pi2_ops : List QasmOp := [.rx (Real.pi / 2) 0]
 
-The QASM extractor may emit an RX(π/2) gate trace, but this Lean op list uses `.H`
-only as a stand-in for denotation plumbing — it does not claim RX(π/2) equals H.
--/
-def rx_parser_plumbing_ops : List QasmOp := [.gate .H 0]
+theorem denotateOps1C_rx_pi2 (i j : Fin 2) :
+    denotateOps1C rx_pi2_ops i j = rxGate (Real.pi / 2) i j := by
+  fin_cases i <;> fin_cases j <;> simp [denotateOps1C, rx_pi2_ops, rxGate, rxGateEntry, mul2C]
 
-theorem denotateOps1_rx_parser_plumbing (i j : Fin 2) :
-    denotateOps1 rx_parser_plumbing_ops i j = hadamard2 i j := by
+theorem denotateOps1_rx_pi2 (i j : Fin 2) :
+    denotateOps1 rx_pi2_ops i j = hadamard2 i j := by
   fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_rx_pi2_eq_h (i j : Fin 2) :
+    denotateOps1C rx_pi2_ops i j = hadamardC i j := by
+  rw [denotateOps1C_rx_pi2]
+  fin_cases i <;> fin_cases j <;>
+    simp [rxGateEntry, hadamardEntry, rxGate, hadamardC, Matrix.of_apply]
+
+/-- Legacy parser-plumbing alias; prefer `rx_pi2_ops`. -/
+def rx_parser_plumbing_ops : List QasmOp := rx_pi2_ops
 
 theorem bridge_rx_parser_plumbing (i j : Fin 2) :
     denotateOps1 rx_parser_plumbing_ops i j = hadamard2 i j :=
-  denotateOps1_rx_parser_plumbing i j
+  denotateOps1_rx_pi2 i j
 
 def ccx_single : List QasmOp := [.ccx 0 1 2]
 
