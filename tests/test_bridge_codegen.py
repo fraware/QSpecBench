@@ -18,6 +18,8 @@ from qspecbench.bridge_manifest import load_manifest
 
 REPO = Path(__file__).resolve().parents[1]
 CNOT_DIR = REPO / "benchmarks" / "equivalence" / "cnot_self_inverse_cancellation"
+HADAMARD_DIR = REPO / "benchmarks" / "equivalence" / "hadamard_conjugates_x_to_z"
+HH_CANCEL_DIR = REPO / "benchmarks" / "equivalence" / "single_qubit_gate_cancellation"
 
 
 def test_cnot_canonical_ast():
@@ -50,3 +52,33 @@ def test_generate_for_benchmark_writes_file():
     gen_path = CNOT_DIR / result["generated_lean_path"]
     assert gen_path.is_file()
     assert result["ast_sha256"] == ast_sha256(result["ast"])
+
+
+def test_hadamard_canonical_ast():
+    ast = build_canonical_ast(HADAMARD_DIR / "artifacts" / "source.qasm")
+    assert ast["n_qubits"] == 1
+    assert ast["gates"] == [
+        {"op": "h", "qubits": [0]},
+        {"op": "x", "qubits": [0]},
+        {"op": "h", "qubits": [0]},
+    ]
+
+
+def test_hadamard_manifest_codegen_hashes():
+    entry = next(
+        e for e in load_manifest()["entries"] if e["benchmark_id"] == "hadamard_conjugates_x_to_z"
+    )
+    assert entry["ast_sha256"]
+    assert entry["generated_lean_sha256"]
+    assert verify_manifest_codegen(entry, HADAMARD_DIR) == []
+
+
+def test_single_qubit_gate_cancellation_codegen():
+    ast = build_canonical_ast(HH_CANCEL_DIR / "artifacts" / "source.qasm")
+    lean = generate_lean_stub("single_qubit_gate_cancellation", ast)
+    assert "single_qubit_gate_cancellation_codegen_ops" in lean
+    assert ".gate .H 0" in lean
+    entry = next(
+        e for e in load_manifest()["entries"] if e["benchmark_id"] == "single_qubit_gate_cancellation"
+    )
+    assert verify_manifest_codegen(entry, HH_CANCEL_DIR) == []
