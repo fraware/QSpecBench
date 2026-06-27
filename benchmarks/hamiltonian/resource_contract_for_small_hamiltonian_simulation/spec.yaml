@@ -122,6 +122,7 @@ formal_claims:
 hamiltonian_claim_scope:
   claim_class: declared_contract_claim
   derivation_status: declared_only
+semantics_base: hamiltonian_operator
 provenance:
   generated_at: '2026-06-27T17:18:29.998209+00:00'
   artifacts:

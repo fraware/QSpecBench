@@ -94,6 +94,7 @@ headline_claim_status:
 hamiltonian_claim_scope:
   claim_class: mapping_sanity_claim
   derivation_status: not_applicable
+semantics_base: hamiltonian_operator
 provenance:
   generated_at: '2026-06-27T17:18:29.864103+00:00'
   artifacts:

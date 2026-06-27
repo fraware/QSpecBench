@@ -126,6 +126,7 @@ formal_claims:
 hamiltonian_claim_scope:
   claim_class: hermiticity_claim
   derivation_status: checked
+semantics_base: hamiltonian_operator
 provenance:
   generated_at: '2026-06-27T17:18:29.899275+00:00'
   artifacts:
