@@ -123,8 +123,8 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches QSpecBench.Quantum.OpenQASM3 denotation (python_denotation_consistency
-    bridge).
+  notes: QASM matrix matches QSpecBench.Quantum.OpenQASM3 denotation (kernel_checked_artifact_semantics
+    bridge with codegen trace).
 trust_boundary:
   checked_by:
   - QASM syntax parse on source and target
@@ -163,7 +163,7 @@ proof_obligations:
   notes: cnot_mul_self on 4x4 model
 - id: semantic_bridge
   status: passing
-  notes: python_denotation_consistency verify-bridge
+  notes: kernel_checked_artifact_semantics via codegen trace + bridge_cnot_codegen_self_inverse
 - id: openqasm_full_language
   status: not_applicable
   notes: Gate-subset denotation only
@@ -188,6 +188,7 @@ headline_claim_status:
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
+  - kernel_checked_codegen_trace
   not_checked_under:
   - full_openqasm3
   - hardware_semantics
@@ -203,11 +204,21 @@ formal_claims:
   does_not_support:
   - openqasm_full_language
   benchmark_anchor: cnot_self_inverse_cancellation
+- id: formal_bridge_cnot_codegen
+  evidence_id: lean_cnot_proof
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: bridge_cnot_codegen_self_inverse
+  supports:
+  - semantic_bridge
+  does_not_support:
+  - openqasm_full_language
+  benchmark_anchor: cnot_self_inverse_cancellation
 - id: formal_bridge_cnot
   evidence_id: bridge_verify
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: bridge_cnot_self_inverse
+  theorem: bridge_cnot_codegen_denotes_artifact
   supports:
   - semantic_bridge
   - python_denotation_bridge

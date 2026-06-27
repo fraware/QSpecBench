@@ -1,6 +1,6 @@
 # Claim diff: cnot_self_inverse_cancellation
 
-<!-- scope_fingerprint: 9eeb70f1f1d6b3cc4278e46475c807408c1dc6b76925fb5cf0aede395c384b3e -->
+<!-- scope_fingerprint: 1d301c6ee53e9fc398e9e72bae3502f45006d6b1dc242f60bb80d427c2a0a351 -->
 
 **Maturity:** reference_claim
 **Headline status:** checked
