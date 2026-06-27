@@ -58,7 +58,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
 references: []
 acceptable_evidence:
 - type: qasm_parse
@@ -150,8 +150,8 @@ proved_scope:
   unproved_obligations:
   - unitary_equivalence_beyond_declared_gate_subset
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: All declared required obligations are checked under the declared gate subset.
 formal_claims:
 - id: formal_lean_swap_bridge
   evidence_id: lean_swap_bridge

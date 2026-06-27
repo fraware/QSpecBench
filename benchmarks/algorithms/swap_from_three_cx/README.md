@@ -18,7 +18,7 @@ Exact unitary equivalence.
 
 ## Evidence
 
-QASM parse + QCEC.
+Lean kernel bridge (`bridge_hadamard_cancel`), verify-bridge, QASM parse, QCEC.
 
 ## Trust boundary
 
@@ -26,11 +26,11 @@ See spec.yaml.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 
-No Lean proof yet.
+Unitary equivalence beyond declared gate subset remains an unproved obligation.
 
 ## References
 
