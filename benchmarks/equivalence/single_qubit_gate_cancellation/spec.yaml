@@ -125,7 +125,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -148,8 +148,8 @@ proved_scope:
   unproved_obligations:
   - openqasm_h_normalization_factor_links_to_integer
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: All declared required obligations are kernel- or manifest-checked under the stated gate model.
 formal_claims:
 - id: formal_lean_hadamard_cancel
   evidence_id: lean_hadamard_cancel

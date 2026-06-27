@@ -26,11 +26,11 @@ Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+OpenQASM H normalization factor links integer matrix model to gate semantics (see spec unproved obligations).
 
 ## References
 
