@@ -59,6 +59,23 @@ def test_hamiltonian_contract_cannot_be_reference_claim():
     assert any("declared_contract_claim cannot be reference_claim" in e for e in errors)
 
 
+def test_scaffold_claim_diff_evidence_generated():
+    """Batch claim-diff writes evidence/claim_diff.md for reference_scaffold benchmarks."""
+    import subprocess
+    import sys
+
+    subprocess.run(
+        [sys.executable, str(REPO / "scripts" / "run_claim_diff_all.py"), "--write-evidence"],
+        check=True,
+        cwd=REPO,
+    )
+    sample = REPO / "benchmarks/equivalence/clifford_simplification_preserves_unitary/evidence/claim_diff.md"
+    assert sample.is_file()
+    text = sample.read_text(encoding="utf-8")
+    assert "clifford_simplification_preserves_unitary" in text
+    assert "semantic_correctness_of_circuit_vs_claim" in text
+
+
 def test_cp_gate_extracts():
     from qspecbench.qasm_matrix import extract_matrix
     import tempfile
