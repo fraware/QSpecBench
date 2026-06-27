@@ -71,7 +71,7 @@ def sGate : Mat2C := Matrix.of sGateEntry
 
 /-- T gate: diag(1, e^{iπ/4}). -/
 noncomputable def tGateEntry (i j : Fin 2) : ℂ :=
-  ifDiag i j (if i = 0 then (1 : ℂ) else Complex.exp (I * (pi / 4)))
+  ifDiag i j (if i = 0 then (1 : ℂ) else Complex.exp (I * (Real.pi / 4)))
 
 noncomputable def tGate : Mat2C := Matrix.of tGateEntry
 
@@ -83,7 +83,7 @@ def sDagGate : Mat2C := Matrix.of sDagGateEntry
 
 /-- T† gate: diag(1, e^{-iπ/4}). -/
 noncomputable def tDagGateEntry (i j : Fin 2) : ℂ :=
-  ifDiag i j (if i = 0 then (1 : ℂ) else Complex.exp (-I * (pi / 4)))
+  ifDiag i j (if i = 0 then (1 : ℂ) else Complex.exp (-I * (Real.pi / 4)))
 
 noncomputable def tDagGate : Mat2C := Matrix.of tDagGateEntry
 
