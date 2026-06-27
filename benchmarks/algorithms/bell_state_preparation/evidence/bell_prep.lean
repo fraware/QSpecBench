@@ -1,3 +1,3 @@
-import QSpecBench.Teleportation
+import QSpecBench.Quantum.OpenQASM3
 
-#check QSpecBench.bell_prep_from_00
+#check QSpecBench.Quantum.OpenQASM3.bridge_bell_prep

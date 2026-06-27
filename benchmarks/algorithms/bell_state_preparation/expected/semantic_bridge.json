@@ -6,7 +6,7 @@
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "kernel_checked",
   "gate_set": "openqasm3_1q2q_clifford",
   "bridge_evidence_id": "bridge_verify",
   "qasm_artifact": "artifacts/circuit.qasm",
