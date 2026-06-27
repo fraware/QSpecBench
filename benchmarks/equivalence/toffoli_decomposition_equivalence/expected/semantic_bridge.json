@@ -7,7 +7,7 @@
     "phase_gates": "complex_diagonal",
     "target_circuit": "QCEC_equivalence_external"
   },
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "kernel_checked",
   "qasm_artifact": "artifacts/source.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
