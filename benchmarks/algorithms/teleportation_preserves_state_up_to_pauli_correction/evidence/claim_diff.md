@@ -1,5 +1,7 @@
 # Claim diff: teleportation_preserves_state_up_to_pauli_correction
 
+<!-- scope_fingerprint: 72657da8e5af42b557094db0c4e0e81de91923cd32289b04dfd49fc102961d8d -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

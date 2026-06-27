@@ -1,5 +1,7 @@
 # Claim diff: formalize_stabilizer_commutation_statement
 
+<!-- scope_fingerprint: ac6591404032847d3661f662929ea86ef32953d7abe3d086c3be0239c0b09eb6 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

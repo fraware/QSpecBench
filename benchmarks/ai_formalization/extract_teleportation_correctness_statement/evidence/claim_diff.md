@@ -1,5 +1,7 @@
 # Claim diff: extract_teleportation_correctness_statement
 
+<!-- scope_fingerprint: 26022c1288444dc2ca1b84e24271cf37a45bc98317ddc6b8fb4d0f90a3a37c9a -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

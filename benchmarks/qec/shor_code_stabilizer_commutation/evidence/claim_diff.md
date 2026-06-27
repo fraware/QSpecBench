@@ -1,5 +1,7 @@
 # Claim diff: shor_code_stabilizer_commutation
 
+<!-- scope_fingerprint: 91c4f7cc3250834e01cb5f00a35307ca1ed011ecad44ee5cefd05edbd8018078 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

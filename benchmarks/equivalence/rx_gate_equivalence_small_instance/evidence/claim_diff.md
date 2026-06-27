@@ -1,5 +1,7 @@
 # Claim diff: rx_gate_equivalence_small_instance
 
+<!-- scope_fingerprint: 1f96bb31cb2c78805519e1708b99ee6d5ce6ed3f72fb1bac1c9b9573debd30cb -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

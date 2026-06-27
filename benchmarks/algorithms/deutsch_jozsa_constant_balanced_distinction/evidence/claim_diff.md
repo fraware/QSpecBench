@@ -1,5 +1,7 @@
 # Claim diff: deutsch_jozsa_constant_balanced_distinction
 
+<!-- scope_fingerprint: 3f80a8be3a9ae26986cac2dd0c8ecedcdb7420c03040c90d77270f537a3baee2 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

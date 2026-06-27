@@ -1,5 +1,7 @@
 # Claim diff: formalize_small_hamiltonian_hermiticity_statement
 
+<!-- scope_fingerprint: 5eccd1ac2c131aa6a3990055c377a81d5f840e2ad8defb99cedf6b384bd1fdc6 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

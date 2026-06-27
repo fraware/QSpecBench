@@ -1,5 +1,7 @@
 # Claim diff: formalize_no_cloning_statement
 
+<!-- scope_fingerprint: 9257dd310e31c8f434ceab1dbbfae4f54db8e2aa101f21c95c871980b305f6d0 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

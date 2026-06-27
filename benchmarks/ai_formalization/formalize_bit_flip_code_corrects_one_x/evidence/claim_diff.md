@@ -1,5 +1,7 @@
 # Claim diff: formalize_bit_flip_code_corrects_one_x
 
+<!-- scope_fingerprint: fcc4be4de11f970f366b74444dcc53be3a50e8d495353aecd1a8074af4ab85c8 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

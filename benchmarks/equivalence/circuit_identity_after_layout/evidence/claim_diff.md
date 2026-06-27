@@ -1,5 +1,7 @@
 # Claim diff: circuit_identity_after_layout
 
+<!-- scope_fingerprint: 52bfeec950cfae94dc92ffd6de64725422ab14bcb883ba74efba7855810b3613 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

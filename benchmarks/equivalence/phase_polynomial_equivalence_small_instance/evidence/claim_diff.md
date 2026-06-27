@@ -1,5 +1,7 @@
 # Claim diff: phase_polynomial_equivalence_small_instance
 
+<!-- scope_fingerprint: d176caccfb2009481dd02308f5e407d2604d5113756bc2b57c8d2f30b6ff8460 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

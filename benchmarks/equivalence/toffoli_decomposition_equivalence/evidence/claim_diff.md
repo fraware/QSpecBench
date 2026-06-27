@@ -1,5 +1,7 @@
 # Claim diff: toffoli_decomposition_equivalence
 
+<!-- scope_fingerprint: 2c3bb6f1fc56840f0fce4437e104de48c03df6dd07a4e2f7813841c1f316d8ec -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

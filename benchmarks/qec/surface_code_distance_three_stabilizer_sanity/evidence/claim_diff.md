@@ -1,5 +1,7 @@
 # Claim diff: surface_code_distance_three_stabilizer_sanity
 
+<!-- scope_fingerprint: 289d82db8b737d83aef16ea956c11401d9c469c3f10f3ef91571e6ab70a57ae6 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

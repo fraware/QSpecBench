@@ -1,5 +1,7 @@
 # Claim diff: qft_inverse_qft_small_instance
 
+<!-- scope_fingerprint: 6e4305b3ad2b4c7f126af5211e73a14e0d65095589e52fd284d5a0989b2a6836 -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

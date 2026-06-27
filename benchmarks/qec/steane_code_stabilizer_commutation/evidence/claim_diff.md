@@ -1,5 +1,7 @@
 # Claim diff: steane_code_stabilizer_commutation
 
+<!-- scope_fingerprint: 377749d4e29ffcbfda6ab43979d393da3c99bfd901e55dce11fbb9cae1939fff -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 

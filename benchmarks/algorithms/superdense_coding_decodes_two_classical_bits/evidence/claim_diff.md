@@ -1,5 +1,7 @@
 # Claim diff: superdense_coding_decodes_two_classical_bits
 
+<!-- scope_fingerprint: 6c6c2d6a6f4274936ae24e7cf83e840083e1bf2f35e0849476f0a1ec57d4ef2e -->
+
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 
