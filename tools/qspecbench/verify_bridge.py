@@ -57,6 +57,8 @@ def _load_bridge(claim_dir: Path) -> dict[str, Any]:
 def verify_bridge(claim_dir: Path) -> dict[str, Any]:
     claim_dir = claim_dir.resolve()
     bridge = _load_bridge(claim_dir)
+    spec = _load_spec(claim_dir)
+    extraction = spec.get("qasm_extraction")
     qasm = _find_qasm_artifact(claim_dir, bridge)
     if qasm is None:
         return {
@@ -66,7 +68,7 @@ def verify_bridge(claim_dir: Path) -> dict[str, Any]:
             "errors": ["no qasm3 artifact found"],
         }
 
-    qasm_data = extract_matrix(qasm)
+    qasm_data = extract_matrix(qasm, extraction=extraction)
     n = qasm_data["n_qubits"]
     ops = ops_from_qasm_matrix(qasm_data)
     denoted = denotate_ops(n, ops)

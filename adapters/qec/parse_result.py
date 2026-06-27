@@ -55,13 +55,14 @@ def _error_pauli_for_label(label: str, n: int) -> str:
     m = re.match(r"^X(\d+)$", label)
     if m:
         idx = int(m.group(1))
+        if not (0 <= idx < n):
+            raise ValueError(f"X index {idx} out of range for n={n} in label {label!r}")
         chars = ["I"] * n
-        if 0 <= idx < n:
-            chars[idx] = "X"
+        chars[idx] = "X"
         return "".join(chars)
     if PAULI_RE.match(label) and len(label) == n:
         return label
-    return "I" * n
+    raise ValueError(f"unknown or malformed error label {label!r} for n={n}")
 
 
 def validate_syndrome_table(
@@ -414,11 +415,19 @@ def check(path: Path) -> dict:
         checks_run.extend(lp_checks)
 
     if data.get("type") == "stabilizer_code":
-        dist_warnings, dist_checks, _ = validate_min_weight_distance(data, error_model)
+        dist_warnings, dist_checks, min_d = validate_min_weight_distance(data, error_model)
         warnings.extend(dist_warnings)
         checks_run.extend(dist_checks)
+        distance_result = None
+        if min_d is not None:
+            distance_result = {
+                "method": "bruteforce_min_weight_logical_operator",
+                "computed_min_weight": min_d,
+                "error_model": error_model or {},
+                "n_qubits": data.get("parameters", {}).get("n"),
+            }
 
-    return {
+    result = {
         "ok": not errors,
         "adapter": "qec_json_validator",
         "path": str(path),
@@ -427,6 +436,9 @@ def check(path: Path) -> dict:
         "warnings": warnings,
         "errors": errors,
     }
+    if data.get("type") == "stabilizer_code":
+        result["distance_result"] = distance_result
+    return result
 
 
 def main() -> None:

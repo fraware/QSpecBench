@@ -124,8 +124,9 @@ def generate_dashboard(root: Path) -> str:
     resources = sum(1 for s in specs if _has_resource_contract(s))
     trust_levels = _count_passing_trust_levels(specs)
     bridge_links = _bridge_link_counts(rows)
-    kernel_bridges = bridge_links.get("kernel_checked", 0)
-    python_bridges = bridge_links.get("python_consistency_checked", 0)
+    manifest_bridges = bridge_links.get("manifest_checked_theorem_binding", 0)
+    python_bridges = bridge_links.get("python_denotation_consistency", 0)
+    kernel_semantics = bridge_links.get("kernel_checked_artifact_semantics", 0)
     documented_bridges = bridge_links.get("documented_not_proved", 0)
     ref_by_track = _reference_coverage_by_track(rows)
 
@@ -160,8 +161,9 @@ def generate_dashboard(root: Path) -> str:
         f"- **With approximate specifications:** {approx}",
         f"- **QEC claims:** {qec}",
         f"- **With resource contracts:** {resources}",
-        f"- **Kernel-checked artifact-to-theorem bridges:** {kernel_bridges}",
+        f"- **Manifest-checked theorem bindings:** {manifest_bridges}",
         f"- **Python denotation consistency checks:** {python_bridges}",
+        f"- **Kernel-checked artifact semantics bridges:** {kernel_semantics}",
         f"- **Documented (not proved) bridges:** {documented_bridges}",
         "",
         "### Passing evidence by trust level",

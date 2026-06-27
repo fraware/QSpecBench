@@ -20,7 +20,12 @@
     },
     "claimed_link": {
       "type": "string",
-      "enum": ["documented_not_proved", "python_consistency_checked", "kernel_checked"]
+      "enum": [
+        "documented_not_proved",
+        "python_denotation_consistency",
+        "manifest_checked_theorem_binding",
+        "kernel_checked_artifact_semantics"
+      ]
     },
     "bridge_evidence_id": { "type": ["string", "null"] },
     "gate_set": { "type": ["string", "null"] },

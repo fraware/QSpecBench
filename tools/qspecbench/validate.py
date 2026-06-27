@@ -17,12 +17,18 @@ from qspecbench.models import ALL_REFERENCE_LEVELS, validate_spec_trust_slice
 from qspecbench.provenance import validate_provenance
 from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
-from qspecbench.bridge_manifest import validate_kernel_bridge
+from qspecbench.bridge_manifest import validate_manifest_bridge
 from qspecbench.verify_bridge import verify_bridge
 
 # Bridge links that assert a verified equality between the QASM matrix and the
-# OpenQASM3 denotation model (Python-level consistency, not a Lean kernel bridge).
-VERIFIED_BRIDGE_LINKS = {"python_consistency_checked", "kernel_checked"}
+# OpenQASM3 denotation model (Python-level consistency or manifest binding).
+VERIFIED_BRIDGE_LINKS = {
+    "python_denotation_consistency",
+    "manifest_checked_theorem_binding",
+    # Deprecated aliases (rejected at validation).
+    "python_consistency_checked",
+    "kernel_checked",
+}
 
 SNAKE_CASE = re.compile(r"^[a-z][a-z0-9_]*$")
 
@@ -92,7 +98,12 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
             "(spec root or expected/semantic_bridge.json)"
         )
     claimed_link = bridge.get("claimed_link") if bridge else None
-    if claimed_link in VERIFIED_BRIDGE_LINKS:
+    if claimed_link in {"python_consistency_checked", "kernel_checked"}:
+        errors.append(
+            f"claimed_link {claimed_link!r} is deprecated; use "
+            "python_denotation_consistency or manifest_checked_theorem_binding"
+        )
+    if claimed_link in {"python_denotation_consistency", "manifest_checked_theorem_binding"}:
         if not _has_passing_bridge_verify(spec):
             errors.append(
                 f"claimed_link {claimed_link} requires passing bridge verify evidence "
@@ -105,8 +116,51 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
                     f"claimed_link {claimed_link} requires verify-bridge matrix match: "
                     + "; ".join(result.get("errors", []))
                 )
-        if claimed_link == "kernel_checked":
-            errors.extend(validate_kernel_bridge(claim_dir, bridge, spec))
+        if claimed_link == "manifest_checked_theorem_binding":
+            errors.extend(validate_manifest_bridge(claim_dir, bridge, spec))
+    errors.extend(_validate_qec_claim_scope(spec, claim_dir))
+    return errors
+
+
+def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str]:
+    errors: list[str] = []
+    if spec.get("track") != "qec":
+        return errors
+    scope = spec.get("qec_claim_scope")
+    if not scope:
+        return errors
+
+    if scope.get("stabilizer_commutation") == "checked":
+        has_lean = any(
+            e.get("type") == "lean_proof" and e.get("status") == "passing"
+            for e in spec.get("evidence", [])
+        )
+        if not has_lean:
+            errors.append(
+                "qec_claim_scope.stabilizer_commutation checked requires passing lean_proof evidence"
+            )
+
+    distance = scope.get("distance") or {}
+    if distance.get("status") == "checked":
+        has_distance_evidence = False
+        for ev in spec.get("evidence", []):
+            if ev.get("status") != "passing":
+                continue
+            path = claim_dir / ev.get("path", "")
+            if not path.is_file():
+                continue
+            if ev.get("type") == "qec_verifier_result":
+                try:
+                    payload = json.loads(path.read_text(encoding="utf-8"))
+                    if payload.get("distance_result"):
+                        has_distance_evidence = True
+                except json.JSONDecodeError:
+                    pass
+        if not has_distance_evidence:
+            errors.append(
+                "qec_claim_scope.distance.status checked requires distance_result evidence "
+                "from QEC adapter bruteforce run"
+            )
     return errors
 
 

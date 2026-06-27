@@ -105,7 +105,8 @@
     "qec_claim_scope": { "$ref": "#/$defs/qec_claim_scope" },
     "ai_formalization_status": { "$ref": "#/$defs/ai_formalization_status" },
     "hamiltonian_claim_scope": { "$ref": "#/$defs/hamiltonian_claim_scope" },
-    "provenance": { "$ref": "#/$defs/provenance" }
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "qasm_extraction": { "$ref": "#/$defs/qasm_extraction" }
   },
   "additionalProperties": false,
   "$defs": {
@@ -396,8 +397,9 @@
           "type": "string",
           "enum": [
             "documented_not_proved",
-            "python_consistency_checked",
-            "kernel_checked"
+            "python_denotation_consistency",
+            "manifest_checked_theorem_binding",
+            "kernel_checked_artifact_semantics"
           ]
         },
         "bridge_evidence_id": { "type": ["string", "null"] },
@@ -458,7 +460,15 @@
           "type": "string",
           "enum": ["unproved", "partially_checked", "checked"]
         },
-        "notes": { "type": ["string", "null"] }
+        "notes": { "type": ["string", "null"] },
+        "checked_under": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "not_checked_under": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
       },
       "additionalProperties": false
     },
@@ -489,7 +499,11 @@
     "qec_claim_scope": {
       "type": "object",
       "properties": {
-        "code_definition": {
+        "code_schema": {
+          "type": "string",
+          "enum": ["checked", "unchecked", "draft"]
+        },
+        "code_definition_semantics": {
           "type": "string",
           "enum": ["checked", "unchecked", "draft"]
         },
@@ -505,11 +519,15 @@
           "type": "string",
           "enum": ["checked", "unchecked", "draft", "assumed"]
         },
-        "decoder_correctness": {
+        "decoder_algorithm": {
           "type": "string",
           "enum": ["checked", "assumed", "out_of_scope"]
         },
-        "logical_preservation": {
+        "logical_preservation_small_code": {
+          "type": "string",
+          "enum": ["checked", "assumed", "out_of_scope"]
+        },
+        "logical_preservation_general": {
           "type": "string",
           "enum": ["checked", "assumed", "out_of_scope"]
         },
@@ -569,6 +587,31 @@
         "derivation_status": {
           "type": "string",
           "enum": ["checked", "declared_only", "reviewed", "not_applicable"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "qasm_extraction": {
+      "type": "object",
+      "required": ["mode", "allowed_to_skip"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["unitary_fragment", "full_dynamic_semantics", "syntax_only"]
+        },
+        "allowed_to_skip": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "measurement",
+              "reset",
+              "classical_control",
+              "gate_def",
+              "declaration",
+              "structural"
+            ]
+          }
         }
       },
       "additionalProperties": false

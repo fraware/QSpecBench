@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.1",
-  "description": "Allowlisted Lean theorems tied to QASM gate traces for kernel_checked bridges.",
+  "description": "Allowlisted Lean theorems tied to QASM gate traces for manifest_checked_theorem_binding bridges.",
   "entries": [
     {
       "benchmark_id": "cnot_self_inverse_cancellation",

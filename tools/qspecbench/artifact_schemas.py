@@ -55,7 +55,7 @@ def validate_json_artifact(path: Path, schema_path: Path) -> list[str]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         return [f"{path.name}: invalid JSON: {exc}"]
-    # Legacy hamiltonian artifacts use `id` without top-level `type`; skip until migrated.
+    # Legacy hamiltonian artifacts without top-level `type` are skipped until migrated.
     if schema_path.name == "hamiltonian.schema.json" and "type" not in data:
         return []
     schema = _load_artifact_schema(schema_path)

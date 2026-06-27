@@ -264,16 +264,20 @@ theorem bridge_bell_prep (i j : Fin 4) :
     denotateOps2 bell_prep_ops i j = bellPrepMatrix i j :=
   denotateOps2_bell_prep i j
 
-/-- RX(π/2) scaffold: denoted as unnormalized H on one qubit. -/
-def rx_pi2_ops : List QasmOp := [.gate .H 0]
+/-- Artificial scaffold for parser plumbing only; not RX/H semantic equivalence.
 
-theorem denotateOps1_rx_pi2 (i j : Fin 2) :
-    denotateOps1 rx_pi2_ops i j = hadamard2 i j := by
+The QASM extractor may emit an RX(π/2) gate trace, but this Lean op list uses `.H`
+only as a stand-in for denotation plumbing — it does not claim RX(π/2) equals H.
+-/
+def rx_parser_plumbing_ops : List QasmOp := [.gate .H 0]
+
+theorem denotateOps1_rx_parser_plumbing (i j : Fin 2) :
+    denotateOps1 rx_parser_plumbing_ops i j = hadamard2 i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
-theorem bridge_rx_pi2_eq_h (i j : Fin 2) :
-    denotateOps1 rx_pi2_ops i j = hadamard2 i j :=
-  denotateOps1_rx_pi2 i j
+theorem bridge_rx_parser_plumbing (i j : Fin 2) :
+    denotateOps1 rx_parser_plumbing_ops i j = hadamard2 i j :=
+  denotateOps1_rx_parser_plumbing i j
 
 def ccx_single : List QasmOp := [.ccx 0 1 2]
 

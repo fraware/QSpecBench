@@ -262,6 +262,18 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
             errors.append("reference_claim requires a proved_scope block")
         if headline_state != "checked":
             errors.append("reference_claim requires headline_claim_status.status == checked")
+        checked_under = headline_status.get("checked_under") or []
+        if not checked_under:
+            errors.append(
+                "reference_claim requires headline_claim_status.checked_under "
+                "(semantic bases under which the headline is checked)"
+            )
+        not_checked = headline_status.get("not_checked_under") or []
+        if not not_checked:
+            errors.append(
+                "reference_claim requires headline_claim_status.not_checked_under "
+                "(explicit scope limits)"
+            )
 
         if claim_scope and proved_scope:
             required = list(claim_scope.get("required_obligations", []))
@@ -297,6 +309,8 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
 def trust_summary(spec: dict[str, Any]) -> str:
     """Structured trust summary derived from scope blocks, not coarse kernel labels."""
     headline = (spec.get("headline_claim_status") or {}).get("status", "unknown")
+    checked_under = (spec.get("headline_claim_status") or {}).get("checked_under") or []
+    not_checked_under = (spec.get("headline_claim_status") or {}).get("not_checked_under") or []
     proved = spec.get("proved_scope") or {}
     checked = proved.get("checked_obligations") or []
     unproved = proved.get("unproved_obligations") or []
@@ -336,6 +350,12 @@ def trust_summary(spec: dict[str, Any]) -> str:
         f"proof_scope: {proof_scope}",
         f"headline: {headline}",
     ]
+    if checked_under:
+        parts.append(f"checked_under: {', '.join(str(x) for x in checked_under[:2])}")
+        if len(checked_under) > 2:
+            parts.append(f"+{len(checked_under) - 2} bases")
+    if not_checked_under and headline == "checked":
+        parts.append(f"not_checked: {', '.join(str(x) for x in not_checked_under[:2])}")
     if checked_bits:
         parts.append(f"checked: {', '.join(checked_bits)}")
     if unchecked_bits:

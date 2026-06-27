@@ -18,6 +18,7 @@ from qspecbench.qasm_matrix import (
     _cz,
     _eye,
     _mat_mul,
+    _parse_angle,
     _parse_qubit_index,
     _swap,
     matrices_equal,
@@ -25,6 +26,13 @@ from qspecbench.qasm_matrix import (
 )
 
 Op = tuple[str, tuple[int, ...], float | None]
+
+_ANGLE = r"([^)]+)"
+_RX_RE = re.compile(rf"^\s*rx\s*\(\s*{_ANGLE}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
+_RY_RE = re.compile(rf"^\s*ry\s*\(\s*{_ANGLE}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
+_RZ_RE = re.compile(rf"^\s*rz\s*\(\s*{_ANGLE}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
+_U_RE = re.compile(r"^\s*u\s*\(\s*([^)]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
+_CP_RE = re.compile(rf"^\s*cp\s*\(\s*{_ANGLE}\s*\)\s+(.*);?\s*$", re.I)
 
 
 def denotate_ops(n_qubits: int, ops: list[Op]) -> ComplexMatrix:
@@ -73,35 +81,35 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
         stripped = line.strip().rstrip(";")
         if not stripped:
             continue
-        rx = re.match(r"^\s*rx\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        rx = _RX_RE.match(stripped)
         if rx:
-            angle = float(rx.group(1))
+            angle = _parse_angle(rx.group(1))
             q = _parse_qubit_index(rx.group(2), n)
             ops.append(("rx", (q,), angle))
             continue
-        ry = re.match(r"^\s*ry\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        ry = _RY_RE.match(stripped)
         if ry:
-            angle = float(ry.group(1))
+            angle = _parse_angle(ry.group(1))
             q = _parse_qubit_index(ry.group(2), n)
             ops.append(("ry", (q,), angle))
             continue
-        rz = re.match(r"^\s*rz\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        rz = _RZ_RE.match(stripped)
         if rz:
-            angle = float(rz.group(1))
+            angle = _parse_angle(rz.group(1))
             q = _parse_qubit_index(rz.group(2), n)
             ops.append(("rz", (q,), angle))
             continue
-        u = re.match(r"^\s*u\s*\(\s*([^)]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        u = _U_RE.match(stripped)
         if u:
-            angles = [float(x.strip()) for x in u.group(1).split(",")]
+            angles = [_parse_angle(x.strip()) for x in u.group(1).split(",")]
             if len(angles) != 3:
                 raise ValueError(f"U expects three angles: {line}")
             q = _parse_qubit_index(u.group(2), n)
             ops.append(("u", (q, angles[0], angles[1], angles[2]), None))
             continue
-        cp = re.match(r"^\s*cp\s*\(\s*([0-9.eE+-]+)\s*\)\s+(.*);?\s*$", stripped, re.I)
+        cp = _CP_RE.match(stripped)
         if cp:
-            angle = float(cp.group(1))
+            angle = _parse_angle(cp.group(1))
             args = tuple(int(m.group(1)) for m in re.finditer(r"\[(\d+)\]", cp.group(2)))
             if len(args) != 2:
                 raise ValueError(f"CP expects two qubit indices: {line}")

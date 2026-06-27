@@ -16,16 +16,17 @@ _GATE_LINE = re.compile(
     r"^\s*(h|x|y|z|s|t|sdg|tdg|cx|cnot|cz|swap|ccx)\s+(.*);?\s*$",
     re.IGNORECASE,
 )
+_ANGLE_ARG = r"([^)]+)"
 _RX_LINE = re.compile(
-    r"^\s*rx\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
+    rf"^\s*rx\s*\(\s*{_ANGLE_ARG}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
     re.IGNORECASE,
 )
 _RY_LINE = re.compile(
-    r"^\s*ry\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
+    rf"^\s*ry\s*\(\s*{_ANGLE_ARG}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
     re.IGNORECASE,
 )
 _RZ_LINE = re.compile(
-    r"^\s*rz\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
+    rf"^\s*rz\s*\(\s*{_ANGLE_ARG}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
     re.IGNORECASE,
 )
 _U_LINE = re.compile(
@@ -33,7 +34,17 @@ _U_LINE = re.compile(
     re.IGNORECASE,
 )
 _CP_LINE = re.compile(
-    r"^\s*cp\s*\(\s*([^)]+)\s*\)\s+(.*);?\s*$",
+    rf"^\s*cp\s*\(\s*{_ANGLE_ARG}\s*\)\s+(.*);?\s*$",
+    re.IGNORECASE,
+)
+
+_ANGLE_LITERAL_RE = re.compile(
+    r"^(?:"
+    r"pi\s*/\s*2|(?:\(pi\s*/\s*2\))|"
+    r"pi\s*/\s*4|(?:\(pi\s*/\s*4\))|"
+    r"pi|(?:\(pi\))|"
+    r"-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?"
+    r")$",
     re.IGNORECASE,
 )
 
@@ -93,20 +104,56 @@ class UnsupportedQasmError(ValueError):
     """Raised when a unitary-bearing QASM line cannot be modeled (fail-closed)."""
 
 
-def _is_skippable_nonunitary(line: str) -> bool:
-    """Return True for structural/non-unitary lines that carry no unitary weight.
-
-    Everything that is not explicitly recognized here and is not a supported gate
-    must fail closed rather than be silently dropped from the extracted unitary.
-    """
-    low = line.lower()
-    # Classical assignment from a measurement, e.g. "c[0] = measure q[0];".
-    if re.search(r"\b(measure|reset)\b", low):
-        return True
+def _line_skip_category(line: str) -> str | None:
+    """Classify a non-gate line for qasm_extraction policy (fail-closed by default)."""
+    low = line.lower().strip()
     if low in {"{", "}"}:
-        return True
+        return "structural"
+    if re.search(r"\bmeasure\b", low):
+        return "measurement"
+    if re.search(r"\breset\b", low):
+        return "reset"
+    if re.match(r"^(if|else|for|while)\b", low):
+        return "classical_control"
+    if re.match(r"^(gate|def|defcal)\b", low):
+        return "gate_def"
     first = re.split(r"[\s\[\(;{}]", low, maxsplit=1)[0]
-    return first in _NONUNITARY_KEYWORDS or first in _DECLARATION_KEYWORDS
+    if first in _NONUNITARY_KEYWORDS:
+        if first in {"barrier", "delay", "pragma", "cal", "extern", "box"}:
+            return "structural"
+        if first in {"if", "else", "for", "while"}:
+            return "classical_control"
+        if first in {"gate", "def", "defcal", "defcalgrammar"}:
+            return "gate_def"
+        if first == "measure":
+            return "measurement"
+        if first == "reset":
+            return "reset"
+    if first in _DECLARATION_KEYWORDS:
+        return "declaration"
+    return None
+
+
+def _extraction_allows_skip(extraction: dict[str, Any] | None, category: str) -> bool:
+    if not extraction:
+        return False
+    mode = extraction.get("mode", "unitary_fragment")
+    if mode == "full_dynamic_semantics":
+        return True
+    if mode == "syntax_only":
+        return True
+    allowed = set(extraction.get("allowed_to_skip") or [])
+    return category in allowed
+
+
+def _is_skippable_nonunitary(line: str, extraction: dict[str, Any] | None = None) -> bool:
+    """Return True when extraction policy permits skipping this non-unitary line."""
+    category = _line_skip_category(line)
+    if category is None:
+        return False
+    if category in {"declaration", "structural"}:
+        return True
+    return _extraction_allows_skip(extraction, category)
 
 
 def _cell(re: Fraction | int = 0, im: Fraction | int = 0) -> Cell:
@@ -356,11 +403,16 @@ def _swap(n_qubits: int, a: int, b: int) -> ComplexMatrix:
 
 
 def _parse_angle(text: str) -> float:
+    """Single angle parser shared by matrix extraction and denotation bridge."""
     s = text.strip().lower().replace(" ", "")
     if s in {"pi/2", "(pi/2)"}:
-        return math.pi / 2
-    if s == "pi":
+        return math.pi / 2.0
+    if s in {"pi/4", "(pi/4)"}:
+        return math.pi / 4.0
+    if s in {"pi", "(pi)"}:
         return math.pi
+    if not _ANGLE_LITERAL_RE.match(s):
+        raise ValueError(f"unsupported angle literal: {text!r}")
     return float(s)
 
 
@@ -424,7 +476,10 @@ def matrices_equal(
     return all(cells_close(x, y, tol=tol) for row_a, row_b in zip(a, b) for x, y in zip(row_a, row_b))
 
 
-def extract_matrix(qasm_path: Path) -> dict[str, Any]:
+def extract_matrix(
+    qasm_path: Path,
+    extraction: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     text = qasm_path.read_text(encoding="utf-8")
     n = _register_size(text)
     unitary = _eye(1 << n)
@@ -488,8 +543,14 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
 
         m = _GATE_LINE.match(line)
         if not m:
-            if _is_skippable_nonunitary(line):
+            category = _line_skip_category(line)
+            if category and _is_skippable_nonunitary(line, extraction):
                 continue
+            if category:
+                raise UnsupportedQasmError(
+                    f"QASM line {line!r} requires qasm_extraction.mode=unitary_fragment "
+                    f"with allowed_to_skip including {category!r} (fail-closed default)"
+                )
             raise UnsupportedQasmError(
                 f"unsupported QASM line for matrix extraction (fail-closed): {line!r}"
             )
