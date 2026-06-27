@@ -123,14 +123,30 @@ def test_general_rx_theta():
     assert m[1][1] == _cell(c)
 
 
+def test_rz_gate_supported():
+    data = _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nrz(1.57079632679) q[0];\n")
+    assert len(data["gates_applied"]) == 1
+
+
+def test_ry_gate_supported():
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nry(1.57079632679) q[0];\n")
+    c = Fraction(math.cos(math.pi / 4)).limit_denominator(10**12)
+    assert cells_close(m[0][0], _cell(c))
+
+
+def test_cz_gate_supported():
+    m = _matrix_from_qasm("OPENQASM 3.0;\nqubit[2] q;\ncz q[0], q[1];\n")
+    assert m[3][3] == _cell(-1)
+
+
+def test_u_gate_supported():
+    data = _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nu(1.57079632679,0,0) q[0];\n")
+    assert len(data["gates_applied"]) == 1
+
+
 def test_unsupported_rotation_gate_fails_closed():
     with pytest.raises(UnsupportedQasmError):
-        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nrz(0.5) q[0];\n")
-
-
-def test_unsupported_controlled_phase_fails_closed():
-    with pytest.raises(UnsupportedQasmError):
-        _extract_from_qasm("OPENQASM 3.0;\nqubit[2] q;\ncz q[0], q[1];\n")
+        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nr1(0.5) q[0];\n")
 
 
 def test_cp_gate_supported():
@@ -146,7 +162,7 @@ def test_unknown_line_fails_closed():
 def test_unsupported_error_is_value_error():
     # Fail-closed errors remain ValueErrors for callers catching the base type.
     with pytest.raises(ValueError):
-        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nu(0,0,0) q[0];\n")
+        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ngibberish_gate q[0];\n")
 
 
 def test_measurement_and_declarations_are_skipped():
