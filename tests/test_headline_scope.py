@@ -121,6 +121,10 @@ def _reference_claim_spec() -> dict:
         "checked_under": ["finite_matrix_model"],
         "not_checked_under": ["full_openqasm3"],
     }
+    spec["status"]["reviews"] = {
+        "formal_evidence_review": {"status": "approved", "reviewer": "test", "date": "2026-06-27"},
+        "domain_semantics_review": {"status": "approved", "reviewer": "test", "date": "2026-06-27"},
+    }
     spec["formal_claims"] = [_formal_claim_for_lean()]
     return spec
 
@@ -151,3 +155,10 @@ def test_reference_claim_requires_passing_required_evidence():
     spec["evidence"] = [dict(_checked_lean_evidence(), status="partial")]
     errors = validate_trust_rules(spec)
     assert any("required_for_claim type" in e for e in errors)
+
+
+def test_reference_claim_requires_dual_review():
+    spec = _reference_claim_spec()
+    del spec["status"]["reviews"]["domain_semantics_review"]
+    errors = validate_trust_rules(spec)
+    assert any("status.reviews.domain_semantics_review" in e for e in errors)

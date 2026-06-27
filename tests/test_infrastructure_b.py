@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -11,10 +12,17 @@ import yaml
 
 from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.evidence_runner import run_evidence_checks
-from qspecbench.provenance import sha256_file
+from qspecbench.provenance import sha256_file, validate_provenance
 from qspecbench.validate import validate_path
 
 REPO = Path(__file__).resolve().parents[1]
+MINIMAL = REPO / "schema" / "examples" / "minimal.spec.yaml"
+
+
+def _minimal_spec_text(**overrides: object) -> str:
+    spec = yaml.safe_load(MINIMAL.read_text(encoding="utf-8"))
+    spec.update(overrides)
+    return yaml.dump(spec, sort_keys=False)
 
 
 def test_qec_code_json_validates_against_schema():
@@ -31,93 +39,34 @@ def test_provenance_drift_detected():
 
 
 def test_raw_command_blocked_without_env():
-    spec_text = """
-qspecbench_version: "0.2"
-id: raw_cmd_test
-title: Raw command block test
-track: algorithm
-domain: test
-claim_type: test_claim
-difficulty: introductory
-informal_claim:
-  statement: Raw command block test
-  source: null
-  reference_key: null
-semantic_level:
-  primary: algorithmic
-  secondary: []
-objects:
-  - name: readme
-    type: other
-    path: README.md
-    format: markdown
-    role: reference
-specification:
-  mode: exact
-  preconditions: [test]
-  postconditions: [test]
-  invariants: []
-  approximation:
-    enabled: false
-    metric: null
-    bound: null
-  resources:
-    enabled: false
-    qubits: null
-    gates: null
-    depth: null
-    t_count: null
-    t_depth: null
-    ancilla: null
-    measurements: null
-    other: []
-assumptions:
-  mathematical: []
-  physical: []
-  tool: []
-  artifact: []
-  unverified: []
-acceptable_evidence:
-  - type: human_review
-    checker: manual
-    path: null
-    required_for_claim: false
-    trust_level: externally_trusted
-evidence:
-  - id: raw_evidence
-    type: human_review
-    path: README.md
-    checker: manual
-    command: echo hello
-    status: passing
-trust_boundary:
-  checked_by: []
-  trusted_kernels: []
-  trusted_external_tools: []
-  untrusted_components: []
-  assumptions_not_checked: [raw command test]
-claim_scope:
-  headline_claim_id: raw_cmd_test_headline
-  headline_claim_text: Raw command block test
-  required_obligations: [test]
-proved_scope:
-  checked_obligations: []
-  unproved_obligations: [test]
-headline_claim_status:
-  status: unproved
-  notes: null
-status:
-  informal_claim: complete
-  machine_spec: complete
-  artifacts: complete
-  evidence: complete
-  ci: passing
-  maturity: seed
-references: []
-"""
     with tempfile.TemporaryDirectory() as tmp:
         claim = Path(tmp)
-        (claim / "spec.yaml").write_text(spec_text, encoding="utf-8")
+        (claim / "spec.yaml").write_text(
+            _minimal_spec_text(
+                id="raw_cmd_test",
+                track="algorithm",
+                domain="test",
+                claim_type="test_claim",
+                evidence=[
+                    {
+                        "id": "raw_evidence",
+                        "type": "human_review",
+                        "path": "README.md",
+                        "checker": "manual",
+                        "command": "echo hello",
+                        "status": "passing",
+                    }
+                ],
+                claim_scope={
+                    "headline_claim_id": "raw_cmd_test_headline",
+                    "headline_claim_text": "Raw command block test",
+                    "required_obligations": ["test"],
+                },
+                proved_scope={"checked_obligations": [], "unproved_obligations": ["test"]},
+                headline_claim_status={"status": "unproved", "notes": None},
+            ),
+            encoding="utf-8",
+        )
         (claim / "README.md").write_text("# test\n", encoding="utf-8")
         env_before = os.environ.pop("QSPECBENCH_ALLOW_RAW_COMMANDS", None)
         try:
@@ -130,10 +79,26 @@ references: []
                 os.environ["QSPECBENCH_ALLOW_RAW_COMMANDS"] = env_before
 
 
+def test_provenance_drift_fails_validation():
+    claim = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation"
+    with tempfile.TemporaryDirectory() as tmp:
+        copy = Path(tmp) / "claim"
+        shutil.copytree(claim, copy)
+        spec = yaml.safe_load((copy / "spec.yaml").read_text(encoding="utf-8"))
+        artifact = copy / "artifacts/source.qasm"
+        artifact.write_bytes(artifact.read_bytes() + b"\n")
+        errors = validate_provenance(spec, copy)
+        assert any("sha256 drift" in e for e in errors)
+
+
 def test_logical_preservation_bit_flip_code():
     from adapters.qec.parse_result import check
 
     path = REPO / "benchmarks/qec/three_qubit_bit_flip_code_corrects_one_x/artifacts/code.json"
     result = check(path)
     assert result["ok"], result.get("errors")
+    checks = result.get("check_results", {})
+    assert checks.get("logical_preservation") is True
+    assert checks.get("syndrome") is True
+    assert checks.get("correction") is True
     assert "single_pauli_error_correction_validator" in result.get("checks_run", [])

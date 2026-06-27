@@ -1,0 +1,48 @@
+"""Tests for release bundle CLI."""
+
+from __future__ import annotations
+
+import json
+import tarfile
+from pathlib import Path
+
+import yaml
+
+from qspecbench.release_bundle import collect_release_manifest, write_release_bundle
+
+REPO = Path(__file__).resolve().parents[1]
+
+
+def test_release_bundle_contains_manifest_and_schemas(tmp_path):
+    out = tmp_path / "bundle.tar.gz"
+    manifest = write_release_bundle(REPO / "benchmarks", out)
+    assert manifest["benchmark_count"] >= 40
+    assert manifest["reproducibility"]["tooling_version"]
+    assert out.is_file()
+
+    with tarfile.open(out, "r:gz") as tar:
+        names = tar.getnames()
+    assert "manifest.json" in names
+    assert "reproducibility.json" in names
+    assert any(n.startswith("schema/") and n.endswith(".json") for n in names)
+    assert any(n.endswith("/spec.yaml") for n in names)
+    assert any("/artifacts/" in n for n in names)
+
+
+def test_release_manifest_summary_matches_dashboard():
+    metrics = collect_release_manifest(REPO / "benchmarks")["summary"]
+    assert metrics["total_benchmarks"] >= 40
+    assert "reference_claim" in metrics
+    assert "manifest_checked_theorem_binding" in metrics
+
+
+def test_release_bundle_includes_provenance_from_spec(tmp_path):
+    claim = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation"
+    out = tmp_path / "bundle.tar.gz"
+    write_release_bundle(REPO / "benchmarks", out)
+    arc_suffix = "cnot_self_inverse_cancellation/provenance.from_spec.json"
+    with tarfile.open(out, "r:gz") as tar:
+        match = next(n for n in tar.getnames() if n.replace("\\", "/").endswith(arc_suffix))
+        data = json.loads(tar.extractfile(match).read().decode("utf-8"))
+    spec = yaml.safe_load((claim / "spec.yaml").read_text(encoding="utf-8"))
+    assert data == spec["provenance"]
