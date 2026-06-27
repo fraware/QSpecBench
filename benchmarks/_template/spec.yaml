@@ -78,3 +78,4 @@ status:
   maturity: seed
 
 references: []
+semantics_base: openqasm_fragment
