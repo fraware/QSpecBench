@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/qec_external_certificate.schema.json",
+  "title": "QSpecBench external QEC certificate (scalable format stub)",
+  "description": "Reserved envelope for third-party distance or decoding certificates. Not yet wired into validate.",
+  "type": "object",
+  "required": ["certificate_version", "claim_kind", "code_ref", "prover"],
+  "properties": {
+    "certificate_version": {
+      "type": "string",
+      "const": "0.1-stub"
+    },
+    "claim_kind": {
+      "type": "string",
+      "enum": [
+        "minimum_distance",
+        "decoder_correctness",
+        "logical_preservation",
+        "syndrome_extraction"
+      ]
+    },
+    "code_ref": {
+      "type": "object",
+      "required": ["artifact_sha256"],
+      "properties": {
+        "benchmark_id": { "type": "string" },
+        "artifact_path": { "type": "string" },
+        "artifact_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "prover": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "method": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["proved", "counterexample", "timeout", "unknown"]
+        },
+        "computed_value": {},
+        "declared_parameter": {},
+        "witness": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "trust_boundary": {
+      "type": "object",
+      "properties": {
+        "checked_by": { "type": "array", "items": { "type": "string" } },
+        "assumptions_not_checked": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "additionalProperties": false
+}
