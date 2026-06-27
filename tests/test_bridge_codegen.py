@@ -71,6 +71,16 @@ def test_hadamard_manifest_codegen_hashes():
     assert verify_manifest_codegen(entry, HADAMARD_DIR) == []
 
 
+def test_rx_manifest_codegen_hashes():
+    rx_dir = REPO / "benchmarks" / "equivalence" / "rx_gate_equivalence_small_instance"
+    entry = next(
+        e for e in load_manifest()["entries"] if e["benchmark_id"] == "rx_gate_equivalence_small_instance"
+    )
+    assert entry["ast_sha256"]
+    assert entry["generated_lean_sha256"]
+    assert verify_manifest_codegen(entry, rx_dir) == []
+
+
 def test_single_qubit_gate_cancellation_codegen():
     ast = build_canonical_ast(HH_CANCEL_DIR / "artifacts" / "source.qasm")
     lean = generate_lean_stub("single_qubit_gate_cancellation", ast)

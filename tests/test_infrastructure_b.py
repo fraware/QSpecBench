@@ -131,6 +131,7 @@ def test_full_dynamic_semantics_rejected_at_validate():
                 domain="test",
                 claim_type="test_claim",
                 qasm_extraction={"mode": "full_dynamic_semantics", "allowed_to_skip": []},
+                semantics_base="openqasm_fragment",
                 claim_scope={
                     "headline_claim_id": "dynamic_mode_test_headline",
                     "headline_claim_text": "Dynamic mode fail-closed test",
