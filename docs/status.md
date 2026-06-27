@@ -35,7 +35,7 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 
 - **checked:** 43
 - **independently_checkable:** 19
-- **externally_trusted:** 60
+- **externally_trusted:** 61
 - **heuristic:** 8
 
 ### Reference-scaffold coverage by track
