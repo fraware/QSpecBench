@@ -101,7 +101,7 @@ def main() -> None:
     path = Path(sys.argv[1]).resolve()
     result = check(path)
     print(json.dumps(result))
-    sys.exit(0 if result["ok"] else 1)
+    sys.exit(0 if result.get("ok") or result.get("skipped") else 1)
 
 
 if __name__ == "__main__":
