@@ -60,9 +60,11 @@
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
       "lean_theorem": "bridge_hadamard_conjugates_x",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
-      "ast_sha256": null,
-      "generated_lean_sha256": null,
-      "obligation_ids": null
+      "ast_sha256": "20ba11fb108eb7d9fd66258197818165202009cf9a8ddaf1534b7627320c131f",
+      "generated_lean_sha256": "95faab229bb08d89387f035afacc348ef983217ef175dfd717d114b93fe08328",
+      "obligation_ids": [
+        "semantic_bridge"
+      ]
     },
     {
       "benchmark_id": "single_qubit_gate_cancellation",
@@ -86,9 +88,11 @@
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
       "lean_theorem": "bridge_hadamard_cancel",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
-      "ast_sha256": null,
-      "generated_lean_sha256": null,
-      "obligation_ids": null
+      "ast_sha256": "f731f909a694e3cc30b96260cc4f25a88888e093ef952d7bc9e0cbeb9973d4d9",
+      "generated_lean_sha256": "668c4dd6e7638e94d1e33e7a1b74a436aa5b59f21368e626443c7b932ff2d60f",
+      "obligation_ids": [
+        "semantic_bridge"
+      ]
     },
     {
       "benchmark_id": "qft_inverse_qft_small_instance",
