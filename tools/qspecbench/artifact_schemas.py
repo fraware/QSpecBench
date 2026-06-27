@@ -19,6 +19,10 @@ ARTIFACT_SCHEMAS: dict[str, Path] = {
     "code.json": SCHEMA_DIR / "qec_code.schema.json",
     "syndrome_table.json": SCHEMA_DIR / "syndrome_table.schema.json",
     "correction_table.json": SCHEMA_DIR / "correction_table.schema.json",
+    "error_model.json": SCHEMA_DIR / "error_model.schema.json",
+    "channel.json": SCHEMA_DIR / "channel.schema.json",
+    "resource_contract.json": SCHEMA_DIR / "resource_contract.schema.json",
+    "bridge_verify.result.json": SCHEMA_DIR / "bridge_result.schema.json",
 }
 
 # Optional: object `name` in spec.yaml may disambiguate generic paths.
@@ -29,6 +33,9 @@ OBJECT_NAME_SCHEMAS: dict[str, Path] = {
     "correction_table": SCHEMA_DIR / "correction_table.schema.json",
     "semantic_bridge": SCHEMA_DIR / "semantic_bridge.schema.json",
     "provenance": SCHEMA_DIR / "provenance.schema.json",
+    "error_model": SCHEMA_DIR / "error_model.schema.json",
+    "channel": SCHEMA_DIR / "channel.schema.json",
+    "resource_contract": SCHEMA_DIR / "resource_contract.schema.json",
 }
 
 _schema_cache: dict[Path, dict[str, Any]] = {}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/error_model.schema.json",
+  "title": "QSpecBench Pauli error model artifact",
+  "type": "object",
+  "required": ["type", "pauli_only", "allowed_errors", "max_weight"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": { "const": "error_model" },
+    "pauli_only": { "type": "boolean" },
+    "allowed_errors": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["I", "X", "Y", "Z"] }
+    },
+    "max_weight": { "type": "integer", "minimum": 0 },
+    "correlated_errors": { "type": "boolean" },
+    "leakage": { "type": "boolean" },
+    "measurement_errors": { "type": "boolean" },
+    "notes": { "type": "string" }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/channel.schema.json",
+  "title": "QSpecBench quantum channel artifact",
+  "type": "object",
+  "required": ["type", "family"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": { "const": "channel" },
+    "family": { "type": "string" },
+    "parameter": { "type": "object" },
+    "kraus": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["matrix"],
+        "properties": {
+          "label": { "type": "string" },
+          "matrix": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "notes": { "type": "string" }
+  }
+}

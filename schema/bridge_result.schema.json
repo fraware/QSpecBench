@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/bridge_result.schema.json",
+  "title": "QSpecBench verify-bridge result artifact",
+  "type": "object",
+  "required": ["ok", "claim", "claimed_link", "matrix_match"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "claim": { "type": "string" },
+    "claimed_link": {
+      "type": "string",
+      "enum": [
+        "manifest_checked_theorem_binding",
+        "python_denotation_consistency",
+        "kernel_checked_artifact_semantics",
+        "documented_not_proved"
+      ]
+    },
+    "lean_module": { "type": "string" },
+    "lean_theorem": { "type": "string" },
+    "qasm": { "type": "string" },
+    "n_qubits": { "type": "integer", "minimum": 1 },
+    "gates": { "type": "integer", "minimum": 0 },
+    "matrix_match": { "type": "boolean" },
+    "errors": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

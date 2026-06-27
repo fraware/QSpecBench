@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/resource_contract.schema.json",
+  "title": "QSpecBench simulation resource contract artifact",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": { "const": "resource_contract" },
+    "qubits": { "type": "integer", "minimum": 0 },
+    "terms": { "type": "integer", "minimum": 0 },
+    "max_coeff": { "type": "number" },
+    "trotter_order": { "type": "integer", "minimum": 1 },
+    "trotter_steps": { "type": "integer", "minimum": 1 },
+    "declared_error_bound": { "type": "number" },
+    "notes": { "type": "string" }
+  }
+}
