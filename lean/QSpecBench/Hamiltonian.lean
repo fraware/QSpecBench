@@ -209,7 +209,6 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
 theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
   have h01 : pauliX0 0 1 ≠ pauliX1 0 1 := by
     simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry, pauliXEntry]
-    exact one_ne_zero
   intro h
   exact h01 (congr_fun (congr_fun h 0) 1)
 
