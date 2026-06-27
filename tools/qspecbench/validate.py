@@ -16,7 +16,7 @@ from qspecbench.schema import load_schema
 from qspecbench.models import ALL_REFERENCE_LEVELS, validate_spec_trust_slice
 from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
-from qspecbench.bridge_manifest import validate_manifest_bridge
+from qspecbench.bridge_manifest import validate_kernel_checked_bridge, validate_manifest_bridge
 from qspecbench.provenance import validate_provenance
 from qspecbench.verify_bridge import verify_bridge
 
@@ -25,6 +25,7 @@ from qspecbench.verify_bridge import verify_bridge
 VERIFIED_BRIDGE_LINKS = {
     "python_denotation_consistency",
     "manifest_checked_theorem_binding",
+    "kernel_checked_artifact_semantics",
     # Deprecated aliases (rejected at validation).
     "python_consistency_checked",
     "kernel_checked",
@@ -103,7 +104,7 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
             f"claimed_link {claimed_link!r} is deprecated; use "
             "python_denotation_consistency or manifest_checked_theorem_binding"
         )
-    if claimed_link in {"python_denotation_consistency", "manifest_checked_theorem_binding"}:
+    if claimed_link in {"python_denotation_consistency", "manifest_checked_theorem_binding", "kernel_checked_artifact_semantics"}:
         if not _has_passing_bridge_verify(spec):
             errors.append(
                 f"claimed_link {claimed_link} requires passing bridge verify evidence "
@@ -118,6 +119,8 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
                 )
         if claimed_link == "manifest_checked_theorem_binding":
             errors.extend(validate_manifest_bridge(claim_dir, bridge, spec))
+        if claimed_link == "kernel_checked_artifact_semantics":
+            errors.extend(validate_kernel_checked_bridge(claim_dir, bridge, spec))
     errors.extend(_validate_qec_claim_scope(spec, claim_dir))
     return errors
 
@@ -251,10 +254,19 @@ def _validate_qasm_extraction(spec: dict[str, Any]) -> list[str]:
         return []
     mode = extraction.get("mode")
     if mode == "full_dynamic_semantics":
-        return [
-            "qasm_extraction.mode=full_dynamic_semantics is not implemented; "
-            "use unitary_fragment (default) until dynamic semantics codegen exists"
-        ]
+        semantics_base = spec.get("semantics_base")
+        if semantics_base != "dynamic_circuit":
+            return [
+                "qasm_extraction.mode=full_dynamic_semantics requires "
+                "semantics_base=dynamic_circuit (projective measurement stub + "
+                "declared non-unitary skips)"
+            ]
+        allowed = set(extraction.get("allowed_to_skip") or [])
+        if "measurement" not in allowed:
+            return [
+                "full_dynamic_semantics requires allowed_to_skip to include "
+                "'measurement' (projective POVM stub; unitary fragment insufficient)"
+            ]
     return []
 
 
