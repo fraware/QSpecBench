@@ -194,6 +194,81 @@ def provenance_cmd(
     console.print(f"Wrote provenance ({len(report['artifacts'])} artifacts) to {path}")
 
 
+@app.command("bridge-codegen")
+def bridge_codegen_cmd(
+    action: str = typer.Argument(..., help="generate | verify | update-manifest"),
+    target: Path = typer.Argument(..., help="Claim directory or benchmarks root"),
+) -> None:
+    """Generate or verify OpenQASM→Lean codegen stubs (pilot)."""
+    from qspecbench.artifacts import find_spec_files
+    from qspecbench.bridge_codegen import (
+        generate_for_benchmark,
+        update_manifest_entry,
+        verify_manifest_codegen,
+    )
+    from qspecbench.bridge_manifest import load_manifest, manifest_entry_for_theorem
+
+    if (target / "spec.yaml").is_file():
+        claim_dirs = [target]
+    else:
+        claim_dirs = sorted({p.parent for p in find_spec_files(target)})
+
+    if action == "generate":
+        for claim_dir in claim_dirs:
+            try:
+                result = generate_for_benchmark(claim_dir)
+            except (FileNotFoundError, ValueError) as exc:
+                console.print(f"[yellow]SKIP[/yellow] {claim_dir.name}: {exc}")
+                continue
+            console.print(
+                f"[green]OK[/green] {result['benchmark_id']} -> {result['generated_lean_path']}"
+            )
+            console.print(f"  ast_sha256: {result['ast_sha256'][:16]}…")
+        return
+
+    if action == "update-manifest":
+        for claim_dir in claim_dirs:
+            try:
+                result = generate_for_benchmark(claim_dir)
+                update_manifest_entry(result["benchmark_id"], result)
+            except (FileNotFoundError, ValueError, KeyError) as exc:
+                console.print(f"[yellow]SKIP[/yellow] {claim_dir.name}: {exc}")
+                continue
+            console.print(f"[green]OK[/green] manifest updated for {result['benchmark_id']}")
+        return
+
+    if action == "verify":
+        failed = 0
+        manifest = load_manifest()
+        entries_with_codegen = {
+            e["benchmark_id"]: e
+            for e in manifest.get("entries", [])
+            if e.get("ast_sha256") or e.get("generated_lean_sha256")
+        }
+        for claim_dir in claim_dirs:
+            import yaml
+
+            spec = yaml.safe_load((claim_dir / "spec.yaml").read_text(encoding="utf-8"))
+            bid = spec.get("id", claim_dir.name)
+            entry = entries_with_codegen.get(bid)
+            if entry is None:
+                continue
+            errs = verify_manifest_codegen(entry, claim_dir)
+            if errs:
+                failed += 1
+                console.print(f"[red]FAIL[/red] {bid}")
+                for err in errs:
+                    console.print(f"  - {err}")
+            else:
+                console.print(f"[green]OK[/green] codegen verify {bid}")
+        if failed:
+            raise typer.Exit(code=1)
+        return
+
+    console.print(f"[red]Unknown action {action!r}; use generate, verify, or update-manifest[/red]")
+    raise typer.Exit(code=1)
+
+
 @app.command("release-bundle")
 def release_bundle_cmd(
     target: Path = typer.Argument(..., help="Benchmarks root"),

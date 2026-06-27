@@ -26,9 +26,11 @@
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
       "lean_theorem": "bridge_cnot_self_inverse",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
-      "ast_sha256": null,
-      "generated_lean_sha256": null,
-      "obligation_ids": null
+      "ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9",
+      "generated_lean_sha256": "b79ac88e2838fc6205e2debc45ded2884213d15a27ea932358e6676f8f2734c4",
+      "obligation_ids": [
+        "semantic_bridge"
+      ]
     },
     {
       "benchmark_id": "hadamard_conjugates_x_to_z",

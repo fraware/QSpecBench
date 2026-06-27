@@ -269,6 +269,11 @@ def validate_manifest_bridge(claim_dir: Path, bridge: dict[str, Any], spec: dict
     if entry.get("gate_trace") and entry["gate_trace"] != trace:
         errors.append("gate_trace mismatch against bridge_theorem_manifest.json")
 
+    if entry.get("ast_sha256") or entry.get("generated_lean_sha256"):
+        from qspecbench.bridge_codegen import verify_manifest_codegen
+
+        errors.extend(verify_manifest_codegen(entry, claim_dir))
+
     errors.extend(
         _lean_evidence_for_bridge(
             claim_dir,
