@@ -32,27 +32,88 @@ def test_provenance_drift_detected():
 
 def test_raw_command_blocked_without_env():
     spec_text = """
-id: raw_cmd_test
-track: algorithms
-version: "0.1"
 qspecbench_version: "0.2"
+id: raw_cmd_test
 title: Raw command block test
-description: test
-tags: [test]
+track: algorithm
+domain: test
+claim_type: test_claim
+difficulty: introductory
+informal_claim:
+  statement: Raw command block test
+  source: null
+  reference_key: null
+semantic_level:
+  primary: algorithmic
+  secondary: []
+objects:
+  - name: readme
+    type: other
+    path: README.md
+    format: markdown
+    role: reference
 specification:
   mode: exact
   preconditions: [test]
   postconditions: [test]
-objects: []
-acceptable_evidence: []
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical: []
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+acceptable_evidence:
+  - type: human_review
+    checker: manual
+    path: null
+    required_for_claim: false
+    trust_level: externally_trusted
 evidence:
   - id: raw_evidence
-    type: simulation
+    type: human_review
     path: README.md
+    checker: manual
     command: echo hello
     status: passing
+trust_boundary:
+  checked_by: []
+  trusted_kernels: []
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked: [raw command test]
+claim_scope:
+  headline_claim_id: raw_cmd_test_headline
+  headline_claim_text: Raw command block test
+  required_obligations: [test]
+proved_scope:
+  checked_obligations: []
+  unproved_obligations: [test]
+headline_claim_status:
+  status: unproved
+  notes: null
 status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: complete
+  ci: passing
   maturity: seed
+references: []
 """
     with tempfile.TemporaryDirectory() as tmp:
         claim = Path(tmp)

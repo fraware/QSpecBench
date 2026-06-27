@@ -187,7 +187,7 @@ def test_smt_no_solver_not_independently_checkable():
         assert not result.get("ok")
 
 
-def test_cnot_kernel_checked_validates():
+def test_cnot_manifest_checked_validates():
     claim = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation"
     results = validate_path(claim)
     assert results and results[0].ok

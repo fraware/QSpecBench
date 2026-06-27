@@ -115,7 +115,12 @@ def _reference_claim_spec() -> dict:
         "checked_obligations": ["ob_a"],
         "unproved_obligations": [],
     }
-    spec["headline_claim_status"] = {"status": "checked", "notes": None}
+    spec["headline_claim_status"] = {
+        "status": "checked",
+        "notes": None,
+        "checked_under": ["finite_matrix_model"],
+        "not_checked_under": ["full_openqasm3"],
+    }
     spec["formal_claims"] = [_formal_claim_for_lean()]
     return spec
 

@@ -165,8 +165,22 @@ def test_unsupported_error_is_value_error():
         _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ngibberish_gate q[0];\n")
 
 
-def test_measurement_and_declarations_are_skipped():
-    data = _extract_from_qasm(
+def test_measurement_fail_closed_without_extraction_policy():
+    qasm = (
+        "OPENQASM 3.0;\n"
+        'include "stdgates.inc";\n'
+        "qubit[2] q;\n"
+        "bit[2] c;\n"
+        "h q[0];\n"
+        "cx q[0], q[1];\n"
+        "c[0] = measure q[0];\n"
+    )
+    with pytest.raises(UnsupportedQasmError):
+        _extract_from_qasm(qasm)
+
+
+def test_measurement_skipped_with_unitary_fragment_policy():
+    qasm = (
         "OPENQASM 3.0;\n"
         'include "stdgates.inc";\n'
         "qubit[2] q;\n"
@@ -177,5 +191,13 @@ def test_measurement_and_declarations_are_skipped():
         "c[0] = measure q[0];\n"
         "c[1] = measure q[1];\n"
     )
-    assert data["n_qubits"] == 2
-    assert data["gates_applied"] == ["h q[0];", "cx q[0], q[1];"]
+    with tempfile.NamedTemporaryFile("w", suffix=".qasm", delete=False, encoding="utf-8") as f:
+        f.write(qasm)
+        path = Path(f.name)
+    try:
+        extraction = {"mode": "unitary_fragment", "allowed_to_skip": ["measurement", "structural"]}
+        data = extract_matrix(path, extraction=extraction)
+        assert data["n_qubits"] == 2
+        assert data["gates_applied"] == ["h q[0];", "cx q[0], q[1];"]
+    finally:
+        path.unlink(missing_ok=True)
