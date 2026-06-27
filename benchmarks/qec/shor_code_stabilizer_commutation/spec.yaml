@@ -141,6 +141,7 @@ qec_claim_scope:
   logical_preservation_small_code: assumed
   code_schema: checked
   logical_preservation_general: out_of_scope
+semantics_base: stabilizer_tableau
 provenance:
   generated_at: '2026-06-27T17:18:30.395009+00:00'
   artifacts:
