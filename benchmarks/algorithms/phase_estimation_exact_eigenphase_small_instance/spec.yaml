@@ -125,6 +125,7 @@ formal_claims:
   - eigenphase_relation
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: phase_estimation_exact_eigenphase_small_instance
+semantics_base: openqasm_fragment
 provenance:
   generated_at: '2026-06-27T17:18:29.050086+00:00'
   artifacts:

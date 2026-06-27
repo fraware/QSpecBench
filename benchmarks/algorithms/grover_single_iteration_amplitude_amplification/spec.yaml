@@ -123,6 +123,7 @@ formal_claims:
   - amplitude_lift
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: grover_single_iteration_amplitude_amplification
+semantics_base: openqasm_fragment
 provenance:
   generated_at: '2026-06-27T17:18:28.943220+00:00'
   artifacts:

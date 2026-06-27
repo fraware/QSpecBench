@@ -135,6 +135,7 @@ formal_claims:
   - artifact_parsing_semantics
   - idealized_gate_semantics
   benchmark_anchor: superdense_coding_decodes_two_classical_bits
+semantics_base: openqasm_fragment
 provenance:
   generated_at: '2026-06-27T17:18:29.130427+00:00'
   artifacts:

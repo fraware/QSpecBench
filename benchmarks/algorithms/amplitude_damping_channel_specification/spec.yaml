@@ -92,6 +92,7 @@ proved_scope:
 headline_claim_status:
   status: unproved
   notes: null
+semantics_base: int_scaffold
 provenance:
   generated_at: '2026-06-27T17:18:28.705235+00:00'
   artifacts:

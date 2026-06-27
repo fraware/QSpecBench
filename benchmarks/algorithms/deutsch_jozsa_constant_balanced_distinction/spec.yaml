@@ -129,6 +129,7 @@ formal_claims:
   - oracle_distinction
   - dj_correctness_for_constant_vs_balanced
   benchmark_anchor: deutsch_jozsa_constant_balanced_distinction
+semantics_base: openqasm_fragment
 provenance:
   generated_at: '2026-06-27T17:18:28.871404+00:00'
   artifacts:

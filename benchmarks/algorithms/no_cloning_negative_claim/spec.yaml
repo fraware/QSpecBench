@@ -130,6 +130,7 @@ formal_claims:
   does_not_support:
   - full_universal_cloner_formalization_beyond_basis
   benchmark_anchor: no_cloning_negative_claim
+semantics_base: int_scaffold
 provenance:
   generated_at: '2026-06-27T17:18:29.010155+00:00'
   artifacts:
