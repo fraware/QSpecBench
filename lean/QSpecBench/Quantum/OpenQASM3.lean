@@ -278,8 +278,8 @@ theorem bridge_bell_prep (i j : Fin 4) :
     denotateOps2 bell_prep_ops i j = bellPrepMatrix i j :=
   denotateOps2_bell_prep i j
 
-/-- RX(π/2) on qubit 0; matches Python `qasm_matrix` unnormalized-H bridge model. -/
-def rx_pi2_ops : List QasmOp := [.rx (Real.pi / 2) 0]
+/-- RX(π/2) on qubit 0; int scaffold maps π/2 to unnormalized H. -/
+noncomputable def rx_pi2_ops : List QasmOp := [.rx (Real.pi / 2) 0]
 
 theorem denotateOps1C_rx_pi2 (i j : Fin 2) :
     denotateOps1C rx_pi2_ops i j = rxGate (Real.pi / 2) i j := by
@@ -287,16 +287,20 @@ theorem denotateOps1C_rx_pi2 (i j : Fin 2) :
 
 theorem denotateOps1_rx_pi2 (i j : Fin 2) :
     denotateOps1 rx_pi2_ops i j = hadamard2 i j := by
-  fin_cases i <;> fin_cases j <;> rfl
+  fin_cases i <;> fin_cases j <;> simp [denotateOps1, rx_pi2_ops, mul2, hadamard2]
 
-theorem bridge_rx_pi2_eq_h (i j : Fin 2) :
-    denotateOps1C rx_pi2_ops i j = hadamardC i j := by
-  rw [denotateOps1C_rx_pi2]
-  fin_cases i <;> fin_cases j <;>
-    simp [rxGateEntry, hadamardEntry, rxGate, hadamardC, Matrix.of_apply]
+/-- Complex denotation of RX(π/2) matches standard rotation matrix (not unnormalized H). -/
+theorem bridge_rx_pi2_denotation (i j : Fin 2) :
+    denotateOps1C rx_pi2_ops i j = rxGate (Real.pi / 2) i j :=
+  denotateOps1C_rx_pi2 i j
+
+/-- Int scaffold: RX(π/2) denoted as unnormalized H (Python int-bridge model). -/
+theorem bridge_rx_pi2_int_eq_h (i j : Fin 2) :
+    denotateOps1 rx_pi2_ops i j = hadamard2 i j :=
+  denotateOps1_rx_pi2 i j
 
 /-- Legacy parser-plumbing alias; prefer `rx_pi2_ops`. -/
-def rx_parser_plumbing_ops : List QasmOp := rx_pi2_ops
+noncomputable def rx_parser_plumbing_ops : List QasmOp := rx_pi2_ops
 
 theorem bridge_rx_parser_plumbing (i j : Fin 2) :
     denotateOps1 rx_parser_plumbing_ops i j = hadamard2 i j :=
