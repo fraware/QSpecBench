@@ -182,19 +182,20 @@ theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
   intro h
   have ne_entry : pauliX0 0 2 ≠ pauliX1 0 2 := by
     simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry]
+    decide
   exact ne_entry (congr_fun (congr_fun h 0) 2)
 
 private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
     simp [Matrix.mul_apply, Matrix.of_apply, pauliX0Entry, pauliX1Entry, Fin.sum_univ_four]
-    <;> ring_nf
+    <;> norm_num
 
 private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [Matrix.mul_apply, Matrix.of_apply, pauliY0Entry, pauliY1Entry, Fin.sum_univ_four]
-    <;> ring_nf
+    simp [Matrix.mul_apply, Matrix.of_apply, pauliY0Entry, pauliY1Entry, Fin.sum_univ_four, Complex.I_mul_I]
+    <;> norm_num
 
 private theorem pauliZ0_eq_diagonal : pauliZ0 = Matrix.diagonal fun i => pauliZ1Entry i i := by
   ext i j

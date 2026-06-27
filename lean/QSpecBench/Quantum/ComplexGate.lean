@@ -2,7 +2,7 @@ import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Complex.Exponential
 import Mathlib.Data.Matrix.Notation
 import Mathlib.Data.Real.Basic
-import Mathlib.Data.Real.Pi
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Tactic.FinCases
 
 /-!
