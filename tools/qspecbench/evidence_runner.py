@@ -222,8 +222,16 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
             else:
                 try:
                     payload = json.loads(proc.stdout.splitlines()[-1]) if proc.stdout.strip() else {}
-                    if payload.get("ok") is False:
-                        result.errors.append(payload.get("error", "adapter reported ok=false"))
+                    if payload.get("skipped"):
+                        result.skipped = True
+                        result.skip_reason = payload.get("notes") or payload.get("skip_reason") or "adapter skipped"
+                        result.exit_code = 0
+                    elif payload.get("ok") is False:
+                        detail = payload.get("errors")
+                        if isinstance(detail, list) and detail:
+                            result.errors.extend(str(e) for e in detail)
+                        else:
+                            result.errors.append(payload.get("error", "adapter reported ok=false"))
                         result.exit_code = 1
                 except json.JSONDecodeError:
                     pass
