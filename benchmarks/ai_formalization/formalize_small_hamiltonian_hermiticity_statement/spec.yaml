@@ -158,14 +158,14 @@ ai_formalization_status:
   library_compatible: true
   proof_completed: true
 provenance:
-  generated_at: '2026-06-27T17:04:39.947970+00:00'
+  generated_at: '2026-06-27T17:18:28.497368+00:00'
   artifacts:
   - path: artifacts/source.txt
-    sha256: 1294517f058115e0ba43f0dd3c945c9eebc95c2545911baed4b63e378d07957e
+    sha256: c4169bc8b17d92118bbb2d023d14e309a403fb2ac40ab0d330cf9e59f69eb6f0
     role: source
   - path: artifacts/draft.lean
-    sha256: 14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980
+    sha256: 7d7758082fe2506b3ebe10c646fef9938a3881b2fba7ef2834a42c6fe562e700
     role: generated
   - path: notes/semantic_rubric.md
-    sha256: 71ff41c1754ab97888a03d315c6b280bc08ff643ba98dcc740ec460a961d3a4f
+    sha256: 99b299b2d6c1848aeff9dc0446c1dec9af2649f142c7fb31b917c9182d688017
     role: specification

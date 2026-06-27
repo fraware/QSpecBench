@@ -1,11 +1,11 @@
 {
   "benchmark_id": "detector_model_sanity_check",
-  "generated_at": "2026-06-27T17:04:41.861944+00:00",
+  "generated_at": "2026-06-27T17:18:30.152368+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/detector_model.json",
-      "sha256": "e0e7ebee875691cc60a4a76a70cad8597c60b267bae0fdaafe8f952e725de345",
+      "sha256": "d22dc55cab6669c750e71ccec911c6676cca63eedd119fa18ef9586a572f3028",
       "role": "specification"
     }
   ]

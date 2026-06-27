@@ -148,8 +148,8 @@ qec_claim_scope:
   logical_preservation_general: out_of_scope
 semantics_base: stabilizer_tableau
 provenance:
-  generated_at: '2026-06-27T17:04:41.941706+00:00'
+  generated_at: '2026-06-27T17:18:30.192867+00:00'
   artifacts:
   - path: artifacts/code.json
-    sha256: 645933c63d92204037f5f25487b3ee6a96ba8782c60dc3b2addb03b62222627b
+    sha256: 90e22de1b076f3405ca29afa85c94a9abd6e46a7502c42f17ad444b73798161c
     role: specification

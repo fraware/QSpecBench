@@ -11,6 +11,6 @@
   "bridge_evidence_id": "bridge_verify",
   "qasm_artifact": "artifacts/bell_prep_scaffold.qasm",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
-  "artifact_sha256": "d87d8ea8a4cf67bc98239b73f29a3a0ad9a6e5014f1eed1a306bfc2bfc6a958b",
+  "artifact_sha256": "93869a92d474eaf8005bee65bd302e929abc93bc4a5cae85a93e4c156e3154ce",
   "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f"
 }

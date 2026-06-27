@@ -48,18 +48,21 @@ def _syndrome_from_error(stabilizers: list[str], error_pauli: str) -> str:
 
 
 def _error_pauli_for_label(label: str, n: int) -> str:
-    """Map shorthand like X0, X1 to n-qubit Pauli string."""
+    """Map shorthand like X0, Z1 or full n-qubit Pauli strings."""
     label = label.strip()
     if label in {"I", "III"} or label == "identity":
         return "I" * n
-    m = re.match(r"^X(\d+)$", label)
-    if m:
-        idx = int(m.group(1))
-        if not (0 <= idx < n):
-            raise ValueError(f"X index {idx} out of range for n={n} in label {label!r}")
-        chars = ["I"] * n
-        chars[idx] = "X"
-        return "".join(chars)
+    for pauli in "XYZ":
+        m = re.match(rf"^{pauli}(\d+)$", label)
+        if m:
+            idx = int(m.group(1))
+            if not (0 <= idx < n):
+                raise ValueError(
+                    f"{pauli} index {idx} out of range for n={n} in label {label!r}"
+                )
+            chars = ["I"] * n
+            chars[idx] = pauli
+            return "".join(chars)
     if PAULI_RE.match(label) and len(label) == n:
         return label
     raise ValueError(f"unknown or malformed error label {label!r} for n={n}")
@@ -487,11 +490,25 @@ def check(path: Path) -> dict:
     return result
 
 
+def _resolve_check_target(path: Path) -> Path:
+    """Evidence may store qec_verifier_result.json; validate the underlying code.json."""
+    if path.name == "qec_verifier_result.json":
+        code = path.parent.parent / "artifacts" / "code.json"
+        if code.is_file():
+            return code
+    return path
+
+
 def main() -> None:
     path = Path(sys.argv[1])
-    result = check(path)
-    out = path.with_suffix(".validated.json")
-    out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    target = _resolve_check_target(path)
+    result = check(target)
+    if target != path:
+        result["evidence_path"] = str(path)
+        result["path"] = str(target)
+    out = path.with_suffix(".validated.json") if path.name != "qec_verifier_result.json" else None
+    if out is not None:
+        out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result))
     sys.exit(0 if result["ok"] else 1)
 

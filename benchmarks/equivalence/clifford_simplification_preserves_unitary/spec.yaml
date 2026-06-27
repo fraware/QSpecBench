@@ -159,12 +159,12 @@ formal_claims:
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: clifford_simplification_preserves_unitary
 provenance:
-  generated_at: '2026-06-27T17:04:40.647089+00:00'
+  generated_at: '2026-06-27T17:18:29.359375+00:00'
   artifacts:
   - path: artifacts/source.qasm
-    sha256: b36d87ee22badf64677de5482b3751137468d2934811abfc35e8d36a5945fa74
+    sha256: 929766d92f5a9bb80e986776e5a74023f01deae1d78d0be0bbd78bc40cea7876
     role: source
   - path: artifacts/target.qasm
-    sha256: a8ee6125167c16d226bf0566ca803cb41e8716f5bfb9b526c4183dfec3a86843
+    sha256: b64706e2d1603b550ad1f7702914aac884098448a61977baa881d3e7bc90e6f4
     role: target
 semantics_base: complex_matrix

@@ -93,8 +93,8 @@ headline_claim_status:
   status: unproved
   notes: null
 provenance:
-  generated_at: '2026-06-27T17:04:40.106367+00:00'
+  generated_at: '2026-06-27T17:18:28.705235+00:00'
   artifacts:
   - path: artifacts/channel.json
-    sha256: 363601926e3726d1ef85b8abc69746fd73c85c234c3d5400aa61c12bbc2375ec
+    sha256: d90d42c9324c0c9b3c8fcdeaac66317b3de4f68f37ae5179f5cd5dbee9cb9c36
     role: specification

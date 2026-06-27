@@ -215,12 +215,12 @@ formal_claims:
   - openqasm_full_language
   benchmark_anchor: cnot_self_inverse_cancellation
 provenance:
-  generated_at: '2026-06-27T17:04:40.705602+00:00'
+  generated_at: '2026-06-27T17:18:29.419614+00:00'
   artifacts:
   - path: artifacts/source.qasm
-    sha256: 8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de
+    sha256: cb1e1e91496dd761ac2ec2c06b077e619452fd3804162aa646a054aa02a37354
     role: source
   - path: artifacts/target.qasm
-    sha256: 6c47289bf55ea8115636bede3deb8f6f79ca259c7ff0ffce7a57e15684e613f3
+    sha256: bd4afd3a5a3b1ff5c62c38c9bf50d331b4da99be35c0696b75f3c94a4aa099d0
     role: target
 semantics_base: openqasm_fragment

@@ -162,17 +162,17 @@ qec_claim_scope:
   code_schema: checked
   logical_preservation_general: out_of_scope
 provenance:
-  generated_at: '2026-06-27T17:04:43.004994+00:00'
+  generated_at: '2026-06-27T17:18:30.722972+00:00'
   artifacts:
   - path: artifacts/code.json
-    sha256: d9ceb953853263aaf9863f452b2f2805de04d2697a7f28de4758b3c8e2060c7c
+    sha256: 1082671e89c29ac0f3deb16cdfbaa48e7c204124d495e5de294017939b06662c
     role: specification
   - path: artifacts/error_model.json
-    sha256: f8fc122929de9ca1d19be79189225477a65af584f7402bb8c98c44596ffe4d17
+    sha256: 551c4e4dd1eb872cc6c25d6095ab2051e7f988a593a432b404b706eb835725c3
     role: specification
   - path: artifacts/syndrome_table.json
-    sha256: 85a3f9610d960449c3081a451d5e1a184b4b087a7d2295c1f10ca01732a09769
+    sha256: 85f79ea2c1e0a4c5bf60d1285d230164801a8ce2eb3b85c4467cae313075aeff
     role: reference
   - path: artifacts/correction_table.json
-    sha256: 40e188962bdafc71001a822cd9423530a06a56673d7c18c04b47197d834d6f77
+    sha256: 3a77fb704b3d0321ab0b8fb3b016df202c3b2a40bb40d816c1810cd832b5bba7
     role: reference

@@ -10,6 +10,13 @@
     "distance_consistency",
     "distance_min_weight_bruteforce"
   ],
+  "check_results": {
+    "structure": true,
+    "syndrome": null,
+    "correction": null,
+    "logical_preservation": null,
+    "distance": true
+  },
   "warnings": [
     "fewer stabilizers than n-k; code may be under-specified",
     "declared distance is metadata only; it is not a machine-checked distance proof"

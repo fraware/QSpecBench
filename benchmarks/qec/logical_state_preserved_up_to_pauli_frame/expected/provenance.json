@@ -1,11 +1,11 @@
 {
   "benchmark_id": "logical_state_preserved_up_to_pauli_frame",
-  "generated_at": "2026-06-27T17:04:41.995645+00:00",
+  "generated_at": "2026-06-27T17:18:30.234370+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/code.json",
-      "sha256": "1725bb825ac7382b7d3d5286cdad791fecd4ef11f2dde1b52df61ed7197bcb1e",
+      "sha256": "351c37691b2cb7276c1eb7d8d23c5e155e1b921cb771fb670a37792814e4163e",
       "role": "specification"
     }
   ]

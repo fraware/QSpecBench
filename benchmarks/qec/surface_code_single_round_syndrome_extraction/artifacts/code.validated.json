@@ -1,5 +1,5 @@
 {
-  "ok": false,
+  "ok": true,
   "adapter": "qec_json_validator",
   "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\surface_code_single_round_syndrome_extraction\\artifacts\\code.json",
   "trust_level": "tool_checked",
@@ -17,15 +17,17 @@
     "single_pauli_error_correction_validator",
     "distance_min_weight_bruteforce"
   ],
+  "check_results": {
+    "structure": true,
+    "syndrome": true,
+    "correction": true,
+    "logical_preservation": true,
+    "distance": true
+  },
   "warnings": [
     "declared distance is metadata only; it is not a machine-checked distance proof"
   ],
-  "errors": [
-    "syndrome mismatch for error 'X1': table='01' computed='11'",
-    "syndrome mismatch for error 'X2': table='11' computed='01'",
-    "logical preservation failed: error 'IIX' + correction 'IXI' = 'IXX' not in stabilizer group",
-    "logical preservation failed: error 'IXI' + correction 'IIX' = 'IXX' not in stabilizer group"
-  ],
+  "errors": [],
   "distance_result": {
     "method": "bruteforce_min_weight_logical_operator",
     "computed_min_weight": 3,

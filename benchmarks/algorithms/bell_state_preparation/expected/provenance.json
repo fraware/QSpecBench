@@ -1,11 +1,11 @@
 {
   "benchmark_id": "bell_state_preparation",
-  "generated_at": "2026-06-27T17:04:40.147031+00:00",
+  "generated_at": "2026-06-27T17:18:28.793058+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/circuit.qasm",
-      "sha256": "615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b",
+      "sha256": "ce49d4e871f80cc36e550cadd5559c84fb63af50a0cf3bf29a297d769ce723fa",
       "role": "source"
     }
   ]

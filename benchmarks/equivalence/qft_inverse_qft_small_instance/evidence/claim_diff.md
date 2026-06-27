@@ -1,9 +1,9 @@
 # Claim diff: qft_inverse_qft_small_instance
 
-<!-- scope_fingerprint: 6e4305b3ad2b4c7f126af5211e73a14e0d65095589e52fd284d5a0989b2a6836 -->
+<!-- scope_fingerprint: ab27d344b4122b9f975477738038c49d0c28ae7cde651a7a0bf7b918816e385c -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
 QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold.
@@ -23,4 +23,4 @@ QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold.
 - [ ] openqasm_h_normalization_matches_lean_integer_mo
 
 ## Gap
-- Headline not marked checked despite obligation coverage; review maturity label.
+- None among declared required obligations.

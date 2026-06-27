@@ -10,6 +10,6 @@
   "qasm_artifact": "artifacts/circuit.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
-  "artifact_sha256": "17b46fbc8e08de97a0b9c83f08773bb611a82a4af12eb66fee034602652d4406",
+  "artifact_sha256": "d0f63cc2ee48b0385947548ada10d0a0e3ad83f7bbf0c81280822d67e2a9df5e",
   "gate_trace_sha256": "188cd3a97a12d3c0e98f96aec78b19edf79c45780ab2f37f569840fb9a0ad1f1"
 }

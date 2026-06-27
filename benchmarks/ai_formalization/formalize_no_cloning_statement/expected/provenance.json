@@ -1,21 +1,21 @@
 {
   "benchmark_id": "formalize_no_cloning_statement",
-  "generated_at": "2026-06-27T17:04:39.815524+00:00",
+  "generated_at": "2026-06-27T17:18:28.345061+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/source.txt",
-      "sha256": "2dc460701d1c7a0bcbc9983a43536abfd662b3e47f3305b3fbc5629105b6ec4f",
+      "sha256": "e3a82f668e00bbd7440faba4321c5b534d4440405687fa7d88321efe1c44ec3b",
       "role": "source"
     },
     {
       "path": "artifacts/draft.lean",
-      "sha256": "690b3552f83f0ddaa0dc84fd7b27c4a704026eba42b88451549687097283b77e",
+      "sha256": "4abf05ea5285114edf14d5c7050e193f62baac7b589587b1298b88618d7261a7",
       "role": "generated"
     },
     {
       "path": "notes/semantic_rubric.md",
-      "sha256": "c639d502c66f3650d8c231941dc7b31f4c45b4c730dd006db96b269fd9722f3c",
+      "sha256": "b5b139ef7352e7b27cd55649ee8ea35fee4e0cd62e4dd51a00869170e6ca5cbd",
       "role": "specification"
     }
   ]

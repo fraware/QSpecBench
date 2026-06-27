@@ -1,11 +1,11 @@
 {
   "benchmark_id": "repetition_code_three_one_three",
-  "generated_at": "2026-06-27T17:04:42.096538+00:00",
+  "generated_at": "2026-06-27T17:18:30.315514+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/code.json",
-      "sha256": "1bcdcc523c43fd90910ed306a2f7ee3c46507fd7b768e2f1f506888aa8ebb03f",
+      "sha256": "5133e19b9be0e2767b95aa4b50c5b794603f7ff41adc955b1c01141d7c40541c",
       "role": "specification"
     }
   ]

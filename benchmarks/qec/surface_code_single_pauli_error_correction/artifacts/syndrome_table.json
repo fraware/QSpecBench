@@ -17,12 +17,12 @@
       "correction": "XII"
     },
     {
-      "syndrome": "01",
+      "syndrome": "11",
       "error": "X1",
       "correction": "IXI"
     },
     {
-      "syndrome": "11",
+      "syndrome": "01",
       "error": "X2",
       "correction": "IIX"
     }

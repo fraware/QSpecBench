@@ -11,11 +11,11 @@
       "correction": "XII"
     },
     {
-      "syndrome": "01",
+      "syndrome": "11",
       "correction": "IXI"
     },
     {
-      "syndrome": "11",
+      "syndrome": "01",
       "correction": "IIX"
     }
   ]

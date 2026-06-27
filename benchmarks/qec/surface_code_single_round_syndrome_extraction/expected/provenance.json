@@ -1,11 +1,11 @@
 {
   "benchmark_id": "surface_code_single_round_syndrome_extraction",
-  "generated_at": "2026-06-27T17:04:42.565817+00:00",
+  "generated_at": "2026-06-27T17:18:30.598712+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/code.json",
-      "sha256": "a0b44e906540cf7b144d9679be959750c984b8317f97d3c6fecc57909e1b8534",
+      "sha256": "ec363f89c6a67f1fb6f22ccdcccb14980aa8d258e2873500f3a2321823f6f976",
       "role": "specification"
     }
   ]

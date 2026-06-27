@@ -1,11 +1,11 @@
 {
   "benchmark_id": "single_trotter_step_declares_error_contract",
-  "generated_at": "2026-06-27T17:04:41.647674+00:00",
+  "generated_at": "2026-06-27T17:18:30.026948+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/hamiltonian.json",
-      "sha256": "df20bd7ef54135045eacf25062a7c9041b49aa17cf31f322742220dbeb98fc5f",
+      "sha256": "d49386eb31013695ed0d8cb563f99877f811e26eeb528cc55fef7b01ed3a189e",
       "role": "source"
     }
   ]

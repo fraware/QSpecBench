@@ -5,7 +5,7 @@
     {
       "benchmark_id": "cnot_self_inverse_cancellation",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de",
+      "artifact_sha256": "cb1e1e91496dd761ac2ec2c06b077e619452fd3804162aa646a054aa02a37354",
       "gate_trace": [
         [
           "cx",
@@ -33,7 +33,7 @@
     {
       "benchmark_id": "hadamard_conjugates_x_to_z",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "09b180357138f4448a4f62bf9bfb9b50f26002298fc3f53a4954aefd10ce328b",
+      "artifact_sha256": "1acd5d4a1200d4ab90a0f886c784c64d313cf4e3e9bb3304ca9f32349ed9ae78",
       "gate_trace": [
         [
           "h",
@@ -65,7 +65,7 @@
     {
       "benchmark_id": "single_qubit_gate_cancellation",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "90faff4ad649320098f82328250b15f2eaa595b44c7bb9f30afaf06cc5de8e22",
+      "artifact_sha256": "0a616794427bddf2144952d60642bd81229975c1017bdffa850721caa0ccab8a",
       "gate_trace": [
         [
           "h",
@@ -91,7 +91,7 @@
     {
       "benchmark_id": "qft_inverse_qft_small_instance",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "4cd0a80b1e0147b3e8228c0b4b68d445893afd5f19cd931f403ea4b3678477b0",
+      "artifact_sha256": "929eac84843cd608c985c374bfa67fb7906ee0ce64b4c5fdcf742f39ba715c38",
       "gate_trace": [
         [
           "h",
@@ -124,7 +124,7 @@
     {
       "benchmark_id": "swap_from_three_cx",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "33f7ee1282995bfd6e039338f178853d74276c938114aef94c330c1c1e2f4910",
+      "artifact_sha256": "7a86fe448088fb7bff5e67cc627a3b2c257b690b6e8ea3b8c47e6251744684b9",
       "gate_trace": [
         [
           "cx",
@@ -159,7 +159,7 @@
     {
       "benchmark_id": "toffoli_decomposition_equivalence",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "dd93e5017780e2fb1e3ec82d059fc8eee73972aecf205bb844e761fb80cc3b10",
+      "artifact_sha256": "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511",
       "gate_trace": [
         [
           "ccx",
@@ -181,7 +181,7 @@
     {
       "benchmark_id": "circuit_identity_after_layout",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b",
+      "artifact_sha256": "ce49d4e871f80cc36e550cadd5559c84fb63af50a0cf3bf29a297d769ce723fa",
       "gate_trace": [
         [
           "h",
@@ -208,7 +208,7 @@
     {
       "benchmark_id": "source_optimized_qasm_equivalence_small_instance",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "1a8a859ad6f05d8ca76ea2791b442e0e0dd0d6c9ca1924b31c95320e59f65c6d",
+      "artifact_sha256": "ef022773134724a54f86931c3e90bebd416e5a0e8ccd30367433d2f59ede40d9",
       "gate_trace": [
         [
           "h",
@@ -240,7 +240,7 @@
     {
       "benchmark_id": "bell_state_preparation",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b",
+      "artifact_sha256": "ce49d4e871f80cc36e550cadd5559c84fb63af50a0cf3bf29a297d769ce723fa",
       "gate_trace": [
         [
           "h",
@@ -267,7 +267,7 @@
     {
       "benchmark_id": "clifford_simplification_preserves_unitary",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "b36d87ee22badf64677de5482b3751137468d2934811abfc35e8d36a5945fa74",
+      "artifact_sha256": "929766d92f5a9bb80e986776e5a74023f01deae1d78d0be0bbd78bc40cea7876",
       "gate_trace": [
         [
           "h",
@@ -299,7 +299,7 @@
     {
       "benchmark_id": "phase_polynomial_equivalence_small_instance",
       "qasm_artifact": "artifacts/source.qasm",
-      "artifact_sha256": "60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1",
+      "artifact_sha256": "6f1b1944c97ffcd8b322b52d91dca825488a3b3e6467a987907332c1b1bc9415",
       "gate_trace": [
         [
           "h",

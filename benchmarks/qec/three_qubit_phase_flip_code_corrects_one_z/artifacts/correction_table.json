@@ -5,7 +5,7 @@
   "entries": [
     { "syndrome": "00", "physical_correction": "III" },
     { "syndrome": "10", "physical_correction": "ZII" },
-    { "syndrome": "01", "physical_correction": "IZI" },
-    { "syndrome": "11", "physical_correction": "IIZ" }
+    { "syndrome": "11", "physical_correction": "IZI" },
+    { "syndrome": "01", "physical_correction": "IIZ" }
   ]
 }

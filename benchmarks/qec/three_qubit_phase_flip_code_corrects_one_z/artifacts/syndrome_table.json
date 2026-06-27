@@ -4,7 +4,7 @@
   "entries": [
     { "syndrome": "00", "error": "I", "correction": "III" },
     { "syndrome": "10", "error": "Z0", "correction": "ZII" },
-    { "syndrome": "01", "error": "Z1", "correction": "IZI" },
-    { "syndrome": "11", "error": "Z2", "correction": "IIZ" }
+    { "syndrome": "11", "error": "Z1", "correction": "IZI" },
+    { "syndrome": "01", "error": "Z2", "correction": "IIZ" }
   ]
 }

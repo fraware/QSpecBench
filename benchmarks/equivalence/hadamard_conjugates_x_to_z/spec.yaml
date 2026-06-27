@@ -191,12 +191,12 @@ formal_claims:
   - openqasm_h_normalization_links_integer_model_to_
   benchmark_anchor: hadamard_conjugates_x_to_z
 provenance:
-  generated_at: '2026-06-27T17:04:40.764205+00:00'
+  generated_at: '2026-06-27T17:18:29.482248+00:00'
   artifacts:
   - path: artifacts/source.qasm
-    sha256: 09b180357138f4448a4f62bf9bfb9b50f26002298fc3f53a4954aefd10ce328b
+    sha256: 1acd5d4a1200d4ab90a0f886c784c64d313cf4e3e9bb3304ca9f32349ed9ae78
     role: source
   - path: artifacts/target.qasm
-    sha256: 786bc50ac5673d2d282fed2d8d7f22bb9227bc4924aadeed1c882b3b069cd348
+    sha256: 9f27d28491cc129e3cbc20fad9eabede777ccfa0ced9ef88f917eb0981b62f7e
     role: target
 semantics_base: openqasm_fragment

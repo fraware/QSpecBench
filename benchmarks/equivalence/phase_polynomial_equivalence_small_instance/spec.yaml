@@ -157,12 +157,12 @@ formal_claims:
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: phase_polynomial_equivalence_small_instance
 provenance:
-  generated_at: '2026-06-27T17:04:40.800781+00:00'
+  generated_at: '2026-06-27T17:18:29.541744+00:00'
   artifacts:
   - path: artifacts/source.qasm
-    sha256: 60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1
+    sha256: 6f1b1944c97ffcd8b322b52d91dca825488a3b3e6467a987907332c1b1bc9415
     role: source
   - path: artifacts/target.qasm
-    sha256: 60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1
+    sha256: 6f1b1944c97ffcd8b322b52d91dca825488a3b3e6467a987907332c1b1bc9415
     role: target
 semantics_base: complex_matrix

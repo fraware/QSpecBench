@@ -1,11 +1,11 @@
 {
   "benchmark_id": "pauli_decomposition_matches_source_hamiltonian_small_instance",
-  "generated_at": "2026-06-27T17:04:41.532797+00:00",
+  "generated_at": "2026-06-27T17:18:29.970118+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/hamiltonian.json",
-      "sha256": "b986de3c1ffcfc4befe616edd4c80de48a3c0c92ddc5c82b40e6d7fcf7726fce",
+      "sha256": "a46442a9a54c3b0e7c0b108082407cd28822dfe7e8b29075986c1903384494c5",
       "role": "source"
     }
   ]

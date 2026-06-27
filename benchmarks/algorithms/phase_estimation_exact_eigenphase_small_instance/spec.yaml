@@ -126,8 +126,8 @@ formal_claims:
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: phase_estimation_exact_eigenphase_small_instance
 provenance:
-  generated_at: '2026-06-27T17:04:40.328667+00:00'
+  generated_at: '2026-06-27T17:18:29.050086+00:00'
   artifacts:
   - path: artifacts/circuit.qasm
-    sha256: 5ba3a6a17bace612f63faaf66cc89f0be44bb39822a9376e628acd625ae082e1
+    sha256: 852ed20cef7847279f414e561411392dc5ca44082a16128004aa5b95a0584a78
     role: source

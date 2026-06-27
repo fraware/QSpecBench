@@ -9,6 +9,6 @@
   "claimed_link": "manifest_checked_theorem_binding",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
-  "artifact_sha256": "09b180357138f4448a4f62bf9bfb9b50f26002298fc3f53a4954aefd10ce328b",
+  "artifact_sha256": "1acd5d4a1200d4ab90a0f886c784c64d313cf4e3e9bb3304ca9f32349ed9ae78",
   "gate_trace_sha256": "133c43ba23c657e5712320177947e1712f02a44550210b21062445969484cbf6"
 }

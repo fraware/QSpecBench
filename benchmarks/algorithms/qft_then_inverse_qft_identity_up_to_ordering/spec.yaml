@@ -152,9 +152,9 @@ formal_claims:
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: qft_then_inverse_qft_identity_up_to_ordering
 provenance:
-  generated_at: '2026-06-27T17:04:40.381869+00:00'
+  generated_at: '2026-06-27T17:18:29.099253+00:00'
   artifacts:
   - path: artifacts/circuit.qasm
-    sha256: 17b46fbc8e08de97a0b9c83f08773bb611a82a4af12eb66fee034602652d4406
+    sha256: d0f63cc2ee48b0385947548ada10d0a0e3ad83f7bbf0c81280822d67e2a9df5e
     role: source
 semantics_base: openqasm_fragment

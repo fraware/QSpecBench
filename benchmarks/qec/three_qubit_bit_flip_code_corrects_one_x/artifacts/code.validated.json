@@ -18,6 +18,13 @@
     "single_pauli_error_correction_validator",
     "distance_min_weight_bruteforce"
   ],
+  "check_results": {
+    "structure": true,
+    "syndrome": true,
+    "correction": true,
+    "logical_preservation": true,
+    "distance": true
+  },
   "warnings": [
     "declared distance is metadata only; it is not a machine-checked distance proof"
   ],
