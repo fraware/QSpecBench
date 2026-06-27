@@ -8,10 +8,14 @@ from typing import Any
 from qspecbench.qasm_matrix import (
     ComplexMatrix,
     _apply_rx,
+    _apply_ry,
+    _apply_rz,
     _apply_single,
+    _apply_u,
     _ccx,
     _cnot,
     _cp,
+    _cz,
     _eye,
     _mat_mul,
     _parse_qubit_index,
@@ -32,8 +36,22 @@ def denotate_ops(n_qubits: int, ops: list[Op]) -> ComplexMatrix:
             if angle is None:
                 raise ValueError("rx gate requires angle")
             op = _apply_rx(n_qubits, angle, args[0])
+        elif g == "ry":
+            if angle is None:
+                raise ValueError("ry gate requires angle")
+            op = _apply_ry(n_qubits, angle, args[0])
+        elif g == "rz":
+            if angle is None:
+                raise ValueError("rz gate requires angle")
+            op = _apply_rz(n_qubits, angle, args[0])
+        elif g == "u":
+            if angle is None or len(args) < 4:
+                raise ValueError("u gate requires theta, phi, lambda angles")
+            op = _apply_u(n_qubits, args[1], args[2], args[3], args[0])
         elif g in {"cx", "cnot"}:
             op = _cnot(n_qubits, args[0], args[1])
+        elif g == "cz":
+            op = _cz(n_qubits, args[0], args[1])
         elif g == "ccx":
             op = _ccx(n_qubits, args[0], args[1], args[2])
         elif g == "swap":
@@ -61,6 +79,26 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
             q = _parse_qubit_index(rx.group(2), n)
             ops.append(("rx", (q,), angle))
             continue
+        ry = re.match(r"^\s*ry\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        if ry:
+            angle = float(ry.group(1))
+            q = _parse_qubit_index(ry.group(2), n)
+            ops.append(("ry", (q,), angle))
+            continue
+        rz = re.match(r"^\s*rz\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        if rz:
+            angle = float(rz.group(1))
+            q = _parse_qubit_index(rz.group(2), n)
+            ops.append(("rz", (q,), angle))
+            continue
+        u = re.match(r"^\s*u\s*\(\s*([^)]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", stripped, re.I)
+        if u:
+            angles = [float(x.strip()) for x in u.group(1).split(",")]
+            if len(angles) != 3:
+                raise ValueError(f"U expects three angles: {line}")
+            q = _parse_qubit_index(u.group(2), n)
+            ops.append(("u", (q, angles[0], angles[1], angles[2]), None))
+            continue
         cp = re.match(r"^\s*cp\s*\(\s*([0-9.eE+-]+)\s*\)\s+(.*);?\s*$", stripped, re.I)
         if cp:
             angle = float(cp.group(1))
@@ -71,14 +109,14 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
             continue
         parts = stripped.split(None, 1)
         gate = parts[0].lower()
-        supported = {"i", "x", "y", "z", "h", "s", "t", "sdg", "tdg", "cx", "cnot", "ccx", "swap"}
+        supported = {"i", "x", "y", "z", "h", "s", "t", "sdg", "tdg", "cx", "cnot", "cz", "ccx", "swap"}
         if gate not in supported:
             continue
         arg_text = parts[1] if len(parts) > 1 else ""
         args = tuple(int(m.group(1)) for m in re.finditer(r"\[(\d+)\]", arg_text))
-        if gate in {"cx", "cnot"}:
+        if gate in {"cx", "cnot", "cz"}:
             if len(args) != 2:
-                raise ValueError(f"CX expects two qubit indices: {line}")
+                raise ValueError(f"two-qubit gate expects two qubit indices: {line}")
         elif gate == "ccx":
             if len(args) != 3:
                 raise ValueError(f"CCX expects three qubit indices: {line}")

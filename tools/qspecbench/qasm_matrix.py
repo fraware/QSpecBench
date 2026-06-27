@@ -13,11 +13,23 @@ Cell: TypeAlias = tuple[Fraction, Fraction]
 ComplexMatrix: TypeAlias = list[list[Cell]]
 
 _GATE_LINE = re.compile(
-    r"^\s*(h|x|y|z|s|t|sdg|tdg|cx|cnot|swap|ccx)\s+(.*);?\s*$",
+    r"^\s*(h|x|y|z|s|t|sdg|tdg|cx|cnot|cz|swap|ccx)\s+(.*);?\s*$",
     re.IGNORECASE,
 )
 _RX_LINE = re.compile(
     r"^\s*rx\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
+    re.IGNORECASE,
+)
+_RY_LINE = re.compile(
+    r"^\s*ry\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
+    re.IGNORECASE,
+)
+_RZ_LINE = re.compile(
+    r"^\s*rz\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
+    re.IGNORECASE,
+)
+_U_LINE = re.compile(
+    r"^\s*u\s*\(\s*([^)]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
     re.IGNORECASE,
 )
 _CP_LINE = re.compile(
@@ -142,6 +154,53 @@ def _rx_matrix(theta: float) -> ComplexMatrix:
     return [[_cell(c), _cell(im=-s)], [_cell(im=-s), _cell(c)]]
 
 
+def _ry_matrix(theta: float) -> ComplexMatrix:
+    half = theta / 2.0
+    c = Fraction(math.cos(half)).limit_denominator(10**12)
+    s = Fraction(math.sin(half)).limit_denominator(10**12)
+    return [[_cell(c), _cell(-s)], [_cell(s), _cell(c)]]
+
+
+def _rz_matrix(theta: float) -> ComplexMatrix:
+    half = theta / 2.0
+    re_neg = Fraction(math.cos(-half)).limit_denominator(10**12)
+    im_neg = Fraction(math.sin(-half)).limit_denominator(10**12)
+    re_pos = Fraction(math.cos(half)).limit_denominator(10**12)
+    im_pos = Fraction(math.sin(half)).limit_denominator(10**12)
+    return [[_cell(re_neg, im_neg), _cell()], [_cell(), _cell(re_pos, im_pos)]]
+
+
+def _u_matrix(theta: float, phi: float, lam: float) -> ComplexMatrix:
+    half = theta / 2.0
+    c = Fraction(math.cos(half)).limit_denominator(10**12)
+    s = Fraction(math.sin(half)).limit_denominator(10**12)
+
+    def cis(angle: float) -> Cell:
+        return (
+            Fraction(math.cos(angle)).limit_denominator(10**12),
+            Fraction(math.sin(angle)).limit_denominator(10**12),
+        )
+
+    e_phi = cis(phi)
+    e_lam = cis(lam)
+    e_phi_lam = cis(phi + lam)
+
+    def mul_cell(a: Cell, b: Cell) -> Cell:
+        ar, ai = a
+        br, bi = b
+        return (ar * br - ai * bi, ar * bi + ai * br)
+
+    neg_e_lam_s = mul_cell((-e_lam[0], -e_lam[1]), (s, 0))
+    e_phi_s = mul_cell(e_phi, (s, 0))
+    e_phi_lam_c = mul_cell(e_phi_lam, (c, 0))
+    return [[_cell(c), neg_e_lam_s], [e_phi_s, e_phi_lam_c]]
+
+
+def _parse_angle_list(text: str) -> list[float]:
+    parts = [p.strip() for p in text.split(",") if p.strip()]
+    return [_parse_angle(p) for p in parts]
+
+
 def _sum_cells(cells: list[Cell]) -> Cell:
     re = sum(c[0] for c in cells)
     im = sum(c[1] for c in cells)
@@ -202,6 +261,39 @@ def _apply_rx(n_qubits: int, theta: float, qubit: int) -> ComplexMatrix:
     return result
 
 
+def _apply_ry(n_qubits: int, theta: float, qubit: int) -> ComplexMatrix:
+    op = _ry_matrix(theta)
+    mats: list[ComplexMatrix] = []
+    for q in range(n_qubits):
+        mats.append(op if q == qubit else _eye(2))
+    result = mats[0]
+    for m in mats[1:]:
+        result = _kron(result, m)
+    return result
+
+
+def _apply_rz(n_qubits: int, theta: float, qubit: int) -> ComplexMatrix:
+    op = _rz_matrix(theta)
+    mats: list[ComplexMatrix] = []
+    for q in range(n_qubits):
+        mats.append(op if q == qubit else _eye(2))
+    result = mats[0]
+    for m in mats[1:]:
+        result = _kron(result, m)
+    return result
+
+
+def _apply_u(n_qubits: int, theta: float, phi: float, lam: float, qubit: int) -> ComplexMatrix:
+    op = _u_matrix(theta, phi, lam)
+    mats: list[ComplexMatrix] = []
+    for q in range(n_qubits):
+        mats.append(op if q == qubit else _eye(2))
+    result = mats[0]
+    for m in mats[1:]:
+        result = _kron(result, m)
+    return result
+
+
 def _cnot(n_qubits: int, control: int, target: int) -> ComplexMatrix:
     dim = 1 << n_qubits
     result = _eye(dim)
@@ -238,6 +330,14 @@ def _cp(n_qubits: int, control: int, target: int, theta: float) -> ComplexMatrix
     re = Fraction(math.cos(theta)).limit_denominator(10**12)
     im = Fraction(math.sin(theta)).limit_denominator(10**12)
     result[idx][idx] = _cell(re, im)
+    return result
+
+
+def _cz(n_qubits: int, control: int, target: int) -> ComplexMatrix:
+    dim = 1 << n_qubits
+    result = _eye(dim)
+    idx = (1 << control) | (1 << target)
+    result[idx][idx] = _cell(-1)
     return result
 
 
@@ -346,6 +446,35 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
             gates_applied.append(line)
             continue
 
+        ry = _RY_LINE.match(line)
+        if ry:
+            angle = _parse_angle(ry.group(1))
+            q = _parse_qubit_index(ry.group(2), n)
+            op = _apply_ry(n, angle, q)
+            unitary = _mat_mul(op, unitary)
+            gates_applied.append(line)
+            continue
+
+        rz = _RZ_LINE.match(line)
+        if rz:
+            angle = _parse_angle(rz.group(1))
+            q = _parse_qubit_index(rz.group(2), n)
+            op = _apply_rz(n, angle, q)
+            unitary = _mat_mul(op, unitary)
+            gates_applied.append(line)
+            continue
+
+        u = _U_LINE.match(line)
+        if u:
+            angles = _parse_angle_list(u.group(1))
+            if len(angles) != 3:
+                raise ValueError(f"U expects three angles: {line}")
+            q = _parse_qubit_index(u.group(2), n)
+            op = _apply_u(n, angles[0], angles[1], angles[2], q)
+            unitary = _mat_mul(op, unitary)
+            gates_applied.append(line)
+            continue
+
         cp = _CP_LINE.match(line)
         if cp:
             angle = _parse_angle(cp.group(1))
@@ -378,6 +507,10 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
             if len(args) != 2:
                 raise ValueError(f"SWAP expects two arguments: {line}")
             op = _swap(n, args[0], args[1])
+        elif gate == "cz":
+            if len(args) != 2:
+                raise ValueError(f"CZ expects two arguments: {line}")
+            op = _cz(n, args[0], args[1])
         else:
             if len(args) != 1:
                 raise ValueError(f"single-qubit gate expects one argument: {line}")
