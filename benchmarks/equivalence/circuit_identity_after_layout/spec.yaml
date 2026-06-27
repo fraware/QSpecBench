@@ -166,7 +166,7 @@ formal_claims:
   - register_renaming_semantics_beyond_isomorphic_ma
   benchmark_anchor: circuit_identity_after_layout
 provenance:
-  generated_at: '2026-06-27T13:35:50.123218+00:00'
+  generated_at: '2026-06-27T17:04:40.601775+00:00'
   artifacts:
   - path: artifacts/source.qasm
     sha256: 615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b

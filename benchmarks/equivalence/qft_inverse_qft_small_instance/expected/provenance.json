@@ -1,6 +1,6 @@
 {
   "benchmark_id": "qft_inverse_qft_small_instance",
-  "generated_at": "2026-06-27T13:35:50.400987+00:00",
+  "generated_at": "2026-06-27T17:04:40.849191+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {

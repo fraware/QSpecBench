@@ -123,7 +123,7 @@ hamiltonian_claim_scope:
   claim_class: declared_contract_claim
   derivation_status: declared_only
 provenance:
-  generated_at: '2026-06-27T13:35:50.857440+00:00'
+  generated_at: '2026-06-27T17:04:41.607171+00:00'
   artifacts:
   - path: artifacts/hamiltonian.json
     sha256: 52591d7b61d5901772df6462f92848c62ab158b935a3839cde2b760228be8d97

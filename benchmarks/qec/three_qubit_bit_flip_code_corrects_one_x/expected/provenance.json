@@ -1,6 +1,6 @@
 {
   "benchmark_id": "three_qubit_bit_flip_code_corrects_one_x",
-  "generated_at": "2026-06-27T13:35:51.572041+00:00",
+  "generated_at": "2026-06-27T17:04:42.899461+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {

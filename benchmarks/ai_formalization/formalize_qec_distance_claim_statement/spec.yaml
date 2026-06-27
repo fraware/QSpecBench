@@ -150,7 +150,7 @@ ai_formalization_status:
   library_compatible: true
   proof_completed: true
 provenance:
-  generated_at: '2026-06-27T13:35:49.422079+00:00'
+  generated_at: '2026-06-27T17:04:39.864222+00:00'
   artifacts:
   - path: artifacts/source.txt
     sha256: 3d2ab96b07ba328cfedeafb42806a94aeec2f5af748f5e00f72ed50322b6f8a5

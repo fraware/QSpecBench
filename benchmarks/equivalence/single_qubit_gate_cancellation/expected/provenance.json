@@ -1,6 +1,6 @@
 {
   "benchmark_id": "single_qubit_gate_cancellation",
-  "generated_at": "2026-06-27T13:35:50.506212+00:00",
+  "generated_at": "2026-06-27T17:04:41.133534+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {

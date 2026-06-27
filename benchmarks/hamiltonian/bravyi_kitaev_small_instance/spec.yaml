@@ -95,7 +95,7 @@ hamiltonian_claim_scope:
   claim_class: mapping_sanity_claim
   derivation_status: not_applicable
 provenance:
-  generated_at: '2026-06-27T13:35:50.677577+00:00'
+  generated_at: '2026-06-27T17:04:41.347276+00:00'
   artifacts:
   - path: artifacts/hamiltonian.json
     sha256: 02916d1ac6d90b0b113296fb12556d5e6e8ea6f943e075fdabab19f77b2b80d3

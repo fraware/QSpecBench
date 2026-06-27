@@ -136,7 +136,7 @@ formal_claims:
   - idealized_gate_semantics
   benchmark_anchor: superdense_coding_decodes_two_classical_bits
 provenance:
-  generated_at: '2026-06-27T13:35:49.947459+00:00'
+  generated_at: '2026-06-27T17:04:40.414172+00:00'
   artifacts:
   - path: artifacts/circuit.qasm
     sha256: 261abac24956acf2767109a5d303cc5d454a24100095d07e346e8e36ecd2f73f

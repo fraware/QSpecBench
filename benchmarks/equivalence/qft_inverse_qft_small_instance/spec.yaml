@@ -136,7 +136,18 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+    domain_semantics_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -159,8 +170,15 @@ proved_scope:
   unproved_obligations:
   - openqasm_h_normalization_matches_lean_integer_mo
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: All declared required obligations are kernel- or manifest-checked under the
+    stated two-qubit QFT scaffold model.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_openqasm3
+  - general_n_qubit_qft
 formal_claims:
 - id: formal_lean_qft_proof
   evidence_id: lean_qft_proof
@@ -184,7 +202,7 @@ formal_claims:
   - openqasm_h_normalization_matches_lean_integer_mo
   benchmark_anchor: qft_inverse_qft_small_instance
 provenance:
-  generated_at: '2026-06-27T13:35:50.400987+00:00'
+  generated_at: '2026-06-27T17:04:40.849191+00:00'
   artifacts:
   - path: artifacts/source.qasm
     sha256: 4cd0a80b1e0147b3e8228c0b4b68d445893afd5f19cd931f403ea4b3678477b0

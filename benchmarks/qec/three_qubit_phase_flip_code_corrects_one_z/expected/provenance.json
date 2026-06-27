@@ -1,6 +1,6 @@
 {
   "benchmark_id": "three_qubit_phase_flip_code_corrects_one_z",
-  "generated_at": "2026-06-27T13:35:51.624360+00:00",
+  "generated_at": "2026-06-27T17:04:43.004994+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
@@ -15,12 +15,12 @@
     },
     {
       "path": "artifacts/syndrome_table.json",
-      "sha256": "ec164a147c6ae0cd207fa6269d488130eb2ce867dd7ccf0ee2bb99ecb199dccc",
+      "sha256": "85a3f9610d960449c3081a451d5e1a184b4b087a7d2295c1f10ca01732a09769",
       "role": "reference"
     },
     {
       "path": "artifacts/correction_table.json",
-      "sha256": "ef6349f34791a640016182ef9a4492e5fc96a95f43c98142a9508a4d05faff2d",
+      "sha256": "40e188962bdafc71001a822cd9423530a06a56673d7c18c04b47197d834d6f77",
       "role": "reference"
     }
   ]

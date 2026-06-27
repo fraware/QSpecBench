@@ -1,6 +1,6 @@
 {
   "benchmark_id": "qft_then_inverse_qft_identity_up_to_ordering",
-  "generated_at": "2026-06-27T13:35:49.893091+00:00",
+  "generated_at": "2026-06-27T17:04:40.381869+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {

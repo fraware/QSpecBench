@@ -160,7 +160,7 @@ formal_claims:
   - global_phase_between_rx_and_h
   benchmark_anchor: rx_gate_equivalence_small_instance
 provenance:
-  generated_at: '2026-06-27T13:35:50.444309+00:00'
+  generated_at: '2026-06-27T17:04:40.936409+00:00'
   artifacts:
   - path: artifacts/source.qasm
     sha256: 4fec79d87518dd7431f762a7449ebdc2eaa9ddf0532c8a972f09ec36d54684bd

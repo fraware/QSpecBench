@@ -73,7 +73,8 @@ evidence:
   path: evidence/qec_verifier_result.json
   checker: qec json validator
   status: passing
-  notes: Brute-force min logical weight computed (d=4); declared parameter d=3 remains declared_only.
+  notes: Brute-force min logical weight computed (d=4); declared parameter d=3 remains
+    declared_only.
 - id: smt_distance_cert
   type: smt_certificate
   path: evidence/distance_claim.certificate.json
@@ -147,7 +148,7 @@ qec_claim_scope:
   logical_preservation_general: out_of_scope
 semantics_base: stabilizer_tableau
 provenance:
-  generated_at: '2026-06-27T13:35:51.127407+00:00'
+  generated_at: '2026-06-27T17:04:41.941706+00:00'
   artifacts:
   - path: artifacts/code.json
     sha256: 645933c63d92204037f5f25487b3ee6a96ba8782c60dc3b2addb03b62222627b

@@ -1,6 +1,6 @@
 {
   "benchmark_id": "teleportation_preserves_state_up_to_pauli_correction",
-  "generated_at": "2026-06-27T13:35:50.070023+00:00",
+  "generated_at": "2026-06-27T17:04:40.543743+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {

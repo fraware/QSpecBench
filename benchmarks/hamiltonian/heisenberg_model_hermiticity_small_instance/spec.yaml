@@ -127,7 +127,7 @@ hamiltonian_claim_scope:
   claim_class: hermiticity_claim
   derivation_status: checked
 provenance:
-  generated_at: '2026-06-27T13:35:50.722748+00:00'
+  generated_at: '2026-06-27T17:04:41.398095+00:00'
   artifacts:
   - path: artifacts/hamiltonian.json
     sha256: 60ed60e3f7564d6aebc39f8c760f0ff2785eeb0c20321deb03fcea29b94c97c2

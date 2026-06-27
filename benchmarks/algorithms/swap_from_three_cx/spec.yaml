@@ -182,7 +182,7 @@ formal_claims:
   - unitary_equivalence_beyond_declared_gate_subset
   benchmark_anchor: swap_from_three_cx
 provenance:
-  generated_at: '2026-06-27T13:35:50.004338+00:00'
+  generated_at: '2026-06-27T17:04:40.471067+00:00'
   artifacts:
   - path: artifacts/source.qasm
     sha256: 33f7ee1282995bfd6e039338f178853d74276c938114aef94c330c1c1e2f4910

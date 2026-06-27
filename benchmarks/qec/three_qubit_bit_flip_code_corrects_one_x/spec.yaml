@@ -93,7 +93,8 @@ evidence:
   path: evidence/qec_verifier_result.json
   checker: qec json validator
   status: passing
-  notes: Structure, syndrome/correction tables, logical preservation brute-force, and distance metadata.
+  notes: Structure, syndrome/correction tables, logical preservation brute-force,
+    and distance metadata.
 - id: lean_stabilizer_commutation
   type: lean_proof
   path: evidence/bit_flip_stabilizers.lean
@@ -111,7 +112,8 @@ trust_boundary:
   checked_by:
   - stabilizer code JSON schema validation with commutation checks
   - Lean 4 kernel proof of stabilizer commutation
-  - QEC validator syndrome/correction table alignment and logical-preservation brute force
+  - QEC validator syndrome/correction table alignment and logical-preservation brute
+    force
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
@@ -145,7 +147,8 @@ proof_obligations:
   notes: Decoder assumed per trust boundary
 - id: correction_claim
   status: partial
-  notes: Lookup-table correction checked by brute-force validator; decoder algorithm assumed
+  notes: Lookup-table correction checked by brute-force validator; decoder algorithm
+    assumed
 claim_scope:
   headline_claim_id: three_qubit_bit_flip_code_corrects_one_x_headline
   headline_claim_text: The three-qubit bit-flip code corrects any single X error on
@@ -165,8 +168,9 @@ proved_scope:
   - repeated_round_fault_tolerance
 headline_claim_status:
   status: partially_checked
-  notes: Syndrome/correction tables and logical preservation checked for declared single-X
-    error model; decoder algorithm and extraction circuits remain out of scope.
+  notes: Syndrome/correction tables and logical preservation checked for declared
+    single-X error model; decoder algorithm and extraction circuits remain out of
+    scope.
 formal_claims:
 - id: formal_lean_stabilizer_commutation
   evidence_id: lean_stabilizer_commutation
@@ -197,7 +201,7 @@ qec_claim_scope:
   logical_preservation_general: out_of_scope
 semantics_base: stabilizer_tableau
 provenance:
-  generated_at: '2026-06-27T13:35:51.572041+00:00'
+  generated_at: '2026-06-27T17:04:42.899461+00:00'
   artifacts:
   - path: artifacts/code.json
     sha256: 529481f082113364e795aefc29b5a86b3404a03dbd0b3821348729a29b016ff0

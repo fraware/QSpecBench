@@ -130,7 +130,7 @@ formal_claims:
   - dj_correctness_for_constant_vs_balanced
   benchmark_anchor: deutsch_jozsa_constant_balanced_distinction
 provenance:
-  generated_at: '2026-06-27T13:35:49.730380+00:00'
+  generated_at: '2026-06-27T17:04:40.186542+00:00'
   artifacts:
   - path: artifacts/circuit.qasm
     sha256: 5b71eb98f196e0138347cad2c22ce109d62abd63e87318928c12e74672cd66ab

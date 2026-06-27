@@ -131,7 +131,7 @@ formal_claims:
   - full_universal_cloner_formalization_beyond_basis
   benchmark_anchor: no_cloning_negative_claim
 provenance:
-  generated_at: '2026-06-27T13:35:49.807947+00:00'
+  generated_at: '2026-06-27T17:04:40.285635+00:00'
   artifacts:
   - path: notes/cloning_channel.md
     sha256: e00bae65f122a294a68e7320206501a4d8675032080644723eb689a748a8e275

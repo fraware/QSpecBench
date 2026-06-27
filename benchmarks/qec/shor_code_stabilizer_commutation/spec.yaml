@@ -142,7 +142,7 @@ qec_claim_scope:
   code_schema: checked
   logical_preservation_general: out_of_scope
 provenance:
-  generated_at: '2026-06-27T13:35:51.317772+00:00'
+  generated_at: '2026-06-27T17:04:42.154420+00:00'
   artifacts:
   - path: artifacts/code.json
     sha256: 12a8c4c74b71ff98803876e0e0c40459c6d27503e26a0145207623121618b732

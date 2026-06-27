@@ -128,7 +128,7 @@ evidence:
 trust_boundary:
   checked_by:
   - QASM syntax parse on source and target
-  - "Lean 4 kernel proof of CX.CX = I on declared 4\xD74 matrix model"
+  - Lean 4 kernel proof of CX.CX = I on declared 4×4 matrix model
   - independently checkable unitary equality certificate (supplementary)
   trusted_kernels:
   - Lean 4 kernel
@@ -215,7 +215,7 @@ formal_claims:
   - openqasm_full_language
   benchmark_anchor: cnot_self_inverse_cancellation
 provenance:
-  generated_at: '2026-06-27T13:35:50.233599+00:00'
+  generated_at: '2026-06-27T17:04:40.705602+00:00'
   artifacts:
   - path: artifacts/source.qasm
     sha256: 8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de
