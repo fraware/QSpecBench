@@ -115,6 +115,11 @@ def denotateOps3 (ops : List QasmOp) : Matrix8 :=
 
 def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
+/-- Codegen-aligned name for CNOT self-inverse trace (matches bridge-codegen stub). -/
+def cnot_self_inverse_codegen_ops : List QasmOp := [.cx 0 1, .cx 0 1]
+
+theorem cnot_codegen_ops_eq_hand_trace : cnot_self_inverse_codegen_ops = cnot_cx_cx := rfl
+
 def cnot_cx_cxMat (i j : Fin 4) : Int := mul4 cnot4 (mul4 cnot4 id4) i j
 
 theorem denotateOps2_cnot_cx_cx (i j : Fin 4) : denotateOps2 cnot_cx_cx i j = cnot_cx_cxMat i j := by
@@ -124,6 +129,10 @@ theorem bridge_cnot_self_inverse (i j : Fin 4) :
     denotateOps2 cnot_cx_cx i j = id4 i j := by
   rw [denotateOps2_cnot_cx_cx]
   fin_cases i <;> fin_cases j <;> rfl
+
+theorem bridge_cnot_codegen_self_inverse (i j : Fin 4) :
+    denotateOps2 cnot_self_inverse_codegen_ops i j = id4 i j := by
+  rw [cnot_codegen_ops_eq_hand_trace, bridge_cnot_self_inverse]
 
 def hadamard_hxh : List QasmOp := [.gate .H 0, .gate .X 0, .gate .H 0]
 
