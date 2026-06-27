@@ -106,7 +106,18 @@
     "ai_formalization_status": { "$ref": "#/$defs/ai_formalization_status" },
     "hamiltonian_claim_scope": { "$ref": "#/$defs/hamiltonian_claim_scope" },
     "provenance": { "$ref": "#/$defs/provenance" },
-    "qasm_extraction": { "$ref": "#/$defs/qasm_extraction" }
+    "qasm_extraction": { "$ref": "#/$defs/qasm_extraction" },
+    "semantics_base": {
+      "type": "string",
+      "enum": [
+        "int_scaffold",
+        "complex_matrix",
+        "stabilizer_tableau",
+        "openqasm_fragment",
+        "dynamic_circuit",
+        "hamiltonian_operator"
+      ]
+    }
   },
   "additionalProperties": false,
   "$defs": {
@@ -326,7 +337,31 @@
             "reference_claim",
             "deprecated"
           ]
-        }
+        },
+        "reviews": { "$ref": "#/$defs/promotion_reviews" }
+      },
+      "additionalProperties": false
+    },
+    "promotion_review": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["required", "approved", "rejected", "pending"]
+        },
+        "reviewer": { "type": ["string", "null"] },
+        "date": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "promotion_reviews": {
+      "type": "object",
+      "required": ["formal_evidence_review", "domain_semantics_review"],
+      "properties": {
+        "formal_evidence_review": { "$ref": "#/$defs/promotion_review" },
+        "domain_semantics_review": { "$ref": "#/$defs/promotion_review" }
       },
       "additionalProperties": false
     },
