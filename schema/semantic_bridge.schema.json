@@ -32,7 +32,10 @@
     "qasm_artifact": { "type": "string", "minLength": 1 },
     "gate_model": { "type": "string", "minLength": 1 },
     "artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-    "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "ast_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "theorem_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
   },
   "additionalProperties": false
 }
