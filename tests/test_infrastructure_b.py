@@ -102,3 +102,46 @@ def test_logical_preservation_bit_flip_code():
     assert checks.get("syndrome") is True
     assert checks.get("correction") is True
     assert "single_pauli_error_correction_validator" in result.get("checks_run", [])
+
+
+def test_qec_z_error_labels_phase_flip():
+    from adapters.qec.parse_result import check
+
+    path = REPO / "benchmarks/qec/three_qubit_phase_flip_code_corrects_one_z/artifacts/code.json"
+    result = check(path)
+    assert result["ok"], result.get("errors")
+    assert result["check_results"].get("syndrome") is True
+
+
+def test_qec_verifier_result_evidence_resolves_code_json():
+    from adapters.qec.parse_result import _resolve_check_target
+
+    evidence = REPO / "benchmarks/qec/three_qubit_bit_flip_code_corrects_one_x/evidence/qec_verifier_result.json"
+    code = _resolve_check_target(evidence)
+    assert code.name == "code.json"
+    assert code.is_file()
+
+
+def test_full_dynamic_semantics_rejected_at_validate():
+    with tempfile.TemporaryDirectory() as tmp:
+        claim = Path(tmp)
+        (claim / "spec.yaml").write_text(
+            _minimal_spec_text(
+                id="dynamic_mode_test",
+                track="algorithm",
+                domain="test",
+                claim_type="test_claim",
+                qasm_extraction={"mode": "full_dynamic_semantics", "allowed_to_skip": []},
+                claim_scope={
+                    "headline_claim_id": "dynamic_mode_test_headline",
+                    "headline_claim_text": "Dynamic mode fail-closed test",
+                    "required_obligations": ["test"],
+                },
+                proved_scope={"checked_obligations": [], "unproved_obligations": ["test"]},
+                headline_claim_status={"status": "unproved", "notes": None},
+            ),
+            encoding="utf-8",
+        )
+        results = validate_path(claim)
+        assert results and not results[0].ok
+        assert any("full_dynamic_semantics" in e for e in results[0].errors)

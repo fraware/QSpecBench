@@ -240,7 +240,22 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
     errors.extend(validate_claim_diff(claim_dir))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
+    errors.extend(_validate_qasm_extraction(spec))
     return errors
+
+
+def _validate_qasm_extraction(spec: dict[str, Any]) -> list[str]:
+    """Fail closed on unimplemented extraction modes (schema enum stub only)."""
+    extraction = spec.get("qasm_extraction")
+    if not extraction:
+        return []
+    mode = extraction.get("mode")
+    if mode == "full_dynamic_semantics":
+        return [
+            "qasm_extraction.mode=full_dynamic_semantics is not implemented; "
+            "use unitary_fragment (default) until dynamic semantics codegen exists"
+        ]
+    return []
 
 
 def validate_path(target: Path) -> list[ValidationResult]:
