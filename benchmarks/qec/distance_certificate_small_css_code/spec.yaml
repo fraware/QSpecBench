@@ -68,6 +68,12 @@ evidence:
   checker: qec json validator
   status: passing
   notes: JSON structure validation only.
+- id: qec_distance_bruteforce
+  type: qec_verifier_result
+  path: evidence/qec_verifier_result.json
+  checker: qec json validator
+  status: passing
+  notes: Brute-force min logical weight computed (d=4); declared parameter d=3 remains declared_only.
 - id: smt_distance_cert
   type: smt_certificate
   path: evidence/distance_claim.certificate.json
@@ -77,11 +83,13 @@ evidence:
 trust_boundary:
   checked_by:
   - stabilizer JSON schema validation
+  - brute-force min-weight logical operator under Pauli alphabet (computed d=4)
   - SMT solver check of declared distance parameter when z3/cvc5 available
   trusted_kernels: []
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
+  - declared distance parameter d=3 matches computed minimum weight
   - algebraic commutation proof
   - decoder and correction claims
 status:
@@ -137,6 +145,7 @@ qec_claim_scope:
   logical_preservation_small_code: assumed
   code_schema: checked
   logical_preservation_general: out_of_scope
+semantics_base: stabilizer_tableau
 provenance:
   generated_at: '2026-06-27T13:35:51.127407+00:00'
   artifacts:
