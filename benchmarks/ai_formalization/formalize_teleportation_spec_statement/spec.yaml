@@ -149,6 +149,7 @@ ai_formalization_status:
   faithfulness_score: null
   library_compatible: true
   proof_completed: true
+semantics_base: int_scaffold
 provenance:
   generated_at: '2026-06-27T17:18:28.614966+00:00'
   artifacts:
