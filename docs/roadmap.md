@@ -5,12 +5,24 @@ results** (full protocol proofs). The dashboard counts each honestly.
 
 ## Infrastructure (tooling milestones)
 
-- Wire all artifact JSON through schema validation in CI
-- Expand `bridge_theorem_manifest.json` to every sound QASM+Lean pair
-- Align Lean `ComplexGate` with Python for S/T/Rz or quarantine Clifford bridges
-- QEC `single_pauli_error_correction_validator` + promotion path for small codes
-- Release bundle CLI (`qspecbench release-bundle`)
-- Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs)
+- [x] Wire artifact JSON through schema validation in `qspecbench validate` (B5)
+- [x] Expand `bridge_theorem_manifest.json` to 9 sound QASM+Lean pairs without S/T (B1)
+- [x] Align Lean `ComplexGate` with Python for S/T; kernel_checked Clifford and phase-polynomial bridges (B2)
+- [x] QEC `single_pauli_error_correction_validator` brute-force logical preservation (B4)
+- [x] OpenQASM `rz`/`ry`/`cz`/`u` in Python matrix extractor (B3)
+- [x] Release bundle CLI stub (`qspecbench release-bundle`) (D)
+- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs)
+
+### B1 bridge manifest (2026-06-27)
+
+Eleven `kernel_checked` bridges: nine integer-scaffold pairs (no S/T in trace) plus two complex
+S/T denotation anchors (Clifford H-H-S, phase-polynomial H-S) from B2.
+
+**Blocked from kernel_checked:**
+
+| Benchmark | Reason |
+|-----------|--------|
+| `rx_gate_equivalence_small_instance` | Lean proof uses H scaffold; QASM trace is RX(π/2) |
 
 ## Research (corpus milestones — not validator tasks)
 
