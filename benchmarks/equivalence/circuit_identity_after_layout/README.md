@@ -35,3 +35,6 @@ Layout map not formally verified in Lean.
 ## References
 
 - (add references when promoting beyond usable)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
