@@ -187,18 +187,18 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 ## Project status
 
 <!-- qspecbench-status-begin -->
-Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **8**
+Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **9**
 benchmarks are `reference_claim` under declared internal scope (see `headline_claim_status.checked_under`).
 
 | | |
 |---|---|
 | **Benchmarks** | 48 across 5 tracks |
 | **Reference scaffolds** (any scoped reference level) | 40 |
-| **With headline claim checked** (`reference_claim`) | 8 |
+| **With headline claim checked** (`reference_claim`) | 9 |
 | **With any checked evidence** | 44 |
 | **Manifest-checked theorem bindings** | 11 |
-| **Python denotation consistency checks** | 3 |
-| **Kernel-checked artifact semantics bridges** | 0 |
+| **Python denotation consistency checks** | 2 |
+| **Kernel-checked artifact semantics bridges** | 1 |
 | **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).

@@ -24,21 +24,22 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2 partial** (adapter smoke tests in validate job; no kernel)
 - [x] Bridge codegen pilot (`ast_sha256` + `generated_lean_sha256` for CNOT) — **P2 partial** (see [bridge_codegen_design.md](bridge_codegen_design.md))
 - [x] Bridge codegen expanded to `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation`
-- [ ] First `kernel_checked_artifact_semantics` bridge — **P2 blocked** (codegen hashes only; precise gap in [bridge_codegen_design.md](bridge_codegen_design.md))
-- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress**
-- [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only; `qspecbench validate` rejects fail-closed; requirements below)
+- [x] First `kernel_checked_artifact_semantics` bridge — **P2 done** (`cnot_self_inverse_cancellation`; codegen trace + `bridge_cnot_codegen_self_inverse`)
+- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress** (3 benchmarks with AST/codegen hashes; RX manifest-bound)
+- [x] `full_dynamic_semantics` QASM mode — **P3 partial** (projective POVM stub + `dynamic_circuit` semantics_base; teleportation pilot)
 - [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D)
 
 ### Manifest bridge status (2026-06-27)
 
 Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds). Three
-`python_denotation_consistency` bridges. Zero `kernel_checked_artifact_semantics`.
+`python_denotation_consistency` bridges. One `kernel_checked_artifact_semantics`
+(`cnot_self_inverse_cancellation`). RX manifest-bound at complex denotation (global phase vs H not claimed).
 
 **Blocked from manifest binding:**
 
 | Benchmark | Reason |
 |-----------|--------|
-| `rx_gate_equivalence_small_instance` | Global phase + manifest anchor; Lean RX denotation done, not manifest-bound |
+| `rx_gate_equivalence_small_instance` | Manifest-bound for `bridge_rx_pi2_denotation`; headline still excludes global-phase equivalence to H |
 
 ### full_dynamic_semantics requirements (P3)
 
@@ -50,19 +51,20 @@ Before `qasm_extraction.mode=full_dynamic_semantics` is accepted by validators:
 4. **Codegen + Lean** — dynamic `QasmOp` constructors and proof obligations for each supported construct
 5. **Benchmark coverage** — at least one `reference_scaffold` with checked fragment + documented dynamic gap
 
-Until then, validators fail closed with message directing callers to `unitary_fragment` (default).
+Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
+`allowed_to_skip` includes `measurement` (default remains `unitary_fragment`).
 
 ## P1 deferred (post-P0)
 
 | Item | Notes |
 |------|-------|
-| First `kernel_checked_artifact_semantics` bridge | Requires real artifact-semantics Lean proof, not manifest binding |
+| First `kernel_checked_artifact_semantics` bridge | **Done** — `cnot_self_inverse_cancellation` |
 | Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics |
-| QEC correction `reference_claim` | Decoder + logical preservation checked, not assumed tables |
-| Distance proofs | Bruteforce `distance_result` wired to `bruteforce_min_weight` obligation for `distance_certificate_small_css_code` |
+| QEC correction `reference_claim` | **Done (narrow)** — `three_qubit_bit_flip_code_corrects_one_x` lookup-table scope |
+| Distance proofs | **Partial** — bruteforce `distance_result` wired for `distance_certificate_small_css_code` |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
-| RX(π/2) vs H | `QasmOp.rx` + `bridge_rx_pi2_denotation`; int scaffold `bridge_rx_pi2_int_eq_h`; manifest blocked — see [bridge_codegen_design.md](bridge_codegen_design.md) |
+| RX(π/2) vs H | Manifest-bound `bridge_rx_pi2_denotation`; int scaffold `bridge_rx_pi2_int_eq_h`; global phase not claimed |
 
 ## Research (corpus milestones — not validator tasks)
 

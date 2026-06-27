@@ -32,6 +32,6 @@ adapter (`distance_min_weight_bruteforce`). See `distance_certificate_small_css_
 
 ## Phase 3 wiring
 
-- Adapter to verify external JSON against this schema
-- Optional `acceptable_evidence` type `qec_external_certificate`
+- Schema validation for `qec_external_certificate.json` via `validate_claim_artifacts` (stub envelope only)
+- Optional `acceptable_evidence` type `qec_external_certificate` (future)
 - CI job hook for reproducible prover versions

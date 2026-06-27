@@ -8,15 +8,14 @@ manifest-listed theorem on a fixed gate trace.
 
 - **manifest_checked_theorem_binding**: allowlisted gate trace + Lean theorem name + SHA256 hashes
 - **python_denotation_consistency**: Python matrix extractor matches Lean `denotateOps*` on trace
+- **kernel_checked_artifact_semantics**: `cnot_self_inverse_cancellation` — AST + codegen Lean hashes +
+  `theorem_sha256` + kernel proof `bridge_cnot_codegen_self_inverse` on generated `QasmOp` trace
 - **Codegen pilot (cnot_self_inverse_cancellation)**: canonical AST + `ast_sha256` +
-  `generated_lean_sha256` wired in `bridge_theorem_manifest.json`; generated Lean stub at
-  `evidence/cnot_self_inverse_cancellation_codegen_ops.lean`. `claimed_link` remains
-  `manifest_checked_theorem_binding` — **not** upgraded to `kernel_checked_artifact_semantics`.
-- **Codegen expansion**: `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation` now
-  have AST + generated Lean hashes and CI `bridge-codegen verify`.
-- **RX(π/2)**: `QasmOp.rx` + `ComplexGate.rxGate` wired; `bridge_rx_pi2_denotation` proves
-  complex rotation; int scaffold uses `bridge_rx_pi2_int_eq_h`. Manifest promotion blocked;
-  `rx_gate_equivalence_small_instance` stays `reference_scaffold`.
+  `generated_lean_sha256` wired in `bridge_theorem_manifest.json`; `claimed_link` upgraded to
+  `kernel_checked_artifact_semantics`.
+- **Codegen expansion**: `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`, `clifford_simplification_preserves_unitary`, and `rx_gate_equivalence_small_instance` have AST + generated Lean hashes.
+- **RX(π/2)**: `QasmOp.rx` + `ComplexGate.rxGate`; `bridge_rx_pi2_denotation` manifest-bound.
+  Int scaffold uses `bridge_rx_pi2_int_eq_h`. Global phase equivalence to H is **not** claimed.
 
 ## Target architecture
 
@@ -39,31 +38,27 @@ flowchart LR
 6. **First candidate** — `cnot_self_inverse_cancellation` retrofitted as codegen golden test (hashes wired; kernel proof gap documented)
 7. **Second candidate** — parameterized RX(π/2) using `ComplexGate.rxGate` (Lean denotation done; manifest blocked on global phase)
 
-## Gap to kernel_checked_artifact_semantics
+## Gap to kernel_checked_artifact_semantics (remaining for other benchmarks)
 
-The pilot proves nothing new in Lean: the hand-written `bridge_cnot_self_inverse` theorem on
-`cnot_cx_cx` remains the checked link. Codegen validates that the QASM artifact parses to a stable
-AST and emits a matching `QasmOp` list; a future kernel bridge must prove
-`denotateOps2 <benchmark>_codegen_ops = <artifact_matrix>` without relying on a parallel hand-named op list.
+The CNOT pilot closes the chain: codegen ops live in `OpenQASM3.lean`, kernel theorems
+`bridge_cnot_codegen_self_inverse` and `bridge_cnot_codegen_denotes_artifact` tie denotation to
+the artifact matrix model, and manifest records `theorem_sha256`.
 
-### Precise remaining obligations (CNOT pilot)
+### Precise remaining obligations (non-CNOT benchmarks)
 
-| Layer | Checked today | Missing for `kernel_checked_artifact_semantics` |
-|-------|---------------|-----------------------------------------------|
-| Artifact bytes | `artifact_sha256` in manifest + provenance | Formal link: file contents → parse result |
-| Parse / AST | `ast_sha256` drift in CI | Kernel-checked parser semantics in Lean |
-| Gate trace | `gate_trace_sha256` | Trace equals denotation of parsed artifact |
-| Codegen stub | `generated_lean_sha256` | Stub imported into `lake` build, not evidence-only |
-| Matrix proof | `bridge_cnot_self_inverse` on `cnot_cx_cx` | Same theorem on `*_codegen_ops` + equality to artifact matrix |
-
-Generated Lean lives under `evidence/` and is not part of `lake build`; upgrading one bridge
-requires either moving codegen defs into `lean/QSpecBench/` or a `#include` workflow with
-kernel-checked equality `cnot_cx_cx = cnot_self_inverse_cancellation_codegen_ops`.
+| Layer | CNOT pilot | Other manifest bridges |
+|-------|------------|------------------------|
+| Artifact bytes | `artifact_sha256` in manifest + provenance | Same |
+| Parse / AST | `ast_sha256` drift in CI | Partial (codegen hashes on subset) |
+| Codegen stub | `generated_lean_sha256` + lake-imported ops | Evidence-only stubs for some |
+| Matrix proof | `bridge_cnot_codegen_*` on codegen trace | Hand-named op lists |
+| Kernel link | `kernel_checked_artifact_semantics` | Still `manifest_checked_theorem_binding` |
 
 ## full_dynamic_semantics (P3 design)
 
-`qasm_extraction.mode=full_dynamic_semantics` is schema-reserved but validators fail closed.
-Requirements before acceptance:
+`qasm_extraction.mode=full_dynamic_semantics` is accepted when `semantics_base=dynamic_circuit`
+and `allowed_to_skip` includes `measurement`. Extraction records `projective_povm_stub` metadata;
+skipped lines are not kernel-checked.
 
 ### Measurement semantics
 
