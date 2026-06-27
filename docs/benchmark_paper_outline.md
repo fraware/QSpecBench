@@ -68,6 +68,8 @@ Each row's `checked_under` / `not_checked_under` fields appear in `spec.yaml` `h
 ## 6. Community and governance
 
 - Dual review for `reference_claim`, track maintainers, promotion checklist
+- External QEC certificate envelope (`schema/qec_external_certificate.schema.json`) for scalable proofs
+- Stub proof-assistant adapters (Coq/Rocq/Isabelle) with CI smoke tests; Lean 4 remains sole kernel
 
 ## 7. Related work
 
@@ -80,3 +82,18 @@ Infrastructure first; scoped reference claims as they close; no maturity inflati
 ## Appendix
 
 - Schema reference, example benchmark walkthrough, CI matrix
+- Bridge codegen hash pipeline (`ast_sha256`, `generated_lean_sha256`, `bridge-codegen verify`)
+- Compiler equivalence gaps (Clifford / phase-polynomial source vs target manifests)
+- RX(π/2) phase convention (`benchmarks/equivalence/rx_gate_equivalence_small_instance/notes/semantic_bridge.md`)
+
+## Submission checklist (target)
+
+| Section | Status |
+|---------|--------|
+| Abstract + honest maturity counts | Draft complete |
+| Claim model + trust boundaries | Draft complete |
+| Infrastructure + CI matrix | Needs figure |
+| Eight reference_claim case studies | Draft table |
+| Open gaps (kernel artifact semantics, dynamic QASM) | Draft complete |
+| Related work bibliography | TODO |
+| Artifact / release bundle citation | v0.2.0 tagged |
