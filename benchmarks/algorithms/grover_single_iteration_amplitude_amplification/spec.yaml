@@ -53,14 +53,12 @@ evidence:
   type: qasm_parse
   path: artifacts/circuit.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: lean_grover_scaffold
   type: lean_proof
   path: evidence/grover.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/grover.lean
   status: passing
   notes: Kernel-checked Grover diffuser nontriviality scaffold.
 trust_boundary:
@@ -79,7 +77,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -97,3 +95,37 @@ proof_obligations:
 - id: amplitude_lift
   status: partial
   notes: Probability lift not proved
+claim_scope:
+  headline_claim_id: grover_single_iteration_amplitude_amplification_headline
+  headline_claim_text: One Grover iteration increases the measurement probability
+    of a marked basis state for a declared small instance.
+  required_obligations:
+  - diffuser_scaffold
+  - amplitude_lift
+proved_scope:
+  checked_obligations:
+  - diffuser_scaffold
+  unproved_obligations:
+  - amplitude_lift
+  - semantic_correctness_of_circuit_vs_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_grover_scaffold
+  evidence_id: lean_grover_scaffold
+  formal_system: lean
+  module: QSpecBench.Algorithms
+  theorem: QSpecBench.grover_diffuser_nontrivial
+  supports:
+  - diffuser_scaffold
+  does_not_support:
+  - amplitude_lift
+  - semantic_correctness_of_circuit_vs_claim
+  benchmark_anchor: grover_single_iteration_amplitude_amplification
+provenance:
+  generated_at: '2026-06-27T13:35:49.771483+00:00'
+  artifacts:
+  - path: artifacts/circuit.qasm
+    sha256: d6164abc0914c33fb32d33317ff7d86ce1bed8bc9b0f06a4ac7771297234827b
+    role: source

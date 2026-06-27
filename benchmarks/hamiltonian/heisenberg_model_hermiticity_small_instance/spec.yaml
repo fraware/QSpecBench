@@ -63,14 +63,12 @@ evidence:
   type: simulation
   path: evidence/check_hermitian.py
   checker: python numeric Pauli check
-  command: python adapters/python/parse_result.py evidence/check_hermitian.py
   status: passing
   notes: Heuristic numeric check.
 - id: lean_hermitian
   type: lean_proof
   path: evidence/heisenberg_hermitian.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/heisenberg_hermitian.lean
   status: passing
   notes: Kernel-checked Hermiticity for declared Heisenberg Pauli sum.
 trust_boundary:
@@ -89,7 +87,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: hermiticity
@@ -98,3 +96,39 @@ proof_obligations:
 - id: pauli_tensors
   status: passing
   notes: Distinct qubit-local Pauli tensors
+claim_scope:
+  headline_claim_id: heisenberg_model_hermiticity_small_instance_headline
+  headline_claim_text: A small Heisenberg-type Pauli Hamiltonian with real coefficients
+    is Hermitian.
+  required_obligations:
+  - hermiticity
+  - pauli_tensors
+proved_scope:
+  checked_obligations:
+  - hermiticity
+  - pauli_tensors
+  unproved_obligations:
+  - formal_proof_in_lean
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_hermitian
+  evidence_id: lean_hermitian
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.heisenberg_small_instance_is_hermitian
+  supports:
+  - hermiticity
+  does_not_support:
+  - formal_proof_in_lean
+  benchmark_anchor: heisenberg_model_hermiticity_small_instance
+hamiltonian_claim_scope:
+  claim_class: hermiticity_claim
+  derivation_status: checked
+provenance:
+  generated_at: '2026-06-27T13:35:50.722748+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: 242c7da599dfa8a9bd7cbf4e28be3a37cb37ed6315edabd0d1c04e42278d649d
+    role: specification

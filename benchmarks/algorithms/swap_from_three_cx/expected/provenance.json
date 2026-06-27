@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "swap_from_three_cx",
+  "generated_at": "2026-06-27T13:35:50.004338+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "33f7ee1282995bfd6e039338f178853d74276c938114aef94c330c1c1e2f4910",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "bc53876d72d0abccc38adfe2f6b7cfe1bcdde4fbb533eaedad8eb59931cda9f2",
+      "role": "target"
+    }
+  ]
+}

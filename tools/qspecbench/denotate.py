@@ -11,6 +11,7 @@ from qspecbench.qasm_matrix import (
     _apply_single,
     _ccx,
     _cnot,
+    _cp,
     _eye,
     _mat_mul,
     _parse_qubit_index,
@@ -37,6 +38,10 @@ def denotate_ops(n_qubits: int, ops: list[Op]) -> ComplexMatrix:
             op = _ccx(n_qubits, args[0], args[1], args[2])
         elif g == "swap":
             op = _swap(n_qubits, args[0], args[1])
+        elif g == "cp":
+            if angle is None:
+                raise ValueError("cp gate requires angle")
+            op = _cp(n_qubits, args[0], args[1], angle)
         else:
             op = _apply_single(n_qubits, g, args[0])
         unitary = _mat_mul(op, unitary)
@@ -55,6 +60,14 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
             angle = float(rx.group(1))
             q = _parse_qubit_index(rx.group(2), n)
             ops.append(("rx", (q,), angle))
+            continue
+        cp = re.match(r"^\s*cp\s*\(\s*([0-9.eE+-]+)\s*\)\s+(.*);?\s*$", stripped, re.I)
+        if cp:
+            angle = float(cp.group(1))
+            args = tuple(int(m.group(1)) for m in re.finditer(r"\[(\d+)\]", cp.group(2)))
+            if len(args) != 2:
+                raise ValueError(f"CP expects two qubit indices: {line}")
+            ops.append(("cp", args, angle))
             continue
         parts = stripped.split(None, 1)
         gate = parts[0].lower()

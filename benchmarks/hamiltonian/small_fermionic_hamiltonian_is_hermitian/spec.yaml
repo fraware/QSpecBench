@@ -6,8 +6,8 @@ domain: hamiltonian_simulation
 claim_type: hermiticity
 difficulty: introductory
 informal_claim:
-  statement: "The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents\
-    \ a Hermitian operator (H = H\u2020)."
+  statement: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents
+    a Hermitian operator (H = H†).
   source: null
   reference_key: null
 semantic_level:
@@ -70,14 +70,12 @@ evidence:
   type: simulation
   path: evidence/check_hermitian.py
   checker: python numeric Pauli check
-  command: python adapters/python/parse_result.py evidence/check_hermitian.py
   status: passing
   notes: Heuristic numeric check over Pauli matrices.
 - id: lean_hermitian
   type: lean_proof
   path: evidence/hermitian.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/hermitian.lean
   status: passing
   notes: Kernel-checked Hermiticity on declared Pauli matrix model.
 trust_boundary:
@@ -96,7 +94,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_claim
 references: []
 proof_obligations:
 - id: hermiticity
@@ -105,3 +103,40 @@ proof_obligations:
 - id: jw_mapping
   status: partial
   notes: Jordan-Wigner mapping not fully checked
+claim_scope:
+  headline_claim_id: small_fermionic_hamiltonian_is_hermitian_headline
+  headline_claim_text: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json
+    represents a Hermitian operator (H = H†).
+  required_obligations:
+  - hermiticity
+proved_scope:
+  checked_obligations:
+  - hermiticity
+  unproved_obligations:
+  - jw_mapping
+  - mapping_from_fermionic_source_to_pauli_artifact
+headline_claim_status:
+  status: checked
+  notes: All declared required obligations are kernel- or manifest-checked under the
+    stated gate model.
+formal_claims:
+- id: formal_lean_hermitian
+  evidence_id: lean_hermitian
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.small_fermionic_hamiltonian_is_hermitian
+  supports:
+  - hermiticity
+  does_not_support:
+  - jw_mapping
+  - mapping_from_fermionic_source_to_pauli_artifact
+  benchmark_anchor: small_fermionic_hamiltonian_is_hermitian
+hamiltonian_claim_scope:
+  claim_class: hermiticity_claim
+  derivation_status: checked
+provenance:
+  generated_at: '2026-06-27T13:35:50.953092+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: 9e7ed73c0680e29247b921d2806483ba99adc69fbd3ceccb2576385def9419f4
+    role: source

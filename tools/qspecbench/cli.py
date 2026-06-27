@@ -165,6 +165,35 @@ def extract_matrix(
     console.print(f"Wrote {out} ({data['n_qubits']} qubits, {len(data['gates_applied'])} gates)")
 
 
+@app.command("claim-diff")
+def claim_diff_cmd(
+    target: Path = typer.Argument(..., help="Claim directory"),
+) -> None:
+    """Print informal claim vs declared proof scope."""
+    from qspecbench.claim_diff import print_claim_diff
+
+    if not (target / "spec.yaml").is_file():
+        console.print("[red]spec.yaml not found[/red]")
+        raise typer.Exit(code=1)
+    console.print(print_claim_diff(target))
+
+
+@app.command("provenance")
+def provenance_cmd(
+    target: Path = typer.Argument(..., help="Claim directory"),
+    out: Path = typer.Option(None, "--out", help="Output JSON path"),
+) -> None:
+    """Generate artifact provenance report with SHA256 hashes."""
+    from qspecbench.provenance import write_provenance
+
+    if not (target / "spec.yaml").is_file():
+        console.print("[red]spec.yaml not found[/red]")
+        raise typer.Exit(code=1)
+    report = write_provenance(target, out)
+    path = out or target / "expected" / "provenance.json"
+    console.print(f"Wrote provenance ({len(report['artifacts'])} artifacts) to {path}")
+
+
 @app.command("list")
 def list_benchmarks(
     track: Optional[str] = typer.Option(None, "--track", help="Filter by track folder name"),

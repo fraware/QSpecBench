@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "grover_single_iteration_amplitude_amplification",
+  "generated_at": "2026-06-27T13:35:49.771483+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/circuit.qasm",
+      "sha256": "d6164abc0914c33fb32d33317ff7d86ce1bed8bc9b0f06a4ac7771297234827b",
+      "role": "source"
+    }
+  ]
+}

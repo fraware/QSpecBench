@@ -7,5 +7,6 @@
     "measurement": "excluded_from_matrix"
   },
   "claimed_link": "documented_not_proved",
-  "qasm_artifact": "artifacts/circuit.qasm"
+  "qasm_artifact": "artifacts/circuit.qasm",
+  "gate_model": "qspecbench.openqasm3.int_scaffold.v0"
 }

@@ -55,14 +55,12 @@ evidence:
   type: qasm_parse
   path: artifacts/circuit.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: lean_phase_estimation
   type: lean_proof
   path: evidence/phase_estimation.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/phase_estimation.lean
   status: passing
   notes: Kernel-checked Z eigenvalue scaffold for phase estimation.
 trust_boundary:
@@ -81,7 +79,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -99,3 +97,37 @@ proof_obligations:
 - id: eigenphase_relation
   status: partial
   notes: Full PE unitary not checked
+claim_scope:
+  headline_claim_id: phase_estimation_exact_eigenphase_small_instance_headline
+  headline_claim_text: Phase estimation on a declared small unitary eigenstate reports
+    the correct eigenphase bits in ideal semantics.
+  required_obligations:
+  - z_eigenvalue
+  - eigenphase_relation
+proved_scope:
+  checked_obligations:
+  - z_eigenvalue
+  unproved_obligations:
+  - eigenphase_relation
+  - semantic_correctness_of_circuit_vs_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_phase_estimation
+  evidence_id: lean_phase_estimation
+  formal_system: lean
+  module: QSpecBench.Algorithms
+  theorem: QSpecBench.phase_estimation_z_eigenvalue_on_one
+  supports:
+  - z_eigenvalue
+  does_not_support:
+  - eigenphase_relation
+  - semantic_correctness_of_circuit_vs_claim
+  benchmark_anchor: phase_estimation_exact_eigenphase_small_instance
+provenance:
+  generated_at: '2026-06-27T13:35:49.851336+00:00'
+  artifacts:
+  - path: artifacts/circuit.qasm
+    sha256: 5ba3a6a17bace612f63faaf66cc89f0be44bb39822a9376e628acd625ae082e1
+    role: source

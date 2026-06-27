@@ -19,12 +19,12 @@ semantic_bridge:
   lean_theorem: cnot_mul_self
   normalization:
     cnot: standard_01_control_target
-  claimed_link: documented_not_proved  # or kernel_checked
+  claimed_link: documented_not_proved  # or python_consistency_checked
 ```
 
 Reference benchmarks with both QASM artifacts and Lean evidence must declare a bridge (inline or `expected/semantic_bridge.json`).
 
-When `claimed_link: kernel_checked`, a passing bridge verify evidence entry is required (`checker` containing `verify-bridge` or evidence id `bridge_verify`).
+When `claimed_link: python_consistency_checked`, a passing bridge verify evidence entry is required (`checker` containing `verify-bridge` or evidence id `bridge_verify`). `python_consistency_checked` is a Python denotation-consistency check, not a Lean kernel bridge; `kernel_checked` is reserved for a future real kernel bridge.
 
 ### `proof_obligations` (optional)
 
@@ -48,9 +48,20 @@ Statuses: `missing`, `partial`, `passing`, `not_applicable`.
 
 ## Validator changes
 
-- Reference + QASM + Lean → `semantic_bridge` required.
-- `kernel_checked` → bridge verify evidence required.
+- Scoped reference levels + QASM + Lean → `semantic_bridge` required.
+- `python_consistency_checked` (or reserved `kernel_checked`) → bridge verify evidence + matrix match required.
+- Every `evidence.type` must be declared in `acceptable_evidence`.
+- `reference_claim` requires `claim_scope`/`proved_scope` with all required obligations checked, `headline_claim_status: checked`, and passing evidence for each `required_for_claim` type.
+- Scaffold-level maturity cannot declare `headline_claim_status: checked`.
 - Warning (non-fatal) when `qec_status.correction_claim: checked` without passing decoder evidence noted in evidence entries.
+
+## Maturity migration (0.2)
+
+The single `reference` maturity is replaced by scoped levels: `reference_scaffold`,
+`reference_contract`, `reference_artifact`, and `reference_claim`. Existing `reference` benchmarks were
+migrated to `reference_scaffold` (or `reference_contract` for contract-style benchmarks) because their
+checked evidence covers only part of the headline claim. See [versioning](versioning.md) and
+[reference benchmarks](reference_benchmarks.md).
 
 ## Migration checklist
 

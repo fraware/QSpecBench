@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/hamiltonian.schema.json",
+  "title": "QSpecBench Hamiltonian artifact",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": { "type": "string" },
+    "terms": { "type": "array" },
+    "metadata": { "type": "object" }
+  }
+}

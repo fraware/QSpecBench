@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "amplitude_damping_channel_specification",
+  "generated_at": "2026-06-27T13:35:49.631382+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/channel.json",
+      "sha256": "363601926e3726d1ef85b8abc69746fd73c85c234c3d5400aa61c12bbc2375ec",
+      "role": "specification"
+    }
+  ]
+}

@@ -4,7 +4,7 @@ Evidence supports a claim; only **checked** evidence with a declared checker can
 
 ## Proof assistant policy
 
-**Lean 4 only.** This repository does not use Coq, Rocq, or other proof assistants in CI.
+**Lean 4 is the currently supported proof assistant in CI.** Stub adapters exist for Coq, Rocq, and Isabelle (`coq_proof`, `rocq_proof`, `isabelle_proof`); they return `not_checked` until a kernel is configured. The evidence taxonomy is proof-assistant-neutral.
 
 ## Evidence types (schema enum)
 

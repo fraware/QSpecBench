@@ -2,6 +2,13 @@
 
 QSpecBench benchmarks that pair **OpenQASM artifacts** with **Lean 4 kernel proofs** declare an explicit semantic bridge so reviewers can inspect the artifact–proof link without inferring it from prose alone.
 
+> **Honesty note.** `qspecbench verify-bridge` performs a **Python-level denotation-consistency
+> check**: it confirms that the Python matrix extracted from the QASM artifact equals the matrix
+> produced by the Python OpenQASM3 denotation model. It does **not** invoke the Lean kernel to tie the
+> artifact to the named theorem. The corresponding `claimed_link` is therefore
+> `python_consistency_checked`, **not** `kernel_checked`. There are currently **no** kernel-checked
+> artifact-to-theorem bridges; `kernel_checked` is reserved for a future real kernel bridge.
+
 ## Files
 
 | File | Role |
@@ -22,7 +29,7 @@ Both are optional but recommended whenever a benchmark has parallel QASM and Lea
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "kernel_checked"
+  "claimed_link": "python_consistency_checked"
 }
 ```
 
@@ -30,13 +37,16 @@ Both are optional but recommended whenever a benchmark has parallel QASM and Lea
 
 - **artifact_gate_model** — gate set / semantics assumed for QASM parsing or matrix extraction.
 - **lean_module** — Lean namespace module containing the matrix model.
-- **lean_theorem** — theorem name anchoring the kernel-checked claim.
+- **lean_theorem** — theorem name the bridge documents (anchoring, not kernel-checked by verify-bridge).
 - **normalization** — free-form map documenting scaling conventions (especially for `H`).
-- **claimed_link** — one of `documented_not_proved` (default) or `kernel_checked` when verify-bridge passes.
+- **claimed_link** — one of:
+  - `documented_not_proved` (default): link explained in prose only.
+  - `python_consistency_checked`: `qspecbench verify-bridge` confirms the Python QASM matrix equals the Python denotation model.
+  - `kernel_checked`: reserved for a real Lean-kernel artifact-to-theorem bridge (not yet implemented; unused).
 
 ## Honesty rule
 
-`claimed_link: documented_not_proved` remains appropriate when the Lean theorem is a scaffold that does not cover the full informal claim. Passing QCEC or SAT matrix certificates narrows the **practical** gap but does not alone upgrade the link to `kernel_checked`.
+`claimed_link: documented_not_proved` remains appropriate when the Lean theorem is a scaffold that does not cover the full informal claim. Passing QCEC or SAT matrix certificates narrows the **practical** gap but does not alone upgrade the link. `python_consistency_checked` asserts only Python-side matrix consistency; it is **not** a kernel-checked proof that the artifact satisfies the named theorem.
 
 ## Complex unitary model (authoritative for phase gates)
 
@@ -50,7 +60,7 @@ The legacy integer layer in `QSpecBench.Quantum.OpenQASM3.denotateGate` keeps `S
 
 Implications:
 
-- Set `claimed_link: kernel_checked` only when `qspecbench verify-bridge` passes on the declared QASM artifact.
+- Set `claimed_link: python_consistency_checked` only when `qspecbench verify-bridge` passes on the declared QASM artifact.
 - Document normalization in `expected/semantic_bridge.json` when decompositions include phase gates checked externally via QCEC.
 - Use `documented_not_proved` when the Lean theorem scope is intentionally narrower than the README claim.
 

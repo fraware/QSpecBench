@@ -94,15 +94,12 @@ evidence:
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/kernel_checked_draft.lean
   status: passing
   notes: Kernel-checked library theorem anchor.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
-  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
-    artifacts/draft.lean
   status: passing
   notes: Rubric score >= 4 for reference benchmarks.
 trust_boundary:
@@ -122,7 +119,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references:
 - key: no_cloning_negative_claim
   type: other
@@ -136,3 +133,50 @@ proof_obligations:
 - id: draft_faithfulness
   status: partial
   notes: Rubric score >= 4; AI draft remains untrusted
+claim_scope:
+  headline_claim_id: formalize_no_cloning_statement_headline
+  headline_claim_text: Evaluate whether an AI-generated formalization faithfully captures
+    the standard no-cloning claim from the provided source text.
+  required_obligations:
+  - kernel_anchor
+  - draft_faithfulness
+proved_scope:
+  checked_obligations:
+  - kernel_anchor
+  unproved_obligations:
+  - draft_faithfulness
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_kernel_check
+  evidence_id: lean_kernel_check
+  formal_system: lean
+  module: QSpecBench.NoCloning
+  theorem: QSpecBench.no_universal_cloner_matrix
+  supports:
+  - kernel_anchor
+  does_not_support:
+  - draft_faithfulness
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  benchmark_anchor: formalize_no_cloning_statement
+ai_formalization_status:
+  syntax_valid: true
+  kernel_checked: true
+  semantic_reviewed: true
+  faithfulness_score: 4
+  library_compatible: true
+  proof_completed: true
+provenance:
+  generated_at: '2026-06-27T13:35:49.365843+00:00'
+  artifacts:
+  - path: artifacts/source.txt
+    sha256: 2dc460701d1c7a0bcbc9983a43536abfd662b3e47f3305b3fbc5629105b6ec4f
+    role: source
+  - path: artifacts/draft.lean
+    sha256: 690b3552f83f0ddaa0dc84fd7b27c4a704026eba42b88451549687097283b77e
+    role: generated
+  - path: notes/semantic_rubric.md
+    sha256: c639d502c66f3650d8c231941dc7b31f4c45b4c730dd006db96b269fd9722f3c
+    role: specification

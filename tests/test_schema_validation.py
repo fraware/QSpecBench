@@ -38,7 +38,7 @@ def test_invalid_id_rejected(schema):
         jsonschema.validate(spec, schema)
 
 
-def test_coq_proof_type_rejected(schema):
+def test_coq_proof_type_accepted(schema):
     spec = yaml.safe_load((EXAMPLES / "minimal.spec.yaml").read_text(encoding="utf-8"))
     spec["acceptable_evidence"].append({
         "type": "coq_proof",
@@ -47,8 +47,23 @@ def test_coq_proof_type_rejected(schema):
         "required_for_claim": False,
         "trust_level": "checked",
     })
-    with pytest.raises(jsonschema.ValidationError):
-        jsonschema.validate(spec, schema)
+    jsonschema.validate(spec, schema)
+
+
+def test_coq_stub_adapter_fails_honestly():
+    from adapters.coq.parse_result import check
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.NamedTemporaryFile(suffix=".v", delete=False) as f:
+        path = Path(f.name)
+    try:
+        result = check(path)
+        assert not result["ok"]
+        assert result.get("skipped")
+        assert result.get("trust_level") == "not_checked"
+    finally:
+        path.unlink(missing_ok=True)
 
 
 def test_approximate_requires_bounds():

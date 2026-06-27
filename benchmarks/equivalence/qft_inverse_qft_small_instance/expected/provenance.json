@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "qft_inverse_qft_small_instance",
+  "generated_at": "2026-06-27T13:35:50.400987+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "4cd0a80b1e0147b3e8228c0b4b68d445893afd5f19cd931f403ea4b3678477b0",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "4cd0a80b1e0147b3e8228c0b4b68d445893afd5f19cd931f403ea4b3678477b0",
+      "role": "target"
+    }
+  ]
+}

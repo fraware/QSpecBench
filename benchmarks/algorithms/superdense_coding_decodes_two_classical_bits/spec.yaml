@@ -70,14 +70,12 @@ evidence:
   type: qasm_parse
   path: artifacts/circuit.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only.
 - id: lean_superdense_bell
   type: lean_proof
   path: evidence/superdense.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/superdense.lean
   status: passing
   notes: Kernel-checked Bell-pair scaffold for superdense coding.
 trust_boundary:
@@ -98,7 +96,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: bell_pair_prep
@@ -107,3 +105,39 @@ proof_obligations:
 - id: decoding_relation
   status: partial
   notes: Two-bit decoding not kernel-checked
+claim_scope:
+  headline_claim_id: superdense_coding_decodes_two_classical_bits_headline
+  headline_claim_text: A shared Bell pair and one qubit transmission let Bob decode
+    two classical bits after a Bell measurement and Pauli correction.
+  required_obligations:
+  - bell_pair_prep
+  - decoding_relation
+proved_scope:
+  checked_obligations:
+  - bell_pair_prep
+  unproved_obligations:
+  - decoding_relation
+  - artifact_parsing_semantics
+  - idealized_gate_semantics
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_superdense_bell
+  evidence_id: lean_superdense_bell
+  formal_system: lean
+  module: QSpecBench.Algorithms
+  theorem: QSpecBench.superdense_bell_pair_entangled
+  supports:
+  - bell_pair_prep
+  does_not_support:
+  - decoding_relation
+  - artifact_parsing_semantics
+  - idealized_gate_semantics
+  benchmark_anchor: superdense_coding_decodes_two_classical_bits
+provenance:
+  generated_at: '2026-06-27T13:35:49.947459+00:00'
+  artifacts:
+  - path: artifacts/circuit.qasm
+    sha256: 261abac24956acf2767109a5d303cc5d454a24100095d07e346e8e36ecd2f73f
+    role: source

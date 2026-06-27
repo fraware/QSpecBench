@@ -36,6 +36,18 @@ Every benchmark PR is reviewed across:
 
 No maintainer should merge their own reference-level benchmark without review.
 
+## Reference-claim promotion
+
+Reference levels are scoped (see [docs/reference_benchmarks.md](docs/reference_benchmarks.md)). A
+benchmark is promoted to `reference_claim` only when its `claim_scope` / `proved_scope` obligations are
+all checked and `headline_claim_status` is `checked`.
+
+QEC-specific: a correction claim (for example, "corrects any single X error") requires **checked
+correction evidence** for `reference_claim`. An assumed decoder/lookup table supports at most
+`reference_scaffold` / `reference_artifact`, and the correction obligation must remain in
+`proved_scope.unproved_obligations`.
+
 ## Schema changes
 
-Schema changes must be versioned, documented, and justified by real benchmark needs.
+Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
+and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).

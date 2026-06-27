@@ -57,14 +57,12 @@ evidence:
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: qcec_equivalence
@@ -72,23 +70,20 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: lean_clifford_anchor
   type: lean_proof
   path: evidence/clifford_anchor.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/clifford_anchor.lean
   status: passing
   notes: Kernel-checked OpenQASM3 denotation anchor for Clifford source circuit.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -107,7 +102,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -121,6 +116,11 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -128,4 +128,40 @@ proof_obligations:
   notes: Clifford simplification anchor
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: clifford_simplification_preserves_unitary_headline
+  headline_claim_text: A Clifford simplification pass preserves the circuit unitary
+    on declared registers.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - semantic_correctness_of_circuit_vs_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_clifford_anchor
+  evidence_id: lean_clifford_anchor
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_clifford_hhs
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - semantic_correctness_of_circuit_vs_claim
+  benchmark_anchor: clifford_simplification_preserves_unitary
+provenance:
+  generated_at: '2026-06-27T13:35:50.173870+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: b36d87ee22badf64677de5482b3751137468d2934811abfc35e8d36a5945fa74
+    role: source
+  - path: artifacts/target.qasm
+    sha256: a8ee6125167c16d226bf0566ca803cb41e8716f5bfb9b526c4183dfec3a86843
+    role: target

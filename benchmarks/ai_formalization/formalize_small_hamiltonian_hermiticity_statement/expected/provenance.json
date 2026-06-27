@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "formalize_small_hamiltonian_hermiticity_statement",
+  "generated_at": "2026-06-27T13:35:49.480886+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.txt",
+      "sha256": "1294517f058115e0ba43f0dd3c945c9eebc95c2545911baed4b63e378d07957e",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/draft.lean",
+      "sha256": "14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980",
+      "role": "generated"
+    },
+    {
+      "path": "notes/semantic_rubric.md",
+      "sha256": "71ff41c1754ab97888a03d315c6b280bc08ff643ba98dcc740ec460a961d3a4f",
+      "role": "specification"
+    }
+  ]
+}

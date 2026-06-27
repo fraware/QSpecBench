@@ -34,6 +34,9 @@ For runnable seeds, use [`benchmarks/_template/`](../benchmarks/_template/) or a
 | `references` | array | yes | Bibliography (may be empty) |
 | `semantic_bridge` | object | no | OpenQASM ↔ Lean bridge metadata (v0.2) |
 | `proof_obligations` | array | no | Named lemma obligations for reference maturity (v0.2) |
+| `claim_scope` | object | no | Headline claim id/text and `required_obligations` (v0.2) |
+| `proved_scope` | object | no | `checked_obligations` / `unproved_obligations` for the headline claim (v0.2) |
+| `headline_claim_status` | object | no | `status`: `unproved` \| `partially_checked` \| `checked` (v0.2) |
 
 ## `informal_claim`
 
@@ -116,7 +119,7 @@ Lists: `mathematical`, `physical`, `tool`, `artifact`, `unverified` (each string
 | `lean_module` | string | yes |
 | `lean_theorem` | string | yes |
 | `normalization` | object | yes |
-| `claimed_link` | enum | yes | `documented_not_proved`, `kernel_checked` |
+| `claimed_link` | enum | yes | `documented_not_proved`, `python_consistency_checked`, `kernel_checked` (reserved/unused) |
 | `bridge_evidence_id` | string \| null | no |
 | `gate_set` | string \| null | no |
 
@@ -149,9 +152,9 @@ At least one list must be non-empty.
 | `informal_claim`, `machine_spec` | `missing`, `draft`, `complete` |
 | `artifacts`, `evidence` | `missing`, `partial`, `complete` |
 | `ci` | `not_applicable`, `failing`, `passing` |
-| `maturity` | `seed`, `usable`, `reference`, `deprecated` |
+| `maturity` | `seed`, `usable`, `reference_scaffold`, `reference_contract`, `reference_artifact`, `reference_claim`, `deprecated` |
 
-Reference maturity requires `ci: passing` and passing checked evidence (`lean_proof`, `smt_certificate`, `sat_certificate`).
+Any scoped reference level requires `ci: passing` and passing checked evidence (`lean_proof`, `smt_certificate`, `sat_certificate`). `reference_claim` additionally requires `claim_scope`, a `proved_scope` covering every required obligation, `headline_claim_status: checked`, and passing evidence for each `required_for_claim` acceptable-evidence type. Scaffold-level benchmarks must not declare `headline_claim_status: checked`. See [reference benchmarks](reference_benchmarks.md) and [versioning](versioning.md).
 
 ## `qec_status` (optional)
 
@@ -162,6 +165,10 @@ Reference maturity requires `ci: passing` and passing checked evidence (`lean_pr
 - ID matches directory; track matches parent folder
 - Approximate specs require metric and bound
 - `ai_draft` must be untrusted; `simulation` cannot be checked
+- Every `evidence.type` must be declared in `acceptable_evidence`
+- Scoped reference levels require `ci: passing` and a passing checked-evidence entry
+- `reference_claim` requires all required headline obligations checked and required evidence passing
+- Scaffold-level benchmarks cannot declare `headline_claim_status: checked`
 - Deprecated README must mention deprecation
 - Artifacts/evidence paths must resolve
 

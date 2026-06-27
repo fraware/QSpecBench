@@ -65,14 +65,12 @@ evidence:
   type: lean_proof
   path: evidence/trotter_contract.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/trotter_contract.lean
   status: passing
   notes: Kernel-checked declared second-order contract anchor.
 - id: bound_contract_review
   type: human_review
   path: notes/informal_derivation.md
   checker: domain expert review
-  command: python adapters/human_review/parse_result.py notes/informal_derivation.md
   status: passing
   notes: Contract documented and human-reviewed; bound not proved.
 trust_boundary:
@@ -92,7 +90,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_contract
 references: []
 proof_obligations:
 - id: contract_declaration
@@ -101,3 +99,40 @@ proof_obligations:
 - id: operator_norm_bound
   status: partial
   notes: O(step^3) bound not proved
+claim_scope:
+  headline_claim_id: trotter_second_order_bound_contract_headline
+  headline_claim_text: A second-order Trotter step declares an error-bound contract
+    without formal proof.
+  required_obligations:
+  - contract_declaration
+  - operator_norm_bound
+proved_scope:
+  checked_obligations:
+  - contract_declaration
+  unproved_obligations:
+  - operator_norm_bound
+  - trotter_error_proof
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_trotter_contract
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.trotter_second_order_bound_contract
+  supports:
+  - contract_declaration
+  does_not_support:
+  - operator_norm_bound
+  - trotter_error_proof
+  benchmark_anchor: trotter_second_order_bound_contract
+hamiltonian_claim_scope:
+  claim_class: declared_contract_claim
+  derivation_status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.000143+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: 2098b7d4d0715a2b354522a096fa79a1159acebefa3786f5723afa84aeca7aaf
+    role: specification

@@ -60,7 +60,6 @@ evidence:
   type: simulation
   path: evidence/check_detector.py
   checker: detector model script
-  command: python adapters/python/parse_result.py evidence/check_detector.py
   status: passing
   notes: Field bound checks only.
 trust_boundary:
@@ -80,3 +79,34 @@ status:
   ci: passing
   maturity: usable
 references: []
+claim_scope:
+  headline_claim_id: detector_model_sanity_check_headline
+  headline_claim_text: A toy detector model JSON satisfies declared field bounds for
+    QEC experiment scaffolding.
+  required_obligations:
+  - simulation_heuristic
+proved_scope:
+  checked_obligations: []
+  unproved_obligations:
+  - simulation_heuristic
+  - hardware_calibration
+headline_claim_status:
+  status: unproved
+  notes: null
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: unchecked
+  correction_table: unchecked
+  decoder_correctness: assumed
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.081942+00:00'
+  artifacts:
+  - path: artifacts/detector_model.json
+    sha256: e0e7ebee875691cc60a4a76a70cad8597c60b267bae0fdaafe8f952e725de345
+    role: specification

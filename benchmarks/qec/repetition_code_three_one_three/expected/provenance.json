@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "repetition_code_three_one_three",
+  "generated_at": "2026-06-27T13:35:51.265132+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/code.json",
+      "sha256": "1bcdcc523c43fd90910ed306a2f7ee3c46507fd7b768e2f1f506888aa8ebb03f",
+      "role": "specification"
+    }
+  ]
+}

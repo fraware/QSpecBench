@@ -34,7 +34,7 @@ See `spec.yaml` `trust_boundary` and `proof_obligations` (`relational_protocol: 
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

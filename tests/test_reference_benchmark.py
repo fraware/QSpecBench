@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 
 from qspecbench.evidence_runner import run_evidence_checks
+from qspecbench.models import ALL_REFERENCE_LEVELS
 from qspecbench.validate import validate_path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -17,7 +18,7 @@ def test_reference_benchmark_exists():
         if "_template" in p.parts:
             continue
         spec = yaml.safe_load(p.read_text(encoding="utf-8"))
-        if spec.get("status", {}).get("maturity") == "reference":
+        if spec.get("status", {}).get("maturity") in ALL_REFERENCE_LEVELS:
             refs.append(p)
     assert len(refs) >= 8
 

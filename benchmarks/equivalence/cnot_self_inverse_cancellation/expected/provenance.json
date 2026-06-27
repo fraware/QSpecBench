@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "cnot_self_inverse_cancellation",
+  "generated_at": "2026-06-27T13:35:50.233599+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "6c47289bf55ea8115636bede3deb8f6f79ca259c7ff0ffce7a57e15684e613f3",
+      "role": "target"
+    }
+  ]
+}

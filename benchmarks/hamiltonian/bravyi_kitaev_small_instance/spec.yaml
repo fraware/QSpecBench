@@ -59,7 +59,6 @@ evidence:
   type: simulation
   path: evidence/check_bk.py
   checker: BK mapping script
-  command: python adapters/python/parse_result.py evidence/check_bk.py
   status: passing
   notes: Metadata sanity only.
 trust_boundary:
@@ -78,3 +77,26 @@ status:
   ci: passing
   maturity: usable
 references: []
+claim_scope:
+  headline_claim_id: bravyi_kitaev_small_instance_headline
+  headline_claim_text: A two-mode Hamiltonian declares Bravyi-Kitaev mapping metadata
+    for simulation scaffolding.
+  required_obligations:
+  - simulation_heuristic
+proved_scope:
+  checked_obligations: []
+  unproved_obligations:
+  - simulation_heuristic
+  - formal_anticommutation_preservation
+headline_claim_status:
+  status: unproved
+  notes: null
+hamiltonian_claim_scope:
+  claim_class: mapping_sanity_claim
+  derivation_status: not_applicable
+provenance:
+  generated_at: '2026-06-27T13:35:50.677577+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: 8bbac2dd5bff6976e1daeeb3906cd899a90ae86f90e5f311b172b1f0d460409c
+    role: specification

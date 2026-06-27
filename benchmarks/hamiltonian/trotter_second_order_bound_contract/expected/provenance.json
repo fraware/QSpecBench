@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "trotter_second_order_bound_contract",
+  "generated_at": "2026-06-27T13:35:51.000143+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/hamiltonian.json",
+      "sha256": "2098b7d4d0715a2b354522a096fa79a1159acebefa3786f5723afa84aeca7aaf",
+      "role": "specification"
+    }
+  ]
+}

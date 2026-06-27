@@ -6,7 +6,11 @@
     "hadamard": "unnormalized_int_model",
     "s_gate": "identity_scaffold"
   },
-  "claimed_link": "kernel_checked",
+  "claimed_link": "python_consistency_checked",
   "gate_set": "openqasm3_1q_clifford",
-  "bridge_evidence_id": "bridge_verify"
+  "bridge_evidence_id": "bridge_verify",
+  "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
+  "qasm_artifact": "artifacts/source.qasm",
+  "artifact_sha256": "b36d87ee22badf64677de5482b3751137468d2934811abfc35e8d36a5945fa74",
+  "gate_trace_sha256": "8804cd386c5179b088ed07b9aa6d83143a11687ad2bb309e068173df5ac2fe1e"
 }

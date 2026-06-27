@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "formalize_stabilizer_commutation_statement",
+  "generated_at": "2026-06-27T13:35:49.537077+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.txt",
+      "sha256": "30bb6de1e60365f6c122853b4c937daed773ab0b94a7f9a538c7b387701811b5",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/draft.lean",
+      "sha256": "14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980",
+      "role": "generated"
+    },
+    {
+      "path": "notes/semantic_rubric.md",
+      "sha256": "6772d5344f8b8679c6822838bec46ab55a7033e7aaf8b90e1d11328028ad0687",
+      "role": "specification"
+    }
+  ]
+}

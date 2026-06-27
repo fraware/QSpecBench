@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "jordan_wigner_preserves_anticommutation_small_instance",
+  "generated_at": "2026-06-27T13:35:50.768200+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/hamiltonian.json",
+      "sha256": "fb4e0dd264941e67dcf7c294c030d80091aa6f09a13e6f0c4523cb4483bc3492",
+      "role": "source"
+    }
+  ]
+}

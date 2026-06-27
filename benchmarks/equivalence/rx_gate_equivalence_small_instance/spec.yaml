@@ -65,26 +65,28 @@ acceptable_evidence:
   checker: QCEC equivalence tool
   required_for_claim: false
   trust_level: externally_trusted
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 evidence:
 - id: lean_rx_pi2
   type: lean_proof
   path: evidence/rx_pi2.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/rx_pi2.lean
   status: passing
   notes: Kernel-checked RX(pi/2) denoted as unnormalized H on int model.
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax only.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax only.
 - id: qcec_equivalence
@@ -92,16 +94,14 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -121,7 +121,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -129,4 +129,42 @@ proof_obligations:
   notes: bridge_rx_pi2_eq_h on int model
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: rx_gate_equivalence_small_instance_headline
+  headline_claim_text: Rx(pi/2) equals H up to global phase on one qubit for the declared
+    instance.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - openqasm_rx_parameter_semantics_beyond_pi_2_inst
+  - global_phase_between_rx_and_h
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_rx_pi2
+  evidence_id: lean_rx_pi2
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_rx_pi2_eq_h
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - openqasm_rx_parameter_semantics_beyond_pi_2_inst
+  - global_phase_between_rx_and_h
+  benchmark_anchor: rx_gate_equivalence_small_instance
+provenance:
+  generated_at: '2026-06-27T13:35:50.444309+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: 4fec79d87518dd7431f762a7449ebdc2eaa9ddf0532c8a972f09ec36d54684bd
+    role: source
+  - path: artifacts/target.qasm
+    sha256: b504b0095b7d32ba263dbdcb834b171f0d65ac8076f33ad7eaa5b5e2a53a333c
+    role: target

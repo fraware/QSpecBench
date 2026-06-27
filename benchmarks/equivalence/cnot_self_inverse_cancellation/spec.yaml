@@ -80,33 +80,34 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: externally_trusted
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax check only.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax check only.
 - id: lean_cnot_proof
   type: lean_proof
   path: evidence/cnot_self_inverse.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/cnot_self_inverse.lean
   status: passing
   notes: 'Kernel-checked: QSpecBench.CNOT.cnot_mul_self via lake build.'
 - id: unitary_equality_certificate
   type: sat_certificate
   path: evidence/unitary_equality.certificate.json
   checker: independent unitary certificate verifier
-  command: python adapters/sat_certificate/parse_result.py evidence/unitary_equality.certificate.json
   status: passing
   notes: Independently checkable exact matrix certificate for 2-qubit CX.CX=I; not
     a general formal proof.
@@ -115,21 +116,19 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches QSpecBench.Quantum.OpenQASM3 denotation (kernel_checked
+  notes: QASM matrix matches QSpecBench.Quantum.OpenQASM3 denotation (python_consistency_checked
     bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse on source and target
-  - "Lean 4 kernel proof of CX.CX = I on declared 4\xD74 matrix model"
+  - Lean 4 kernel proof of CX.CX = I on declared 4×4 matrix model
   - independently checkable unitary equality certificate (supplementary)
   trusted_kernels:
   - Lean 4 kernel
@@ -145,7 +144,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_claim
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -153,7 +152,56 @@ proof_obligations:
   notes: cnot_mul_self on 4x4 model
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
 - id: openqasm_full_language
   status: not_applicable
   notes: Gate-subset denotation only
+claim_scope:
+  headline_claim_id: cnot_self_inverse_cancellation_headline
+  headline_claim_text: Two consecutive CNOT gates on the same control-target pair
+    implement the identity on the declared two-qubit register.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - matrix_model_matches_qasm_semantics_for_all_inst
+  - general_n_qubit_extension_of_cancellation_rule
+headline_claim_status:
+  status: checked
+  notes: All declared required obligations are kernel- or manifest-checked under the
+    stated gate model.
+formal_claims:
+- id: formal_lean_cnot_proof
+  evidence_id: lean_cnot_proof
+  formal_system: lean
+  module: QSpecBench.CNOT
+  theorem: cnot_mul_self
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - openqasm_full_language
+  benchmark_anchor: cnot_self_inverse_cancellation
+- id: formal_bridge_cnot
+  evidence_id: bridge_verify
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: bridge_cnot_self_inverse
+  supports:
+  - semantic_bridge
+  - python_denotation_bridge
+  does_not_support:
+  - openqasm_full_language
+  benchmark_anchor: cnot_self_inverse_cancellation
+provenance:
+  generated_at: '2026-06-27T13:35:50.233599+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: 8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de
+    role: source
+  - path: artifacts/target.qasm
+    sha256: 6c47289bf55ea8115636bede3deb8f6f79ca259c7ff0ffce7a57e15684e613f3
+    role: target

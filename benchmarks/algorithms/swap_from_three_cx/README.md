@@ -26,7 +26,7 @@ See spec.yaml.
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/correction_table.schema.json",
+  "title": "QSpecBench correction table",
+  "type": "object",
+  "required": ["type", "entries"],
+  "properties": {
+    "type": { "const": "correction_table" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["syndrome", "physical_correction"],
+        "properties": {
+          "syndrome": { "type": "string" },
+          "physical_correction": { "type": "string" }
+        }
+      }
+    }
+  }
+}

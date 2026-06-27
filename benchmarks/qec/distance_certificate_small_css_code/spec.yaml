@@ -66,14 +66,12 @@ evidence:
   type: qec_verifier_result
   path: artifacts/code.json
   checker: qec json validator
-  command: python adapters/qec/parse_result.py artifacts/code.json
   status: passing
   notes: JSON structure validation only.
 - id: smt_distance_cert
   type: smt_certificate
   path: evidence/distance_claim.certificate.json
   checker: z3 or cvc5 SMT solver
-  command: python adapters/smt/parse_result.py evidence/distance_claim.certificate.json
   status: passing
   notes: Toy SMT certificate for declared d>=3; not a full distance proof.
 trust_boundary:
@@ -92,7 +90,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: usable
 references: []
 qec_status:
   code_definition: complete
@@ -109,3 +107,37 @@ proof_obligations:
 - id: full_distance_proof
   status: not_applicable
   notes: Toy certificate only
+claim_scope:
+  headline_claim_id: distance_certificate_small_css_code_headline
+  headline_claim_text: QEC benchmark claim for `distance_certificate_small_css_code`
+    under an explicitly declared Pauli-dominated error model.
+  required_obligations:
+  - distance_certificate
+  - stabilizer_json
+proved_scope:
+  checked_obligations:
+  - distance_certificate
+  - stabilizer_json
+  unproved_obligations:
+  - algebraic_commutation_proof
+  - decoder_and_correction_claims
+headline_claim_status:
+  status: partially_checked
+  notes: null
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: unchecked
+  correction_table: unchecked
+  decoder_correctness: out_of_scope
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.127407+00:00'
+  artifacts:
+  - path: artifacts/code.json
+    sha256: 645933c63d92204037f5f25487b3ee6a96ba8782c60dc3b2addb03b62222627b
+    role: specification

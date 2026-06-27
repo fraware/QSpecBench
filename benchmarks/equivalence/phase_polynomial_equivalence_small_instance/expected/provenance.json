@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "phase_polynomial_equivalence_small_instance",
+  "generated_at": "2026-06-27T13:35:50.342914+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1",
+      "role": "target"
+    }
+  ]
+}

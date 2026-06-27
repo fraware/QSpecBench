@@ -58,7 +58,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 acceptable_evidence:
 - type: qasm_parse
@@ -71,19 +71,27 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: false
+  trust_level: checked
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax only.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax only.
 - id: qcec_equivalence
@@ -91,23 +99,20 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: lean_swap_bridge
   type: lean_proof
   path: evidence/swap_bridge.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/swap_bridge.lean
   status: passing
   notes: Kernel-checked three-CX SWAP denotation anchor.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: kernel_checked verify-bridge on source circuit.
+  notes: python_consistency_checked verify-bridge on source circuit.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -126,7 +131,44 @@ proof_obligations:
   notes: bridge_swap_from_three_cx anchor
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
 - id: qcec_equivalence
   status: passing
   notes: External SWAP vs three-CX check
+claim_scope:
+  headline_claim_id: swap_from_three_cx_headline
+  headline_claim_text: Three CNOT gates in standard order implement SWAP on two qubits.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  - qcec_equivalence
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  - qcec_equivalence
+  unproved_obligations:
+  - unitary_equivalence_beyond_declared_gate_subset
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_swap_bridge
+  evidence_id: lean_swap_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - unitary_equivalence_beyond_declared_gate_subset
+  benchmark_anchor: swap_from_three_cx
+provenance:
+  generated_at: '2026-06-27T13:35:50.004338+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: 33f7ee1282995bfd6e039338f178853d74276c938114aef94c330c1c1e2f4910
+    role: source
+  - path: artifacts/target.qasm
+    sha256: bc53876d72d0abccc38adfe2f6b7cfe1bcdde4fbb533eaedad8eb59931cda9f2
+    role: target

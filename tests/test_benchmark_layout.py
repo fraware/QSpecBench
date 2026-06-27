@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 
 from qspecbench.artifacts import check_layout, find_spec_files, track_for_claim
+from qspecbench.models import ALL_REFERENCE_LEVELS
 from qspecbench.validate import validate_spec_dict
 
 REPO = Path(__file__).resolve().parents[1]
@@ -56,7 +57,7 @@ def test_reference_benchmarks_have_proof_obligations():
     missing = []
     for spec_path in find_spec_files(benchmarks_root):
         spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
-        if spec.get("status", {}).get("maturity") != "reference":
+        if spec.get("status", {}).get("maturity") not in ALL_REFERENCE_LEVELS:
             continue
         if not spec.get("proof_obligations"):
             missing.append(spec.get("id"))

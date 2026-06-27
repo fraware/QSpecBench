@@ -6,7 +6,10 @@
     "hadamard": "unnormalized_int_model",
     "cnot": "indexed_control_target_q0_lsb"
   },
-  "claimed_link": "kernel_checked",
+  "claimed_link": "python_consistency_checked",
   "qasm_artifact": "artifacts/source.qasm",
-  "bridge_evidence_id": "bridge_verify"
+  "bridge_evidence_id": "bridge_verify",
+  "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
+  "artifact_sha256": "33f7ee1282995bfd6e039338f178853d74276c938114aef94c330c1c1e2f4910",
+  "gate_trace_sha256": "fd0a1c25c003da3b501bc1049194492b29d4aec1c7145cf46b76f1411221bc99"
 }

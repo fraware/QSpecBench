@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "formalize_teleportation_spec_statement",
+  "generated_at": "2026-06-27T13:35:49.590023+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.txt",
+      "sha256": "6f7ed27573848d07c806a159e1b6bd5f2dcb0e3ba7282233a9dd824660f660cd",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/draft.lean",
+      "sha256": "e9a2c6e9fa8301bfecec1481714d46dbbaebaf3fddc42660769649b8964669a9",
+      "role": "generated"
+    },
+    {
+      "path": "notes/semantic_rubric.md",
+      "sha256": "40fcd3cb334ba2c4872f7207077accf49c8d1c7e1a287367b0b9dd286fe0aee8",
+      "role": "specification"
+    }
+  ]
+}

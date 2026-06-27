@@ -31,7 +31,7 @@ Semantic bridge: `documented_not_proved` — see `expected/semantic_bridge.json`
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

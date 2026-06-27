@@ -86,14 +86,12 @@ evidence:
   type: qec_verifier_result
   path: artifacts/code.json
   checker: qec json validator
-  command: python adapters/qec/parse_result.py artifacts/code.json
   status: passing
   notes: Validates stabilizer JSON structure only.
 - id: lean_stabilizer_commutation
   type: lean_proof
   path: evidence/bit_flip_stabilizers.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/bit_flip_stabilizers.lean
   status: passing
   notes: Kernel-checked bit-flip stabilizer commutation via QSpecBench.Stabilizer.
 - id: error_model_json
@@ -122,7 +120,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 qec_status:
   code_definition: complete
   stabilizer_commutation: complete
@@ -142,3 +140,64 @@ proof_obligations:
 - id: correction_claim
   status: partial
   notes: Correction tables not kernel-checked
+claim_scope:
+  headline_claim_id: three_qubit_bit_flip_code_corrects_one_x_headline
+  headline_claim_text: The three-qubit bit-flip code corrects any single X error on
+    physical qubits under the declared Pauli bit-flip error model.
+  required_obligations:
+  - stabilizer_commutation
+  - syndrome_decoding_correctness
+  - correction_restores_logical_state
+proved_scope:
+  checked_obligations:
+  - stabilizer_commutation
+  unproved_obligations:
+  - syndrome_decoding_correctness
+  - correction_restores_logical_state
+  - correction_restores_logical_state_for_all_single
+  - syndrome_extraction_circuit_semantics
+  - decoder_correctness_assumed
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_stabilizer_commutation
+  evidence_id: lean_stabilizer_commutation
+  formal_system: lean
+  module: QSpecBench.Stabilizer
+  theorem: QSpecBench.bit_flip_stabilizers_commute
+  supports:
+  - stabilizer_commutation
+  does_not_support:
+  - syndrome_decoding_correctness
+  - correction_restores_logical_state
+  - correction_restores_logical_state_for_all_single
+  - syndrome_extraction_circuit_semantics
+  - decoder_correctness_assumed
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: assumed
+  correction_table: assumed
+  decoder_correctness: assumed
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.572041+00:00'
+  artifacts:
+  - path: artifacts/code.json
+    sha256: 529481f082113364e795aefc29b5a86b3404a03dbd0b3821348729a29b016ff0
+    role: specification
+  - path: artifacts/error_model.json
+    sha256: 2be305aab65843d0fa3fe74c086804f95b0e30df790f23d9b4ff7c1909515db1
+    role: specification
+  - path: artifacts/syndrome_table.json
+    sha256: 68436cc592abc68d89ca390f6c5a690a5b1f713b6cc647141c09d8ae997dabf3
+    role: reference
+  - path: artifacts/correction_table.json
+    sha256: 9565be9564de6d764cc69685ad0470eb51e4915a0f3947058b39c2cfe28c01f5
+    role: reference

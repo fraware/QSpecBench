@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "small_fermionic_hamiltonian_is_hermitian",
+  "generated_at": "2026-06-27T13:35:50.953092+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/hamiltonian.json",
+      "sha256": "9e7ed73c0680e29247b921d2806483ba99adc69fbd3ceccb2576385def9419f4",
+      "role": "source"
+    }
+  ]
+}

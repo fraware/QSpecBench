@@ -130,7 +130,7 @@ We welcome benchmarks, better evidence, documentation fixes, and new checker ada
 
 1. Read [Adding a benchmark](docs/adding_a_benchmark.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 2. Copy [`benchmarks/_template/`](benchmarks/_template/) into the right track folder.
-3. Use a nearby **reference** example as a style guide:
+3. Use a nearby **reference scaffold** as a style guide (each demonstrates the format; none yet proves its full headline claim):
    - Algorithms → [`teleportation_preserves_state_up_to_pauli_correction`](benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction/)
    - Equivalence → [`cnot_self_inverse_cancellation`](benchmarks/equivalence/cnot_self_inverse_cancellation/)
    - QEC → [`three_qubit_bit_flip_code_corrects_one_x`](benchmarks/qec/three_qubit_bit_flip_code_corrects_one_x/)
@@ -141,13 +141,25 @@ We welcome benchmarks, better evidence, documentation fixes, and new checker ada
 
 ### Maturity levels
 
+Maturity is **scoped**: it separates "this benchmark has some checked evidence" from "the full
+informal headline claim is proved".
+
 | Level | What we expect |
 |-------|----------------|
-| **Seed** | Claim, spec, and trust boundary — proof optional |
-| **Usable** | Complete card, runnable artifacts, evidence path, CI green |
-| **Reference** | Checked evidence, passing CI, assumptions explicit |
+| **seed** | Claim, spec, and trust boundary — proof optional |
+| **usable** | Complete card, runnable artifacts, evidence path, CI green |
+| **reference_scaffold** | Passing CI plus at least one checked-evidence obligation, but the headline claim is only partially checked. Demonstrates the evidence format and trust-boundary discipline. |
+| **reference_contract** | Like `reference_scaffold`, for benchmarks whose checked evidence is a declared contract (e.g. a resource or error-bound contract) rather than a proof of the bound itself. |
+| **reference_artifact** | Like `reference_scaffold`, where the checked evidence is artifact-structural (e.g. stabilizer commutation) rather than a proof of the headline claim. |
+| **reference_claim** | The headline claim is fully proved: every required obligation passes, all required evidence exists and passes, and `headline_claim_status` is `checked`. |
+| **deprecated** | Retained for history; README explains why. |
 
-Promotion to reference is documented in [reference benchmarks](docs/reference_benchmarks.md) and reviewed per [GOVERNANCE.md](GOVERNANCE.md).
+Most current entries are **reference scaffolds**: they demonstrate the QSpecBench evidence format and
+trust-boundary discipline, but they do not yet prove the full informal headline claim. A benchmark is
+only `reference_claim` when its `claim_scope` / `proved_scope` obligations are all checked.
+
+Promotion is documented in [reference benchmarks](docs/reference_benchmarks.md) and reviewed per
+[GOVERNANCE.md](GOVERNANCE.md).
 
 ### Other ways to help
 
@@ -160,16 +172,34 @@ Be precise about verification claims: say what was checked and with which tool.
 
 ---
 
+## Versions
+
+QSpecBench versions the schema, the tooling, and the benchmark corpus separately so that a change in
+one does not imply maturity in the others. See [versioning](docs/versioning.md).
+
+| Component | Version |
+|---|---|
+| **Schema** (`qspecbench_version`) | 0.2 |
+| **Tooling** (`qspecbench` CLI / Lean lib) | 0.2.0 |
+| **Corpus** (benchmark suite) | 0.1.0 |
+| **Release tag** | v0.1.0 |
+
 ## Project status
+
+Honest status: most early entries are **reference scaffolds**. They demonstrate the QSpecBench evidence
+format and trust-boundary discipline, but they do not yet prove the full informal headline claim. No
+benchmark is currently a `reference_claim`, and there are **no kernel-checked artifact-to-theorem
+bridges** yet — the bridge tooling performs a Python-level denotation-consistency check only.
 
 | | |
 |---|---|
-| **Release** | v1.1.0 |
 | **Benchmarks** | 48 across 5 tracks |
-| **Reference-quality** | 42 |
-| **With checked evidence** | 44 |
-| **Kernel-checked bridges** | 14 |
-| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
+| **Reference scaffolds** (any scoped reference level) | 40 |
+| **With headline claim checked** (`reference_claim`) | 0 |
+| **With any checked evidence** | 44 |
+| **Python denotation consistency checks** | 14 |
+| **Kernel-checked artifact-to-theorem bridges** | 0 |
+| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge (Python consistency), circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).
 

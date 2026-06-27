@@ -30,7 +30,7 @@ The Lean anchor proves Bell-pair preparation is nontrivial; it does **not** prov
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

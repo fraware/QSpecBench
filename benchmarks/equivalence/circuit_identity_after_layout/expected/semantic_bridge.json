@@ -6,7 +6,10 @@
     "hadamard": "unnormalized_int_model",
     "layout": "register_rename_preserves_matrix"
   },
-  "claimed_link": "kernel_checked",
+  "claimed_link": "python_consistency_checked",
   "qasm_artifact": "artifacts/source.qasm",
-  "bridge_evidence_id": "bridge_verify"
+  "bridge_evidence_id": "bridge_verify",
+  "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
+  "artifact_sha256": "615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b",
+  "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f"
 }

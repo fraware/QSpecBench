@@ -61,14 +61,12 @@ evidence:
   type: qec_verifier_result
   path: artifacts/code.json
   checker: qec json validator
-  command: python adapters/qec/parse_result.py artifacts/code.json
   status: passing
   notes: JSON structure validation only.
 - id: lean_stabilizer_commutation
   type: lean_proof
   path: evidence/repetition_stabilizers.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/repetition_stabilizers.lean
   status: passing
   notes: Kernel-checked repetition-code stabilizer commutation scaffold.
 trust_boundary:
@@ -88,7 +86,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 qec_status:
   code_definition: complete
   stabilizer_commutation: complete
@@ -99,3 +97,47 @@ proof_obligations:
 - id: stabilizer_commutation
   status: passing
   notes: Lean stabilizer commutation scaffold
+claim_scope:
+  headline_claim_id: repetition_code_three_one_three_headline
+  headline_claim_text: The three-qubit repetition code has parameters [[3,1,3]] under
+    declared stabilizer generators.
+  required_obligations:
+  - stabilizer_commutation
+proved_scope:
+  checked_obligations:
+  - stabilizer_commutation
+  unproved_obligations:
+  - distance_proof
+  - decoder_correctness
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_stabilizer_commutation
+  evidence_id: lean_stabilizer_commutation
+  formal_system: lean
+  module: QSpecBench.Stabilizer
+  theorem: QSpecBench.repetition_stabilizers_commute
+  supports:
+  - stabilizer_commutation
+  does_not_support:
+  - distance_proof
+  - decoder_correctness
+  benchmark_anchor: repetition_code_three_one_three
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: unchecked
+  correction_table: unchecked
+  decoder_correctness: out_of_scope
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.265132+00:00'
+  artifacts:
+  - path: artifacts/code.json
+    sha256: 1bcdcc523c43fd90910ed306a2f7ee3c46507fd7b768e2f1f506888aa8ebb03f
+    role: specification

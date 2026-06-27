@@ -1,13 +1,13 @@
 qspecbench_version: '0.2'
 id: deutsch_jozsa_constant_balanced_distinction
-title: "Deutsch\u2013Jozsa distinguishes constant from balanced oracles"
+title: Deutsch–Jozsa distinguishes constant from balanced oracles
 track: algorithm
 domain: quantum_algorithm
 claim_type: oracle_distinction
 difficulty: intermediate
 informal_claim:
-  statement: "For the declared small instance, Deutsch\u2013Jozsa distinguishes constant\
-    \ from balanced oracle functions."
+  statement: For the declared small instance, Deutsch–Jozsa distinguishes constant
+    from balanced oracle functions.
   source: null
   reference_key: null
 semantic_level:
@@ -67,14 +67,12 @@ evidence:
   type: qasm_parse
   path: artifacts/circuit.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only; oracle not verified.
 - id: lean_dj_scaffold
   type: lean_proof
   path: evidence/dj_constant.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/dj_constant.lean
   status: passing
   notes: Kernel-checked DJ constant-oracle Hadamard scaffold.
 trust_boundary:
@@ -94,7 +92,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: hadamard_layer
@@ -103,3 +101,37 @@ proof_obligations:
 - id: oracle_distinction
   status: partial
   notes: Oracle not kernel-linked
+claim_scope:
+  headline_claim_id: deutsch_jozsa_constant_balanced_distinction_headline
+  headline_claim_text: For the declared small instance, Deutsch–Jozsa distinguishes
+    constant from balanced oracle functions.
+  required_obligations:
+  - hadamard_layer
+  - oracle_distinction
+proved_scope:
+  checked_obligations:
+  - hadamard_layer
+  unproved_obligations:
+  - oracle_distinction
+  - dj_correctness_for_constant_vs_balanced
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_dj_scaffold
+  evidence_id: lean_dj_scaffold
+  formal_system: lean
+  module: QSpecBench.Algorithms
+  theorem: QSpecBench.dj_constant_oracle_hadamard_square
+  supports:
+  - hadamard_layer
+  does_not_support:
+  - oracle_distinction
+  - dj_correctness_for_constant_vs_balanced
+  benchmark_anchor: deutsch_jozsa_constant_balanced_distinction
+provenance:
+  generated_at: '2026-06-27T13:35:49.730380+00:00'
+  artifacts:
+  - path: artifacts/circuit.qasm
+    sha256: 5b71eb98f196e0138347cad2c22ce109d62abd63e87318928c12e74672cd66ab
+    role: source

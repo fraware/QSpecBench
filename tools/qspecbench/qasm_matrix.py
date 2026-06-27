@@ -20,9 +20,81 @@ _RX_LINE = re.compile(
     r"^\s*rx\s*\(\s*([0-9.eE+-]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$",
     re.IGNORECASE,
 )
+_CP_LINE = re.compile(
+    r"^\s*cp\s*\(\s*([^)]+)\s*\)\s+(.*);?\s*$",
+    re.IGNORECASE,
+)
 
 _COMPLEX_TOLERANCE = Fraction(1, 10**9)
 _SQRT2_HALF = Fraction(math.cos(math.pi / 4)).limit_denominator(10**12)
+
+# Non-unitary / structural OpenQASM constructs that carry no unitary contribution
+# and may therefore be skipped without affecting the extracted matrix.
+_NONUNITARY_KEYWORDS = frozenset(
+    {
+        "measure",
+        "reset",
+        "barrier",
+        "delay",
+        "if",
+        "else",
+        "for",
+        "while",
+        "return",
+        "break",
+        "continue",
+        "end",
+        "box",
+        "gate",
+        "def",
+        "defcal",
+        "defcalgrammar",
+        "cal",
+        "extern",
+        "pragma",
+    }
+)
+_DECLARATION_KEYWORDS = frozenset(
+    {
+        "qubit",
+        "bit",
+        "creg",
+        "qreg",
+        "int",
+        "uint",
+        "float",
+        "angle",
+        "complex",
+        "bool",
+        "duration",
+        "stretch",
+        "const",
+        "input",
+        "output",
+        "array",
+        "let",
+    }
+)
+
+
+class UnsupportedQasmError(ValueError):
+    """Raised when a unitary-bearing QASM line cannot be modeled (fail-closed)."""
+
+
+def _is_skippable_nonunitary(line: str) -> bool:
+    """Return True for structural/non-unitary lines that carry no unitary weight.
+
+    Everything that is not explicitly recognized here and is not a supported gate
+    must fail closed rather than be silently dropped from the extracted unitary.
+    """
+    low = line.lower()
+    # Classical assignment from a measurement, e.g. "c[0] = measure q[0];".
+    if re.search(r"\b(measure|reset)\b", low):
+        return True
+    if low in {"{", "}"}:
+        return True
+    first = re.split(r"[\s\[\(;{}]", low, maxsplit=1)[0]
+    return first in _NONUNITARY_KEYWORDS or first in _DECLARATION_KEYWORDS
 
 
 def _cell(re: Fraction | int = 0, im: Fraction | int = 0) -> Cell:
@@ -64,8 +136,6 @@ def _single_qubit_gate(name: str) -> ComplexMatrix:
 
 
 def _rx_matrix(theta: float) -> ComplexMatrix:
-    if abs(theta - 1.57079632679) < 1e-6:
-        return _single_qubit_gate("h")
     half = theta / 2.0
     c = Fraction(math.cos(half)).limit_denominator(10**12)
     s = Fraction(math.sin(half)).limit_denominator(10**12)
@@ -160,6 +230,17 @@ def _ccx(n_qubits: int, c1: int, c2: int, target: int) -> ComplexMatrix:
     return result
 
 
+def _cp(n_qubits: int, control: int, target: int, theta: float) -> ComplexMatrix:
+    """Controlled phase: exp(i*theta) on |11> of (control, target) when both are 1."""
+    dim = 1 << n_qubits
+    result = _eye(dim)
+    idx = (1 << control) | (1 << target)
+    re = Fraction(math.cos(theta)).limit_denominator(10**12)
+    im = Fraction(math.sin(theta)).limit_denominator(10**12)
+    result[idx][idx] = _cell(re, im)
+    return result
+
+
 def _swap(n_qubits: int, a: int, b: int) -> ComplexMatrix:
     dim = 1 << n_qubits
     result = _eye(dim)
@@ -172,6 +253,15 @@ def _swap(n_qubits: int, a: int, b: int) -> ComplexMatrix:
         for c in range(dim):
             result[row][c] = _cell(1 if c == col else 0)
     return result
+
+
+def _parse_angle(text: str) -> float:
+    s = text.strip().lower().replace(" ", "")
+    if s in {"pi/2", "(pi/2)"}:
+        return math.pi / 2
+    if s == "pi":
+        return math.pi
+    return float(s)
 
 
 def _parse_qubit_index(token: str, n_qubits: int) -> int:
@@ -249,16 +339,31 @@ def extract_matrix(qasm_path: Path) -> dict[str, Any]:
 
         rx = _RX_LINE.match(line)
         if rx:
-            angle = float(rx.group(1))
+            angle = _parse_angle(rx.group(1))
             q = _parse_qubit_index(rx.group(2), n)
             op = _apply_rx(n, angle, q)
             unitary = _mat_mul(op, unitary)
             gates_applied.append(line)
             continue
 
+        cp = _CP_LINE.match(line)
+        if cp:
+            angle = _parse_angle(cp.group(1))
+            args = _parse_qubit_args(cp.group(2), n)
+            if len(args) != 2:
+                raise ValueError(f"CP expects two qubit arguments: {line}")
+            op = _cp(n, args[0], args[1], angle)
+            unitary = _mat_mul(op, unitary)
+            gates_applied.append(line)
+            continue
+
         m = _GATE_LINE.match(line)
         if not m:
-            continue
+            if _is_skippable_nonunitary(line):
+                continue
+            raise UnsupportedQasmError(
+                f"unsupported QASM line for matrix extraction (fail-closed): {line!r}"
+            )
         gate = m.group(1).lower()
         args = _parse_qubit_args(m.group(2), n)
         if gate in {"cx", "cnot"}:

@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "surface_code_distance_three_stabilizer_sanity",
+  "generated_at": "2026-06-27T13:35:51.419266+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/code.json",
+      "sha256": "67bc6d138f758ee70ae729a7de4487b19f3bc677d76080dcec4bec880360d401",
+      "role": "specification"
+    }
+  ]
+}

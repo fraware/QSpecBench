@@ -7,7 +7,15 @@ import tempfile
 from fractions import Fraction
 from pathlib import Path
 
-from qspecbench.qasm_matrix import cells_close, extract_matrix, matrix_from_json_rows, matrices_equal
+import pytest
+
+from qspecbench.qasm_matrix import (
+    UnsupportedQasmError,
+    cells_close,
+    extract_matrix,
+    matrices_equal,
+    matrix_from_json_rows,
+)
 
 
 def _matrix_from_qasm(qasm: str):
@@ -21,14 +29,27 @@ def _matrix_from_qasm(qasm: str):
         path.unlink(missing_ok=True)
 
 
+def _extract_from_qasm(qasm: str):
+    with tempfile.NamedTemporaryFile("w", suffix=".qasm", delete=False, encoding="utf-8") as f:
+        f.write(qasm)
+        path = Path(f.name)
+    try:
+        return extract_matrix(path)
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def _cell(re: Fraction | int = 0, im: Fraction | int = 0):
     return (Fraction(re), Fraction(im))
 
 
-def test_rx_pi2_matches_h():
+def test_rx_pi2_is_proper_rotation_not_h():
     m_rx = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nrx(1.57079632679) q[0];\n")
     m_h = _matrix_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nh q[0];\n")
-    assert m_rx == m_h
+    assert m_rx != m_h
+    c = Fraction(math.cos(math.pi / 4)).limit_denominator(10**12)
+    assert cells_close(m_rx[0][0], _cell(c))
+    assert cells_close(m_rx[0][1], _cell(im=-c))
 
 
 def test_s_gate_phase_on_one():
@@ -100,3 +121,45 @@ def test_general_rx_theta():
     assert m[0][1] == _cell(im=-s)
     assert m[1][0] == _cell(im=-s)
     assert m[1][1] == _cell(c)
+
+
+def test_unsupported_rotation_gate_fails_closed():
+    with pytest.raises(UnsupportedQasmError):
+        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nrz(0.5) q[0];\n")
+
+
+def test_unsupported_controlled_phase_fails_closed():
+    with pytest.raises(UnsupportedQasmError):
+        _extract_from_qasm("OPENQASM 3.0;\nqubit[2] q;\ncz q[0], q[1];\n")
+
+
+def test_cp_gate_supported():
+    data = _extract_from_qasm("OPENQASM 3.0;\nqubit[2] q;\ncp(0.7853981634) q[0], q[1];\n")
+    assert len(data["gates_applied"]) == 1
+
+
+def test_unknown_line_fails_closed():
+    with pytest.raises(UnsupportedQasmError):
+        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\ngibberish q[0];\n")
+
+
+def test_unsupported_error_is_value_error():
+    # Fail-closed errors remain ValueErrors for callers catching the base type.
+    with pytest.raises(ValueError):
+        _extract_from_qasm("OPENQASM 3.0;\nqubit[1] q;\nu(0,0,0) q[0];\n")
+
+
+def test_measurement_and_declarations_are_skipped():
+    data = _extract_from_qasm(
+        "OPENQASM 3.0;\n"
+        'include "stdgates.inc";\n'
+        "qubit[2] q;\n"
+        "bit[2] c;\n"
+        "h q[0];\n"
+        "cx q[0], q[1];\n"
+        "barrier q;\n"
+        "c[0] = measure q[0];\n"
+        "c[1] = measure q[1];\n"
+    )
+    assert data["n_qubits"] == 2
+    assert data["gates_applied"] == ["h q[0];", "cx q[0], q[1];"]

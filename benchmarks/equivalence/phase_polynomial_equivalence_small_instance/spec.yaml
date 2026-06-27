@@ -56,14 +56,12 @@ evidence:
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: qcec_equivalence
@@ -71,23 +69,20 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: lean_phase_poly
   type: lean_proof
   path: evidence/phase_polynomial.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/phase_polynomial.lean
   status: passing
   notes: Kernel-checked phase-polynomial scaffold.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -106,7 +101,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -120,6 +115,11 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -127,4 +127,40 @@ proof_obligations:
   notes: Phase polynomial equivalence scaffold
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: phase_polynomial_equivalence_small_instance_headline
+  headline_claim_text: Two circuits realize the same phase polynomial on a small declared
+    instance.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - semantic_correctness_of_circuit_vs_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_phase_poly
+  evidence_id: lean_phase_poly
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_hs_gate
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - semantic_correctness_of_circuit_vs_claim
+  benchmark_anchor: phase_polynomial_equivalence_small_instance
+provenance:
+  generated_at: '2026-06-27T13:35:50.342914+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: 60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1
+    role: source
+  - path: artifacts/target.qasm
+    sha256: 60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1
+    role: target

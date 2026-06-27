@@ -1,0 +1,27 @@
+{
+  "benchmark_id": "three_qubit_bit_flip_code_corrects_one_x",
+  "generated_at": "2026-06-27T13:35:51.572041+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/code.json",
+      "sha256": "529481f082113364e795aefc29b5a86b3404a03dbd0b3821348729a29b016ff0",
+      "role": "specification"
+    },
+    {
+      "path": "artifacts/error_model.json",
+      "sha256": "2be305aab65843d0fa3fe74c086804f95b0e30df790f23d9b4ff7c1909515db1",
+      "role": "specification"
+    },
+    {
+      "path": "artifacts/syndrome_table.json",
+      "sha256": "68436cc592abc68d89ca390f6c5a690a5b1f713b6cc647141c09d8ae997dabf3",
+      "role": "reference"
+    },
+    {
+      "path": "artifacts/correction_table.json",
+      "sha256": "9565be9564de6d764cc69685ad0470eb51e4915a0f3947058b39c2cfe28c01f5",
+      "role": "reference"
+    }
+  ]
+}

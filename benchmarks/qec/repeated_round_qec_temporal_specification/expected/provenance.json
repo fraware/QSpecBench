@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "repeated_round_qec_temporal_specification",
+  "generated_at": "2026-06-27T13:35:51.221342+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/code.json",
+      "sha256": "ac413538406d99e36df6b63a87667aab513f739f435d2aff583556142c6d9a86",
+      "role": "specification"
+    }
+  ]
+}

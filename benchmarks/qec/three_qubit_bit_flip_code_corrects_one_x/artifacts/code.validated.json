@@ -7,8 +7,17 @@
     "schema_structure",
     "stabilizer_commutation",
     "logical_stabilizer_commutation",
-    "distance_consistency"
+    "distance_consistency",
+    "distance_type_consistency",
+    "syndrome_table_structure",
+    "syndrome_table_antcommutation",
+    "single_x_syndrome_injection",
+    "correction_table_structure",
+    "correction_table_syndrome_alignment",
+    "distance_min_weight_bruteforce"
   ],
-  "warnings": [],
+  "warnings": [
+    "declared distance is metadata only; it is not a machine-checked distance proof"
+  ],
   "errors": []
 }

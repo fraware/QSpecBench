@@ -84,15 +84,12 @@ evidence:
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/kernel_checked_draft.lean
   status: passing
   notes: Kernel-checked library theorem anchor.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
-  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
-    artifacts/draft.lean
   status: passing
   notes: Rubric score >= 4 for reference benchmarks.
 trust_boundary:
@@ -112,7 +109,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references:
 - key: steane_code_stabilizer_commutation
   type: other
@@ -126,3 +123,49 @@ proof_obligations:
 - id: draft_faithfulness
   status: partial
   notes: Rubric score >= 4; AI draft remains untrusted
+claim_scope:
+  headline_claim_id: formalize_stabilizer_commutation_statement_headline
+  headline_claim_text: Evaluate AI-assisted formalization faithfulness for `formalize_stabilizer_commutation_statement`.
+  required_obligations:
+  - kernel_anchor
+  - draft_faithfulness
+proved_scope:
+  checked_obligations:
+  - kernel_anchor
+  unproved_obligations:
+  - draft_faithfulness
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_kernel_check
+  evidence_id: lean_kernel_check
+  formal_system: lean
+  module: QSpecBench.Stabilizer
+  theorem: QSpecBench.steane_stabilizers_commute
+  supports:
+  - kernel_anchor
+  does_not_support:
+  - draft_faithfulness
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  benchmark_anchor: formalize_stabilizer_commutation_statement
+ai_formalization_status:
+  syntax_valid: true
+  kernel_checked: true
+  semantic_reviewed: true
+  faithfulness_score: 4
+  library_compatible: true
+  proof_completed: true
+provenance:
+  generated_at: '2026-06-27T13:35:49.537077+00:00'
+  artifacts:
+  - path: artifacts/source.txt
+    sha256: 30bb6de1e60365f6c122853b4c937daed773ab0b94a7f9a538c7b387701811b5
+    role: source
+  - path: artifacts/draft.lean
+    sha256: 14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980
+    role: generated
+  - path: notes/semantic_rubric.md
+    sha256: 6772d5344f8b8679c6822838bec46ab55a7033e7aaf8b90e1d11328028ad0687
+    role: specification

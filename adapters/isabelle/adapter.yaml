@@ -1,0 +1,3 @@
+adapter: isabelle_proof
+description: Isabelle proof certificate adapter (stub — kernel not configured in CI)
+command: python adapters/isabelle/parse_result.py {path}

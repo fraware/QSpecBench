@@ -15,8 +15,7 @@ from qspecbench.verify_bridge import verify_bridge, write_bridge_result
 
 REPO = Path(__file__).resolve().parents[1]
 
-KERNEL_CHECKED = [
-    "benchmarks/equivalence/cnot_self_inverse_cancellation",
+PYTHON_CONSISTENCY_CHECKED = [
     "benchmarks/equivalence/hadamard_conjugates_x_to_z",
     "benchmarks/equivalence/single_qubit_gate_cancellation",
     "benchmarks/equivalence/qft_inverse_qft_small_instance",
@@ -33,11 +32,23 @@ KERNEL_CHECKED = [
 ]
 
 
-def test_verify_bridge_kernel_checked_benchmarks():
-    for rel in KERNEL_CHECKED:
+KERNEL_CHECKED = [
+    "benchmarks/equivalence/cnot_self_inverse_cancellation",
+]
+
+
+def test_verify_bridge_python_consistency_checked_benchmarks():
+    for rel in PYTHON_CONSISTENCY_CHECKED:
         claim = REPO / rel
         result = write_bridge_result(claim)
         assert result["ok"], f"bridge verify failed for {rel}: {result.get('errors')}"
+
+
+def test_verify_bridge_kernel_checked_cnot():
+    claim = REPO / KERNEL_CHECKED[0]
+    result = verify_bridge(claim)
+    assert result["claimed_link"] == "kernel_checked"
+    assert result["ok"]
 
 
 def test_verify_bridge_reads_semantic_bridge():
@@ -47,7 +58,7 @@ def test_verify_bridge_reads_semantic_bridge():
     assert "lean_module" in result
 
 
-def test_kernel_checked_validates_with_bridge_evidence():
+def test_python_consistency_checked_validates_with_bridge_evidence():
     claim = REPO / KERNEL_CHECKED[0]
     spec_path = claim / "spec.yaml"
     spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))

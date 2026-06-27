@@ -9,8 +9,8 @@ authors:
 repository-code: "https://github.com/fraware/QSpecBench"
 url: "https://github.com/fraware/QSpecBench"
 license: MIT
-version: 1.1.0
-date-released: 2026-06-20
+version: 0.1.0
+date-released: 2026-06-27
 keywords:
   - quantum computing
   - formal verification

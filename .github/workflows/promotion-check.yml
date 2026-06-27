@@ -1,0 +1,31 @@
+name: Promotion check
+
+on:
+  pull_request:
+    paths:
+      - "benchmarks/**"
+      - "schema/**"
+      - "tools/qspecbench/**"
+
+jobs:
+  promotion-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - run: qspecbench validate benchmarks/
+      - name: Claim diff on changed benchmarks
+        run: |
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
+          out = subprocess.check_output(["git", "diff", "--name-only", "origin/${{ github.base_ref }}..."], text=True)
+          for line in out.splitlines():
+              if line.endswith("spec.yaml") and "benchmarks/" in line:
+                  claim = Path(line).parent
+                  print(f"=== claim-diff {claim} ===")
+                  subprocess.run(["qspecbench", "claim-diff", str(claim)], check=False)
+          PY

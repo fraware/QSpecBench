@@ -2,10 +2,17 @@
   "id": "bit_flip_syndrome_table",
   "type": "syndrome_table",
   "syndrome_bits": ["s0", "s1"],
+  "convention": {
+    "qubit_order": ["q0", "q1", "q2"],
+    "s0": "measures stabilizer S0 = Z0 Z1 (pauli ZZI)",
+    "s1": "measures stabilizer S1 = Z1 Z2 (pauli IZZ)",
+    "rule": "A single X error on qubit i flips syndrome bit sj iff stabilizer Sj has a Z on qubit i.",
+    "syndrome_order": "syndrome string is written s0 s1 (s0 first)."
+  },
   "entries": [
     { "syndrome": "00", "error": "I", "correction": "III" },
     { "syndrome": "10", "error": "X0", "correction": "XII" },
-    { "syndrome": "01", "error": "X1", "correction": "IXI" },
-    { "syndrome": "11", "error": "X2", "correction": "IIX" }
+    { "syndrome": "11", "error": "X1", "correction": "IXI" },
+    { "syndrome": "01", "error": "X2", "correction": "IIX" }
   ]
 }

@@ -1,49 +1,47 @@
----
-name: Reference promotion proposal
-about: Propose promoting a benchmark to reference maturity
-title: "[reference] "
-labels: reference, governance
----
-
-## Benchmark
-
-- **ID:**
-- **Track:**
-- **Current maturity:**
-
-## Promotion rationale
-
-Why should this claim become a reference exemplar for its track?
-
-## Evidence stack
-
-List passing evidence (Lean, QCEC, SMT, certificates, etc.) and checkers:
-
-- [ ] At least one passing checked evidence (`lean_proof`, `smt_certificate`, or `sat_certificate`)
-- [ ] `ci: passing` in spec
-- [ ] Trust boundary explicit and honest
-- [ ] Semantic bridge present if QASM + Lean both used
-- [ ] `proof_obligations` documented if multiple lemmas required
-
-## Semantic bridge (if applicable)
-
-- `claimed_link`: documented_not_proved / kernel_checked
-- Lean module / theorem:
-- Bridge verify evidence (required for `kernel_checked`):
-
-## Known gaps and trust boundary
-
-What remains assumed, simulated, or out of scope?
-
-## Reviewers
-
-- Scientific review:
-- Specification review:
-- Evidence review:
-
-## Checklist
-
-- [ ] README claim card updated
-- [ ] `qspecbench validate` passes
-- [ ] `qspecbench check-evidence` passes
-- [ ] No unsupported "verified" language in README
+name: Reference promotion
+description: Propose promoting a benchmark to a scoped reference level
+title: "[Promotion] "
+labels: ["reference", "governance"]
+body:
+  - type: textarea
+    id: benchmark
+    attributes:
+      label: Benchmark ID or path
+      description: e.g. benchmarks/equivalence/cnot_self_inverse_cancellation/
+    validations:
+      required: true
+  - type: dropdown
+    id: target_maturity
+    attributes:
+      label: Target maturity
+      options:
+        - reference_scaffold
+        - reference_contract
+        - reference_artifact
+        - reference_claim
+    validations:
+      required: true
+  - type: textarea
+    id: obligations
+    attributes:
+      label: Obligations checked (list)
+      description: Which claim_scope.required_obligations are fully proved?
+    validations:
+      required: true
+  - type: textarea
+    id: gaps
+    attributes:
+      label: Remaining gaps
+      description: What remains in proved_scope.unproved_obligations?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Promotion checklist
+      options:
+        - label: qspecbench validate passes
+        - label: qspecbench claim-diff reviewed
+        - label: trust_boundary updated honestly
+        - label: formal_claims bind theorems to obligations
+        - label: CI evidence checks pass

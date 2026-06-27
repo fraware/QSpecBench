@@ -27,7 +27,7 @@ No kernel-checked proof. Informal sketch is not proof. No benchmark status claim
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

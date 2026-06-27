@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "bravyi_kitaev_small_instance",
+  "generated_at": "2026-06-27T13:35:50.677577+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/hamiltonian.json",
+      "sha256": "8bbac2dd5bff6976e1daeeb3906cd899a90ae86f90e5f311b172b1f0d460409c",
+      "role": "specification"
+    }
+  ]
+}

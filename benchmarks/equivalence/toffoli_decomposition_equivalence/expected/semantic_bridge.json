@@ -7,7 +7,10 @@
     "phase_gates": "complex_diagonal",
     "target_circuit": "QCEC_equivalence_external"
   },
-  "claimed_link": "kernel_checked",
+  "claimed_link": "python_consistency_checked",
   "qasm_artifact": "artifacts/source.qasm",
-  "bridge_evidence_id": "bridge_verify"
+  "bridge_evidence_id": "bridge_verify",
+  "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
+  "artifact_sha256": "dd93e5017780e2fb1e3ec82d059fc8eee73972aecf205bb844e761fb80cc3b10",
+  "gate_trace_sha256": "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d359be"
 }

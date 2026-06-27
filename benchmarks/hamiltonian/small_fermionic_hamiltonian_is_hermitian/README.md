@@ -26,7 +26,7 @@ Simulation/heuristic only; not kernel-checked.
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 

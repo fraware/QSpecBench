@@ -15,7 +15,21 @@ TrustLevel = Literal[
     "heuristic",
     "untrusted",
 ]
-Maturity = Literal["seed", "usable", "reference", "deprecated"]
+Maturity = Literal[
+    "seed",
+    "usable",
+    "reference_scaffold",
+    "reference_contract",
+    "reference_artifact",
+    "reference_claim",
+    "deprecated",
+]
+
+REFERENCE_SCAFFOLD_LEVELS: frozenset[str] = frozenset(
+    {"reference_scaffold", "reference_contract", "reference_artifact"}
+)
+REFERENCE_CLAIM_LEVEL = "reference_claim"
+ALL_REFERENCE_LEVELS: frozenset[str] = REFERENCE_SCAFFOLD_LEVELS | {REFERENCE_CLAIM_LEVEL}
 
 
 class TrustBoundary(BaseModel):
@@ -55,8 +69,8 @@ class StatusBlock(BaseModel):
 
     @model_validator(mode="after")
     def reference_requires_passing_ci(self) -> StatusBlock:
-        if self.maturity == "reference" and self.ci != "passing":
-            raise ValueError("reference maturity requires ci: passing")
+        if self.maturity in ALL_REFERENCE_LEVELS and self.ci != "passing":
+            raise ValueError(f"{self.maturity} maturity requires ci: passing")
         return self
 
 
@@ -69,14 +83,16 @@ class SpecTrustSlice(BaseModel):
 
     def pydantic_errors(self) -> list[str]:
         errors: list[str] = []
-        if self.status.maturity == "reference":
+        if self.status.maturity in ALL_REFERENCE_LEVELS:
             checked = {
                 e.type
                 for e in self.evidence
                 if e.status == "passing" and e.type in {"lean_proof", "smt_certificate", "sat_certificate"}
             }
             if not checked:
-                errors.append("reference maturity requires at least one passing checked evidence entry")
+                errors.append(
+                    f"{self.status.maturity} maturity requires at least one passing checked evidence entry"
+                )
         return errors
 
 

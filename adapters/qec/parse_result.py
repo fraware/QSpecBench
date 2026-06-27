@@ -30,6 +30,159 @@ def _pauli_commute(a: str, b: str) -> bool:
     return anticommute % 2 == 0
 
 
+def _syndrome_from_error(stabilizers: list[str], error_pauli: str) -> str:
+    """Compute syndrome bits s0.. from X/Z anticommutation with stabilizer generators."""
+    bits: list[str] = []
+    for stab in stabilizers:
+        anticommute = 0
+        n = max(len(stab), len(error_pauli))
+        for i in range(n):
+            ps = _pauli_char(stab, i)
+            pe = _pauli_char(error_pauli, i)
+            if ps == "I" or pe == "I":
+                continue
+            if ps != pe:
+                anticommute += 1
+        bits.append("1" if anticommute % 2 else "0")
+    return "".join(bits)
+
+
+def _error_pauli_for_label(label: str, n: int) -> str:
+    """Map shorthand like X0, X1 to n-qubit Pauli string."""
+    label = label.strip()
+    if label in {"I", "III"} or label == "identity":
+        return "I" * n
+    m = re.match(r"^X(\d+)$", label)
+    if m:
+        idx = int(m.group(1))
+        chars = ["I"] * n
+        if 0 <= idx < n:
+            chars[idx] = "X"
+        return "".join(chars)
+    if PAULI_RE.match(label) and len(label) == n:
+        return label
+    return "I" * n
+
+
+def validate_syndrome_table(
+    code: dict,
+    syndrome_table: dict,
+    error_model: dict | None = None,
+) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    checks: list[str] = ["syndrome_table_structure"]
+    stabilizers = [s.get("pauli", "") for s in code.get("stabilizers", [])]
+    n = code.get("parameters", {}).get("n", 0)
+    if not isinstance(n, int) or not stabilizers:
+        return ["code missing n or stabilizers for syndrome validation"], checks
+
+    entries = syndrome_table.get("entries", [])
+    computed: dict[str, str] = {}
+    for entry in entries:
+        err_label = entry.get("error", "")
+        err_pauli = _error_pauli_for_label(err_label, n)
+        computed_syndrome = _syndrome_from_error(stabilizers, err_pauli)
+        declared = str(entry.get("syndrome", "")).replace(" ", "")
+        computed[err_label] = computed_syndrome
+        if declared != computed_syndrome:
+            errors.append(
+                f"syndrome mismatch for error {err_label!r}: "
+                f"table={declared!r} computed={computed_syndrome!r}"
+            )
+
+    checks.append("syndrome_table_antcommutation")
+    if error_model:
+        allowed = error_model.get("allowed_errors") or []
+        max_weight = error_model.get("max_weight", 1)
+        if allowed == ["X"] and max_weight == 1:
+            checks.append("single_x_syndrome_injection")
+            for i in range(n):
+                label = f"X{i}"
+                err_pauli = _error_pauli_for_label(label, n)
+                syn = _syndrome_from_error(stabilizers, err_pauli)
+                if syn not in {e.get("syndrome", "").replace(" ", "") for e in entries}:
+                    errors.append(f"single X error X{i} syndrome {syn!r} missing from table")
+
+    return errors, checks
+
+
+def validate_correction_table(
+    syndrome_table: dict,
+    correction_table: dict,
+) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    checks: list[str] = ["correction_table_structure"]
+    syn_to_corr: dict[str, str] = {}
+    for entry in correction_table.get("entries", []):
+        syn = str(entry.get("syndrome", "")).replace(" ", "")
+        corr = entry.get("physical_correction") or entry.get("correction") or ""
+        syn_to_corr[syn] = corr
+
+    for entry in syndrome_table.get("entries", []):
+        syn = str(entry.get("syndrome", "")).replace(" ", "")
+        expected = entry.get("correction") or entry.get("physical_correction") or ""
+        actual = syn_to_corr.get(syn)
+        if actual is None:
+            errors.append(f"correction table missing syndrome {syn!r}")
+        elif expected and actual != expected:
+            errors.append(
+                f"correction mismatch for syndrome {syn!r}: "
+                f"syndrome_table={expected!r} correction_table={actual!r}"
+            )
+    checks.append("correction_table_syndrome_alignment")
+    return errors, checks
+
+
+def validate_min_weight_distance(
+    code: dict, error_model: dict | None
+) -> tuple[list[str], list[str], int | None]:
+    """Brute-force minimum-weight logical operator under declared error model (small n only)."""
+    warnings: list[str] = []
+    checks: list[str] = ["distance_min_weight_bruteforce"]
+    n = code.get("parameters", {}).get("n")
+    stabilizers = [s.get("pauli", "") for s in code.get("stabilizers", [])]
+    logicals = [op.get("pauli", "") for op in code.get("logical_operators", [])]
+    if not isinstance(n, int) or n > 6 or not stabilizers or not logicals:
+        return warnings, checks, None
+
+    from itertools import product
+
+    def weight(p: str) -> int:
+        return sum(1 for c in p if c in "XYZ")
+
+    x_only = error_model and error_model.get("allowed_errors") == ["X"]
+    alphabet = ("I", "X") if x_only else ("I", "X", "Y", "Z")
+
+    min_d: int | None = None
+    for w in range(1, n + 1):
+        for combo in product(alphabet, repeat=n):
+            p = "".join(combo)
+            if weight(p) != w:
+                continue
+            if not all(_pauli_commute(p, s) for s in stabilizers):
+                continue
+            if any(not _pauli_commute(p, l) for l in logicals):
+                min_d = w
+                break
+        if min_d is not None:
+            break
+
+    params = code.get("parameters", {})
+    if x_only and isinstance(params.get("bit_flip_distance"), int) and min_d is not None:
+        declared = params["bit_flip_distance"]
+        if min_d != declared:
+            warnings.append(
+                f"computed X-only min logical weight {min_d} != declared bit_flip_distance {declared}"
+            )
+    elif isinstance(params.get("quantum_distance"), int) and min_d is not None:
+        if min_d != params["quantum_distance"]:
+            warnings.append(
+                f"computed min logical weight {min_d} != declared quantum_distance {params['quantum_distance']}"
+            )
+
+    return warnings, checks, min_d
+
+
 def validate_code(data: dict) -> tuple[list[str], list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -95,6 +248,23 @@ def validate_code(data: dict) -> tuple[list[str], list[str], list[str]]:
             warnings.append("distance d exceeds Singleton bound for declared n,k")
         if len(stabilizers) < n - k:
             warnings.append("fewer stabilizers than n-k; code may be under-specified")
+        # Declared distance constants are structural metadata, not a proof.
+        warnings.append(
+            "declared distance is metadata only; it is not a machine-checked distance proof"
+        )
+
+    # Optional explicit distance-type fields keep bit-flip distance from being read
+    # as a full quantum (Pauli) distance.
+    bit_flip_distance = params.get("bit_flip_distance")
+    quantum_distance = params.get("quantum_distance")
+    if bit_flip_distance is not None or quantum_distance is not None:
+        checks_run.append("distance_type_consistency")
+        if isinstance(bit_flip_distance, int) and isinstance(params.get("d"), int):
+            if bit_flip_distance != params["d"]:
+                warnings.append("bit_flip_distance does not equal declared d")
+        if isinstance(bit_flip_distance, int) and isinstance(quantum_distance, int):
+            if quantum_distance > bit_flip_distance:
+                errors.append("quantum_distance cannot exceed bit_flip_distance")
 
     return errors, warnings, checks_run
 
@@ -102,6 +272,34 @@ def validate_code(data: dict) -> tuple[list[str], list[str], list[str]]:
 def check(path: Path) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
     errors, warnings, checks_run = validate_code(data)
+
+    artifact_dir = path.parent
+    syndrome_path = artifact_dir / "syndrome_table.json"
+    correction_path = artifact_dir / "correction_table.json"
+    error_model_path = artifact_dir / "error_model.json"
+
+    error_model = None
+    if error_model_path.is_file():
+        error_model = json.loads(error_model_path.read_text(encoding="utf-8"))
+
+    if syndrome_path.is_file():
+        syndrome_data = json.loads(syndrome_path.read_text(encoding="utf-8"))
+        syn_errors, syn_checks = validate_syndrome_table(data, syndrome_data, error_model)
+        errors.extend(syn_errors)
+        checks_run.extend(syn_checks)
+
+    if syndrome_path.is_file() and correction_path.is_file():
+        syndrome_data = json.loads(syndrome_path.read_text(encoding="utf-8"))
+        correction_data = json.loads(correction_path.read_text(encoding="utf-8"))
+        corr_errors, corr_checks = validate_correction_table(syndrome_data, correction_data)
+        errors.extend(corr_errors)
+        checks_run.extend(corr_checks)
+
+    if data.get("type") == "stabilizer_code":
+        dist_warnings, dist_checks, _ = validate_min_weight_distance(data, error_model)
+        warnings.extend(dist_warnings)
+        checks_run.extend(dist_checks)
+
     return {
         "ok": not errors,
         "adapter": "qec_json_validator",

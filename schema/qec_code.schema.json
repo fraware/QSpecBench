@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/qec_code.schema.json",
+  "title": "QSpecBench stabilizer code artifact",
+  "type": "object",
+  "required": ["type", "parameters", "stabilizers"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": { "const": "stabilizer_code" },
+    "parameters": {
+      "type": "object",
+      "required": ["n", "k", "d"],
+      "properties": {
+        "n": { "type": "integer", "minimum": 1 },
+        "k": { "type": "integer", "minimum": 0 },
+        "d": { "type": "integer", "minimum": 1 },
+        "bit_flip_distance": { "type": "integer", "minimum": 1 },
+        "quantum_distance": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "stabilizers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["pauli"],
+        "properties": {
+          "label": { "type": "string" },
+          "pauli": { "type": "string", "pattern": "^[IXYZ_]+$" }
+        }
+      }
+    },
+    "logical_operators": { "type": "array" }
+  }
+}

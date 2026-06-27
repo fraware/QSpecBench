@@ -1,3 +1,10 @@
 """QSpecBench: benchmark and evidence format for quantum formal verification."""
 
-__version__ = "0.2.0"
+# Versions are tracked separately so progress in one component does not imply
+# maturity in the others. See docs/versioning.md.
+SCHEMA_VERSION = "0.2"
+TOOLING_VERSION = "0.2.0"
+CORPUS_VERSION = "0.1.0"
+RELEASE_TAG = "v0.1.0"
+
+__version__ = TOOLING_VERSION

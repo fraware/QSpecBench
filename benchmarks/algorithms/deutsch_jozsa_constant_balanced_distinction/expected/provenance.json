@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "deutsch_jozsa_constant_balanced_distinction",
+  "generated_at": "2026-06-27T13:35:49.730380+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/circuit.qasm",
+      "sha256": "5b71eb98f196e0138347cad2c22ce109d62abd63e87318928c12e74672cd66ab",
+      "role": "source"
+    }
+  ]
+}

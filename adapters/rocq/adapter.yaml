@@ -1,0 +1,3 @@
+adapter: rocq_proof
+description: Rocq proof certificate adapter (stub — kernel not configured in CI)
+command: python adapters/rocq/parse_result.py {path}

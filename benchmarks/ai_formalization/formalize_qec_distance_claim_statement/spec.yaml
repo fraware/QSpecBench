@@ -85,15 +85,12 @@ evidence:
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/kernel_checked_draft.lean
   status: passing
   notes: Kernel-checked library theorem anchor.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
-  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
-    artifacts/draft.lean
   status: partial
   notes: Rubric score >= 4 for reference benchmarks.
 trust_boundary:
@@ -120,3 +117,47 @@ references:
   title: CSS distance certificate
   url: null
   notes: Domain reference
+claim_scope:
+  headline_claim_id: formalize_qec_distance_claim_statement_headline
+  headline_claim_text: The minimum distance d of a stabilizer code is the smallest
+    weight of a logical operator.
+  required_obligations:
+  - lean_kernel_proof
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  unproved_obligations:
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_kernel_check
+  evidence_id: lean_kernel_check
+  formal_system: lean
+  module: QSpecBench.QECDistant
+  theorem: QSpecBench.css_declared_distance_at_least_three
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  benchmark_anchor: formalize_qec_distance_claim_statement
+ai_formalization_status:
+  syntax_valid: true
+  kernel_checked: true
+  semantic_reviewed: false
+  faithfulness_score: null
+  library_compatible: true
+  proof_completed: true
+provenance:
+  generated_at: '2026-06-27T13:35:49.422079+00:00'
+  artifacts:
+  - path: artifacts/source.txt
+    sha256: 3d2ab96b07ba328cfedeafb42806a94aeec2f5af748f5e00f72ed50322b6f8a5
+    role: source
+  - path: artifacts/draft.lean
+    sha256: aa7d2a6a287b36009230f2fc09e2caa5bc297160b56e844f091ae29c7db86734
+    role: generated
+  - path: notes/semantic_rubric.md
+    sha256: d97d87706d49522f4a866fc1083548969ef34ba1cfcd0ddd3bba07e8541da6cd
+    role: specification

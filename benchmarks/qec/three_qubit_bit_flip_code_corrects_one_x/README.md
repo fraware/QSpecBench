@@ -26,7 +26,7 @@ Decoder correctness assumed; not kernel-checked.
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

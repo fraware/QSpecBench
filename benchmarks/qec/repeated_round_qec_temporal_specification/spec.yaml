@@ -61,14 +61,12 @@ evidence:
   type: qec_verifier_result
   path: artifacts/code.json
   checker: qec json validator
-  command: python adapters/qec/parse_result.py artifacts/code.json
   status: passing
   notes: JSON structure validation only.
 - id: lean_stabilizer_commutation
   type: lean_proof
   path: evidence/bit_flip_stabilizers.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/bit_flip_stabilizers.lean
   status: passing
   notes: Kernel-checked bit-flip stabilizer commutation scaffold.
 trust_boundary:
@@ -88,7 +86,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: seed
 references: []
 qec_status:
   code_definition: complete
@@ -99,3 +97,47 @@ proof_obligations:
 - id: stabilizer_commutation
   status: passing
   notes: Lean stabilizer commutation scaffold
+claim_scope:
+  headline_claim_id: repeated_round_qec_temporal_specification_headline
+  headline_claim_text: QEC benchmark claim for `repeated_round_qec_temporal_specification`
+    under an explicitly declared Pauli-dominated error model.
+  required_obligations:
+  - stabilizer_commutation
+proved_scope:
+  checked_obligations:
+  - stabilizer_commutation
+  unproved_obligations:
+  - algebraic_commutation_proof
+  - decoder_and_correction_claims
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_stabilizer_commutation
+  evidence_id: lean_stabilizer_commutation
+  formal_system: lean
+  module: QSpecBench.Stabilizer
+  theorem: QSpecBench.bit_flip_stabilizers_commute
+  supports:
+  - stabilizer_commutation
+  does_not_support:
+  - algebraic_commutation_proof
+  - decoder_and_correction_claims
+  benchmark_anchor: repeated_round_qec_temporal_specification
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: unchecked
+  correction_table: unchecked
+  decoder_correctness: out_of_scope
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.221342+00:00'
+  artifacts:
+  - path: artifacts/code.json
+    sha256: ac413538406d99e36df6b63a87667aab513f739f435d2aff583556142c6d9a86
+    role: specification

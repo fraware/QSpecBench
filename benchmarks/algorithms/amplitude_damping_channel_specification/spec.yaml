@@ -60,7 +60,6 @@ evidence:
   type: simulation
   path: evidence/check_channel.py
   checker: channel JSON validator
-  command: python adapters/python/parse_result.py evidence/check_channel.py
   status: passing
   notes: Structure check only; CPTP not verified.
 trust_boundary:
@@ -79,3 +78,23 @@ status:
   ci: passing
   maturity: usable
 references: []
+claim_scope:
+  headline_claim_id: amplitude_damping_channel_specification_headline
+  headline_claim_text: A declared amplitude-damping channel with Kraus operators satisfies
+    the benchmark channel schema.
+  required_obligations:
+  - simulation_heuristic
+proved_scope:
+  checked_obligations: []
+  unproved_obligations:
+  - simulation_heuristic
+  - cptp_property_proof
+headline_claim_status:
+  status: unproved
+  notes: null
+provenance:
+  generated_at: '2026-06-27T13:35:49.631382+00:00'
+  artifacts:
+  - path: artifacts/channel.json
+    sha256: 363601926e3726d1ef85b8abc69746fd73c85c234c3d5400aa61c12bbc2375ec
+    role: specification

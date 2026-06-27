@@ -146,7 +146,13 @@ def check(path: Path, draft_path: Path | None = None) -> dict[str, Any]:
         import yaml
 
         spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
-        if spec.get("status", {}).get("maturity") == "reference":
+        reference_levels = {
+            "reference_scaffold",
+            "reference_contract",
+            "reference_artifact",
+            "reference_claim",
+        }
+        if spec.get("status", {}).get("maturity") in reference_levels:
             min_score = 4
 
     errors.extend(validate_rubric_data(data, min_score_for_reference=min_score))

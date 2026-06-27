@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from qspecbench.dashboard import zero_evidence_count
+from qspecbench.models import ALL_REFERENCE_LEVELS
 from qspecbench.status import collect_statuses
 
 REPO = Path(__file__).resolve().parents[1]
@@ -17,7 +18,7 @@ def test_collect_statuses_nonempty():
 def test_usable_benchmarks_exist():
     rows = collect_statuses(REPO / "benchmarks")
     usable = [r for r in rows if r["maturity"] == "usable"]
-    reference = [r for r in rows if r["maturity"] == "reference"]
+    reference = [r for r in rows if r["maturity"] in ALL_REFERENCE_LEVELS]
     assert len(usable) + len(reference) >= 35
     assert len(reference) >= 8
 

@@ -26,7 +26,7 @@ AI output untrusted until kernel check and semantic review.
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_scaffold**.
 
 ## Known gaps
 

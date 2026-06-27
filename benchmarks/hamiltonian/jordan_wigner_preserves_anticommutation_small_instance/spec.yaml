@@ -62,14 +62,12 @@ evidence:
   type: simulation
   path: evidence/check_jw.py
   checker: python numeric check
-  command: python adapters/python/parse_result.py evidence/check_jw.py
   status: passing
   notes: Heuristic script; not a formal proof.
 - id: lean_jw_anticommutation
   type: lean_proof
   path: evidence/jw_anticommutation.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/jw_anticommutation.lean
   status: passing
   notes: Kernel-checked Jordan-Wigner anticommutation scaffold.
 trust_boundary:
@@ -88,9 +86,43 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: anticommutation
   status: passing
   notes: JW anticommutation scaffold
+claim_scope:
+  headline_claim_id: jordan_wigner_preserves_anticommutation_small_instance_headline
+  headline_claim_text: 'Hamiltonian simulation claim: jordan wigner preserves anticommutation
+    small instance.'
+  required_obligations:
+  - anticommutation
+proved_scope:
+  checked_obligations:
+  - anticommutation
+  unproved_obligations:
+  - formal_proof_of_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_jw_anticommutation
+  evidence_id: lean_jw_anticommutation
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.jordan_wigner_anticommutation_scaffold
+  supports:
+  - anticommutation
+  does_not_support:
+  - formal_proof_of_claim
+  benchmark_anchor: jordan_wigner_preserves_anticommutation_small_instance
+hamiltonian_claim_scope:
+  claim_class: mapping_sanity_claim
+  derivation_status: reviewed
+provenance:
+  generated_at: '2026-06-27T13:35:50.768200+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: fb4e0dd264941e67dcf7c294c030d80091aa6f09a13e6f0c4523cb4483bc3492
+    role: source

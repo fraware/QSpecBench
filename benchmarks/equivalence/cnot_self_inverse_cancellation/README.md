@@ -31,7 +31,7 @@ Lean 4 kernel checks the matrix-model theorem. Certificate provides independent 
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 

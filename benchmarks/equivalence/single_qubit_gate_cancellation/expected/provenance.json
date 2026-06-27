@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "single_qubit_gate_cancellation",
+  "generated_at": "2026-06-27T13:35:50.506212+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "90faff4ad649320098f82328250b15f2eaa595b44c7bb9f30afaf06cc5de8e22",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "89b80c98aac72dcc5a601b764337905e9c25ccc13f7d20d04e9c8a6a345c3b6c",
+      "role": "target"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shlex
 import subprocess
 import sys
@@ -13,6 +14,24 @@ from qspecbench.schema import REPO_ROOT
 from qspecbench.validate import load_spec
 
 ADAPTERS_ROOT = REPO_ROOT / "adapters"
+
+EVIDENCE_TYPE_ADAPTERS: dict[str, str] = {
+    "qasm_parse": "qasm",
+    "qec_verifier_result": "qec",
+    "simulation": "python",
+    "ai_draft": "ai_formalization",
+    "lean_proof": "lean",
+    "coq_proof": "coq",
+    "rocq_proof": "rocq",
+    "isabelle_proof": "isabelle",
+    "proof_assistant_proof": "lean",
+    "sat_certificate": "sat_certificate",
+    "smt_certificate": "smt",
+    "qcec_result": "qcec",
+    "human_review": "human_review",
+    "bridge_verify": "bridge",
+    "python_denotation_consistency_check": "bridge",
+}
 
 
 @dataclass
@@ -30,6 +49,10 @@ class EvidenceRunResult:
     @property
     def ok(self) -> bool:
         return not self.errors and not self.skipped and self.exit_code == 0
+
+
+def _allow_raw_commands() -> bool:
+    return os.environ.get("QSPECBENCH_ALLOW_RAW_COMMANDS") == "1"
 
 
 def _resolve_command(
@@ -57,7 +80,10 @@ def _resolve_command(
     parts = shlex.split(cmd, posix=(sys.platform != "win32"))
     resolved: list[str] = []
     for part in parts:
-        if part.startswith("adapters/"):
+        p = Path(part)
+        if p.is_absolute():
+            resolved.append(str(p))
+        elif part.startswith("adapters/"):
             resolved.append(str((REPO_ROOT / part).resolve()))
         elif (claim_dir / part).exists():
             resolved.append(str((claim_dir / part).resolve()))
@@ -66,23 +92,29 @@ def _resolve_command(
     return resolved
 
 
-def _default_adapter_command(evidence_type: str, artifact_path: Path) -> str | None:
-    mapping = {
-        "qasm_parse": f"python {ADAPTERS_ROOT / 'qasm' / 'parse_result.py'}",
-        "qec_verifier_result": f"python {ADAPTERS_ROOT / 'qec' / 'parse_result.py'}",
-        "simulation": f"python {ADAPTERS_ROOT / 'python' / 'parse_result.py'}",
-        "ai_draft": f"python {ADAPTERS_ROOT / 'ai_formalization' / 'parse_result.py'}",
-        "lean_proof": f"python {ADAPTERS_ROOT / 'lean' / 'parse_result.py'}",
-        "sat_certificate": f"python {ADAPTERS_ROOT / 'sat_certificate' / 'parse_result.py'}",
-        "smt_certificate": f"python {ADAPTERS_ROOT / 'smt' / 'parse_result.py'}",
-        "qcec_result": f"python {ADAPTERS_ROOT / 'qcec' / 'parse_result.py'}",
-        "human_review": f"python {ADAPTERS_ROOT / 'human_review' / 'parse_result.py'}",
-        "bridge_verify": f"python {ADAPTERS_ROOT / 'bridge' / 'parse_result.py'}",
-    }
-    template = mapping.get(evidence_type)
-    if not template:
+def _adapter_command(
+    adapter_name: str,
+    *,
+    secondary: Path | None = None,
+) -> str:
+    script = ADAPTERS_ROOT / adapter_name / "parse_result.py"
+    cmd = f"{sys.executable} {script} {{path}}"
+    if secondary is not None:
+        cmd = f"{cmd} {{path2}}"
+    return cmd
+
+
+def _default_adapter_command(
+    evidence_type: str,
+    artifact_path: Path,
+    *,
+    adapter_override: str | None = None,
+    secondary: Path | None = None,
+) -> str | None:
+    adapter_name = adapter_override or EVIDENCE_TYPE_ADAPTERS.get(evidence_type)
+    if not adapter_name:
         return None
-    return f"{template} {{path}}"
+    return _adapter_command(adapter_name, secondary=secondary)
 
 
 def _resolve_secondary_path(entry: dict, claim_dir: Path) -> Path | None:
@@ -102,15 +134,31 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
         rel_path = entry.get("path", "")
         artifact = (claim_dir / rel_path).resolve() if rel_path else None
         secondary = _resolve_secondary_path(entry, claim_dir)
-        command = entry.get("command")
+        raw_command = entry.get("command")
+        adapter_name = entry.get("adapter")
         etype = entry.get("type", "")
 
-        if not command and artifact and entry.get("status") == "passing":
-            command = _default_adapter_command(etype, artifact)
-            if command:
-                command = command.replace("{path}", str(artifact))
-                if secondary and etype == "qcec_result":
-                    command = f"{command} {{path2}}"
+        command: str | None = None
+        if adapter_name and artifact:
+            command = _default_adapter_command(etype, artifact, adapter_override=adapter_name, secondary=secondary)
+        elif not raw_command and artifact and entry.get("status") == "passing":
+            command = _default_adapter_command(etype, artifact, secondary=secondary)
+        elif raw_command:
+            if not _allow_raw_commands():
+                results.append(
+                    EvidenceRunResult(
+                        evidence_id=eid,
+                        path=rel_path,
+                        command=raw_command,
+                        exit_code=1,
+                        errors=[
+                            "raw command: disallowed; use adapter: field or set "
+                            "QSPECBENCH_ALLOW_RAW_COMMANDS=1 (maintainer only)"
+                        ],
+                    )
+                )
+                continue
+            command = raw_command
 
         if not command:
             results.append(
@@ -120,7 +168,7 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
                     command=None,
                     exit_code=None,
                     skipped=True,
-                    skip_reason="no command declared",
+                    skip_reason="no adapter or command declared",
                 )
             )
             continue

@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "heisenberg_model_hermiticity_small_instance",
+  "generated_at": "2026-06-27T13:35:50.722748+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/hamiltonian.json",
+      "sha256": "242c7da599dfa8a9bd7cbf4e28be3a37cb37ed6315edabd0d1c04e42278d649d",
+      "role": "specification"
+    }
+  ]
+}

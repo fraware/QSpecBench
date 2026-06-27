@@ -63,14 +63,12 @@ evidence:
   type: simulation
   path: evidence/check_resource.py
   checker: python numeric check
-  command: python adapters/python/parse_result.py evidence/check_resource.py
   status: passing
   notes: Heuristic script; not a formal proof.
 - id: lean_resource_contract
   type: lean_proof
   path: evidence/resource_contract.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/resource_contract.lean
   status: passing
   notes: Kernel-checked declared Pauli term count.
 trust_boundary:
@@ -89,9 +87,44 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: resource_contract
   status: partial
   notes: Contract declared; simulation not proved
+claim_scope:
+  headline_claim_id: resource_contract_for_small_hamiltonian_simulation_headline
+  headline_claim_text: 'Hamiltonian simulation claim: resource contract for small
+    hamiltonian simulation.'
+  required_obligations:
+  - resource_contract
+proved_scope:
+  checked_obligations: []
+  unproved_obligations:
+  - resource_contract
+  - formal_proof_of_claim
+headline_claim_status:
+  status: unproved
+  notes: null
+formal_claims:
+- id: formal_lean_resource_contract
+  evidence_id: lean_resource_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.declared_pauli_term_count_matches_artifact
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - resource_contract
+  - formal_proof_of_claim
+  benchmark_anchor: resource_contract_for_small_hamiltonian_simulation
+hamiltonian_claim_scope:
+  claim_class: declared_contract_claim
+  derivation_status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:50.857440+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: 52591d7b61d5901772df6462f92848c62ab158b935a3839cde2b760228be8d97
+    role: source

@@ -62,14 +62,12 @@ evidence:
   type: qec_verifier_result
   path: artifacts/code.json
   checker: qec json validator
-  command: python adapters/qec/parse_result.py artifacts/code.json
   status: passing
   notes: JSON structure validation only.
 - id: lean_stabilizer_commutation
   type: lean_proof
   path: evidence/shor_stabilizers.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/shor_stabilizers.lean
   status: passing
   notes: Kernel-checked Shor stabilizer commutation scaffold.
 trust_boundary:
@@ -89,7 +87,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 qec_status:
   code_definition: complete
   stabilizer_commutation: complete
@@ -103,3 +101,47 @@ proof_obligations:
   status: not_applicable
   notes: Decoder out of scope
 references: []
+claim_scope:
+  headline_claim_id: shor_code_stabilizer_commutation_headline
+  headline_claim_text: Declared Shor-code stabilizer generators pairwise commute (scaffold
+    specification).
+  required_obligations:
+  - stabilizer_commutation
+proved_scope:
+  checked_obligations:
+  - stabilizer_commutation
+  unproved_obligations:
+  - algebraic_commutation_proof_beyond_scaffold
+  - correction_and_distance_claims
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_stabilizer_commutation
+  evidence_id: lean_stabilizer_commutation
+  formal_system: lean
+  module: QSpecBench.Stabilizer
+  theorem: QSpecBench.shor_stabilizers_commute
+  supports:
+  - stabilizer_commutation
+  does_not_support:
+  - algebraic_commutation_proof_beyond_scaffold
+  - correction_and_distance_claims
+  benchmark_anchor: shor_code_stabilizer_commutation
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: unchecked
+  correction_table: unchecked
+  decoder_correctness: out_of_scope
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.317772+00:00'
+  artifacts:
+  - path: artifacts/code.json
+    sha256: 12a8c4c74b71ff98803876e0e0c40459c6d27503e26a0145207623121618b732
+    role: specification

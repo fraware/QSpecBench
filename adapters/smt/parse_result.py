@@ -22,7 +22,7 @@ def _resolve_smt_file(cert: dict, cert_path: Path) -> Path | None:
     return smt if smt.is_file() else None
 
 
-def _run_solver(solver: str, smt_path: Path) -> tuple[bool, str]:
+def _run_solver(solver: str, smt_path: Path, expected: str) -> tuple[bool, str]:
     proc = subprocess.run(
         [solver, str(smt_path)],
         capture_output=True,
@@ -30,7 +30,6 @@ def _run_solver(solver: str, smt_path: Path) -> tuple[bool, str]:
     )
     output = (proc.stdout or "") + (proc.stderr or "")
     verdict = output.strip().splitlines()[-1].lower() if output.strip() else ""
-    expected = "sat"
     ok = proc.returncode == 0 and expected in verdict
     return ok, output.strip() or f"exit {proc.returncode}"
 
@@ -49,55 +48,53 @@ def check(cert_path: Path) -> dict:
     if smt_path is None:
         return {"ok": False, "adapter": "smt_certificate", "errors": ["smt_file missing or not found"]}
 
+    expected = str(cert.get("expected", "sat")).lower()
+    if expected not in {"sat", "unsat", "unknown"}:
+        return {
+            "ok": False,
+            "adapter": "smt_certificate",
+            "errors": [f"invalid expected verdict: {expected!r}"],
+        }
+
     if os.environ.get("QSPECBENCH_SKIP_SMT") == "1":
         return {
-            "ok": True,
+            "ok": False,
             "adapter": "smt_certificate",
             "path": str(cert_path),
-            "trust_level": "independently_checkable",
+            "trust_level": "not_checked",
             "skipped": True,
             "notes": "QSPECBENCH_SKIP_SMT=1",
         }
 
     for solver in ("z3", "cvc5"):
         if shutil.which(solver):
-            ok, detail = _run_solver(solver, smt_path)
+            ok, detail = _run_solver(solver, smt_path, expected)
             if ok:
                 return {
                     "ok": True,
                     "adapter": "smt_certificate",
                     "path": str(cert_path),
                     "solver": solver,
-                    "expected": cert.get("expected", "sat"),
+                    "expected": expected,
                     "trust_level": "independently_checkable",
                     "detail": detail.splitlines()[-1] if detail else "",
                 }
             errors.append(f"{solver}: {detail}")
 
-    # Structural fallback when no solver is installed (local dev without z3).
+    # No solver: structural syntax check only — not independently verified.
     text = smt_path.read_text(encoding="utf-8")
     if "(check-sat)" not in text:
         errors.append("smt2 missing (check-sat)")
-    elif cert.get("expected") != "sat":
-        errors.append(f"unsupported expected verdict: {cert.get('expected')}")
-    elif errors:
-        return {
-            "ok": False,
-            "adapter": "smt_certificate",
-            "path": str(cert_path),
-            "errors": errors + ["install z3 or cvc5 for independent verification"],
-        }
-    else:
-        return {
-            "ok": True,
-            "adapter": "smt_certificate",
-            "path": str(cert_path),
-            "trust_level": "independently_checkable",
-            "solver": "structural",
-            "notes": "SMT file structure validated; solver not available locally",
-        }
-
-    return {"ok": False, "adapter": "smt_certificate", "path": str(cert_path), "errors": errors}
+    return {
+        "ok": False,
+        "adapter": "smt_certificate",
+        "path": str(cert_path),
+        "trust_level": "not_checked",
+        "skipped": True,
+        "solver": None,
+        "errors": errors + ["install z3 or cvc5 for independent verification"],
+        "notes": "SMT syntax present; solver not available — not independently checkable",
+    }
 
 
 def main() -> None:

@@ -5,11 +5,10 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 
 
-def test_no_coq_rocq_adapters():
+def test_proof_assistant_stub_adapters_present():
     adapters = REPO / "adapters"
-    names = {p.name for p in adapters.iterdir() if p.is_dir()}
-    assert "coq" not in names
-    assert "rocq" not in names
+    for name in ("coq", "rocq", "isabelle"):
+        assert (adapters / name / "parse_result.py").is_file()
 
 
 def test_lean_adapter_present():

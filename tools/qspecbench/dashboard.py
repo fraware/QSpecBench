@@ -7,6 +7,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from qspecbench import CORPUS_VERSION, RELEASE_TAG, SCHEMA_VERSION, TOOLING_VERSION
+from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL
 from qspecbench.status import collect_statuses
 from qspecbench.trust import CHECKED_EVIDENCE_TYPES
 
@@ -16,6 +18,24 @@ def _has_checked_evidence(spec: dict[str, Any]) -> bool:
         e.get("status") == "passing" and e.get("type") in CHECKED_EVIDENCE_TYPES
         for e in spec.get("evidence", [])
     )
+
+
+def _headline_checked(spec: dict[str, Any]) -> bool:
+    """A headline claim counts as checked only for reference_claim or an explicit checked status."""
+    if spec.get("status", {}).get("maturity") == REFERENCE_CLAIM_LEVEL:
+        return True
+    return (spec.get("headline_claim_status") or {}).get("status") == "checked"
+
+
+def _has_unchecked_headline_assumptions(spec: dict[str, Any]) -> bool:
+    if _headline_checked(spec):
+        return False
+    proved = spec.get("proved_scope") or {}
+    unproved = proved.get("unproved_obligations") or []
+    if unproved:
+        return True
+    headline = spec.get("headline_claim_status") or {}
+    return headline.get("status") in {"unproved", "partially_checked"}
 
 
 def _has_ai_draft(spec: dict[str, Any]) -> bool:
@@ -64,18 +84,18 @@ def _load_bridge_claimed_link(claim_dir: Path, spec: dict[str, Any]) -> str | No
     return None
 
 
-def _kernel_checked_bridge_count(rows: list[dict[str, Any]]) -> int:
-    total = 0
+def _bridge_link_counts(rows: list[dict[str, Any]]) -> Counter[str]:
+    counts: Counter[str] = Counter()
     for row in rows:
         claim_dir = row.get("claim_dir") or Path(row.get("path", ""))
         link = _load_bridge_claimed_link(claim_dir, row["spec"])
-        if link == "kernel_checked":
-            total += 1
-    return total
+        if link:
+            counts[link] += 1
+    return counts
 
 
 def _reference_coverage_by_track(rows: list[dict[str, Any]]) -> dict[str, int]:
-    refs = Counter(r["track"] for r in rows if r["maturity"] == "reference")
+    refs = Counter(r["track"] for r in rows if r["maturity"] in ALL_REFERENCE_LEVELS)
     return dict(sorted(refs.items()))
 
 
@@ -91,6 +111,11 @@ def generate_dashboard(root: Path) -> str:
     by_track = Counter(r["track"] for r in rows)
     by_maturity = Counter(r["maturity"] for r in rows)
     checked = sum(1 for s in specs if _has_checked_evidence(s))
+    headline_checked = sum(1 for s in specs if _headline_checked(s))
+    scaffold_only = sum(
+        1 for s in specs if _has_checked_evidence(s) and not _headline_checked(s)
+    )
+    unchecked_headline = sum(1 for s in specs if _has_unchecked_headline_assumptions(s))
     partial = sum(1 for s in specs if s.get("evidence") and not _has_checked_evidence(s))
     no_ev = sum(1 for s in specs if not s.get("evidence"))
     ai_draft = sum(1 for s in specs if _has_ai_draft(s))
@@ -98,7 +123,10 @@ def generate_dashboard(root: Path) -> str:
     qec = sum(1 for s in specs if s.get("track") == "qec")
     resources = sum(1 for s in specs if _has_resource_contract(s))
     trust_levels = _count_passing_trust_levels(specs)
-    kernel_bridges = _kernel_checked_bridge_count(rows)
+    bridge_links = _bridge_link_counts(rows)
+    kernel_bridges = bridge_links.get("kernel_checked", 0)
+    python_bridges = bridge_links.get("python_consistency_checked", 0)
+    documented_bridges = bridge_links.get("documented_not_proved", 0)
     ref_by_track = _reference_coverage_by_track(rows)
 
     lines = [
@@ -106,19 +134,35 @@ def generate_dashboard(root: Path) -> str:
         "",
         "Auto-generated benchmark status overview.",
         "",
+        "Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpecBench "
+        "evidence format and trust-boundary discipline; a checked headline claim is reserved for "
+        "`reference_claim` benchmarks whose full informal claim is proved.",
+        "",
+        "## Versions",
+        "",
+        f"- **Schema:** {SCHEMA_VERSION}",
+        f"- **Tooling:** {TOOLING_VERSION}",
+        f"- **Corpus:** {CORPUS_VERSION}",
+        f"- **Release tag:** {RELEASE_TAG}",
+        "",
         "## Summary",
         "",
         f"- **Total benchmarks:** {len(rows)}",
         "- **By track:** " + ", ".join(f"{k}: {v}" for k, v in sorted(by_track.items())),
         "- **By maturity:** " + ", ".join(f"{k}: {v}" for k, v in sorted(by_maturity.items())),
-        f"- **With checked evidence:** {checked}",
-        f"- **With partial evidence:** {partial}",
+        f"- **With any checked evidence:** {checked}",
+        f"- **With headline claim checked (reference_claim or checked headline):** {headline_checked}",
+        f"- **With scaffold-only checked evidence:** {scaffold_only}",
+        f"- **With unchecked headline assumptions:** {unchecked_headline}",
+        f"- **With partial (non-checked) evidence only:** {partial}",
         f"- **With no evidence:** {no_ev}",
         f"- **With AI draft evidence:** {ai_draft}",
         f"- **With approximate specifications:** {approx}",
         f"- **QEC claims:** {qec}",
         f"- **With resource contracts:** {resources}",
-        f"- **Kernel-checked semantic bridges:** {kernel_bridges}",
+        f"- **Kernel-checked artifact-to-theorem bridges:** {kernel_bridges}",
+        f"- **Python denotation consistency checks:** {python_bridges}",
+        f"- **Documented (not proved) bridges:** {documented_bridges}",
         "",
         "### Passing evidence by trust level",
         "",
@@ -128,7 +172,7 @@ def generate_dashboard(root: Path) -> str:
     lines.extend(
         [
             "",
-            "### Reference coverage by track",
+            "### Reference-scaffold coverage by track",
             "",
         ]
     )

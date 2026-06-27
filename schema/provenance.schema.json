@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/provenance.schema.json",
+  "title": "QSpecBench benchmark provenance",
+  "type": "object",
+  "required": ["benchmark_id", "artifacts"],
+  "properties": {
+    "benchmark_id": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "tooling_version": { "type": "string" },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "role": { "type": "string" }
+        }
+      }
+    }
+  }
+}

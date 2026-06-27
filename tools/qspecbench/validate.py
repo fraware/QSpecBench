@@ -13,9 +13,15 @@ import yaml
 
 from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
 from qspecbench.schema import load_schema
-from qspecbench.models import validate_spec_trust_slice
+from qspecbench.models import ALL_REFERENCE_LEVELS, validate_spec_trust_slice
+from qspecbench.provenance import validate_provenance
 from qspecbench.trust import validate_trust_rules
+from qspecbench.bridge_manifest import validate_kernel_bridge
 from qspecbench.verify_bridge import verify_bridge
+
+# Bridge links that assert a verified equality between the QASM matrix and the
+# OpenQASM3 denotation model (Python-level consistency, not a Lean kernel bridge).
+VERIFIED_BRIDGE_LINKS = {"python_consistency_checked", "kernel_checked"}
 
 SNAKE_CASE = re.compile(r"^[a-z][a-z0-9_]*$")
 
@@ -74,24 +80,32 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
     errors: list[str] = []
     maturity = spec.get("status", {}).get("maturity")
     bridge = _load_semantic_bridge(spec, claim_dir)
-    if maturity == "reference" and _has_qasm_objects(spec) and _has_lean_evidence(spec) and bridge is None:
+    if (
+        maturity in ALL_REFERENCE_LEVELS
+        and _has_qasm_objects(spec)
+        and _has_lean_evidence(spec)
+        and bridge is None
+    ):
         errors.append(
-            "reference with QASM artifacts and Lean evidence requires semantic_bridge "
+            f"{maturity} with QASM artifacts and Lean evidence requires semantic_bridge "
             "(spec root or expected/semantic_bridge.json)"
         )
-    if bridge and bridge.get("claimed_link") == "kernel_checked":
+    claimed_link = bridge.get("claimed_link") if bridge else None
+    if claimed_link in VERIFIED_BRIDGE_LINKS:
         if not _has_passing_bridge_verify(spec):
             errors.append(
-                "claimed_link kernel_checked requires passing bridge verify evidence "
+                f"claimed_link {claimed_link} requires passing bridge verify evidence "
                 "(checker verify-bridge or evidence id bridge_verify)"
             )
         else:
             result = verify_bridge(claim_dir)
             if not result.get("ok"):
                 errors.append(
-                    "claimed_link kernel_checked requires verify-bridge matrix match: "
+                    f"claimed_link {claimed_link} requires verify-bridge matrix match: "
                     + "; ".join(result.get("errors", []))
                 )
+        if claimed_link == "kernel_checked":
+            errors.extend(validate_kernel_bridge(claim_dir, bridge, spec))
     return errors
 
 
@@ -165,6 +179,7 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
     errors.extend(validate_spec_trust_slice(spec))
     errors.extend(check_layout(claim_dir))
     errors.extend(validate_trust_rules(spec, claim_dir))
+    errors.extend(validate_provenance(spec, claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     return errors
 

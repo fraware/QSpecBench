@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "hadamard_conjugates_x_to_z",
+  "generated_at": "2026-06-27T13:35:50.290362+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "09b180357138f4448a4f62bf9bfb9b50f26002298fc3f53a4954aefd10ce328b",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "786bc50ac5673d2d282fed2d8d7f22bb9227bc4924aadeed1c882b3b069cd348",
+      "role": "target"
+    }
+  ]
+}

@@ -57,14 +57,12 @@ evidence:
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: qcec_equivalence
@@ -72,23 +70,20 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: lean_source_opt
   type: lean_proof
   path: evidence/source_optimized.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/source_optimized.lean
   status: passing
   notes: Kernel-checked small-instance equivalence scaffold.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -107,7 +102,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -121,6 +116,11 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -128,4 +128,40 @@ proof_obligations:
   notes: Source/optimized equivalence scaffold
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: source_optimized_qasm_equivalence_small_instance_headline
+  headline_claim_text: An optimized QASM artifact is equivalent to its source under
+    declared relation.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - semantic_correctness_of_circuit_vs_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_source_opt
+  evidence_id: lean_source_opt
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_hxx_gate
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - semantic_correctness_of_circuit_vs_claim
+  benchmark_anchor: source_optimized_qasm_equivalence_small_instance
+provenance:
+  generated_at: '2026-06-27T13:35:50.571740+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: 1a8a859ad6f05d8ca76ea2791b442e0e0dd0d6c9ca1924b31c95320e59f65c6d
+    role: source
+  - path: artifacts/target.qasm
+    sha256: b504b0095b7d32ba263dbdcb834b171f0d65ac8076f33ad7eaa5b5e2a53a333c
+    role: target

@@ -58,28 +58,30 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 evidence:
 - id: qasm_syntax
   type: qasm_parse
   path: artifacts/circuit.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only.
 - id: lean_bell_prep
   type: lean_proof
   path: evidence/bell_prep.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/bell_prep.lean
   status: passing
   notes: Kernel-checked Bell-pair preparation on fixed 2-qubit matrix model.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -98,7 +100,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -106,4 +108,51 @@ proof_obligations:
   notes: bell_prep_from_00 on int model
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: bell_state_preparation_headline
+  headline_claim_text: Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+>
+    on two qubits.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - openqasm_h_normalization_links_integer_model_to_
+  - global_phase_of_phi_state
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_bell_prep
+  evidence_id: lean_bell_prep
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.bell_prep_from_00
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - openqasm_h_normalization_links_integer_model_to_
+  - global_phase_of_phi_state
+  benchmark_anchor: bell_state_preparation
+- id: formal_bridge_bell_state_preparation
+  evidence_id: bridge_verify
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: bridge_bell_prep
+  supports:
+  - python_denotation_bridge
+  - semantic_bridge
+  does_not_support:
+  - openqasm_h_normalization_links_integer_model_to_
+  - global_phase_of_phi_state
+  benchmark_anchor: bell_state_preparation
+provenance:
+  generated_at: '2026-06-27T13:35:49.681894+00:00'
+  artifacts:
+  - path: artifacts/circuit.qasm
+    sha256: 615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b
+    role: source

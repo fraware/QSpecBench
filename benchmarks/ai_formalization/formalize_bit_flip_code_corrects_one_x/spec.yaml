@@ -84,15 +84,12 @@ evidence:
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/kernel_checked_draft.lean
   status: passing
   notes: Kernel-checked library theorem anchor.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
-  command: python adapters/ai_formalization/parse_result.py notes/semantic_rubric.md
-    artifacts/draft.lean
   status: passing
   notes: Rubric score >= 4 for reference benchmarks.
 trust_boundary:
@@ -112,7 +109,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references:
 - key: three_qubit_bit_flip_code_corrects_one_x
   type: other
@@ -126,3 +123,49 @@ proof_obligations:
 - id: draft_faithfulness
   status: partial
   notes: Rubric score >= 4; AI draft remains untrusted
+claim_scope:
+  headline_claim_id: formalize_bit_flip_code_corrects_one_x_headline
+  headline_claim_text: Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
+  required_obligations:
+  - kernel_anchor
+  - draft_faithfulness
+proved_scope:
+  checked_obligations:
+  - kernel_anchor
+  unproved_obligations:
+  - draft_faithfulness
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_kernel_check
+  evidence_id: lean_kernel_check
+  formal_system: lean
+  module: QSpecBench.Stabilizer
+  theorem: QSpecBench.bit_flip_stabilizers_commute
+  supports:
+  - kernel_anchor
+  does_not_support:
+  - draft_faithfulness
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  benchmark_anchor: formalize_bit_flip_code_corrects_one_x
+ai_formalization_status:
+  syntax_valid: true
+  kernel_checked: true
+  semantic_reviewed: true
+  faithfulness_score: 4
+  library_compatible: true
+  proof_completed: true
+provenance:
+  generated_at: '2026-06-27T13:35:49.301830+00:00'
+  artifacts:
+  - path: artifacts/source.txt
+    sha256: d78e4cd1e075c1540234927b47d14e9be9fbed96c294582b9b51b5e6e7a1133e
+    role: source
+  - path: artifacts/draft.lean
+    sha256: 14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980
+    role: generated
+  - path: notes/semantic_rubric.md
+    sha256: 57c5e80493a890f7dc6f1bf9f7154dc165a512ea88c6dc93b84caf01d24c3989
+    role: specification

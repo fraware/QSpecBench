@@ -33,8 +33,10 @@ specification:
   - shared pair is initialized in the Bell state (|00>+|11>)/sqrt(2)
   postconditions:
   - unitary fragment before measurement matches declared OpenQASM ordering
-  - for computational basis inputs, receiver state equals input after Pauli correction (informal; not kernel-checked)
-  - sender measurement bits (c[0], c[1]) determine the correction operator (documented, not kernel-checked)
+  - for computational basis inputs, receiver state equals input after Pauli correction
+    (informal; not kernel-checked)
+  - sender measurement bits (c[0], c[1]) determine the correction operator (documented,
+    not kernel-checked)
   invariants:
   - no clone of the input state remains with the sender after correction
   approximation:
@@ -77,33 +79,35 @@ acceptable_evidence:
   path: notes/informal_derivation.md
   required_for_claim: false
   trust_level: externally_trusted
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 evidence:
 - id: qasm_syntax
   type: qasm_parse
   path: artifacts/teleportation.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/teleportation.qasm
   status: passing
   notes: Syntax check only.
 - id: lean_teleportation
   type: lean_proof
   path: evidence/teleportation.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/teleportation.lean
   status: passing
   notes: Kernel-checked unitary fragment and correction table anchor.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: Bell-prep scaffold QASM matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: Bell-prep scaffold QASM matches OpenQASM3 denotation (python_consistency_checked
+    bridge).
 - id: informal_derivation
   type: human_review
   path: notes/informal_derivation.md
   checker: manual review
-  command: python adapters/human_review/parse_result.py notes/informal_derivation.md
   status: passing
   notes: Informal derivation aligned with checked unitary fragment scope.
 trust_boundary:
@@ -125,7 +129,7 @@ status:
   artifacts: complete
   evidence: partial
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references:
 - key: nielsen_chuang_teleportation
   type: lecture
@@ -138,7 +142,62 @@ proof_obligations:
   notes: teleportation_unitary_fragment_checked on declared wire ordering
 - id: qasm_lean_bridge
   status: passing
-  notes: Bell-prep scaffold kernel_checked via verify-bridge
+  notes: Bell-prep scaffold python_consistency_checked via verify-bridge
 - id: relational_protocol
   status: partial
   notes: Full |psi> transfer and corrections documented but not kernel-checked
+claim_scope:
+  headline_claim_id: teleportation_preserves_state_up_to_pauli_correction_headline
+  headline_claim_text: The teleportation circuit transfers an arbitrary one-qubit
+    state to the receiver after applying the Pauli correction determined by the two
+    classical measurement bits.
+  required_obligations:
+  - unitary_fragment_matches_ordering
+  - arbitrary_state_relational_transfer
+  - measurement_conditioned_pauli_correction
+proved_scope:
+  checked_obligations:
+  - unitary_fragment_matches_ordering
+  unproved_obligations:
+  - arbitrary_state_relational_transfer
+  - measurement_conditioned_pauli_correction
+  - arbitrary_state_relational_transfer_after_measur
+  - idealized_measurement_semantics
+  - classical_feed_forward_control_semantics_in_qasm
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_teleportation
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleportation_unitary_fragment_checked
+  supports:
+  - unitary_fragment_matches_ordering
+  does_not_support:
+  - arbitrary_state_relational_transfer
+  - measurement_conditioned_pauli_correction
+  - arbitrary_state_relational_transfer_after_measur
+  - idealized_measurement_semantics
+  - classical_feed_forward_control_semantics_in_qasm
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+- id: formal_bridge_teleportation_preserves_state_up_to_pauli_correction
+  evidence_id: bridge_verify
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: bridge_teleportation_scaffold
+  supports:
+  - python_denotation_bridge
+  - semantic_bridge
+  does_not_support:
+  - arbitrary_state_relational_transfer
+  - measurement_conditioned_pauli_correction
+  - arbitrary_state_relational_transfer_after_measur
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+provenance:
+  generated_at: '2026-06-27T13:35:50.070023+00:00'
+  artifacts:
+  - path: artifacts/teleportation.qasm
+    sha256: bc91dd3738b28a75078ec0488c254c4e9a195ee086310325918cc96f63732d78
+    role: source

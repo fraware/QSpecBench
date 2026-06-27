@@ -60,7 +60,6 @@ evidence:
   type: human_review
   path: notes/informal_derivation.md
   checker: domain expert review
-  command: python adapters/human_review/parse_result.py notes/informal_derivation.md
   status: passing
   notes: Partial claim documented and human-reviewed; security not verified.
 trust_boundary:
@@ -81,3 +80,35 @@ status:
   ci: passing
   maturity: usable
 references: []
+claim_scope:
+  headline_claim_id: bb84_sifted_key_partial_claim_headline
+  headline_claim_text: BB84 sifted-key generation is documented as a partial claim
+    without full security proof.
+  required_obligations:
+  - human_review
+proved_scope:
+  checked_obligations:
+  - human_review
+  unproved_obligations:
+  - eavesdropper_model
+  - privacy_amplification
+headline_claim_status:
+  status: partially_checked
+  notes: null
+qec_claim_scope:
+  code_definition: unchecked
+  stabilizer_commutation: unchecked
+  syndrome_table: unchecked
+  correction_table: unchecked
+  decoder_correctness: assumed
+  logical_preservation: assumed
+  repeated_rounds: out_of_scope
+  distance:
+    type: declared_parameter
+    status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:51.040011+00:00'
+  artifacts:
+  - path: artifacts/protocol.json
+    sha256: 2cfa150f7c0edf6e5f157c1d95bda2ceaef26efaef14517df082ec2a61adf08d
+    role: specification

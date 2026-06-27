@@ -52,23 +52,20 @@ evidence:
   type: qasm_parse
   path: artifacts/circuit.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/circuit.qasm
   status: passing
   notes: Syntax only; semantic claim not verified.
 - id: lean_qft_identity
   type: lean_proof
   path: evidence/qft_identity.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/qft_identity.lean
   status: passing
   notes: Kernel-checked QFT/inverse-QFT identity on 2-qubit scaffold.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -85,7 +82,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -95,11 +92,49 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 references: []
 proof_obligations:
 - id: qft_inverse_identity
   status: passing
-  notes: "QFT\xB7IQFT = 4I scaffold"
+  notes: QFT·IQFT = 4I scaffold
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: qft_then_inverse_qft_identity_up_to_ordering_headline
+  headline_claim_text: Applying QFT followed by inverse QFT yields the identity on
+    the declared register up to bit-ordering conventions.
+  required_obligations:
+  - qft_inverse_identity
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - qft_inverse_identity
+  - semantic_bridge
+  unproved_obligations:
+  - semantic_correctness_of_circuit_vs_claim
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_qft_identity
+  evidence_id: lean_qft_identity
+  formal_system: lean
+  module: QSpecBench.Algorithms
+  theorem: QSpecBench.qft_then_inverse_qft_identity
+  supports:
+  - qft_inverse_identity
+  does_not_support:
+  - semantic_correctness_of_circuit_vs_claim
+  benchmark_anchor: qft_then_inverse_qft_identity_up_to_ordering
+provenance:
+  generated_at: '2026-06-27T13:35:49.893091+00:00'
+  artifacts:
+  - path: artifacts/circuit.qasm
+    sha256: 17b46fbc8e08de97a0b9c83f08773bb611a82a4af12eb66fee034602652d4406
+    role: source

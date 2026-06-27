@@ -5,7 +5,7 @@ Every benchmark declares a `trust_boundary` block.
 ## Fields
 
 - **checked_by** — verified in this benchmark's evidence pipeline
-- **trusted_kernels** — proof kernels relied upon (**Lean 4 only** in this repository)
+- **trusted_kernels** — proof kernels relied upon (Lean 4 kernel in CI today; schema reserves Coq/Rocq/Isabelle types)
 - **trusted_external_tools** — specialized tools (QCEC, QEC verifiers)
 - **untrusted_components** — drafts, AI output, informal notes
 - **assumptions_not_checked** — explicit assumptions not validated

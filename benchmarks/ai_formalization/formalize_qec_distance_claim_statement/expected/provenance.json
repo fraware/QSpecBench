@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "formalize_qec_distance_claim_statement",
+  "generated_at": "2026-06-27T13:35:49.422079+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.txt",
+      "sha256": "3d2ab96b07ba328cfedeafb42806a94aeec2f5af748f5e00f72ed50322b6f8a5",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/draft.lean",
+      "sha256": "aa7d2a6a287b36009230f2fc09e2caa5bc297160b56e844f091ae29c7db86734",
+      "role": "generated"
+    },
+    {
+      "path": "notes/semantic_rubric.md",
+      "sha256": "d97d87706d49522f4a866fc1083548969ef34ba1cfcd0ddd3bba07e8541da6cd",
+      "role": "specification"
+    }
+  ]
+}

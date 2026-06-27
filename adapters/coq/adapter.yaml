@@ -1,0 +1,3 @@
+adapter: coq_proof
+description: Coq proof certificate adapter (stub — kernel not configured in CI)
+command: python adapters/coq/parse_result.py {path}

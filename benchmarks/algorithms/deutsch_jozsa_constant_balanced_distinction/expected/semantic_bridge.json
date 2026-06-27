@@ -7,5 +7,8 @@
     "oracle": "placeholder_not_kernel_linked"
   },
   "claimed_link": "documented_not_proved",
-  "qasm_artifact": "artifacts/circuit.qasm"
+  "qasm_artifact": "artifacts/circuit.qasm",
+  "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
+  "artifact_sha256": "5b71eb98f196e0138347cad2c22ce109d62abd63e87318928c12e74672cd66ab",
+  "gate_trace_sha256": "1a01a1f15e2983953c8ac47c3c7efff733cf7064a347c8bdfa8d8039b2ce1d71"
 }

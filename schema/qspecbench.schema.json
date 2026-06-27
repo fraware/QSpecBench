@@ -94,10 +94,43 @@
     "proof_obligations": {
       "type": "array",
       "items": { "$ref": "#/$defs/proof_obligation" }
-    }
+    },
+    "claim_scope": { "$ref": "#/$defs/claim_scope" },
+    "proved_scope": { "$ref": "#/$defs/proved_scope" },
+    "headline_claim_status": { "$ref": "#/$defs/headline_claim_status" },
+    "formal_claims": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/formal_claim_entry" }
+    },
+    "qec_claim_scope": { "$ref": "#/$defs/qec_claim_scope" },
+    "ai_formalization_status": { "$ref": "#/$defs/ai_formalization_status" },
+    "hamiltonian_claim_scope": { "$ref": "#/$defs/hamiltonian_claim_scope" },
+    "provenance": { "$ref": "#/$defs/provenance" }
   },
   "additionalProperties": false,
   "$defs": {
+    "evidence_type": {
+      "type": "string",
+      "enum": [
+        "lean_proof",
+        "coq_proof",
+        "rocq_proof",
+        "isabelle_proof",
+        "proof_assistant_proof",
+        "smt_certificate",
+        "sat_certificate",
+        "qcec_result",
+        "qbricks_result",
+        "qec_verifier_result",
+        "zx_certificate",
+        "simulation",
+        "human_review",
+        "ai_draft",
+        "qasm_parse",
+        "python_denotation_consistency_check",
+        "other"
+      ]
+    },
     "object_entry": {
       "type": "object",
       "required": ["name", "type", "format", "role"],
@@ -211,23 +244,7 @@
       "type": "object",
       "required": ["type", "checker", "required_for_claim", "trust_level"],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "lean_proof",
-            "smt_certificate",
-            "sat_certificate",
-            "qcec_result",
-            "qbricks_result",
-            "qec_verifier_result",
-            "zx_certificate",
-            "simulation",
-            "human_review",
-            "ai_draft",
-            "qasm_parse",
-            "other"
-          ]
-        },
+        "type": { "$ref": "#/$defs/evidence_type" },
         "checker": { "type": "string", "minLength": 1 },
         "path": { "type": ["string", "null"] },
         "required_for_claim": { "type": "boolean" },
@@ -249,11 +266,12 @@
       "required": ["id", "type", "path", "checker", "status"],
       "properties": {
         "id": { "type": "string" },
-        "type": { "type": "string" },
+        "type": { "$ref": "#/$defs/evidence_type" },
         "path": { "type": "string" },
         "secondary_path": { "type": ["string", "null"] },
         "checker": { "type": "string" },
         "command": { "type": ["string", "null"] },
+        "adapter": { "type": ["string", "null"] },
         "status": {
           "type": "string",
           "enum": ["passing", "failing", "partial", "not_checked", "draft"]
@@ -296,7 +314,18 @@
         "artifacts": { "type": "string", "enum": ["missing", "partial", "complete"] },
         "evidence": { "type": "string", "enum": ["missing", "partial", "complete"] },
         "ci": { "type": "string", "enum": ["not_applicable", "failing", "passing"] },
-        "maturity": { "type": "string", "enum": ["seed", "usable", "reference", "deprecated"] }
+        "maturity": {
+          "type": "string",
+          "enum": [
+            "seed",
+            "usable",
+            "reference_scaffold",
+            "reference_contract",
+            "reference_artifact",
+            "reference_claim",
+            "deprecated"
+          ]
+        }
       },
       "additionalProperties": false
     },
@@ -365,11 +394,18 @@
         },
         "claimed_link": {
           "type": "string",
-          "enum": ["documented_not_proved", "kernel_checked"]
+          "enum": [
+            "documented_not_proved",
+            "python_consistency_checked",
+            "kernel_checked"
+          ]
         },
         "bridge_evidence_id": { "type": ["string", "null"] },
         "gate_set": { "type": ["string", "null"] },
-        "qasm_artifact": { "type": "string", "minLength": 1 }
+        "qasm_artifact": { "type": "string", "minLength": 1 },
+        "gate_model": { "type": "string", "minLength": 1 },
+        "artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
       },
       "additionalProperties": false
     },
@@ -383,6 +419,177 @@
           "enum": ["missing", "partial", "passing", "not_applicable"]
         },
         "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "claim_scope": {
+      "type": "object",
+      "required": ["headline_claim_id", "headline_claim_text", "required_obligations"],
+      "properties": {
+        "headline_claim_id": { "type": "string", "minLength": 1 },
+        "headline_claim_text": { "type": "string", "minLength": 1 },
+        "required_obligations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "proved_scope": {
+      "type": "object",
+      "required": ["checked_obligations", "unproved_obligations"],
+      "properties": {
+        "checked_obligations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "unproved_obligations": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "headline_claim_status": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["unproved", "partially_checked", "checked"]
+        },
+        "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "formal_claim_entry": {
+      "type": "object",
+      "required": ["id", "evidence_id", "formal_system", "theorem", "supports", "does_not_support"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "formal_system": {
+          "type": "string",
+          "enum": ["lean", "coq", "rocq", "isabelle", "other"]
+        },
+        "module": { "type": ["string", "null"] },
+        "theorem": { "type": "string", "minLength": 1 },
+        "supports": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "does_not_support": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "benchmark_anchor": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "qec_claim_scope": {
+      "type": "object",
+      "properties": {
+        "code_definition": {
+          "type": "string",
+          "enum": ["checked", "unchecked", "draft"]
+        },
+        "stabilizer_commutation": {
+          "type": "string",
+          "enum": ["checked", "unchecked", "draft"]
+        },
+        "syndrome_table": {
+          "type": "string",
+          "enum": ["checked", "unchecked", "draft", "assumed"]
+        },
+        "correction_table": {
+          "type": "string",
+          "enum": ["checked", "unchecked", "draft", "assumed"]
+        },
+        "decoder_correctness": {
+          "type": "string",
+          "enum": ["checked", "assumed", "out_of_scope"]
+        },
+        "logical_preservation": {
+          "type": "string",
+          "enum": ["checked", "assumed", "out_of_scope"]
+        },
+        "distance": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "quantum_distance",
+                "x_distance",
+                "z_distance",
+                "bit_flip_distance",
+                "declared_parameter"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": ["checked", "assumed", "toy", "declared_only"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "repeated_rounds": {
+          "type": "string",
+          "enum": ["checked", "draft", "out_of_scope"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ai_formalization_status": {
+      "type": "object",
+      "properties": {
+        "syntax_valid": { "type": "boolean" },
+        "kernel_checked": { "type": "boolean" },
+        "semantic_reviewed": { "type": "boolean" },
+        "faithfulness_score": { "type": ["integer", "null"], "minimum": 0, "maximum": 5 },
+        "library_compatible": { "type": "boolean" },
+        "proof_completed": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "hamiltonian_claim_scope": {
+      "type": "object",
+      "required": ["claim_class"],
+      "properties": {
+        "claim_class": {
+          "type": "string",
+          "enum": [
+            "matrix_identity_claim",
+            "hermiticity_claim",
+            "mapping_sanity_claim",
+            "declared_contract_claim",
+            "analytic_error_bound_claim"
+          ]
+        },
+        "derivation_status": {
+          "type": "string",
+          "enum": ["checked", "declared_only", "reviewed", "not_applicable"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "generated_at": { "type": ["string", "null"] },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "role": { "type": ["string", "null"] }
+            },
+            "additionalProperties": false
+          }
+        }
       },
       "additionalProperties": false
     }

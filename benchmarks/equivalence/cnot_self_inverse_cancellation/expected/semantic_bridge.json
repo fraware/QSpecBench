@@ -6,5 +6,9 @@
     "cnot": "standard_01_control_target",
     "qasm_factor": "exact_permutation_matrix"
   },
-  "claimed_link": "kernel_checked"
+  "claimed_link": "kernel_checked",
+  "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
+  "qasm_artifact": "artifacts/source.qasm",
+  "artifact_sha256": "8717b9f920ce3f864fffc4eac9f8175f7db3b7ee51c67bef4892aa5d8b32b1de",
+  "gate_trace_sha256": "a1ece7c215b3a433de1693804048c26d0c22134269c27605192947ec23826015"
 }

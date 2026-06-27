@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "no_cloning_negative_claim",
+  "generated_at": "2026-06-27T13:35:49.807947+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "notes/cloning_channel.md",
+      "sha256": "e00bae65f122a294a68e7320206501a4d8675032080644723eb689a748a8e275",
+      "role": "specification"
+    }
+  ]
+}

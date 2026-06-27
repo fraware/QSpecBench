@@ -1,0 +1,12 @@
+{
+  "benchmark_id": "qft_then_inverse_qft_identity_up_to_ordering",
+  "generated_at": "2026-06-27T13:35:49.893091+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/circuit.qasm",
+      "sha256": "17b46fbc8e08de97a0b9c83f08773bb611a82a4af12eb66fee034602652d4406",
+      "role": "source"
+    }
+  ]
+}

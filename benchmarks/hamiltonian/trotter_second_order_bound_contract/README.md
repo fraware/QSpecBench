@@ -26,7 +26,7 @@ spec.yaml
 
 ## Status
 
-Current maturity: **reference**.
+Current maturity: **reference_contract**.
 
 ## Known gaps
 

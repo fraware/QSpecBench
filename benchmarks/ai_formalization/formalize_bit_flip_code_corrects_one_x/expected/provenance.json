@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "formalize_bit_flip_code_corrects_one_x",
+  "generated_at": "2026-06-27T13:35:49.301830+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.txt",
+      "sha256": "d78e4cd1e075c1540234927b47d14e9be9fbed96c294582b9b51b5e6e7a1133e",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/draft.lean",
+      "sha256": "14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980",
+      "role": "generated"
+    },
+    {
+      "path": "notes/semantic_rubric.md",
+      "sha256": "57c5e80493a890f7dc6f1bf9f7154dc165a512ea88c6dc93b84caf01d24c3989",
+      "role": "specification"
+    }
+  ]
+}

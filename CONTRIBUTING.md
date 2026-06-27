@@ -54,7 +54,7 @@ See [docs/schema_migration_0.2.md](docs/schema_migration_0.2.md) for schema fiel
 
 ## Proof assistants
 
-**Lean 4 only.** Add proofs under `lean/QSpecBench/` and wire `lean_proof` evidence. CI runs `lake build`.
+**Lean 4 is the currently supported proof assistant in CI.** Add proofs under `lean/QSpecBench/` and wire `lean_proof` evidence. CI runs `lake build`. The evidence model also reserves `coq_proof`, `rocq_proof`, and `isabelle_proof` types with stub adapters for future kernels.
 
 ## AI-generated content
 

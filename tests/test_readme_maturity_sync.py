@@ -9,7 +9,10 @@ import yaml
 
 REPO = Path(__file__).resolve().parents[1]
 MATURITY_RE = re.compile(
-    r"Current maturity:\s*\*\*(seed|usable|reference|deprecated)\*\*",
+    r"Current maturity:\s*\*\*("
+    r"seed|usable|reference_scaffold|reference_contract|reference_artifact|"
+    r"reference_claim|deprecated"
+    r")\*\*",
     re.IGNORECASE,
 )
 

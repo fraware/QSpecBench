@@ -43,7 +43,7 @@ def test_reference_requires_checked_passing_evidence():
         "artifacts": "complete",
         "evidence": "partial",
         "ci": "passing",
-        "maturity": "reference",
+        "maturity": "reference_scaffold",
     }
     spec["evidence"] = [
         {
@@ -55,7 +55,7 @@ def test_reference_requires_checked_passing_evidence():
         }
     ]
     errors = validate_trust_rules(spec)
-    assert any("reference maturity" in e for e in errors)
+    assert any("maturity requires at least one passing checked evidence" in e for e in errors)
 
 
 def test_ai_draft_passing_evidence_rejected():

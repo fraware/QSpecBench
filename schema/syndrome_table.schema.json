@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/syndrome_table.schema.json",
+  "title": "QSpecBench syndrome table",
+  "type": "object",
+  "required": ["type", "entries"],
+  "properties": {
+    "type": { "const": "syndrome_table" },
+    "syndrome_bits": { "type": "array", "items": { "type": "string" } },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["syndrome", "error"],
+        "properties": {
+          "syndrome": { "type": "string" },
+          "error": { "type": "string" },
+          "correction": { "type": "string" }
+        }
+      }
+    }
+  }
+}

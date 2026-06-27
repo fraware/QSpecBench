@@ -70,26 +70,28 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: externally_trusted
+- type: python_denotation_consistency_check
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: independently_checkable
 evidence:
 - id: lean_hadamard_cancel
   type: lean_proof
   path: evidence/hadamard_cancel.lean
   checker: Lean 4 kernel
-  command: python adapters/lean/parse_result.py evidence/hadamard_cancel.lean
   status: passing
   notes: Proves unnormalized H*H = 2I; QASM H includes 1/sqrt(2) scaling per assumptions.
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/source.qasm
   status: passing
   notes: Syntax only.
 - id: qasm_parse_target
   type: qasm_parse
   path: artifacts/target.qasm
   checker: qasm parser adapter
-  command: python adapters/qasm/parse_result.py artifacts/target.qasm
   status: passing
   notes: Syntax only.
 - id: qcec_equivalence
@@ -97,16 +99,14 @@ evidence:
   path: artifacts/source.qasm
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
-  command: python adapters/qcec/parse_result.py {path} {path2}
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: bridge_verify
-  type: simulation
+  type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
-  command: python adapters/bridge/parse_result.py evidence/bridge_verify.result.json
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -125,7 +125,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_scaffold
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -133,4 +133,51 @@ proof_obligations:
   notes: Hadamard cancellation
 - id: semantic_bridge
   status: passing
-  notes: kernel_checked verify-bridge
+  notes: python_consistency_checked verify-bridge
+claim_scope:
+  headline_claim_id: single_qubit_gate_cancellation_headline
+  headline_claim_text: Consecutive inverse single-qubit gates on the same wire cancel
+    to identity.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations:
+  - openqasm_h_normalization_factor_links_to_integer
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_hadamard_cancel
+  evidence_id: lean_hadamard_cancel
+  formal_system: lean
+  module: QSpecBench.Pauli
+  theorem: QSpecBench.hadamard_mul_self
+  supports:
+  - lean_kernel_proof
+  does_not_support:
+  - openqasm_h_normalization_factor_links_to_integer
+  benchmark_anchor: single_qubit_gate_cancellation
+- id: formal_bridge_single_qubit_gate_cancellation
+  evidence_id: bridge_verify
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: bridge_hadamard_cancel
+  supports:
+  - python_denotation_bridge
+  - semantic_bridge
+  does_not_support:
+  - openqasm_h_normalization_factor_links_to_integer
+  benchmark_anchor: single_qubit_gate_cancellation
+provenance:
+  generated_at: '2026-06-27T13:35:50.506212+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: 90faff4ad649320098f82328250b15f2eaa595b44c7bb9f30afaf06cc5de8e22
+    role: source
+  - path: artifacts/target.qasm
+    sha256: 89b80c98aac72dcc5a601b764337905e9c25ccc13f7d20d04e9c8a6a345c3b6c
+    role: target

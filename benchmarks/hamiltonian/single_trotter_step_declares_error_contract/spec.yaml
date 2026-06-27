@@ -23,9 +23,9 @@ specification:
   preconditions:
   - declared mapping conventions
   postconditions:
-    - "declared single-step Trotter error contract uses fidelity metric with bound 1e-6"
+  - declared single-step Trotter error contract uses fidelity metric with bound 1e-6
   invariants:
-    - "approximation enabled with explicit metric and bound"
+  - approximation enabled with explicit metric and bound
   approximation:
     enabled: true
     metric: fidelity
@@ -49,7 +49,7 @@ assumptions:
   unverified: []
 acceptable_evidence:
 - type: lean_proof
-  checker: "Lean 4 kernel"
+  checker: Lean 4 kernel
   path: null
   required_for_claim: false
   trust_level: checked
@@ -59,20 +59,18 @@ acceptable_evidence:
   required_for_claim: false
   trust_level: externally_trusted
 evidence:
-  - id: lean_trotter_contract
-    type: lean_proof
-    path: evidence/trotter_contract.lean
-    checker: Lean 4 kernel
-    command: python adapters/lean/parse_result.py evidence/trotter_contract.lean
-    status: passing
-    notes: Kernel-checked declared fidelity bound positivity anchor.
-  - id: error_contract_review
-    type: human_review
-    path: notes/informal_derivation.md
-    checker: "domain expert review"
-    command: python adapters/human_review/parse_result.py notes/informal_derivation.md
-    status: passing
-    notes: "Contract documented and human-reviewed; bound not numerically verified."
+- id: lean_trotter_contract
+  type: lean_proof
+  path: evidence/trotter_contract.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Kernel-checked declared fidelity bound positivity anchor.
+- id: error_contract_review
+  type: human_review
+  path: notes/informal_derivation.md
+  checker: domain expert review
+  status: passing
+  notes: Contract documented and human-reviewed; bound not numerically verified.
 trust_boundary:
   checked_by:
   - Lean 4 kernel anchor for declared contract field
@@ -82,14 +80,14 @@ trust_boundary:
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
-    - "fidelity bound is achieved by the declared step"
+  - fidelity bound is achieved by the declared step
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference
+  maturity: reference_contract
 references: []
 proof_obligations:
 - id: contract_declaration
@@ -98,3 +96,40 @@ proof_obligations:
 - id: fidelity_achievement
   status: partial
   notes: Bound not numerically verified
+claim_scope:
+  headline_claim_id: single_trotter_step_declares_error_contract_headline
+  headline_claim_text: 'Hamiltonian simulation claim: single trotter step declares
+    error contract.'
+  required_obligations:
+  - contract_declaration
+  - fidelity_achievement
+proved_scope:
+  checked_obligations:
+  - contract_declaration
+  unproved_obligations:
+  - fidelity_achievement
+  - fidelity_bound_is_achieved_by_the_declared_step
+headline_claim_status:
+  status: partially_checked
+  notes: null
+formal_claims:
+- id: formal_lean_trotter_contract
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.single_trotter_step_declares_error_contract
+  supports:
+  - contract_declaration
+  does_not_support:
+  - fidelity_achievement
+  - fidelity_bound_is_achieved_by_the_declared_step
+  benchmark_anchor: single_trotter_step_declares_error_contract
+hamiltonian_claim_scope:
+  claim_class: declared_contract_claim
+  derivation_status: declared_only
+provenance:
+  generated_at: '2026-06-27T13:35:50.901721+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: df20bd7ef54135045eacf25062a7c9041b49aa17cf31f322742220dbeb98fc5f
+    role: source

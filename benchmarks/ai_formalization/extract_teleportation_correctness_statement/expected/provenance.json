@@ -1,0 +1,22 @@
+{
+  "benchmark_id": "extract_teleportation_correctness_statement",
+  "generated_at": "2026-06-27T13:35:49.234697+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.txt",
+      "sha256": "4fa0fbbd5f23d2852e9af977c3b7f8484da602050de1166829d3c3d868972ac5",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/draft.lean",
+      "sha256": "14c907ac922bafee3d83b8b172904732c15b3eb4adc61c80897667ddd5cfb980",
+      "role": "generated"
+    },
+    {
+      "path": "notes/semantic_rubric.md",
+      "sha256": "2449fc7f18d7508dfdf94e657e21dcdf1d2e36513ab9891b931d237c5219f81e",
+      "role": "specification"
+    }
+  ]
+}
