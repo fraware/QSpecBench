@@ -35,6 +35,13 @@ Suggested thresholds before bumping to `0.2.0`:
 Until those thresholds are met, keep `CORPUS_VERSION` at `0.1.0` even as tooling (`0.2.0`) and schema
 (`0.2`) evolve.
 
+## Hamiltonian artifact schema migration
+
+Legacy Hamiltonian JSON artifacts without a top-level `type` field are tolerated only until corpus
+**v0.2.0**. After that deadline (documented in `GOVERNANCE.md`), all Hamiltonian artifacts must
+validate against `schema/hamiltonian.schema.json`. Migration started in v0.1.x: `heisenberg_model`
+and `bravyi_kitaev` artifacts now declare `type: pauli_hamiltonian`.
+
 ## Single source of truth
 
 The canonical version constants live in `tools/qspecbench/__init__.py`

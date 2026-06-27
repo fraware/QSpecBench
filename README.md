@@ -186,20 +186,19 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 
 ## Project status
 
-Honest status: most early entries are **reference scaffolds**. They demonstrate the QSpecBench evidence
-format and trust-boundary discipline, but they do not yet prove the full informal headline claim. No
-benchmark is currently a `reference_claim`, and there are **no kernel-checked artifact-to-theorem
-bridges** yet — the bridge tooling performs a Python-level denotation-consistency check only.
+Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **Five**
+benchmarks are `reference_claim` under declared internal scope (see `headline_claim_status.checked_under`).
 
 | | |
 |---|---|
 | **Benchmarks** | 48 across 5 tracks |
 | **Reference scaffolds** (any scoped reference level) | 40 |
-| **With headline claim checked** (`reference_claim`) | 0 |
+| **With headline claim checked** (`reference_claim`) | 5 |
 | **With any checked evidence** | 44 |
-| **Python denotation consistency checks** | 14 |
-| **Kernel-checked artifact-to-theorem bridges** | 0 |
-| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge (Python consistency), circuit equivalence (QCEC) |
+| **Manifest-checked theorem bindings** | 11 |
+| **Python denotation consistency checks** | 3 |
+| **Kernel-checked artifact semantics bridges** | 0 |
+| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).
 

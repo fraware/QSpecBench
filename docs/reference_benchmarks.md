@@ -26,17 +26,26 @@ headline claim is still unproved. The headline claim is only considered proved a
 - `claim_scope` (headline_claim_id, headline_claim_text, required_obligations) is declared
 - `proved_scope.checked_obligations` covers every required obligation; none remain in `unproved_obligations`
 - `headline_claim_status.status: checked`
+- `headline_claim_status.checked_under` lists semantic bases (e.g. `qspecbench.openqasm3.int_scaffold.v0`, `finite_matrix_model`)
+- `headline_claim_status.not_checked_under` lists explicit limits (e.g. `full_openqasm3`, `hardware_semantics`)
 - Every `acceptable_evidence` entry with `required_for_claim: true` has a passing evidence entry of that type
 
 ## QASM + Lean equivalence claims
 
 - `expected/semantic_bridge.json` declaring `artifact_gate_model`, `lean_module`, `lean_theorem`, `normalization`
-- Passing `bridge_verify` evidence when `claimed_link: python_consistency_checked`
-- OpenQASM artifact parses and matrix matches `QSpecBench.Quantum.OpenQASM3` denotation
-- Note: `python_consistency_checked` is a Python-level denotation-consistency check, **not** a Lean
-  kernel-checked artifact-to-theorem bridge. `claimed_link: kernel_checked` requires a manifest entry
-  in `schema/bridge_theorem_manifest.json`, matching artifact/gate-trace hashes, and Lean evidence
-  that references the declared theorem (see `cnot_self_inverse_cancellation` as the exemplar).
+- Passing `bridge_verify` evidence when `claimed_link` is `python_denotation_consistency` or `manifest_checked_theorem_binding`
+- OpenQASM artifact parses and matrix matches `QSpecBench.Quantum.OpenQASM3` denotation (for Python bridge links)
+- `python_denotation_consistency`: Python matrix vs denotation only
+- `manifest_checked_theorem_binding`: manifest entry + SHA256 anchors + structured Lean evidence anchor (see `cnot_self_inverse_cancellation`)
+- `kernel_checked_artifact_semantics`: reserved; none in corpus v0.1.0
+
+## QEC claim scope (v0.2)
+
+`qec_claim_scope` uses granular fields: `code_schema`, `code_definition_semantics`, `stabilizer_commutation`,
+`syndrome_table`, `correction_table`, `decoder_algorithm`, `logical_preservation_small_code`,
+`logical_preservation_general`, and `distance.status`. Mark `stabilizer_commutation: checked` only when
+Lean evidence validates commutation. Mark `distance.status: checked` only with `distance_result` from
+the QEC adapter bruteforce run.
 
 ## Track stacks
 
@@ -58,8 +67,8 @@ assumed lookup table); stabilizer commutation alone supports at most `reference_
 - `reference_claim` while any required headline obligation is unproved
 - `correction_claim: checked` without checked decoder/correction evidence
 - `headline_claim_status: checked` on a scaffold-level benchmark
-- `claimed_link: python_consistency_checked` without passing verify-bridge
-- Reporting Python consistency checks as kernel-checked bridges
+- `claimed_link: python_denotation_consistency` without passing verify-bridge
+- Reporting manifest bindings or Python consistency as kernel-checked artifact semantics
 - AI draft passing without independent kernel check and human review
 
 ## Promotion workflow
@@ -68,3 +77,12 @@ assumed lookup table); stabilizer commutation alone supports at most `reference_
 2. Add evidence until the track stack is satisfied
 3. Run `qspecbench validate`, `qspecbench check-evidence`, `lake build`
 4. Maintainer review of `trust_boundary` honesty
+
+## Current corpus (declared internal scope)
+
+- **`reference_claim`:** 5 benchmarks (equivalence ×3, algorithms ×1, hamiltonian ×1)
+- **`manifest_checked_theorem_binding` bridges:** 11
+- **`python_denotation_consistency` bridges:** 3
+- **`kernel_checked_artifact_semantics`:** 0
+
+Regenerate counts: `qspecbench dashboard benchmarks/ --out docs/status.md`

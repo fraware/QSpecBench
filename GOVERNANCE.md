@@ -49,5 +49,13 @@ correction evidence** for `reference_claim`. An assumed decoder/lookup table sup
 
 ## Schema changes
 
+Breaking schema changes require a version bump and migration notes in `docs/schema_migration_*.md`.
+
+## Artifact schema deadlines
+
+- **Hamiltonian JSON:** legacy artifacts without top-level `type` are accepted only until corpus **v0.2.0**.
+  After v0.2.0, `qspecbench validate` will reject untyped Hamiltonian artifacts. Migrate to
+  `schema/hamiltonian.schema.json` (see `docs/versioning.md`).
+
 Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
 and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).
