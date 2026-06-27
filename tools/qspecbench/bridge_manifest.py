@@ -296,5 +296,46 @@ def validate_manifest_bridge(claim_dir: Path, bridge: dict[str, Any], spec: dict
     return errors
 
 
+def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec: dict[str, Any]) -> list[str]:
+    """Validate kernel_checked_artifact_semantics bridge (codegen + kernel proof chain)."""
+    errors = validate_manifest_bridge(claim_dir, bridge, spec)
+    theorem_short = bridge.get("lean_theorem", "")
+    entry = manifest_entry_for_theorem(theorem_short)
+    if entry is None:
+        return errors
+
+    from qspecbench.bridge_codegen import kernel_checked_theorem_name, verify_kernel_checked_entry
+
+    benchmark_id = spec.get("id", "")
+    expected = kernel_checked_theorem_name(benchmark_id)
+    if expected is None:
+        errors.append(f"benchmark {benchmark_id!r} has no kernel_checked theorem mapping")
+        return errors
+
+    expected_short = expected.split(".")[-1]
+    if theorem_short != expected_short:
+        errors.append(
+            f"kernel_checked bridge lean_theorem must be {expected_short!r}, got {theorem_short!r}"
+        )
+
+    errors.extend(verify_kernel_checked_entry(entry, claim_dir))
+
+    if bridge.get("ast_sha256") and entry.get("ast_sha256") and bridge["ast_sha256"] != entry["ast_sha256"]:
+        errors.append("semantic_bridge ast_sha256 does not match manifest codegen ast_sha256")
+    if (
+        bridge.get("generated_lean_sha256")
+        and entry.get("generated_lean_sha256")
+        and bridge["generated_lean_sha256"] != entry["generated_lean_sha256"]
+    ):
+        errors.append(
+            "semantic_bridge generated_lean_sha256 does not match manifest codegen hash"
+        )
+    if bridge.get("theorem_sha256") and entry.get("theorem_sha256"):
+        if bridge["theorem_sha256"] != entry["theorem_sha256"]:
+            errors.append("semantic_bridge theorem_sha256 does not match manifest")
+
+    return errors
+
+
 # Backward-compatible alias during migration tooling.
 validate_kernel_bridge = validate_manifest_bridge
