@@ -17,6 +17,7 @@ jobs:
           python-version: "3.11"
       - run: pip install -e .
       - run: qspecbench validate benchmarks/
+      - run: python -m pytest tests/test_infrastructure_b.py -q
       - name: Claim diff on changed benchmarks
         run: |
           python - <<'PY'
