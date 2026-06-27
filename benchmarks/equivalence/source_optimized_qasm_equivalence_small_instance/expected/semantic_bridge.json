@@ -5,7 +5,7 @@
   "normalization": {
     "hadamard": "unnormalized_int_model"
   },
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "kernel_checked",
   "gate_set": "openqasm3_1q_pauli_clifford",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
