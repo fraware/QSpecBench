@@ -130,6 +130,34 @@ def pauliY1 : HamMatrix := Matrix.of pauliY1Entry
 def pauliZ0 : HamMatrix := Matrix.of pauliZ1Entry
 def pauliZ1 : HamMatrix := Matrix.of pauliZEntry
 
+/-- Explicit X0 X1 tensor product entries (distinct qubit-local factors). -/
+def pauliX0X1Entry : Fin 4 → Fin 4 → ℂ
+  | ⟨0, _⟩, ⟨3, _⟩ => (1 : ℂ)
+  | ⟨1, _⟩, ⟨2, _⟩ => (1 : ℂ)
+  | ⟨2, _⟩, ⟨1, _⟩ => (1 : ℂ)
+  | ⟨3, _⟩, ⟨0, _⟩ => (1 : ℂ)
+  | _, _ => (0 : ℂ)
+
+/-- Explicit Y0 Y1 tensor product entries. -/
+def pauliY0Y1Entry : Fin 4 → Fin 4 → ℂ
+  | ⟨0, _⟩, ⟨3, _⟩ => (-1 : ℂ)
+  | ⟨1, _⟩, ⟨2, _⟩ => (1 : ℂ)
+  | ⟨2, _⟩, ⟨1, _⟩ => (1 : ℂ)
+  | ⟨3, _⟩, ⟨0, _⟩ => (-1 : ℂ)
+  | _, _ => (0 : ℂ)
+
+/-- Explicit Z0 Z1 tensor product entries. -/
+def pauliZ0Z1Entry : Fin 4 → Fin 4 → ℂ
+  | ⟨0, _⟩, ⟨0, _⟩ => (1 : ℂ)
+  | ⟨1, _⟩, ⟨1, _⟩ => (-1 : ℂ)
+  | ⟨2, _⟩, ⟨2, _⟩ => (-1 : ℂ)
+  | ⟨3, _⟩, ⟨3, _⟩ => (1 : ℂ)
+  | _, _ => (0 : ℂ)
+
+def pauliX0X1 : HamMatrix := Matrix.of pauliX0X1Entry
+def pauliY0Y1 : HamMatrix := Matrix.of pauliY0Y1Entry
+def pauliZ0Z1 : HamMatrix := Matrix.of pauliZ0Z1Entry
+
 private theorem pauliZ1Entry_herm (i j : Fin 4) : star (pauliZ1Entry j i) = pauliZ1Entry i j := by
   fin_cases i <;> fin_cases j <;>
     simp [pauliZ1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
@@ -179,54 +207,49 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
   exact pauliZEntry_herm i j
 
 theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
+  have h02 : pauliX0 0 2 ≠ pauliX1 0 2 := by
+    simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry]
   intro h
-  have h01 := congr_fun (congr_fun h 0) 1
-  simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry] at h01
-  norm_num at h01
+  exact h02 (congr_fun (congr_fun h 0) 2)
 
-set_option maxHeartbeats 400000 in
-private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by
-  ext i j
+private theorem pauliX0X1Entry_herm (i j : Fin 4) :
+    star (pauliX0X1Entry j i) = pauliX0X1Entry i j := by
   fin_cases i <;> fin_cases j <;>
-    simp only [Matrix.mul_apply, Matrix.of_apply, pauliX0Entry, pauliX1Entry, Fin.sum_univ_four] <;>
-    norm_num
+    simp [pauliX0X1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
 
-set_option maxHeartbeats 400000 in
-private theorem pauliY0_mul_pauliY1_commute : pauliY0 * pauliY1 = pauliY1 * pauliY0 := by
-  ext i j
+private theorem pauliY0Y1Entry_herm (i j : Fin 4) :
+    star (pauliY0Y1Entry j i) = pauliY0Y1Entry i j := by
   fin_cases i <;> fin_cases j <;>
-    simp only [Matrix.mul_apply, Matrix.of_apply, pauliY0Entry, pauliY1Entry, Fin.sum_univ_four,
-      Complex.ext_iff, Complex.I_mul_I] <;>
-    norm_num
+    simp [pauliY0Y1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
 
-private theorem pauliZ0_eq_diagonal : pauliZ0 = Matrix.diagonal fun i => pauliZ1Entry i i := by
-  ext i j
-  simp [pauliZ0, Matrix.of_apply, Matrix.diagonal_apply, pauliZ1Entry]
-  fin_cases i <;> fin_cases j <;> rfl
+private theorem pauliZ0Z1Entry_herm (i j : Fin 4) :
+    star (pauliZ0Z1Entry j i) = pauliZ0Z1Entry i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [pauliZ0Z1Entry, star, Complex.conj_ofReal, Complex.ext_iff] <;> norm_num
 
-private theorem pauliZ1_eq_diagonal : pauliZ1 = Matrix.diagonal fun i => pauliZEntry i i := by
+private theorem pauliX0X1_herm : pauliX0X1.conjTranspose = pauliX0X1 := by
   ext i j
-  simp [pauliZ1, Matrix.of_apply, Matrix.diagonal_apply, pauliZEntry]
-  fin_cases i <;> fin_cases j <;> rfl
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliX0X1Entry_herm i j
 
-private theorem pauliZ0_mul_pauliZ1_commute : pauliZ0 * pauliZ1 = pauliZ1 * pauliZ0 := by
-  rw [pauliZ0_eq_diagonal, pauliZ1_eq_diagonal]
+private theorem pauliY0Y1_herm : pauliY0Y1.conjTranspose = pauliY0Y1 := by
   ext i j
-  by_cases hij : i = j
-  · subst hij
-    simp [Matrix.diagonal_mul_diagonal, Matrix.diagonal_apply, mul_comm]
-  · simp [Matrix.diagonal_mul_diagonal, Matrix.diagonal_apply, hij]
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliY0Y1Entry_herm i j
+
+private theorem pauliZ0Z1_herm : pauliZ0Z1.conjTranspose = pauliZ0Z1 := by
+  ext i j
+  simp [Matrix.conjTranspose_apply, Matrix.of_apply]
+  exact pauliZ0Z1Entry_herm i j
 
 /-- Two-qubit Heisenberg-type instance matching `heisenberg_model_hermiticity_small_instance`. -/
 noncomputable def heisenbergSmallInstance : HamMatrix :=
-  pauliX0 * pauliX1 + (1 / 2 : ℂ) • (pauliY0 * pauliY1) + (1 / 4 : ℂ) • (pauliZ0 * pauliZ1)
+  pauliX0X1 + (1 / 2 : ℂ) • pauliY0Y1 + (1 / 4 : ℂ) • pauliZ0Z1
 
 theorem heisenberg_small_instance_is_hermitian :
     heisenbergSmallInstance.conjTranspose = heisenbergSmallInstance := by
-  simp [heisenbergSmallInstance, pauliX0_herm, pauliX1_herm, pauliY0_herm, pauliY1_herm,
-    pauliZ0_herm, pauliZ1_herm, Matrix.conjTranspose_add, Matrix.conjTranspose_smul,
-    Matrix.conjTranspose_mul, pauliX0_mul_pauliX1_commute, pauliY0_mul_pauliY1_commute,
-    pauliZ0_mul_pauliZ1_commute]
+  simp [heisenbergSmallInstance, pauliX0X1_herm, pauliY0Y1_herm, pauliZ0Z1_herm,
+    Matrix.conjTranspose_add, Matrix.conjTranspose_smul]
 
 /-- Declared single-step Trotter fidelity bound from artifact contract (not proved). -/
 def declaredSingleTrotterFidelityBound : ℚ := 1 / 1000000
