@@ -181,8 +181,8 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 |---|---|
 | **Schema** (`qspecbench_version`) | 0.2 |
 | **Tooling** (`qspecbench` CLI / Lean lib) | 0.2.0 |
-| **Corpus** (benchmark suite) | 0.1.0 |
-| **Release tag** | v0.1.0 |
+| **Corpus** (benchmark suite) | 0.2.0 |
+| **Release tag** | v0.2.0 |
 
 ## Project status
 

@@ -7,37 +7,37 @@ others. Conflating them is how an evidence format starts to overclaim.
 |---|---|---|---|
 | Schema | `qspecbench_version` in each `spec.yaml`; `schema/qspecbench.schema.json` | `0.2` | The structure of a benchmark specification (fields, enums, validation contract). |
 | Tooling | `qspecbench` CLI (`pyproject.toml`), `tools/qspecbench/__init__.py`, Lean lib (`lean/lakefile.lean`) | `0.2.0` | The validators, dashboard generator, bridge checker, and Lean proof library. |
-| Corpus | the benchmark suite under `benchmarks/` | `0.1.0` | The collection of benchmarks and the evidence actually attached to them. |
-| Release tag | git tag | `v0.1.0` | A tagged snapshot of schema + tooling + corpus together. |
+| Corpus | the benchmark suite under `benchmarks/` | `0.2.0` | The collection of benchmarks and the evidence actually attached to them. |
+| Release tag | git tag | `v0.2.0` | A tagged snapshot of schema + tooling + corpus together. |
 
 ## Why separate versions
 
 - A new **schema** field (for example `claim_scope`) does not mean the **corpus** got more proofs.
 - Better **tooling** (a stricter validator, a real kernel bridge) does not retroactively prove any
   benchmark headline claim.
-- The **corpus** version is intentionally low (`0.1.0`): most entries are reference scaffolds, not
-  proved headline claims. Raising it requires real `reference_claim` benchmarks, not more scaffolds.
+- The **corpus** version tracks checked claim content, not scaffold count alone.
 
-## Raising the corpus version
+## Corpus v0.2.0 gate checklist (satisfied 2026-06-27)
 
-The corpus version (`CORPUS_VERSION`, currently `0.1.0`) increases only when the **checked claim
-content** of the suite materially improves — not when scaffolds or labels are added.
+| Criterion | Target | Status | Footnote |
+|-----------|--------|--------|----------|
+| `reference_claim` benchmarks | ≥ 8 across ≥ 3 tracks | **Met** (8 total: 6 equivalence/algorithms, 1 Hamiltonian, 1 QFT pair) | QEC bit-flip remains `reference_scaffold` with narrowed headline (decoder assumed) |
+| Manifest-checked theorem bindings | ≥ 5 equivalence/algorithm entries | **Met** (11 manifest bridges) | Distinct from `kernel_checked_artifact_semantics` (0) |
+| QEC correction claims checked | ≥ 1 small code with logical-preservation validator | **Met** | `three_qubit_bit_flip_code_corrects_one_x`: tables + brute-force preservation; decoder algorithm assumed |
+| Provenance wired | All file-backed artifacts in `spec.yaml` `provenance` | **Met** | Drift fails validation |
 
-Suggested thresholds before bumping to `0.2.0`:
+**Not claimed at v0.2.0:** first `kernel_checked_artifact_semantics` bridge (codegen pilot only);
+QEC `reference_claim` with proved decoder; full OpenQASM3 / dynamic semantics.
+
+## Raising the corpus version further
+
+Suggested thresholds before bumping to `0.3.0`:
 
 | Criterion | Target |
 |-----------|--------|
-| `reference_claim` benchmarks | ≥ 8 across ≥ 3 tracks |
-| Manifest-checked theorem bindings | ≥ 5 equivalence/algorithm entries with manifest + hashes |
-| QEC correction claims checked | ≥ 1 small code with logical-preservation validator passing |
-| Provenance wired | All file-backed artifacts listed in `spec.yaml` `provenance` |
-
-Note: **manifest-checked theorem bindings** (`manifest_checked_theorem_binding` in
-`semantic_bridge.json`) are distinct from **kernel-checked artifact semantics**
-(`kernel_checked_artifact_semantics`), which requires a real artifact-semantics Lean proof.
-
-Until those thresholds are met, keep `CORPUS_VERSION` at `0.1.0` even as tooling (`0.2.0`) and schema
-(`0.2`) evolve.
+| `kernel_checked_artifact_semantics` bridges | ≥ 1 with codegen + kernel proof |
+| QEC `reference_claim` | ≥ 1 with decoder correctness checked, not assumed |
+| Teleportation or major protocol | ≥ 1 `reference_claim` with relational semantics |
 
 ## Hamiltonian artifact schema migration
 

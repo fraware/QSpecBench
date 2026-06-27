@@ -8,8 +8,8 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 
 - **Schema:** 0.2
 - **Tooling:** 0.2.0
-- **Corpus:** 0.1.0
-- **Release tag:** v0.1.0
+- **Corpus:** 0.2.0
+- **Release tag:** v0.2.0
 
 ## Summary
 
@@ -34,8 +34,8 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 ### Passing evidence by trust level
 
 - **checked:** 43
-- **independently_checkable:** 17
-- **externally_trusted:** 62
+- **independently_checkable:** 19
+- **externally_trusted:** 60
 - **heuristic:** 8
 
 ### Reference-scaffold coverage by track

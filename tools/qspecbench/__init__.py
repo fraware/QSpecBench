@@ -4,7 +4,7 @@
 # maturity in the others. See docs/versioning.md.
 SCHEMA_VERSION = "0.2"
 TOOLING_VERSION = "0.2.0"
-CORPUS_VERSION = "0.1.0"
-RELEASE_TAG = "v0.1.0"
+CORPUS_VERSION = "0.2.0"
+RELEASE_TAG = "v0.2.0"
 
 __version__ = TOOLING_VERSION
