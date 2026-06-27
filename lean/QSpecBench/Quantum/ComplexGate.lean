@@ -87,7 +87,7 @@ noncomputable def tDagGateEntry (i j : Fin 2) : ℂ :=
 
 noncomputable def tDagGate : Mat2C := Matrix.of tDagGateEntry
 
-/-- RX(θ) = exp(-i θ/2 X); θ = π/2 matches unnormalized H in the Python bridge. -/
+/-- RX(θ) = exp(-i θ/2 X). Int scaffold maps π/2 to unnormalized H; complex model uses standard rotation. -/
 noncomputable def rxGateEntry (θ : ℝ) (i j : Fin 2) : ℂ :=
   let half := θ / 2
   let c := Real.cos half
