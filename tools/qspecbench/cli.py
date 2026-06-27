@@ -194,6 +194,20 @@ def provenance_cmd(
     console.print(f"Wrote provenance ({len(report['artifacts'])} artifacts) to {path}")
 
 
+@app.command("release-bundle")
+def release_bundle_cmd(
+    target: Path = typer.Argument(..., help="Benchmarks root"),
+    out: Path = typer.Option(..., "--out", help="Output .tar.gz path"),
+) -> None:
+    """Build a release bundle stub (manifest + spec/README tar.gz)."""
+    from qspecbench.release_bundle import write_release_bundle
+
+    manifest = write_release_bundle(target, out)
+    console.print(
+        f"Wrote release bundle ({manifest['benchmark_count']} benchmarks) to {out}"
+    )
+
+
 @app.command("list")
 def list_benchmarks(
     track: Optional[str] = typer.Option(None, "--track", help="Filter by track folder name"),
