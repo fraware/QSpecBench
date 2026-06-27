@@ -303,6 +303,26 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
                     f"{entry.get('type')!r}"
                 )
 
+        errors.extend(_validate_reference_claim_reviews(spec))
+
+    return errors
+
+
+def _validate_reference_claim_reviews(spec: dict[str, Any]) -> list[str]:
+    """reference_claim promotions require dual maintainer review metadata."""
+    errors: list[str] = []
+    reviews = (spec.get("status") or {}).get("reviews") or {}
+    for key in ("formal_evidence_review", "domain_semantics_review"):
+        review = reviews.get(key)
+        if not review:
+            errors.append(f"reference_claim requires status.reviews.{key}")
+            continue
+        status = review.get("status")
+        if status not in {"approved", "required"}:
+            errors.append(
+                f"reference_claim status.reviews.{key}.status must be approved or required "
+                f"(got {status!r})"
+            )
     return errors
 
 
