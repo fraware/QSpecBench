@@ -32,7 +32,7 @@ Semantic bridge: `kernel_checked` — see `expected/semantic_bridge.json`.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 

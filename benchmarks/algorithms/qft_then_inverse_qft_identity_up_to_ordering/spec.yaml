@@ -82,7 +82,18 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+    domain_semantics_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -101,7 +112,7 @@ references: []
 proof_obligations:
 - id: qft_inverse_identity
   status: passing
-  notes: QFT·IQFT = 4I scaffold
+  notes: "QFT\xB7IQFT = 4I scaffold"
 - id: semantic_bridge
   status: passing
   notes: python_denotation_consistency verify-bridge
@@ -119,8 +130,16 @@ proved_scope:
   unproved_obligations:
   - semantic_correctness_of_circuit_vs_claim
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: All declared required obligations are kernel- or manifest-checked under the
+    stated gate model.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_openqasm3
+  - hardware_semantics
+  - general_n_qubit_rule
 formal_claims:
 - id: formal_lean_qft_identity
   evidence_id: lean_qft_identity
@@ -138,3 +157,4 @@ provenance:
   - path: artifacts/circuit.qasm
     sha256: 17b46fbc8e08de97a0b9c83f08773bb611a82a4af12eb66fee034602652d4406
     role: source
+semantics_base: openqasm_fragment
