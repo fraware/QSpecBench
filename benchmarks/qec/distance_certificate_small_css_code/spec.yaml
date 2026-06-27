@@ -75,6 +75,13 @@ evidence:
   status: passing
   notes: Brute-force min logical weight computed (d=4); declared parameter d=3 remains
     declared_only.
+- id: bruteforce_distance_witness
+  type: qec_verifier_result
+  path: evidence/qec_verifier_result.json
+  checker: qec json validator
+  status: passing
+  notes: distance_result.method=bruteforce_min_weight_logical_operator; computed_min_weight=4
+    wired to proof_obligation bruteforce_min_weight.
 - id: smt_distance_cert
   type: smt_certificate
   path: evidence/distance_claim.certificate.json
@@ -85,6 +92,7 @@ trust_boundary:
   checked_by:
   - stabilizer JSON schema validation
   - brute-force min-weight logical operator under Pauli alphabet (computed d=4)
+  - distance_result witness in qec_verifier_result.json
   - SMT solver check of declared distance parameter when z3/cvc5 available
   trusted_kernels: []
   trusted_external_tools: []
@@ -113,6 +121,9 @@ proof_obligations:
 - id: stabilizer_json
   status: passing
   notes: QEC JSON structure validation
+- id: bruteforce_min_weight
+  status: passing
+  notes: Bruteforce computed min logical weight d=4; does not close declared d=3 parameter
 - id: full_distance_proof
   status: not_applicable
   notes: Toy certificate only
@@ -123,16 +134,18 @@ claim_scope:
   required_obligations:
   - distance_certificate
   - stabilizer_json
+  - bruteforce_min_weight
 proved_scope:
   checked_obligations:
   - distance_certificate
   - stabilizer_json
+  - bruteforce_min_weight
   unproved_obligations:
   - algebraic_commutation_proof
   - decoder_and_correction_claims
 headline_claim_status:
   status: partially_checked
-  notes: null
+  notes: Bruteforce min weight d=4 checked; declared parameter d=3 remains metadata-only
 qec_claim_scope:
   stabilizer_commutation: unchecked
   syndrome_table: unchecked
