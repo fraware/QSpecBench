@@ -14,6 +14,8 @@
     "single_x_syndrome_injection",
     "correction_table_structure",
     "correction_table_syndrome_alignment",
+    "logical_preservation_bruteforce",
+    "single_pauli_error_correction_validator",
     "distance_min_weight_bruteforce"
   ],
   "warnings": [
