@@ -14,8 +14,8 @@ manifest-listed theorem on a fixed gate trace.
   `manifest_checked_theorem_binding` — **not** upgraded to `kernel_checked_artifact_semantics`.
 - **Codegen expansion**: `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation` now
   have AST + generated Lean hashes and CI `bridge-codegen verify`.
-- **RX(π/2)**: `QasmOp.rx` + `ComplexGate.rxGate` wired; `bridge_rx_pi2_eq_h` proves complex
-  denotation equals `hadamardC`. Global-phase equivalence to H and manifest binding remain blocked;
+- **RX(π/2)**: `QasmOp.rx` + `ComplexGate.rxGate` wired; `bridge_rx_pi2_denotation` proves
+  complex rotation; int scaffold uses `bridge_rx_pi2_int_eq_h`. Manifest promotion blocked;
   `rx_gate_equivalence_small_instance` stays `reference_scaffold`.
 
 ## Target architecture
@@ -98,7 +98,8 @@ a message directing callers to the unitary mode.
 
 ## RX(θ) blocker (rx_gate_equivalence_small_instance)
 
-`bridge_rx_pi2_eq_h` shows `denotateOps1C rx_pi2_ops = hadamardC` entry-wise. Promoting to
+`bridge_rx_pi2_denotation` shows `denotateOps1C rx_pi2_ops = rxGate (π/2)` entry-wise.
+Int scaffold `bridge_rx_pi2_int_eq_h` maps π/2 to unnormalized H. Promoting to
 `manifest_checked_theorem_binding` still requires:
 
 1. Manifest entry with real RX gate trace + evidence anchor (not H-plumbing)

@@ -62,7 +62,7 @@ Until then, validators fail closed with message directing callers to `unitary_fr
 | Distance proofs | Bruteforce `distance_result` wired to `bruteforce_min_weight` obligation for `distance_certificate_small_css_code` |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
-| RX(π/2) vs H | `QasmOp.rx` + `bridge_rx_pi2_eq_h` done; manifest promotion blocked on global phase — see [bridge_codegen_design.md](bridge_codegen_design.md) |
+| RX(π/2) vs H | `QasmOp.rx` + `bridge_rx_pi2_denotation`; int scaffold `bridge_rx_pi2_int_eq_h`; manifest blocked — see [bridge_codegen_design.md](bridge_codegen_design.md) |
 
 ## Research (corpus milestones — not validator tasks)
 
