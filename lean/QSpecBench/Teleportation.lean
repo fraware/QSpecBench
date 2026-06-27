@@ -23,20 +23,18 @@ open QSpecBench (Matrix4 mul4 kron2I hadamard2 cnot4 id4)
 def bellPrep (i j : Fin 4) : Int := mul4 cnot4 (kron2I hadamard2) i j
 
 theorem bell_prep_from_00 (j : Fin 4) : bellPrep 0 j = if j.val = 0 ∨ j.val = 2 then 1 else 0 := by
-  fin_cases j <;> simp [bellPrep, mul4, kron2I, hadamard2, cnot4]
+  fin_cases j <;> native_decide
 
-theorem bell_prep_nontrivial : ∃ i j : Fin 4, bellPrep i j ≠ 0 := ⟨0, 0, by
-  simp [bellPrep, mul4, kron2I, hadamard2, cnot4]⟩
+theorem bell_prep_nontrivial : ∃ i j : Fin 4, bellPrep i j ≠ 0 := ⟨0, 0, by native_decide⟩
 
 /-- Alice CX entangling the input with her Bell qubit after pair preparation (2-qubit scaffold). -/
 def teleportAliceCx (i j : Fin 4) : Int := mul4 cnot4 bellPrep i j
 
 theorem teleport_alice_cx_from_00 (j : Fin 4) :
     teleportAliceCx 0 j = if j.val = 0 ∨ j.val = 2 then 1 else 0 := by
-  fin_cases j <;> simp [teleportAliceCx, bellPrep, mul4, kron2I, hadamard2, cnot4]
+  fin_cases j <;> native_decide
 
-theorem teleport_alice_cx_nontrivial : ∃ i j : Fin 4, teleportAliceCx i j ≠ 0 := ⟨0, 0, by
-  simp [teleportAliceCx, bellPrep, mul4, kron2I, hadamard2, cnot4]⟩
+theorem teleport_alice_cx_nontrivial : ∃ i j : Fin 4, teleportAliceCx i j ≠ 0 := ⟨0, 0, by native_decide⟩
 
 /-- Legacy anchor: Bell-pair preparation is nontrivial (superseded by fragment theorem below). -/
 theorem teleportation_preserves_state : ∃ i j : Fin 4, bellPrep i j ≠ 0 :=
