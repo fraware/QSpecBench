@@ -6,8 +6,9 @@ domain: quantum_error_correction
 claim_type: error_correction
 difficulty: intermediate
 informal_claim:
-  statement: The three-qubit bit-flip code corrects any single X error on physical
-    qubits under the declared Pauli bit-flip error model.
+  statement: Under the declared single-X Pauli bit-flip error model with lookup-table
+    decoder assumed, syndrome/correction tables align and logical preservation passes
+    brute-force validation for all single-X errors.
   source: null
   reference_key: null
 semantic_level:
@@ -73,9 +74,9 @@ assumptions:
 acceptable_evidence:
 - type: qec_verifier_result
   checker: qec json validator
-  path: artifacts/code.json
-  required_for_claim: false
-  trust_level: externally_trusted
+  path: evidence/qec_verifier_result.json
+  required_for_claim: true
+  trust_level: independently_checkable
 - type: lean_proof
   checker: Lean 4 kernel
   path: null
@@ -151,8 +152,9 @@ proof_obligations:
     assumed
 claim_scope:
   headline_claim_id: three_qubit_bit_flip_code_corrects_one_x_headline
-  headline_claim_text: The three-qubit bit-flip code corrects any single X error on
-    physical qubits under the declared Pauli bit-flip error model.
+  headline_claim_text: Under the declared single-X Pauli bit-flip error model with
+    lookup-table decoder assumed, syndrome/correction tables align and logical preservation
+    passes brute-force validation for all single-X errors.
   required_obligations:
   - stabilizer_commutation
   - syndrome_decoding_correctness

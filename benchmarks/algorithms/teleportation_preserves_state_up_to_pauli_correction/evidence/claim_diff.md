@@ -1,6 +1,6 @@
 # Claim diff: teleportation_preserves_state_up_to_pauli_correction
 
-<!-- scope_fingerprint: 72657da8e5af42b557094db0c4e0e81de91923cd32289b04dfd49fc102961d8d -->
+<!-- scope_fingerprint: e63cb10c568013d3f4108698c25e37b747fa0e16454821a0be526cfdef9d2543 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
@@ -9,12 +9,10 @@
 The teleportation circuit transfers an arbitrary one-qubit state to the receiver after applying the Pauli correction determined by the two classical measurement bits.
 
 ## Declared headline (claim_scope)
-The teleportation circuit transfers an arbitrary one-qubit state to the receiver after applying the Pauli correction determined by the two classical measurement bits.
+The declared teleportation QASM unitary fragment matches the Lean/OpenQASM3 denotation on the Bell-prep wire ordering (measurement and Pauli correction semantics not checked).
 
 ## Required obligations
 - unitary_fragment_matches_ordering
-- arbitrary_state_relational_transfer
-- measurement_conditioned_pauli_correction
 
 ## Checked obligations
 - [x] unitary_fragment_matches_ordering
@@ -26,9 +24,5 @@ The teleportation circuit transfers an arbitrary one-qubit state to the receiver
 - [ ] idealized_measurement_semantics
 - [ ] classical_feed_forward_control_semantics_in_qasm
 
-## Gap (required but not checked)
-- arbitrary_state_relational_transfer
-- measurement_conditioned_pauli_correction
-
-## Conflict
-- Obligations appear in both required and unproved lists.
+## Gap
+- Headline not marked checked despite obligation coverage; review maturity label.

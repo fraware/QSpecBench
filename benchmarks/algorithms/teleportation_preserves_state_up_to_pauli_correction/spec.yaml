@@ -148,13 +148,11 @@ proof_obligations:
   notes: Full |psi> transfer and corrections documented but not kernel-checked
 claim_scope:
   headline_claim_id: teleportation_preserves_state_up_to_pauli_correction_headline
-  headline_claim_text: The teleportation circuit transfers an arbitrary one-qubit
-    state to the receiver after applying the Pauli correction determined by the two
-    classical measurement bits.
+  headline_claim_text: The declared teleportation QASM unitary fragment matches the
+    Lean/OpenQASM3 denotation on the Bell-prep wire ordering (measurement and Pauli
+    correction semantics not checked).
   required_obligations:
   - unitary_fragment_matches_ordering
-  - arbitrary_state_relational_transfer
-  - measurement_conditioned_pauli_correction
 proved_scope:
   checked_obligations:
   - unitary_fragment_matches_ordering
@@ -166,7 +164,8 @@ proved_scope:
   - classical_feed_forward_control_semantics_in_qasm
 headline_claim_status:
   status: partially_checked
-  notes: null
+  notes: Unitary fragment and verify-bridge checked; full protocol transfer and correction
+    semantics remain open.
 formal_claims:
 - id: formal_lean_teleportation
   evidence_id: lean_teleportation

@@ -76,7 +76,7 @@ evidence:
   path: evidence/rx_pi2.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked RX(pi/2) denoted as unnormalized H on int model.
+  notes: Lean RX(π/2) denotation via QasmOp.rx; manifest binding blocked on global phase.
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
