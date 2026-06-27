@@ -98,9 +98,20 @@ status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: partial
+  evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+    domain_semantics_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -124,8 +135,16 @@ proved_scope:
   - openqasm_h_normalization_links_integer_model_to_
   - global_phase_of_phi_state
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: All declared required obligations are kernel- or manifest-checked under the
+    stated gate model.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_openqasm3
+  - hardware_semantics
+  - general_n_qubit_rule
 formal_claims:
 - id: formal_lean_bell_prep
   evidence_id: lean_bell_prep
@@ -156,3 +175,4 @@ provenance:
   - path: artifacts/circuit.qasm
     sha256: 615b51ec17eef49dd1377cc69c18fa46aaf62fb97f72930d37aacd018ec3ff5b
     role: source
+semantics_base: openqasm_fragment

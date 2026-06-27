@@ -26,7 +26,7 @@ See spec.yaml trust_boundary.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 

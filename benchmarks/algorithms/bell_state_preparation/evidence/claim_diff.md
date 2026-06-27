@@ -1,7 +1,9 @@
 # Claim diff: bell_state_preparation
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+<!-- scope_fingerprint: c71d362aaec254f0e184985896b2b16dfa6b305e560270bb8a930de1af582563 -->
+
+**Maturity:** reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
 Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+> on two qubits.
@@ -22,4 +24,4 @@ Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+> on two qubits.
 - [ ] global_phase_of_phi_state
 
 ## Gap
-- Headline not marked checked despite obligation coverage; review maturity label.
+- None among declared required obligations.
