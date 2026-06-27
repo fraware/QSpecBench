@@ -4,12 +4,12 @@
   "lean_theorem": "bridge_hs_gate",
   "normalization": {
     "hadamard": "unnormalized_int_model",
-    "s_gate": "identity_scaffold"
+    "phase_gates": "complex_diagonal"
   },
-  "claimed_link": "python_consistency_checked",
+  "claimed_link": "kernel_checked",
   "gate_set": "openqasm3_1q_clifford",
   "bridge_evidence_id": "bridge_verify",
-  "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
+  "gate_model": "qspecbench.openqasm3.complex_unitary.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "60a798caacaf1f0fae77c583235c1d46a71f85932a89c66928ac09a52bea12f1",
   "gate_trace_sha256": "64b3e84c84997d7742566cb7a640a3b2e4dc0093fef0127da0f1e23a55daf558"

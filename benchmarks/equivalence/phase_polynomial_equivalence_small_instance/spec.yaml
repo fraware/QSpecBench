@@ -76,13 +76,13 @@ evidence:
   path: evidence/phase_polynomial.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked phase-polynomial scaffold.
+  notes: Kernel-checked phase-polynomial scaffold with complex H+S denotation.
 - id: bridge_verify
   type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_consistency_checked bridge).
+  notes: QASM matrix matches OpenQASM3 complex denotation (kernel_checked bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -127,7 +127,7 @@ proof_obligations:
   notes: Phase polynomial equivalence scaffold
 - id: semantic_bridge
   status: passing
-  notes: python_consistency_checked verify-bridge
+  notes: kernel_checked verify-bridge with complex S gate model
 claim_scope:
   headline_claim_id: phase_polynomial_equivalence_small_instance_headline
   headline_claim_text: Two circuits realize the same phase polynomial on a small declared
