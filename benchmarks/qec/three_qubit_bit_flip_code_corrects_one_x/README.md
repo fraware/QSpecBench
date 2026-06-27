@@ -22,11 +22,11 @@ Algebraic/circuit-level QEC claim with explicit error model.
 
 ## Trust boundary
 
-Decoder correctness assumed; not kernel-checked.
+Decoder lookup tables checked by brute-force validator; general decoder algorithm not kernel-checked.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 

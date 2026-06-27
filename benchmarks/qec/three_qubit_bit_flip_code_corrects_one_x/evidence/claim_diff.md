@@ -1,24 +1,24 @@
 # Claim diff: three_qubit_bit_flip_code_corrects_one_x
 
-<!-- scope_fingerprint: cea37330d0a10e70b8d367dd8c9554adac50f112909df2ccf6d650ff269f1eae -->
+<!-- scope_fingerprint: 51df4d837b355051db68e7aef5ba838411b341dbc5a4204985f607a089080f7d -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
-Under the declared single-X Pauli bit-flip error model with lookup-table decoder assumed, syndrome/correction tables align and logical preservation passes brute-force validation for all single-X errors.
+Under the declared single-X Pauli bit-flip error model, the standard lookup-table decoder corrects each single X error with logical preservation verified by brute-force validation (decoder algorithm assumed, not generally proved).
 
 ## Declared headline (claim_scope)
-Under the declared single-X Pauli bit-flip error model with lookup-table decoder assumed, syndrome/correction tables align and logical preservation passes brute-force validation for all single-X errors.
+The three-qubit bit-flip code corrects every declared single-X Pauli error via the standard lookup-table decoder, with logical preservation checked by brute force (general decoder proof not claimed).
 
 ## Required obligations
 - stabilizer_commutation
-- syndrome_decoding_correctness
+- lookup_table_decoder
 - correction_restores_logical_state
 
 ## Checked obligations
 - [x] stabilizer_commutation
-- [x] syndrome_decoding_correctness
+- [x] lookup_table_decoder
 - [x] correction_restores_logical_state
 
 ## Unproved / open obligations
@@ -27,4 +27,4 @@ Under the declared single-X Pauli bit-flip error model with lookup-table decoder
 - [ ] repeated_round_fault_tolerance
 
 ## Gap
-- Headline not marked checked despite obligation coverage; review maturity label.
+- None among declared required obligations.
