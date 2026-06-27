@@ -104,6 +104,25 @@ def zero_evidence_count(root: Path) -> int:
     return sum(1 for r in rows if not r["spec"].get("evidence"))
 
 
+def collect_summary_metrics(root: Path) -> dict[str, int]:
+    """Single source of truth for dashboard and README status sync."""
+    rows = collect_statuses(root)
+    specs = [r["spec"] for r in rows]
+    bridge_links = _bridge_link_counts(rows)
+    by_maturity = Counter(r["maturity"] for r in rows)
+    ref_levels = sum(by_maturity.get(m, 0) for m in ALL_REFERENCE_LEVELS)
+    return {
+        "total_benchmarks": len(rows),
+        "reference_scaffolds_any_level": ref_levels,
+        "reference_claim": by_maturity.get(REFERENCE_CLAIM_LEVEL, 0),
+        "headline_checked": sum(1 for s in specs if _headline_checked(s)),
+        "with_checked_evidence": sum(1 for s in specs if _has_checked_evidence(s)),
+        "manifest_checked_theorem_binding": bridge_links.get("manifest_checked_theorem_binding", 0),
+        "python_denotation_consistency": bridge_links.get("python_denotation_consistency", 0),
+        "kernel_checked_artifact_semantics": bridge_links.get("kernel_checked_artifact_semantics", 0),
+    }
+
+
 def generate_dashboard(root: Path) -> str:
     rows = collect_statuses(root)
     specs = [r["spec"] for r in rows]
