@@ -28,7 +28,6 @@ inductive QasmOp where
   | rx (θ : ℝ) (q : Nat)
   | ccx (c0 c1 target : Nat)
   | swap (a b : Nat)
-  deriving Repr
 
 /-- Integer matrix scaffold: Pauli/H only; S/T use `denotateGateC` (complex model). -/
 def denotateGate : SingleGate → Matrix2
@@ -83,7 +82,7 @@ theorem qasm_CX_denotes_cnot (ctrl tgt : Nat) (i j : Fin 4) :
 theorem qasm_CX_denotes_cnot01 (i j : Fin 4) :
     denotateCX 0 1 i j = cnot4 i j := rfl
 
-def denotateOps1 (ops : List QasmOp) : Matrix2 :=
+noncomputable def denotateOps1 (ops : List QasmOp) : Matrix2 :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => fun i j => mul2 (denotateGate g) acc i j
@@ -287,7 +286,8 @@ theorem denotateOps1C_rx_pi2 (i j : Fin 2) :
 
 theorem denotateOps1_rx_pi2 (i j : Fin 2) :
     denotateOps1 rx_pi2_ops i j = hadamard2 i j := by
-  fin_cases i <;> fin_cases j <;> simp [denotateOps1, rx_pi2_ops, mul2, hadamard2]
+  unfold denotateOps1 rx_pi2_ops hadamard2
+  fin_cases i <;> fin_cases j <;> simp [mul2, id2]
 
 /-- Complex denotation of RX(π/2) matches standard rotation matrix (not unnormalized H). -/
 theorem bridge_rx_pi2_denotation (i j : Fin 2) :
