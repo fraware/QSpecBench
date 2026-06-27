@@ -259,19 +259,16 @@ def _validate_qasm_extraction(spec: dict[str, Any]) -> list[str]:
 
 
 def validate_path(target: Path) -> list[ValidationResult]:
-    target = target.resolve()
-    benchmarks_root = target if target.name == "benchmarks" else None
+    original = target.resolve()
+    benchmarks_root = original if original.name == "benchmarks" else None
+    probe = original
     if benchmarks_root is None:
-        while target.name != "benchmarks" and target.parent != target:
-            target = target.parent
-        benchmarks_root = target if target.name == "benchmarks" else target.parent
+        while probe.name != "benchmarks" and probe.parent != probe:
+            probe = probe.parent
+        benchmarks_root = probe if probe.name == "benchmarks" else probe.parent
 
     results: list[ValidationResult] = []
-    root_for_find = target if target.name != "benchmarks" else target
-    if (target / "spec.yaml").is_file():
-        root_for_find = target
-
-    for spec_path in find_spec_files(root_for_find):
+    for spec_path in find_spec_files(original):
         claim_dir = claim_dir_for_spec(spec_path)
         try:
             spec = load_spec(spec_path)
