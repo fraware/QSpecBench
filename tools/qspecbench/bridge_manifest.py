@@ -191,7 +191,6 @@ def _lean_evidence_for_bridge(
     """Find passing lean_proof tied to bridge and validate strict anchor."""
     errors: list[str] = []
     benchmark_id = spec.get("id", "")
-    bridge_evidence_id = bridge.get("bridge_evidence_id") or "bridge_verify"
     formal_theorem = bridge.get("lean_theorem", "")
 
     matched = False

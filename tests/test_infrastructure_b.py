@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import shutil
 import tempfile
@@ -12,7 +11,7 @@ import yaml
 
 from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.evidence_runner import run_evidence_checks
-from qspecbench.provenance import sha256_file, validate_provenance
+from qspecbench.provenance import validate_provenance
 from qspecbench.validate import validate_path
 
 REPO = Path(__file__).resolve().parents[1]

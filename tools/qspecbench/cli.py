@@ -206,7 +206,7 @@ def bridge_codegen_cmd(
         update_manifest_entry,
         verify_manifest_codegen,
     )
-    from qspecbench.bridge_manifest import load_manifest, manifest_entry_for_theorem
+    from qspecbench.bridge_manifest import load_manifest
 
     if (target / "spec.yaml").is_file():
         claim_dirs = [target]

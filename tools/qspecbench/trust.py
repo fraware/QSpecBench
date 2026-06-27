@@ -119,10 +119,6 @@ def _validate_formal_claims(spec: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     formal = spec.get("formal_claims") or []
     evidence_by_id = {e.get("id"): e for e in spec.get("evidence", [])}
-    proved = spec.get("proved_scope") or {}
-    checked_obligations = set(proved.get("checked_obligations", []))
-    claim_scope = spec.get("claim_scope") or {}
-    required = set(claim_scope.get("required_obligations", []))
 
     passing_lean = [
         e for e in spec.get("evidence", [])

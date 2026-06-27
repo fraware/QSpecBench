@@ -13,7 +13,7 @@ from typing import Any
 from qspecbench import CORPUS_VERSION, RELEASE_TAG, SCHEMA_VERSION, TOOLING_VERSION
 from qspecbench.dashboard import collect_summary_metrics
 from qspecbench.schema import REPO_ROOT
-from qspecbench.validate import find_spec_files, load_spec, validate_path
+from qspecbench.validate import find_spec_files, load_spec
 
 
 def _git_commit() -> str | None:

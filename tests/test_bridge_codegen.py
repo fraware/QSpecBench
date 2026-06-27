@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
 from qspecbench.bridge_codegen import (
     ast_sha256,
     build_canonical_ast,
