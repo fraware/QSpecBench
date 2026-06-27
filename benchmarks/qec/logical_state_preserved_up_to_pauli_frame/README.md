@@ -35,3 +35,6 @@ Kernel-checked proof or stronger tool evidence may be required for reference mat
 ## References
 
 - (add references when promoting beyond seed)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).

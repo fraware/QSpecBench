@@ -35,3 +35,6 @@ Syndrome extraction circuit; decoder proof.
 ## References
 
 - (none yet)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
