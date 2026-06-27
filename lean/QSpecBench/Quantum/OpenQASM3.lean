@@ -4,6 +4,7 @@ import QSpecBench.Legacy.Pauli
 import QSpecBench.Legacy.CNOT
 import QSpecBench.Legacy.QFT2
 import QSpecBench.Quantum.Gate
+import QSpecBench.Quantum.ComplexGate
 
 /-!
 # Denotational OpenQASM 3 semantics for the benchmark gate subset.
@@ -14,6 +15,8 @@ namespace QSpecBench.Quantum.OpenQASM3
 open QSpecBench (Matrix2 Matrix4 Matrix8 mul2 mul4 mul8 id2 id4 id8 ccx8 swap4 kron2I kronI2 scale2 scale4 qft2 invqft2 qft2_mul_invqft2
   hadamard_conjugates_x hadamard_mul_self cnot_mul_self cnot4_ctrl_tgt_mul_self mul2_assoc)
 open QSpecBench.Quantum (pauliY)
+open QSpecBench.Quantum.ComplexGate
+open Complex
 
 inductive SingleGate where
   | I | X | Y | Z | H | S | T | Sdg | Tdg
@@ -26,7 +29,7 @@ inductive QasmOp where
   | swap (a b : Nat)
   deriving Repr
 
-/-- Integer matrix scaffold: S/T phase on |1⟩ is not represented (see Python complex model). -/
+/-- Integer matrix scaffold: Pauli/H only; S/T use `denotateGateC` (complex model). -/
 def denotateGate : SingleGate → Matrix2
   | .I => id2
   | .X => pauliX2
@@ -37,6 +40,26 @@ def denotateGate : SingleGate → Matrix2
   | .T => id2
   | .Sdg => id2
   | .Tdg => id2
+
+/-- Complex unitary denotation matching Python `qasm_matrix` for the full gate subset. -/
+def denotateGateC : SingleGate → Mat2C
+  | .I => identityGate
+  | .X => pauliXC
+  | .Y => pauliYC
+  | .Z => pauliZC
+  | .H => hadamardC
+  | .S => sGate
+  | .T => tGate
+  | .Sdg => sDagGate
+  | .Tdg => tDagGate
+
+def denotateOps1C (ops : List QasmOp) : Mat2C :=
+  ops.foldl (fun acc op =>
+    match op with
+    | .gate g _ => mul2C (denotateGateC g) acc
+    | .cx _ _ => acc
+    | .ccx _ _ _ => acc
+    | .swap _ _ => acc) (1 : Mat2C)
 
 theorem qasm_H_denotes_hadamard (i j : Fin 2) :
     denotateGate .H i j = hadamard2 i j := rfl
@@ -133,27 +156,16 @@ theorem bridge_qft2_inverse (i j : Fin 4) :
 
 def clifford_hhs : List QasmOp := [.gate .H 0, .gate .H 0, .gate .S 0]
 
-def clifford_hhsMat (i j : Fin 4) : Int := mul4 (kron2I id2) (mul4 (kron2I hadamard2) (kron2I hadamard2)) i j
+def clifford_hhsMatC (i j : Fin 2) : ℂ := mul2C sGate (mul2C hadamardC hadamardC) i j
 
-def hadamard_hh2Mat (i j : Fin 4) : Int := mul4 (kron2I hadamard2) (kron2I hadamard2) i j
-
-theorem denotateOps2_clifford_hhs (i j : Fin 4) : denotateOps2 clifford_hhs i j = clifford_hhsMat i j := by
-  fin_cases i <;> fin_cases j <;> rfl
-
-theorem denotateOps2_hadamard_hh2 (i j : Fin 4) : denotateOps2 hadamard_hh i j = hadamard_hh2Mat i j := by
-  fin_cases i <;> fin_cases j <;> rfl
-
-theorem clifford_hhsMat_eq (i j : Fin 4) : clifford_hhsMat i j = hadamard_hh2Mat i j := by
-  fin_cases i <;> fin_cases j <;> rfl
-
-theorem bridge_clifford_hhs_aux (i j : Fin 4) :
-    denotateOps2 clifford_hhs i j = denotateOps2 hadamard_hh i j := by
-  rw [denotateOps2_clifford_hhs, denotateOps2_hadamard_hh2, clifford_hhsMat_eq]
+theorem denotateOps1C_clifford_hhs (i j : Fin 2) :
+    denotateOps1C clifford_hhs i j = clifford_hhsMatC i j := by
+  fin_cases i <;> fin_cases j <;> simp [denotateOps1C, clifford_hhs, denotateGateC, clifford_hhsMatC, mul2C,
+    sGateEntry, hadamardEntry, Matrix.one_apply, Matrix.of_apply]
 
 theorem bridge_clifford_hhs (i j : Fin 2) :
-    denotateOps2 clifford_hhs (⟨i.val, by omega⟩ : Fin 4) (⟨j.val, by omega⟩ : Fin 4) =
-      denotateOps2 hadamard_hh (⟨i.val, by omega⟩ : Fin 4) (⟨j.val, by omega⟩ : Fin 4) :=
-  bridge_clifford_hhs_aux _ _
+    denotateOps1C clifford_hhs i j = clifford_hhsMatC i j :=
+  denotateOps1C_clifford_hhs i j
 
 def cnot_single : List QasmOp := [.cx 0 1]
 
@@ -224,22 +236,16 @@ theorem bridge_hxx_gate (i j : Fin 2) :
 
 def hs_gate : List QasmOp := [.gate .H 0, .gate .S 0]
 
-def hs_gateMat (i j : Fin 4) : Int := mul4 (kron2I id2) (kron2I hadamard2) i j
+def hs_gateMatC (i j : Fin 2) : ℂ := mul2C sGate hadamardC i j
 
-theorem denotateOps2_hs_gate (i j : Fin 4) : denotateOps2 hs_gate i j = hs_gateMat i j := by
-  fin_cases i <;> fin_cases j <;> rfl
-
-theorem hs_gateMat_eq (i j : Fin 4) : hs_gateMat i j = kron2I hadamard2 i j := by
-  fin_cases i <;> fin_cases j <;> rfl
-
-theorem bridge_hs_gate_aux (i j : Fin 4) :
-    denotateOps2 hs_gate i j = kron2I hadamard2 i j := by
-  rw [denotateOps2_hs_gate, hs_gateMat_eq]
+theorem denotateOps1C_hs_gate (i j : Fin 2) :
+    denotateOps1C hs_gate i j = hs_gateMatC i j := by
+  fin_cases i <;> fin_cases j <;> simp [denotateOps1C, hs_gate, denotateGateC, hs_gateMatC, mul2C,
+    sGateEntry, hadamardEntry, Matrix.one_apply, Matrix.of_apply]
 
 theorem bridge_hs_gate (i j : Fin 2) :
-    denotateOps2 hs_gate (⟨i.val, by omega⟩ : Fin 4) (⟨j.val, by omega⟩ : Fin 4) =
-      kron2I hadamard2 (⟨i.val, by omega⟩ : Fin 4) (⟨j.val, by omega⟩ : Fin 4) :=
-  bridge_hs_gate_aux _ _
+    denotateOps1C hs_gate i j = hs_gateMatC i j :=
+  denotateOps1C_hs_gate i j
 
 /-- Bell-pair preparation scaffold (H on q0, CX q0→q1). -/
 def bell_prep_ops : List QasmOp := [.gate .H 0, .cx 0 1]

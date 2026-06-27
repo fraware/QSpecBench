@@ -168,4 +168,10 @@ def kron2I (A : Mat2C) (i j : Fin 4) : ℂ :=
 
 def kron2IM (A : Mat2C) : Mat4C := Matrix.of (kron2I A)
 
+/-- Matrix product for 2×2 complex gates (left-to-right circuit order). -/
+def mul2C (A B : Mat2C) (i j : Fin 2) : ℂ :=
+  A i 0 * B 0 j + A i 1 * B 1 j
+
+def mul2C_mat (A B : Mat2C) : Mat2C := Matrix.of (mul2C A B)
+
 end QSpecBench.Quantum.ComplexGate
