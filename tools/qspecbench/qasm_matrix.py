@@ -484,6 +484,10 @@ def extract_matrix(
     n = _register_size(text)
     unitary = _eye(1 << n)
     gates_applied: list[str] = []
+    dynamic_fragments: list[dict[str, Any]] = []
+    extraction_mode = (extraction or {}).get("mode", "unitary_fragment")
+    has_measurement = False
+    has_classical_control = False
 
     for raw in text.splitlines():
         line = raw.strip()
@@ -545,6 +549,11 @@ def extract_matrix(
         if not m:
             category = _line_skip_category(line)
             if category and _is_skippable_nonunitary(line, extraction):
+                if category == "measurement":
+                    has_measurement = True
+                if category == "classical_control":
+                    has_classical_control = True
+                dynamic_fragments.append({"line": line, "category": category})
                 continue
             if category:
                 raise UnsupportedQasmError(
@@ -590,7 +599,7 @@ def extract_matrix(
             args = _parse_qubit_args(" ".join(parts[1:]), n)
         gate_trace.append({"gate": gate, "args": args})
 
-    return {
+    result: dict[str, Any] = {
         "source": str(qasm_path),
         "n_qubits": n,
         "gate_model": "openqasm3_complex_unitary",
@@ -603,6 +612,21 @@ def extract_matrix(
         "gate_trace": gate_trace,
         "matrix": [[cell_to_json(unitary[i][j]) for j in range(len(unitary))] for i in range(len(unitary))],
     }
+
+    if extraction_mode == "full_dynamic_semantics":
+        result["extraction_mode"] = extraction_mode
+        result["dynamic_fragments"] = dynamic_fragments
+        result["non_unitary_fragment"] = bool(dynamic_fragments)
+        if has_measurement:
+            result["measurement_semantics"] = "projective_povm_stub"
+        if has_classical_control:
+            result["classical_control_semantics"] = "declared_skip_only"
+        result["dynamic_semantics_note"] = (
+            "Unitary prefix extracted; measurement/reset/classical-control lines "
+            "skipped per qasm_extraction.allowed_to_skip (not kernel-checked)."
+        )
+
+    return result
 
 
 def write_matrix(qasm_path: Path, out_path: Path) -> dict[str, Any]:

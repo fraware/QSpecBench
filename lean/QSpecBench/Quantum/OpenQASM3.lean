@@ -133,6 +133,11 @@ theorem bridge_cnot_codegen_self_inverse (i j : Fin 4) :
     denotateOps2 cnot_self_inverse_codegen_ops i j = id4 i j := by
   rw [cnot_codegen_ops_eq_hand_trace, bridge_cnot_self_inverse]
 
+/-- Codegen trace denotation matches the declared artifact matrix model. -/
+theorem bridge_cnot_codegen_denotes_artifact (i j : Fin 4) :
+    denotateOps2 cnot_self_inverse_codegen_ops i j = cnot_cx_cxMat i j := by
+  rw [denotateOps2_cnot_cx_cx]
+
 def hadamard_hxh : List QasmOp := [.gate .H 0, .gate .X 0, .gate .H 0]
 
 def hadamard_hxhMat (i j : Fin 2) : Int := mul2 hadamard2 (mul2 pauliX2 hadamard2) i j
