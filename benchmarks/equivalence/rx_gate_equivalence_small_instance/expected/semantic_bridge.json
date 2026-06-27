@@ -1,7 +1,7 @@
 {
   "artifact_gate_model": "openqasm3_1q2q_clifford",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_rx_pi2_eq_h",
+  "lean_theorem": "bridge_rx_pi2_denotation",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "rx_pi2": "denoted_as_hadamard"

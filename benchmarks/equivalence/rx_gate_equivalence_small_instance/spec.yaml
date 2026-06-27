@@ -126,7 +126,7 @@ references: []
 proof_obligations:
 - id: lean_kernel_proof
   status: passing
-  notes: bridge_rx_pi2_eq_h on int model
+  notes: bridge_rx_pi2_denotation on complex model; int scaffold via bridge_rx_pi2_int_eq_h
 - id: semantic_bridge
   status: passing
   notes: python_denotation_consistency verify-bridge
@@ -152,7 +152,7 @@ formal_claims:
   evidence_id: lean_rx_pi2
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: QSpecBench.Quantum.OpenQASM3.bridge_rx_pi2_eq_h
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_rx_pi2_denotation
   supports:
   - lean_kernel_proof
   does_not_support:

@@ -3,7 +3,7 @@
   "claim": "rx_gate_equivalence_small_instance",
   "claimed_link": "python_denotation_consistency",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_rx_pi2_eq_h",
+  "lean_theorem": "bridge_rx_pi2_denotation",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\rx_gate_equivalence_small_instance\\artifacts\\source.qasm",
   "n_qubits": 1,
   "gates": 1,

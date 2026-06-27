@@ -6,9 +6,8 @@ OpenQASM3 `rx(θ)` is denoted in Lean `ComplexGate.rxGate` with the standard rot
 `exp(-i θ X/2)` on the complex scaffold. The benchmark pair compares `rx(π/2)` on the
 source artifact against `h` on the target.
 
-`bridge_rx_pi2_eq_h` proves entry-wise equality of complex denotations:
-`denotateOps1C rx_pi2_ops = hadamardC`. This is **matrix equality in ℂ**, not a
-global-phase quotient: if the target were `e^{iφ} H` for φ ≠ 0, the bridge would fail.
+`bridge_rx_pi2_denotation` proves complex denotation equals `rxGate (π/2)`.
+`bridge_rx_pi2_int_eq_h` shows the int scaffold maps RX(π/2) to unnormalized `hadamard2`.
 
 ## Why manifest binding stays blocked
 
