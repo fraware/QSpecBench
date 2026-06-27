@@ -2,10 +2,27 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
 from qspecbench.validate import load_spec
+
+
+def claim_diff_scope_payload(spec: dict[str, Any]) -> dict[str, Any]:
+    """Canonical scope fields used for claim_diff freshness checks."""
+    return {
+        "claim_scope": spec.get("claim_scope") or {},
+        "proved_scope": spec.get("proved_scope") or {},
+        "headline_claim_status": spec.get("headline_claim_status") or {},
+    }
+
+
+def claim_diff_fingerprint(spec: dict[str, Any]) -> str:
+    payload = claim_diff_scope_payload(spec)
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def claim_diff_report(spec: dict[str, Any]) -> str:
@@ -18,6 +35,8 @@ def claim_diff_report(spec: dict[str, Any]) -> str:
     headline = spec.get("headline_claim_status") or {}
 
     lines.append(f"# Claim diff: {bid}")
+    lines.append("")
+    lines.append(f"<!-- scope_fingerprint: {claim_diff_fingerprint(spec)} -->")
     lines.append("")
     lines.append(f"**Maturity:** {maturity}")
     lines.append(f"**Headline status:** {headline.get('status', 'unknown')}")
@@ -64,3 +83,31 @@ def claim_diff_report(spec: dict[str, Any]) -> str:
 def print_claim_diff(claim_dir: Path) -> str:
     spec = load_spec(claim_dir / "spec.yaml")
     return claim_diff_report(spec)
+
+
+def validate_claim_diff(claim_dir: Path) -> list[str]:
+    """Fail if evidence/claim_diff.md exists but is stale vs spec scope blocks."""
+    spec_path = claim_dir / "spec.yaml"
+    if not spec_path.is_file():
+        return ["spec.yaml not found"]
+    spec = load_spec(spec_path)
+    diff_path = claim_dir / "evidence" / "claim_diff.md"
+    if not diff_path.is_file():
+        return []
+
+    expected = claim_diff_report(spec)
+    actual = diff_path.read_text(encoding="utf-8")
+    if actual == expected:
+        return []
+
+    fingerprint = claim_diff_fingerprint(spec)
+    if f"scope_fingerprint: {fingerprint}" in actual:
+        return [
+            "evidence/claim_diff.md body stale vs spec claim_scope/proved_scope "
+            f"(fingerprint {fingerprint[:12]}…)"
+        ]
+
+    return [
+        "evidence/claim_diff.md stale vs spec claim_scope/proved_scope "
+        "(regenerate with `qspecbench claim-diff` or scripts/run_claim_diff_all.py --write-evidence)"
+    ]

@@ -14,10 +14,10 @@ import yaml
 from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
 from qspecbench.schema import load_schema
 from qspecbench.models import ALL_REFERENCE_LEVELS, validate_spec_trust_slice
-from qspecbench.provenance import validate_provenance
 from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.bridge_manifest import validate_manifest_bridge
+from qspecbench.provenance import validate_provenance
 from qspecbench.verify_bridge import verify_bridge
 
 # Bridge links that assert a verified equality between the QASM matrix and the
@@ -235,6 +235,9 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
     errors.extend(check_layout(claim_dir))
     errors.extend(validate_trust_rules(spec, claim_dir))
     errors.extend(validate_provenance(spec, claim_dir))
+    from qspecbench.claim_diff import validate_claim_diff
+
+    errors.extend(validate_claim_diff(claim_dir))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     return errors
