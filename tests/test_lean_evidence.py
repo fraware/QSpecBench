@@ -28,6 +28,6 @@ def test_reference_has_passing_lean_proof():
     spec = yaml.safe_load(
         (REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation/spec.yaml").read_text(encoding="utf-8")
     )
-    assert spec["status"]["maturity"] == "reference_scaffold"
+    assert spec["status"]["maturity"] == "reference_claim"
     lean = [e for e in spec["evidence"] if e["type"] == "lean_proof" and e["status"] == "passing"]
     assert len(lean) >= 1
