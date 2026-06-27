@@ -193,7 +193,7 @@ theorem denotateOps2_cnot_cx10_cx10 (i j : Fin 4) :
 theorem bridge_cnot10_self_inverse (i j : Fin 4) :
     denotateOps2 cnot_cx10_cx10 i j = id4 i j := by
   rw [denotateOps2_cnot_cx10_cx10]
-  exact cnot4_ctrl_tgt_mul_self 1 0 i j
+  fin_cases i <;> fin_cases j <;> rfl
 
 def xx_cancel : List QasmOp := [.gate .X 0, .gate .X 0]
 
