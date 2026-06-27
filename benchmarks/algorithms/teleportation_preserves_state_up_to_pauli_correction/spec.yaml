@@ -206,3 +206,4 @@ qasm_extraction:
   allowed_to_skip:
   - measurement
   - classical_control
+semantics_base: openqasm_fragment

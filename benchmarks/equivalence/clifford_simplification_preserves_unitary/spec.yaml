@@ -167,3 +167,4 @@ provenance:
   - path: artifacts/target.qasm
     sha256: a8ee6125167c16d226bf0566ca803cb41e8716f5bfb9b526c4183dfec3a86843
     role: target
+semantics_base: complex_matrix

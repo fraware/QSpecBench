@@ -175,3 +175,4 @@ provenance:
   - path: artifacts/target.qasm
     sha256: ad6f32adad0f148360ee98b5cf7cfff782b65c478ebb805bc7eacf277977e485
     role: target
+semantics_base: openqasm_fragment

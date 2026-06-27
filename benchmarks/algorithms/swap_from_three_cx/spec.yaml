@@ -59,6 +59,17 @@ status:
   evidence: complete
   ci: passing
   maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+    domain_semantics_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
 references: []
 acceptable_evidence:
 - type: qasm_parse
@@ -179,3 +190,4 @@ provenance:
   - path: artifacts/target.qasm
     sha256: bc53876d72d0abccc38adfe2f6b7cfe1bcdde4fbb533eaedad8eb59931cda9f2
     role: target
+semantics_base: openqasm_fragment

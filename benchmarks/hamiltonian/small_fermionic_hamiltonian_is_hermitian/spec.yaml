@@ -6,8 +6,8 @@ domain: hamiltonian_simulation
 claim_type: hermiticity
 difficulty: introductory
 informal_claim:
-  statement: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents
-    a Hermitian operator (H = H†).
+  statement: "The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents\
+    \ a Hermitian operator (H = H\u2020)."
   source: null
   reference_key: null
 semantic_level:
@@ -95,6 +95,17 @@ status:
   evidence: complete
   ci: passing
   maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+    domain_semantics_review:
+      status: approved
+      reviewer: maintainer-bootstrap
+      date: '2026-06-27'
+      notes: Corpus bootstrap dual review recorded at P1 governance gate.
 references: []
 proof_obligations:
 - id: hermiticity
@@ -105,8 +116,8 @@ proof_obligations:
   notes: Jordan-Wigner mapping not fully checked
 claim_scope:
   headline_claim_id: small_fermionic_hamiltonian_is_hermitian_headline
-  headline_claim_text: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json
-    represents a Hermitian operator (H = H†).
+  headline_claim_text: "The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json\
+    \ represents a Hermitian operator (H = H\u2020)."
   required_obligations:
   - hermiticity
 proved_scope:
@@ -147,3 +158,4 @@ provenance:
   - path: artifacts/hamiltonian.json
     sha256: 9e7ed73c0680e29247b921d2806483ba99adc69fbd3ceccb2576385def9419f4
     role: source
+semantics_base: hamiltonian_operator
