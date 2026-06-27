@@ -37,6 +37,19 @@ flowchart LR
 - Full OpenQASM3 language
 - Hardware calibration semantics
 
+## RX(θ) blocker (rx_gate_equivalence_small_instance)
+
+`ComplexGate.rxGate (θ : ℝ)` exists with θ = π/2 matching the Python unnormalized-H bridge matrix.
+`OpenQASM3.QasmOp` has no parameterized `rx` constructor yet; `rx_parser_plumbing_ops` uses `.H`
+as a stand-in for parser plumbing only. Promoting `rx_gate_equivalence_small_instance` to
+`manifest_checked_theorem_binding` requires:
+
+1. Add `QasmOp.rx (θ : ℝ) (q : Nat)` (or fixed π/2 variant) to the Lean trace type
+2. Wire `denotateOps*` through `ComplexGate.rxGate`
+3. Regenerate manifest entry with real gate trace + hashes
+
+Until then, the benchmark stays `reference_scaffold` with `python_denotation_consistency` only.
+
 ## CI implications
 
 - New job: `bridge-codegen verify` comparing manifest hashes to generated Lean

@@ -24,7 +24,7 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2**
 - [ ] First `kernel_checked_artifact_semantics` bridge — **P2** (see [bridge_codegen_design.md](bridge_codegen_design.md))
 - [ ] Full OpenQASM-to-Lean codegen pipeline — **P2**
-- [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only today)
+- [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only; `qspecbench validate` rejects this mode fail-closed)
 - [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D)
 
 ### Manifest bridge status (2026-06-27)
