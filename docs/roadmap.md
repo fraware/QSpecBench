@@ -22,9 +22,10 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [x] QEC logical-preservation validator wired as structured evidence
 - [x] Hamiltonian artifact `type` migration complete (legacy skip removed)
 - [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2**
-- [ ] First `kernel_checked_artifact_semantics` bridge — **P2** (see [bridge_codegen_design.md](bridge_codegen_design.md))
-- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2**
-- [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only; `qspecbench validate` rejects this mode fail-closed)
+- [x] Bridge codegen pilot (`ast_sha256` + `generated_lean_sha256` for CNOT) — **P2 partial** (see [bridge_codegen_design.md](bridge_codegen_design.md))
+- [ ] First `kernel_checked_artifact_semantics` bridge — **P2 blocked** (codegen hashes only; no kernel artifact-semantics proof)
+- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress**
+- [ ] `full_dynamic_semantics` QASM mode — **P3** (schema enum only; `qspecbench validate` rejects fail-closed; requirements below)
 - [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D)
 
 ### Manifest bridge status (2026-06-27)
@@ -36,7 +37,19 @@ Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds).
 
 | Benchmark | Reason |
 |-----------|--------|
-| `rx_gate_equivalence_small_instance` | Lean uses parser plumbing scaffold; QASM trace is RX(π/2) |
+| `rx_gate_equivalence_small_instance` | Global phase + manifest anchor; Lean RX denotation done, not manifest-bound |
+
+### full_dynamic_semantics requirements (P3)
+
+Before `qasm_extraction.mode=full_dynamic_semantics` is accepted by validators:
+
+1. **Measurement semantics** — projective (or declared POVM) update rules with classical outcomes
+2. **Classical control** — `if (c) x q[i];` and feed-forward wiring in QASM AST
+3. **Reset / initialize** — non-unitary state preparation in the extraction pipeline
+4. **Codegen + Lean** — dynamic `QasmOp` constructors and proof obligations for each supported construct
+5. **Benchmark coverage** — at least one `reference_scaffold` with checked fragment + documented dynamic gap
+
+Until then, validators fail closed with message directing callers to `unitary_fragment` (default).
 
 ## P1 deferred (post-P0)
 
@@ -48,7 +61,7 @@ Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds).
 | Distance proofs | Bruteforce `distance_result` wired to checked status for small codes |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
-| RX(π/2) vs H | Wire `ComplexGate.rxGate` through OpenQASM3 denotation; see [bridge_codegen_design.md](bridge_codegen_design.md) |
+| RX(π/2) vs H | `QasmOp.rx` + `bridge_rx_pi2_eq_h` done; manifest promotion blocked on global phase — see [bridge_codegen_design.md](bridge_codegen_design.md) |
 
 ## Research (corpus milestones — not validator tasks)
 

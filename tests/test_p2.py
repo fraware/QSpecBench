@@ -61,13 +61,18 @@ def test_hamiltonian_contract_cannot_be_reference_claim():
 
 def test_scaffold_claim_diff_evidence_generated():
     """Batch claim-diff writes evidence/claim_diff.md for reference_scaffold benchmarks."""
+    import os
     import subprocess
     import sys
 
+    env = os.environ.copy()
+    tools = str(REPO / "tools")
+    env["PYTHONPATH"] = tools + os.pathsep + env.get("PYTHONPATH", "")
     subprocess.run(
         [sys.executable, str(REPO / "scripts" / "run_claim_diff_all.py"), "--write-evidence"],
         check=True,
         cwd=REPO,
+        env=env,
     )
     sample = REPO / "benchmarks/equivalence/clifford_simplification_preserves_unitary/evidence/claim_diff.md"
     assert sample.is_file()
