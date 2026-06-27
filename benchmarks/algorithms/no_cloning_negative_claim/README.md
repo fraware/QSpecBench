@@ -37,3 +37,6 @@ Current maturity: **reference_scaffold**.
 ## References
 
 - Standard no-cloning presentations in quantum information texts
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).

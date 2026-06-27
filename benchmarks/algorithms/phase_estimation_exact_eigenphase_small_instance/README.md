@@ -41,3 +41,6 @@ Current maturity: **reference_scaffold**.
 ## References
 
 - Standard phase estimation presentation
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).

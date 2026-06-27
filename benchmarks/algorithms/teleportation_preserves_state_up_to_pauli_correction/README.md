@@ -45,3 +45,6 @@ Current maturity: **reference_scaffold**.
 ## References
 
 - Standard teleportation presentation (Nielsen & Chuang)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
