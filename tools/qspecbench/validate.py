@@ -16,6 +16,7 @@ from qspecbench.schema import load_schema
 from qspecbench.models import ALL_REFERENCE_LEVELS, validate_spec_trust_slice
 from qspecbench.provenance import validate_provenance
 from qspecbench.trust import validate_trust_rules
+from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.bridge_manifest import validate_kernel_bridge
 from qspecbench.verify_bridge import verify_bridge
 
@@ -180,6 +181,7 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
     errors.extend(check_layout(claim_dir))
     errors.extend(validate_trust_rules(spec, claim_dir))
     errors.extend(validate_provenance(spec, claim_dir))
+    errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     return errors
 
