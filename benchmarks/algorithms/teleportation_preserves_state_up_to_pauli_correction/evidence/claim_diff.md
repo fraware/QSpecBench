@@ -1,6 +1,6 @@
 # Claim diff: teleportation_preserves_state_up_to_pauli_correction
 
-<!-- scope_fingerprint: e63cb10c568013d3f4108698c25e37b747fa0e16454821a0be526cfdef9d2543 -->
+<!-- scope_fingerprint: a2ef0d7446f7227cb88a11b4219d3db796801d2afe04dde98106a9cbf4366499 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
@@ -9,7 +9,7 @@
 The teleportation circuit transfers an arbitrary one-qubit state to the receiver after applying the Pauli correction determined by the two classical measurement bits.
 
 ## Declared headline (claim_scope)
-The declared teleportation QASM unitary fragment matches the Lean/OpenQASM3 denotation on the Bell-prep wire ordering (measurement and Pauli correction semantics not checked).
+The declared teleportation QASM unitary prefix (Bell prep + entangling gates before measurement) matches the Lean/OpenQASM3 denotation; measurement and Pauli correction lines use projective POVM stub skips (not kernel-checked).
 
 ## Required obligations
 - unitary_fragment_matches_ordering

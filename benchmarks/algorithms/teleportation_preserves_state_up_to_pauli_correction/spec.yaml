@@ -148,9 +148,9 @@ proof_obligations:
   notes: Full |psi> transfer and corrections documented but not kernel-checked
 claim_scope:
   headline_claim_id: teleportation_preserves_state_up_to_pauli_correction_headline
-  headline_claim_text: The declared teleportation QASM unitary fragment matches the
-    Lean/OpenQASM3 denotation on the Bell-prep wire ordering (measurement and Pauli
-    correction semantics not checked).
+  headline_claim_text: The declared teleportation QASM unitary prefix (Bell prep + entangling
+    gates before measurement) matches the Lean/OpenQASM3 denotation; measurement and
+    Pauli correction lines use projective POVM stub skips (not kernel-checked).
   required_obligations:
   - unitary_fragment_matches_ordering
 proved_scope:
@@ -201,8 +201,8 @@ provenance:
     sha256: caa1d081cc6c3ecf7415fd20f3c414e71e5476fb50a2c37df3b1fa2b6b592b22
     role: source
 qasm_extraction:
-  mode: unitary_fragment
+  mode: full_dynamic_semantics
   allowed_to_skip:
   - measurement
   - classical_control
-semantics_base: openqasm_fragment
+semantics_base: dynamic_circuit
