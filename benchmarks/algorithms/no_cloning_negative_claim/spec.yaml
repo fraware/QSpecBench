@@ -6,8 +6,8 @@ domain: quantum_algorithm
 claim_type: negative_claim
 difficulty: frontier
 informal_claim:
-  statement: No unitary quantum channel copies an arbitrary unknown pure qubit state
-    to two outputs.
+  statement: No unitary quantum channel copies computational-basis qubit states to
+    two outputs (basis-state cloner obstruction; arbitrary states not checked).
   source: null
   reference_key: null
 semantic_level:
@@ -107,8 +107,9 @@ proof_obligations:
   notes: Finite matrix scaffold only
 claim_scope:
   headline_claim_id: no_cloning_negative_claim_headline
-  headline_claim_text: No unitary quantum channel copies an arbitrary unknown pure
-    qubit state to two outputs.
+  headline_claim_text: No unitary quantum channel copies computational-basis qubit
+    states to two outputs under the checked matrix scaffold (arbitrary unknown states
+    not formalized).
   required_obligations:
   - impossibility_scaffold
 proved_scope:

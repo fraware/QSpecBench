@@ -23,6 +23,7 @@ ARTIFACT_SCHEMAS: dict[str, Path] = {
     "channel.json": SCHEMA_DIR / "channel.schema.json",
     "resource_contract.json": SCHEMA_DIR / "resource_contract.schema.json",
     "bridge_verify.result.json": SCHEMA_DIR / "bridge_result.schema.json",
+    "qec_external_certificate.json": SCHEMA_DIR / "qec_external_certificate.schema.json",
 }
 
 # Optional: object `name` in spec.yaml may disambiguate generic paths.
@@ -75,6 +76,30 @@ def validate_claim_artifacts(spec: dict[str, Any], claim_dir: Path) -> list[str]
     """Validate on-disk JSON artifacts declared in spec.objects and expected/."""
     errors: list[str] = []
     seen: set[Path] = set()
+
+    for ev in spec.get("evidence", []):
+        rel = ev.get("path")
+        if not rel or not str(rel).endswith(".json"):
+            continue
+        path = claim_dir / rel
+        if not path.is_file():
+            continue
+        if path.name == "qec_external_certificate.json" or ev.get("type") == "qec_external_certificate":
+            schema_path = SCHEMA_DIR / "qec_external_certificate.schema.json"
+            if schema_path.is_file():
+                resolved = path.resolve()
+                if resolved not in seen:
+                    seen.add(resolved)
+                    errors.extend(validate_json_artifact(path, schema_path))
+            continue
+        schema_path = schema_for_artifact(rel, None)
+        if schema_path is None or not schema_path.is_file():
+            continue
+        resolved = path.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        errors.extend(validate_json_artifact(path, schema_path))
 
     for obj in spec.get("objects", []):
         rel = obj.get("path")

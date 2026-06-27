@@ -556,7 +556,7 @@
         },
         "decoder_algorithm": {
           "type": "string",
-          "enum": ["checked", "assumed", "out_of_scope"]
+          "enum": ["checked", "checked_lookup_table", "assumed", "out_of_scope"]
         },
         "logical_preservation_small_code": {
           "type": "string",

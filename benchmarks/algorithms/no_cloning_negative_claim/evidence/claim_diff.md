@@ -1,15 +1,15 @@
 # Claim diff: no_cloning_negative_claim
 
-<!-- scope_fingerprint: 5d07edfb7394afdf2fba166641f3e034dfcc8ee3d2786745c2203e7e2ffe8651 -->
+<!-- scope_fingerprint: e1e41532b453e18eecfdb9d751abffe888a35d7233043cb00c151dbfa0e81761 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
 
 ## Informal claim (README/spec)
-No unitary quantum channel copies an arbitrary unknown pure qubit state to two outputs.
+No unitary quantum channel copies computational-basis qubit states to two outputs (basis-state cloner obstruction; arbitrary states not checked).
 
 ## Declared headline (claim_scope)
-No unitary quantum channel copies an arbitrary unknown pure qubit state to two outputs.
+No unitary quantum channel copies computational-basis qubit states to two outputs under the checked matrix scaffold (arbitrary unknown states not formalized).
 
 ## Required obligations
 - impossibility_scaffold
