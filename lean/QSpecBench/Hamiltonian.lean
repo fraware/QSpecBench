@@ -180,11 +180,8 @@ private theorem pauliZ1_herm : pauliZ1.conjTranspose = pauliZ1 := by
 
 theorem pauliX0_ne_pauliX1 : pauliX0 ≠ pauliX1 := by
   intro h
-  have h1 : pauliX0Entry 0 1 = (1 : ℂ) := rfl
-  have h2 : pauliX1Entry 0 1 = (0 : ℂ) := rfl
   have := congr_fun (congr_fun h 0) 1
-  simp [pauliX0, pauliX1, Matrix.of_apply, h1, h2] at this
-  norm_num at this
+  simp [pauliX0, pauliX1, Matrix.of_apply, pauliX0Entry, pauliX1Entry] at this
 
 set_option maxHeartbeats 400000 in
 private theorem pauliX0_mul_pauliX1_commute : pauliX0 * pauliX1 = pauliX1 * pauliX0 := by

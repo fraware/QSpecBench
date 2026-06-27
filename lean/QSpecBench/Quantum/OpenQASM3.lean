@@ -43,7 +43,7 @@ def denotateGate : SingleGate → Matrix2
 
 /-- Complex unitary denotation matching Python `qasm_matrix` for the full gate subset. -/
 noncomputable def denotateGateC : SingleGate → Mat2C
-  | .I => identityGate
+  | .I => ComplexGate.identityGate
   | .X => pauliXC
   | .Y => pauliYC
   | .Z => pauliZC
