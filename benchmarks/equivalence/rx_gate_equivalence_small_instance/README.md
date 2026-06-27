@@ -30,8 +30,13 @@ Current maturity: **reference_scaffold**.
 
 ## Known gaps
 
-General Rx parameterization not covered.
+- Lean proof uses H scaffold; QASM trace is RX — **not eligible for kernel_checked** until traces align.
+- Global phase between RX(π/2) and H is not checked.
+- General Rx parameterization beyond π/2 instance is not covered.
 
 ## References
 
 - (add references when promoting beyond usable)
+## Claim diff
+
+See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
