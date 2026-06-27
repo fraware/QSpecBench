@@ -145,7 +145,7 @@ proved_scope:
   - decoder_and_correction_claims
 headline_claim_status:
   status: partially_checked
-  notes: Bruteforce min weight d=4 checked; declared parameter d=3 remains metadata-only
+  notes: Bruteforce min weight d=4 checked via qec_verifier_result; declared parameter d=3 remains metadata-only
 qec_claim_scope:
   stabilizer_commutation: unchecked
   syndrome_table: unchecked
@@ -153,7 +153,7 @@ qec_claim_scope:
   repeated_rounds: out_of_scope
   distance:
     type: declared_parameter
-    status: declared_only
+    status: checked
   code_definition_semantics: unchecked
   decoder_algorithm: out_of_scope
   logical_preservation_small_code: assumed

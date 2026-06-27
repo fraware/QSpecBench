@@ -1,0 +1,26 @@
+{
+  "certificate_version": "0.1-stub",
+  "claim_kind": "minimum_distance",
+  "code_ref": {
+    "benchmark_id": "distance_certificate_small_css_code",
+    "artifact_path": "artifacts/code.json",
+    "artifact_sha256": "90e22de1b076f3405ca29afa85c94a9abd6e46a7502c42f17ad444b73798161c"
+  },
+  "prover": {
+    "name": "qspecbench-stub",
+    "version": "0.1",
+    "method": "schema_only"
+  },
+  "result": {
+    "status": "unknown",
+    "computed_value": null,
+    "declared_parameter": 3
+  },
+  "trust_boundary": {
+    "checked_by": ["json_schema_only"],
+    "assumptions_not_checked": [
+      "prover_correctness",
+      "promotion_to_reference_claim"
+    ]
+  }
+}
