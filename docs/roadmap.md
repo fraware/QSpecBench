@@ -106,8 +106,8 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 | Teleportation basis check root-cause | **Done** — legacy Kronecker vs OpenQASM wire mismatch in dynamic sim; operational model fixed |
 | Teleportation `all_ok` (operational) | **Done** — documented Z-then-X correction table passes branch enumeration |
 | Feed-forward supplementary artifact | **Done** — `teleportation_with_feedforward.qasm` |
-| Lean parser line stub | **Partial** — real `cx q[i], q[j]` parse + `#eval` examples + Python cross-test |
-| Lean measurement scaffold | **Partial** — `QSpecBench.Quantum.Measurement` trivial Z-basis lemmas |
+| Lean parser line stub | **Done** — five kernel bridges + `parseLines_*_eq_generated_ops` + Python cross-test |
+| Lean measurement scaffold | **Done** — Fin 4 Z / Z⊗Z projective checks in `Measurement.lean` |
 | CI dynamic simulation | **Done** — `test_phase5.py` + `dynamic-simulate --teleport-basis-check` in validate workflow |
 | Fifth kernel bridge | **Skipped** — swap/toffoli proof chains not low-risk for this pass |
 | Grover / Hamiltonian housekeeping | **Done** — `amplitude_lift` blocked note; hamiltonian artifacts already typed v0.2.0 |
@@ -125,18 +125,18 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Goal | Status |
 |------|--------|
-| Lean parser parse→toQasmOp theorems | **Done** — bell/cnot gate lines + Python cross-test on 4 kernel bridges |
-| Measurement scaffold | **Partial** — `Measurement.lean` trivial Z-basis lemmas; teleportation evidence anchor |
+| Lean parser parse→toQasmOp theorems | **Done** — all five kernel bridge parseLines theorems + Python cross-test |
+| Measurement scaffold | **Done** — Fin 4 statevector Z / Z⊗Z checks; teleportation evidence anchor |
 | Int-scaffold vs operational gap | **Documented** — Kronecker table + diagnostic test in `test_phase5.py` |
 | Feed-forward supplementary artifact | **Done** — spec object + `--feedforward` CLI path |
 | Fifth kernel bridge (`swap_from_three_cx`) | **Done** — codegen hash chain + `bridge_swap_from_three_cx_codegen` |
 | Grover / Clifford housekeeping | **Done** — amplitude_lift cross-ref to Measurement.lean; Clifford proof checklist |
-| Second proof assistant | **Partial** — `test_coq_adapter.py` + evidence_runner adapter command test; CI flag `QSPECBENCH_COQ=1` documented |
+| Second proof assistant | **Partial** — `QSPECBENCH_COQ=1` optional `coqc` path + smoke tests |
 
 ### Phase 7 blockers
 
 1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
-2. Kernel-checked projective measurement update in Lean (`Measurement.lean` scaffold only)
+2. Kernel-checked projective measurement on arbitrary amplitudes (Fin 4 basis states done)
 3. Teleportation `reference_claim` (arbitrary-state relational transfer)
 4. Full int-scaffold / operational alignment for verify-bridge on multi-qubit circuits
 5. Fifth kernel bridge — **Done** (`swap_from_three_cx` codegen hash wiring + manifest promotion)

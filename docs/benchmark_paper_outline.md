@@ -73,7 +73,10 @@ Each row's `checked_under` / `not_checked_under` fields appear in `spec.yaml` `h
 
 ## 7. Related work
 
-- Proof-assistant libraries, QCEC/Qiskit verification, QEC formalizations
+- QCEC / Qiskit transpiler verification tools
+- Lean 4 / Mathlib linear algebra and quantum-adjacent formalizations
+- Coq/Rocq quantum libraries (optional second kernel; not in default CI)
+- QEC certificate formats and distance-prover tooling
 
 ## 8. Conclusion
 
@@ -95,5 +98,5 @@ Infrastructure first; scoped reference claims as they close; no maturity inflati
 | Infrastructure + CI matrix | Needs figure |
 | Eight reference_claim case studies | Draft table |
 | Open gaps (kernel artifact semantics, dynamic QASM) | Draft complete |
-| Related work bibliography | TODO |
+| Related work bibliography | Draft bullets (QCEC, Mathlib, StQ, proof-assistant QEC libraries) |
 | Artifact / release bundle citation | v0.2.0 tagged |
