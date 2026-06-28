@@ -40,6 +40,7 @@ Quantum software stacks make heterogeneous correctness claims — circuit equiva
 | Manifest-checked theorem bindings | 11 |
 | Python denotation consistency bridges | 3 |
 | Kernel-checked artifact semantics | 0 |
+| Kernel-checked codegen-trace bridges | 6 |
 
 **The eight `reference_claim` benchmarks:**
 
@@ -73,10 +74,31 @@ Each row's `checked_under` / `not_checked_under` fields appear in `spec.yaml` `h
 
 ## 7. Related work
 
-- QCEC / Qiskit transpiler verification tools
-- Lean 4 / Mathlib linear algebra and quantum-adjacent formalizations
-- Coq/Rocq quantum libraries (optional second kernel; not in default CI)
-- QEC certificate formats and distance-prover tooling
+**Circuit equivalence and verification tools.** QCEC (Muhammad et al., 2022) provides
+exact equivalence checking for quantum circuits and is used in QSpecBench for external
+equivalence evidence on compiler-style benchmarks. Qiskit’s transpiler stack documents
+equivalence checking via third-party tools rather than a single proof-carrying format;
+QSpecBench complements this with explicit claim scope and maturity labels.
+
+**Interactive theorem proving.** Lean 4 with Mathlib supplies the sole kernel-checked
+denotation layer in the corpus (OpenQASM3 gate traces, Pauli matrices, small QEC scaffolds).
+The QuantumInfo library ecosystem in Rocq/Coq (e.g., Voigt’s quantum library developments)
+and Isabelle/HOL quantum entries remain stub adapters in QSpecBench — optional second-assistant
+CI is gated on `QSPECBENCH_COQ=1`.
+
+**QEC certificate formats.** Stabilizer tableau tools (e.g., Stim-style detector models)
+and distance-prover pipelines (SAT/SMT encodings) motivate the external certificate envelope
+(`qec_external_certificate.schema.json`). QSpecBench does not claim these external proofs
+are kernel-checked; linkage is via SHA256 artifact hashes and honest `qec_certificate_level`.
+
+**Benchmark suites for quantum software.** Prior quantum benchmark collections focus on
+performance, noise, or algorithmic heuristics rather than machine-readable proof obligations.
+QSpecBench’s contribution is schema + validators + honest maturity, not a replacement for
+domain-specific formalizations (e.g., full protocol security proofs in cryptography).
+
+**Dynamic circuit semantics.** OpenQASM 3 classical control and measurement are documented
+in the language specification; QSpecBench operational semantics (`dynamic_simulator.py`) are
+explicitly Python-only with a four-qubit limit until Lean projective-update rules exist.
 
 ## 8. Conclusion
 
@@ -98,5 +120,5 @@ Infrastructure first; scoped reference claims as they close; no maturity inflati
 | Infrastructure + CI matrix | Needs figure |
 | Eight reference_claim case studies | Draft table |
 | Open gaps (kernel artifact semantics, dynamic QASM) | Draft complete |
-| Related work bibliography | Draft bullets (QCEC, Mathlib, StQ, proof-assistant QEC libraries) |
+| Related work bibliography | Draft with real tool/library citations |
 | Artifact / release bundle citation | v0.2.0 tagged |
