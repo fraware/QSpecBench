@@ -198,7 +198,7 @@ benchmarks are `reference_claim` under declared internal scope (see `headline_cl
 | **With any checked evidence** | 44 |
 | **Manifest-checked theorem bindings** | 7 |
 | **Python denotation consistency checks** | 2 |
-| **Kernel-checked artifact semantics bridges** | 5 |
+| **Kernel-checked codegen-trace bridges** | 5 |
 | **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).
