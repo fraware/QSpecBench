@@ -104,6 +104,18 @@ class UnsupportedQasmError(ValueError):
     """Raised when a unitary-bearing QASM line cannot be modeled (fail-closed)."""
 
 
+def _classical_control_metadata(line: str) -> dict[str, Any]:
+    """Extract declared classical-control stub metadata from an if/feed-forward line."""
+    low = line.lower().strip()
+    meta: dict[str, Any] = {"kind": "classical_control_stub"}
+    reg = re.search(r"\bif\s*\(\s*([^\)]+)\)", low)
+    if reg:
+        meta["predicate"] = reg.group(1).strip()
+    if "measure" in low:
+        meta["feed_forward"] = "measurement_outcome"
+    return meta
+
+
 def _line_skip_category(line: str) -> str | None:
     """Classify a non-gate line for qasm_extraction policy (fail-closed by default)."""
     low = line.lower().strip()
@@ -553,7 +565,10 @@ def extract_matrix(
                     has_measurement = True
                 if category == "classical_control":
                     has_classical_control = True
-                dynamic_fragments.append({"line": line, "category": category})
+                fragment: dict[str, Any] = {"line": line, "category": category}
+                if category == "classical_control":
+                    fragment.update(_classical_control_metadata(line))
+                dynamic_fragments.append(fragment)
                 continue
             if category:
                 raise UnsupportedQasmError(
@@ -621,6 +636,10 @@ def extract_matrix(
             result["measurement_semantics"] = "projective_povm_stub"
         if has_classical_control:
             result["classical_control_semantics"] = "declared_skip_only"
+            result["classical_control_note"] = (
+                "if/feed-forward lines skipped; predicates recorded in dynamic_fragments "
+                "without kernel-checked operational semantics"
+            )
         result["dynamic_semantics_note"] = (
             "Unitary prefix extracted; measurement/reset/classical-control lines "
             "skipped per qasm_extraction.allowed_to_skip (not kernel-checked)."
