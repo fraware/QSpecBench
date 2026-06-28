@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "adapter": "qasm_parse",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\algorithms\\teleportation_preserves_state_up_to_pauli_correction\\artifacts\\teleportation_with_feedforward.qasm",
+  "trust_level": "syntax_only",
+  "errors": []
+}
