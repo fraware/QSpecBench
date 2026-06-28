@@ -122,6 +122,16 @@ def _validate_witness(
     if witness.get("over_claim") is True:
         errors.append("witness.over_claim must not be true")
 
+    if kind == "stabilizer_commutation" and witness.get("commutes") is True:
+        if status == "proved" and not witness.get("proof_artifact_sha256"):
+            errors.append(
+                "stabilizer_commutation witness with commutes=true and status=proved "
+                "requires proof_artifact_sha256"
+            )
+
+    if witness.get("syndrome_table_sha256") and not isinstance(witness["syndrome_table_sha256"], str):
+        errors.append("witness.syndrome_table_sha256 must be a hex string")
+
     return errors
 
 
