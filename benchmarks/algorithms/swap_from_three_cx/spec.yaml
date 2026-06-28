@@ -166,6 +166,7 @@ headline_claim_status:
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
+  - kernel_checked_codegen_trace
   not_checked_under:
   - full_openqasm3
   - hardware_semantics

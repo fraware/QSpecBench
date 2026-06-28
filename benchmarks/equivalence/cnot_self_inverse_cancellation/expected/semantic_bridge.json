@@ -6,12 +6,19 @@
     "cnot": "standard_01_control_target",
     "qasm_factor": "exact_permutation_matrix"
   },
-  "claimed_link": "kernel_checked_artifact_semantics",
+  "claimed_link": "kernel_checked_codegen_trace",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "cb1e1e91496dd761ac2ec2c06b077e619452fd3804162aa646a054aa02a37354",
   "gate_trace_sha256": "a1ece7c215b3a433de1693804048c26d0c22134269c27605192947ec23826015",
   "ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9",
-  "generated_lean_sha256": "b79ac88e2838fc6205e2debc45ded2884213d15a27ea932358e6676f8f2734c4",
-  "theorem_sha256": "49f8865e363ebb928bab86d79000f56715dcd730ea2ad2a6c32b5d0e1250bd07"
+  "generated_lean_sha256": "af70d6950a1b6516d3a9399cc58268916da4ecd42eeda506cabf3feff4ed44d8",
+  "theorem_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
+  "wire_order": {
+    "model": "legacy_kron_order",
+    "checked_against": "both"
+  },
+  "theorem_identifier_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
+  "theorem_content_sha256": "67cdb8d9a9909836490608102c82864316dc5578cdaa8479b7ebaa5db2f7ef4f",
+  "package_lean_sha256": "7b04bd63e169cb1cce8e495dd0115d2e18ccdd1b4d5baecc0181e648ce1df69c"
 }

@@ -11,5 +11,9 @@
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
   "artifact_sha256": "d0f63cc2ee48b0385947548ada10d0a0e3ad83f7bbf0c81280822d67e2a9df5e",
-  "gate_trace_sha256": "188cd3a97a12d3c0e98f96aec78b19edf79c45780ab2f37f569840fb9a0ad1f1"
+  "gate_trace_sha256": "188cd3a97a12d3c0e98f96aec78b19edf79c45780ab2f37f569840fb9a0ad1f1",
+  "wire_order": {
+    "model": "legacy_kron_order",
+    "checked_against": "python_operational"
+  }
 }

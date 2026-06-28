@@ -1,4 +1,4 @@
-import QSpecBench.CNOT
+import QSpecBench.Quantum.OpenQASM3
 
 /- QSpecBench evidence:
 benchmark_id = "cnot_self_inverse_cancellation"

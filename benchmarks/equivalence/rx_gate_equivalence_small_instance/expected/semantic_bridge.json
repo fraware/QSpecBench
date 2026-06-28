@@ -14,5 +14,9 @@
   "artifact_sha256": "d4c06ae111e7d4176ef437010ecd8a52bef3af65f4576121da3a1b37b7982ac0",
   "gate_trace_sha256": "04bb9a31965551fd7e92ebd0cb8fb908ca74cdfeb6f705956e634bf31b09883a",
   "ast_sha256": "d257c01553de88034d395e1db0b32f31c47c03ff70936a413ab1afe07cbea078",
-  "generated_lean_sha256": "597de54c3ecf180c7116d41debd7542df8a57a6e44db93adaec65c18e749eaee"
+  "generated_lean_sha256": "fe0b57ededdba49fd943c5f1135f933dab079dfdb275584965af5a6c80530f4b",
+  "wire_order": {
+    "model": "legacy_kron_order",
+    "checked_against": "both"
+  }
 }
