@@ -81,7 +81,8 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked_artifact_semantics
+    bridge with codegen trace).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -119,7 +120,7 @@ proof_obligations:
   notes: bell_prep_from_00 on int model
 - id: semantic_bridge
   status: passing
-  notes: python_denotation_consistency verify-bridge
+  notes: kernel_checked_artifact_semantics via codegen trace + bridge_bell_codegen_prep
 claim_scope:
   headline_claim_id: bell_state_preparation_headline
   headline_claim_text: Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+>
@@ -158,13 +159,23 @@ formal_claims:
   - global_phase_of_phi_state
   benchmark_anchor: bell_state_preparation
 - id: formal_bridge_bell_state_preparation
+  evidence_id: lean_bell_prep
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: bridge_bell_codegen_prep
+  supports:
+  - semantic_bridge
+  does_not_support:
+  - openqasm_h_normalization_links_integer_model_to_
+  - global_phase_of_phi_state
+  benchmark_anchor: bell_state_preparation
+- id: formal_bridge_bell_denotes_artifact
   evidence_id: bridge_verify
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: bridge_bell_prep
+  theorem: bridge_bell_codegen_denotes_artifact
   supports:
   - python_denotation_bridge
-  - semantic_bridge
   does_not_support:
   - openqasm_h_normalization_links_integer_model_to_
   - global_phase_of_phi_state
