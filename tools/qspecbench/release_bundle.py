@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import tarfile
@@ -14,6 +15,27 @@ from qspecbench import CORPUS_VERSION, RELEASE_TAG, SCHEMA_VERSION, TOOLING_VERS
 from qspecbench.dashboard import collect_summary_metrics
 from qspecbench.schema import REPO_ROOT
 from qspecbench.validate import find_spec_files, load_spec
+
+
+def _sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _canonical_manifest_bytes(manifest: dict[str, Any]) -> bytes:
+    payload = {k: v for k, v in manifest.items() if k != "bundle_manifest_sha256"}
+    return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8") + b"\n"
+
+
+def manifest_sha256(manifest: dict[str, Any]) -> str:
+    """SHA-256 of manifest JSON excluding the embedded bundle_manifest_sha256 field."""
+    return _sha256_bytes(_canonical_manifest_bytes(manifest))
+
+
+def finalize_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
+    out = dict(manifest)
+    out.pop("bundle_manifest_sha256", None)
+    out["bundle_manifest_sha256"] = manifest_sha256(out)
+    return out
 
 
 def _git_commit() -> str | None:
@@ -43,20 +65,22 @@ def collect_release_manifest(benchmarks_root: Path) -> dict[str, Any]:
             "path": str(claim_dir.relative_to(REPO_ROOT)),
         })
     metrics = collect_summary_metrics(benchmarks_root)
-    return {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "benchmarks_root": str(benchmarks_root.relative_to(REPO_ROOT)),
-        "benchmark_count": len(entries),
-        "reproducibility": {
-            "schema_version": SCHEMA_VERSION,
-            "tooling_version": TOOLING_VERSION,
-            "corpus_version": CORPUS_VERSION,
-            "release_tag": RELEASE_TAG,
-            "git_commit": _git_commit(),
-        },
-        "summary": metrics,
-        "benchmarks": sorted(entries, key=lambda e: e["id"]),
-    }
+    return finalize_manifest(
+        {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "benchmarks_root": str(benchmarks_root.relative_to(REPO_ROOT)),
+            "benchmark_count": len(entries),
+            "reproducibility": {
+                "schema_version": SCHEMA_VERSION,
+                "tooling_version": TOOLING_VERSION,
+                "corpus_version": CORPUS_VERSION,
+                "release_tag": RELEASE_TAG,
+                "git_commit": _git_commit(),
+            },
+            "summary": metrics,
+            "benchmarks": sorted(entries, key=lambda e: e["id"]),
+        }
+    )
 
 
 def _bundle_dirs_for_spec(claim_dir: Path) -> tuple[str, ...]:
@@ -82,7 +106,7 @@ def write_release_bundle(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with tarfile.open(out_path, "w:gz") as tar:
-        manifest_bytes = json.dumps(manifest, indent=2).encode("utf-8")
+        manifest_bytes = json.dumps(manifest, indent=2, sort_keys=True).encode("utf-8") + b"\n"
         info = tarfile.TarInfo(name="manifest.json")
         info.size = len(manifest_bytes)
         tar.addfile(info, fileobj=BytesIO(manifest_bytes))
@@ -126,3 +150,44 @@ def write_release_bundle(
 
     manifest["bundle_path"] = str(out_path)
     return manifest
+
+
+def verify_release_bundle(bundle_path: Path) -> list[str]:
+    """Verify manifest.json integrity inside a release bundle tar.gz."""
+    bundle_path = bundle_path.resolve()
+    errors: list[str] = []
+    if not bundle_path.is_file():
+        return ["bundle file missing"]
+
+    with tarfile.open(bundle_path, "r:gz") as tar:
+        names = tar.getnames()
+        if "manifest.json" not in names:
+            return ["manifest.json missing from bundle"]
+        raw = tar.extractfile("manifest.json").read()
+        try:
+            manifest = json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError:
+            return ["manifest.json invalid JSON"]
+
+    stored = manifest.get("bundle_manifest_sha256")
+    expected = manifest_sha256(manifest)
+    if not stored:
+        errors.append("bundle_manifest_sha256 missing from manifest")
+    elif stored != expected:
+        errors.append(
+            f"bundle_manifest_sha256 mismatch (expected {expected[:12]}…, got {stored[:12]}…)"
+        )
+
+    count = manifest.get("benchmark_count")
+    benchmarks = manifest.get("benchmarks")
+    if not isinstance(count, int) or count < 1:
+        errors.append("benchmark_count missing or invalid")
+    if not isinstance(benchmarks, list) or len(benchmarks) != count:
+        errors.append("benchmarks list length does not match benchmark_count")
+
+    repro = manifest.get("reproducibility") or {}
+    for key in ("schema_version", "tooling_version", "corpus_version"):
+        if not repro.get(key):
+            errors.append(f"reproducibility.{key} missing")
+
+    return errors

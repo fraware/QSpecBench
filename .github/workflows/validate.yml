@@ -34,7 +34,7 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: qspecbench validate benchmarks/
       - run: qspecbench bridge-codegen verify benchmarks/
-      - run: python -m pytest tests/test_infrastructure_b.py tests/test_claim_diff.py tests/test_release_bundle.py tests/test_coq_adapter.py tests/test_phase5.py -q
+      - run: python -m pytest tests/test_infrastructure_b.py tests/test_claim_diff.py tests/test_release_bundle.py tests/test_coq_adapter.py tests/test_phase5.py tests/test_lean_evidence.py -q
       # Optional second-assistant kernel: set QSPECBENCH_COQ=1 and install coqc/rocq, then re-run test_coq_adapter.py
       - run: qspecbench dynamic-simulate benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction --teleport-basis-check
       - run: qspecbench check-evidence benchmarks/equivalence/cnot_self_inverse_cancellation

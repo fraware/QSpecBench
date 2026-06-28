@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from qspecbench.release_bundle import collect_release_manifest, write_release_bundle
+from qspecbench.release_bundle import collect_release_manifest, verify_release_bundle, write_release_bundle
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -18,6 +18,8 @@ def test_release_bundle_contains_manifest_and_schemas(tmp_path):
     manifest = write_release_bundle(REPO / "benchmarks", out)
     assert manifest["benchmark_count"] >= 40
     assert manifest["reproducibility"]["tooling_version"]
+    assert manifest.get("bundle_manifest_sha256")
+    assert len(manifest["bundle_manifest_sha256"]) == 64
     assert out.is_file()
 
     with tarfile.open(out, "r:gz") as tar:
@@ -46,3 +48,9 @@ def test_release_bundle_includes_provenance_from_spec(tmp_path):
         data = json.loads(tar.extractfile(match).read().decode("utf-8"))
     spec = yaml.safe_load((claim / "spec.yaml").read_text(encoding="utf-8"))
     assert data == spec["provenance"]
+
+
+def test_verify_release_bundle_passes(tmp_path):
+    out = tmp_path / "bundle.tar.gz"
+    write_release_bundle(REPO / "benchmarks", out)
+    assert verify_release_bundle(out) == []
