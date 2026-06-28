@@ -112,13 +112,13 @@ proved_scope:
 headline_claim_status:
   status: partially_checked
   notes: Diffuser scaffold kernel-checked; amplitude_lift requires measurement semantics
-    in Lean (`QSpecBench.Quantum.Measurement` scaffold) and full_dynamic_semantics kernel
-    proofs — blocked until projective update rules are kernel-checked.
+    in Lean (`QSpecBench.Quantum.Measurement` Fin 4 scaffold) and kernel-checked
+    dynamic semantics — blocked until projective update rules cover arbitrary amplitudes.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
   not_checked_under:
-  - full_dynamic_semantics
+  - dynamic_fragment_recording
   - measurement_outcome_distribution
 formal_claims:
 - id: formal_lean_grover_scaffold

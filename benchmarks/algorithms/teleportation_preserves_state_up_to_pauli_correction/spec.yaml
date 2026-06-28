@@ -241,7 +241,7 @@ provenance:
     sha256: 250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024
     role: witness
 qasm_extraction:
-  mode: full_dynamic_semantics
+  mode: dynamic_fragment_recording
   allowed_to_skip:
   - measurement
   - classical_control

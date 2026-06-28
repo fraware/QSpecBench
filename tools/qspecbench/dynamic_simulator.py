@@ -1,9 +1,9 @@
 """Operational dynamic-circuit simulation for small OpenQASM fragments.
 
 Provides projective measurement semantics on top of the unitary gate model in
-``qasm_matrix``. This closes part of the ``full_dynamic_semantics`` gap for
-fixed small instances; it is not kernel-checked and does not model full OpenQASM
-classical control or feed-forward inside the artifact unless explicitly declared.
+``qasm_matrix``. Supports ``dynamic_fragment_recording`` (legacy alias
+``full_dynamic_semantics``) for fixed small instances (n ≤ 4 qubits); not
+kernel-checked and does not model full OpenQASM classical control unless declared.
 """
 
 from __future__ import annotations
