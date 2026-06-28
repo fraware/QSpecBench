@@ -241,6 +241,9 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
     from qspecbench.claim_diff import validate_claim_diff
 
     errors.extend(validate_claim_diff(claim_dir))
+    from qspecbench.dynamic_simulation_evidence import validate_dynamic_simulation_evidence
+
+    errors.extend(validate_dynamic_simulation_evidence(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     errors.extend(_validate_qasm_extraction(spec))
