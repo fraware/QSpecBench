@@ -44,6 +44,10 @@
       },
       "additionalProperties": false
     },
+    "wire_order_bridge_theorem": {
+      "type": ["string", "null"],
+      "description": "Optional future Lean theorem id for wire-order alignment proof"
+    },
     "bridge_evidence_id": { "type": ["string", "null"] },
     "gate_set": { "type": ["string", "null"] },
     "qasm_artifact": { "type": "string", "minLength": 1 },
