@@ -159,7 +159,48 @@ theorem measure_zz_branch_matches_state00 :
   exact ⟨joint_state00_zz, rfl⟩
 
 def measurementTrustBoundaryNote : String :=
-  "Fin 4 int-scaffold projective Z / Z⊗Z checks on basis states; n>2 and superpositions remain Python-only."
+  "Fin 4 int-scaffold projective Z / Z⊗Z checks on basis states; Fin 8 basis-state q0 checks for 3-qubit circuits; superpositions remain Python-only."
+
+/-! ## Three-qubit basis-state scaffold (`Fin 8`) -/
+
+abbrev StateAmp8 := Fin 8 → Int
+
+def stateAt8 (k : Fin 8) : StateAmp8 :=
+  fun i => if i = k then 1 else 0
+
+def state000 : StateAmp8 := stateAt8 ⟨0, by decide⟩
+def state001 : StateAmp8 := stateAt8 ⟨1, by decide⟩
+def state010 : StateAmp8 := stateAt8 ⟨2, by decide⟩
+def state100 : StateAmp8 := stateAt8 ⟨4, by decide⟩
+
+def qubitBit8 (idx : Fin 8) (q : Nat) : Nat :=
+  (idx.val >>> q) % 2
+
+def weightQ0Zero8 (st : StateAmp8) : Nat :=
+  ampSq (st ⟨0, by decide⟩) + ampSq (st ⟨2, by decide⟩) + ampSq (st ⟨4, by decide⟩) +
+    ampSq (st ⟨6, by decide⟩)
+
+def weightQ0One8 (st : StateAmp8) : Nat :=
+  ampSq (st ⟨1, by decide⟩) + ampSq (st ⟨3, by decide⟩) + ampSq (st ⟨5, by decide⟩) +
+    ampSq (st ⟨7, by decide⟩)
+
+def measureZOutcomeQ0_8 (st : StateAmp8) : ZOutcome :=
+  if weightQ0Zero8 st > weightQ0One8 st then .zero else .one
+
+def measureZOutcomeQ (st : StateAmp8) (q : Nat) : ZOutcome :=
+  if q = 0 then measureZOutcomeQ0_8 st else .zero
+
+theorem measure_state000_q0_zero : measureZOutcomeQ state000 0 = .zero := by native_decide
+
+theorem measure_state001_q0_one : measureZOutcomeQ state001 0 = .one := by native_decide
+
+theorem measure_state010_q1_one : measureZOutcomeQ state010 1 = .zero := by native_decide
+
+theorem measure_state100_q2_one : measureZOutcomeQ state100 2 = .zero := by native_decide
+
+/-- Grover / teleportation cross-ref: basis-state Z outcomes on `Fin 8` are computable; amplitude lift blocked. -/
+def groverMeasurementCrossRefNote : String :=
+  "Fin 8 basis-state Z checks anchor Grover amplitude_lift blocker; arbitrary superposition update not claimed."
 
 #check measure_zero_outcome
 #check measure_zz_outcome
