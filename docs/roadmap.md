@@ -23,10 +23,10 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [x] Hamiltonian artifact `type` migration complete (legacy skip removed)
 - [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2 partial** (adapter smoke tests + evidence type wiring; local `tests/test_coq_adapter.py`; CI path documented below)
 - [x] Bridge codegen pilot (`ast_sha256` + `generated_lean_sha256` for CNOT) — **P2 partial** (see [bridge_codegen_design.md](bridge_codegen_design.md))
-- [x] Bridge codegen expanded to `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation`
-- [x] First `kernel_checked_artifact_semantics` bridge — **P2 done** (`cnot_self_inverse_cancellation`; codegen trace + `bridge_cnot_codegen_self_inverse`)
-- [x] Second and third `kernel_checked_artifact_semantics` bridges — **P2 done** (`hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`; codegen + kernel proofs)
-- [x] Fourth `kernel_checked_artifact_semantics` bridge — **P4 done** (`bell_state_preparation`; codegen + `bridge_bell_codegen_prep`)
+- [x] Bridge codegen expanded to `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation` (codegen-trace hash chain)
+- [x] First kernel-checked codegen-trace bridge — **P2 done** (`cnot_self_inverse_cancellation`; `kernel_checked_codegen_trace` + `bridge_cnot_codegen_self_inverse`)
+- [x] Second and third kernel-checked codegen-trace bridges — **P2 done** (`hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`; codegen trace + kernel proofs)
+- [x] Fourth kernel-checked codegen-trace bridge — **P4 done** (`bell_state_preparation`; codegen trace + `bridge_bell_codegen_prep`)
 - [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress** (5 benchmarks with AST/codegen hashes; RX manifest-bound; Lean parser stub designed)
 - [x] `full_dynamic_semantics` QASM mode — **P3 partial** (projective POVM stub + `dynamic_circuit` semantics_base; teleportation pilot; classical-control metadata)
 - [x] Compiler dual-manifest target hashes — **P3 partial** (`clifford_simplification_preserves_unitary` target-side codegen)
@@ -36,9 +36,10 @@ results** (full protocol proofs). The dashboard counts each honestly.
 ### Manifest bridge status (2026-06-27)
 
 Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds). Three
-`python_denotation_consistency` bridges. Four `kernel_checked_artifact_semantics`
-(`cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`,
-`bell_state_preparation`).
+`python_denotation_consistency` bridges. Five **kernel-checked codegen-trace** bridges
+(`kernel_checked_codegen_trace`; legacy enum `kernel_checked_artifact_semantics` where still emitted):
+`cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`,
+`bell_state_preparation`, `swap_from_three_cx`.
 RX manifest-bound at complex denotation (global phase vs H not claimed; Lean lemma documents gap).
 
 **Blocked from manifest binding:**
@@ -64,8 +65,8 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Goal | Status |
 |------|--------|
-| Kernel bridge expansion (H-X-H, H-H, Bell) | **Done** — 4 kernel-checked bridges |
-| Bell state kernel bridge | **Done** — 4th kernel bridge (`bell_state_preparation`) |
+| Kernel-checked codegen-trace expansion (H-X-H, H-H, Bell, swap) | **Done** — 5 codegen-trace bridges |
+| Bell state codegen-trace bridge | **Done** — 4th codegen-trace bridge (`bell_state_preparation`) |
 | Python→AST trust boundary docs | **Done** — `bridge_codegen_design.md` |
 | `full_dynamic_semantics` foundation | **Partial** — projective stub + classical metadata + validate rules |
 | RX global phase | **Documented** — `rx_pi2_entry01_ne_hadamard_entry01`; headline narrowed |
@@ -79,7 +80,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Goal | Status |
 |------|--------|
-| Bell state kernel bridge | **Done** — 4th `kernel_checked_artifact_semantics` |
+| Bell state codegen-trace bridge | **Done** — 4th `kernel_checked_codegen_trace` |
 | Stale dynamic simulation evidence | **Done** — `validate_dynamic_simulation_evidence` |
 | Operational dynamic simulator | **Partial** — `dynamic_simulator.py` statevector + branch enumeration |
 | Teleportation basis check | **Done** — operational wire model; `all_ok` true for basis inputs |
@@ -152,7 +153,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Item | Notes |
 |------|-------|
-| First `kernel_checked_artifact_semantics` bridge | **Done** — 4 bridges (CNOT, H-X-H, H-H, Bell prep) |
+| Kernel-checked codegen-trace bridges | **Done** — 5 bridges (CNOT, H-X-H, H-H, Bell prep, swap) |
 | Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics |
 | QEC correction `reference_claim` | **Done (narrow)** — `three_qubit_bit_flip_code_corrects_one_x` lookup-table scope |
 | Distance proofs | **Partial** — bruteforce `distance_result` wired for `distance_certificate_small_css_code` |
@@ -180,7 +181,7 @@ honesty rule.
 
 | Goal | Status |
 |------|--------|
-| Fifth kernel bridge (`swap_from_three_cx`) | **Done** — codegen hash chain + `bridge_swap_from_three_cx_codegen` promoted to `kernel_checked_artifact_semantics` |
+| Fifth codegen-trace bridge (`swap_from_three_cx`) | **Done** — codegen hash chain + `bridge_swap_from_three_cx_codegen` (`kernel_checked_codegen_trace`) |
 | Lean `parseLines` + gate-list theorems | **Done** — computable `parseLineQasmOp`; `parseLines_bell_*` + `parseLines_swap_*`; Python cross-test on 5 kernel QASM artifacts |
 | Measurement scaffold (2-qubit) | **Partial** — `TwoQubitZOutcome`, sequential syndrome stub; no Fin (2^n) amplitude update |
 | Int-scaffold wire-index gap | **Documented** — `docs/operational_semantics.md` + `test_int_scaffold_vs_operational_h_on_q0_three_qubits` |

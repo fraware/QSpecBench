@@ -22,12 +22,12 @@ others. Conflating them is how an evidence format starts to overclaim.
 | Criterion | Target | Status | Footnote |
 |-----------|--------|--------|----------|
 | `reference_claim` benchmarks | ≥ 8 across ≥ 3 tracks | **Met** (8 total: 6 equivalence/algorithms, 1 Hamiltonian, 1 QFT pair) | QEC bit-flip remains `reference_scaffold` with narrowed headline (decoder assumed) |
-| Manifest-checked theorem bindings | ≥ 5 equivalence/algorithm entries | **Met** (11 manifest bridges) | Distinct from `kernel_checked_artifact_semantics` (5 in working tree) |
+| Manifest-checked theorem bindings | ? 5 equivalence/algorithm entries | **Met** (11 manifest bridges) | Distinct from kernel-checked codegen-trace bridges (5; see `kernel_checked_codegen_trace`) |
 | QEC correction claims checked | ≥ 1 small code with logical-preservation validator | **Met** | `three_qubit_bit_flip_code_corrects_one_x`: tables + brute-force preservation; decoder algorithm assumed |
 | Provenance wired | All file-backed artifacts in `spec.yaml` `provenance` | **Met** | Drift fails validation |
 
 **Not claimed at v0.2.0 tag:** QEC `reference_claim` with proved decoder; full OpenQASM3 / dynamic semantics.
-**Working tree (post-v0.2.1):** five `kernel_checked_artifact_semantics` bridges (codegen + kernel proofs).
+**Working tree (post-v0.2.1):** five kernel-checked codegen-trace bridges (`kernel_checked_codegen_trace`; codegen AST hash chain + kernel proofs).
 
 ## Raising the corpus version further
 
@@ -35,7 +35,7 @@ Suggested thresholds before bumping to `0.3.0`:
 
 | Criterion | Target |
 |-----------|--------|
-| `kernel_checked_artifact_semantics` bridges | ≥ 1 with codegen + kernel proof | **Met in working tree** (5 bridges) |
+| Kernel-checked codegen-trace bridges | ? 1 with codegen AST hash chain + kernel proof | **Met in working tree** (5 bridges) |
 | QEC `reference_claim` | ≥ 1 with decoder correctness checked, not assumed |
 | Teleportation or major protocol | ≥ 1 `reference_claim` with relational semantics |
 
