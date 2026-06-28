@@ -10,5 +10,9 @@
   "qasm_artifact": "artifacts/circuit.qasm",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "artifact_sha256": "852ed20cef7847279f414e561411392dc5ca44082a16128004aa5b95a0584a78",
-  "gate_trace_sha256": "cfb4c51fba967aafff00fc209310cb54ee46fe30c1929e0668e4dc8344747ebb"
+  "gate_trace_sha256": "cfb4c51fba967aafff00fc209310cb54ee46fe30c1929e0668e4dc8344747ebb",
+  "wire_order": {
+    "model": "legacy_kron_order",
+    "checked_against": "python_operational"
+  }
 }

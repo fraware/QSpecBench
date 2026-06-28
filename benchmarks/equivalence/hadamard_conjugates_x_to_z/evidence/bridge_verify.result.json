@@ -1,7 +1,7 @@
 {
   "ok": true,
   "claim": "hadamard_conjugates_x_to_z",
-  "claimed_link": "kernel_checked_artifact_semantics",
+  "claimed_link": "kernel_checked_codegen_trace",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
   "lean_theorem": "bridge_hadamard_codegen_conjugates_x",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\hadamard_conjugates_x_to_z\\artifacts\\source.qasm",

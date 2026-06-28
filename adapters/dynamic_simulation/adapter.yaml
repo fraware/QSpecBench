@@ -1,0 +1,10 @@
+adapter_name: dynamic_simulation
+supported_evidence_types:
+  - simulation
+required_files:
+  - "*.json"
+check_command: "python parse_result.py {path}"
+success_condition: "exit code 0"
+failure_condition: "nonzero exit"
+trust_level: heuristic
+output_format: json

@@ -1,6 +1,11 @@
-/- QSpecBench bridge codegen (pilot): regenerate via `qspecbench bridge-codegen generate`. -/
-import QSpecBench.Quantum.OpenQASM3
+/- QSpecBench bridge codegen witness (hash must match package stub). -/
+/- benchmark_id = 'cnot_self_inverse_cancellation' -/
+import QSpecBench.Quantum.QasmOp
 
-open QSpecBench.Quantum.OpenQASM3
+namespace QSpecBench.Generated.CnotSelfInverse
 
-def cnot_self_inverse_cancellation_codegen_ops : List QasmOp := [.cx 0 1, .cx 0 1]
+open QSpecBench.Quantum.QasmOp
+
+def ops : List QasmOp := [.cx 0 1, .cx 0 1]
+
+end QSpecBench.Generated.CnotSelfInverse

@@ -1,12 +1,17 @@
 {
   "benchmark_id": "teleportation_preserves_state_up_to_pauli_correction",
-  "generated_at": "2026-06-27T17:18:29.256747+00:00",
+  "generated_at": "2026-06-28T16:40:42.906570+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
       "path": "artifacts/teleportation.qasm",
       "sha256": "caa1d081cc6c3ecf7415fd20f3c414e71e5476fb50a2c37df3b1fa2b6b592b22",
       "role": "source"
+    },
+    {
+      "path": "artifacts/teleportation_with_feedforward.qasm",
+      "sha256": "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024",
+      "role": "witness"
     }
   ]
 }

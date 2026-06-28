@@ -1,3 +1,4 @@
+import QSpecBench.Quantum.QasmOp
 import QSpecBench.Legacy.Matrix
 import Mathlib.Tactic.FinCases
 import QSpecBench.Legacy.Pauli
@@ -5,9 +6,20 @@ import QSpecBench.Legacy.CNOT
 import QSpecBench.Legacy.QFT2
 import QSpecBench.Quantum.Gate
 import QSpecBench.Quantum.ComplexGate
+import QSpecBench.Generated.CnotSelfInverse
+import QSpecBench.Generated.HadamardConjugatesXToZ
+import QSpecBench.Generated.SingleQubitGateCancellation
+import QSpecBench.Generated.BellStatePreparation
+import QSpecBench.Generated.SwapFromThreeCx
 
 /-!
 # Denotational OpenQASM 3 semantics for the benchmark gate subset.
+
+## Denotation split
+
+- `denotateOps1IntScaffold`: integer Pauli/H matrix model (RX at π/2 maps to unnormalized H).
+- `denotateOps1Complex` / `denotateOps1C`: complex unitary model (RX/H match Python `qasm_matrix`).
+- `denotateOps1` is a deprecated alias for the int scaffold.
 -/
 
 namespace QSpecBench.Quantum.OpenQASM3
@@ -16,18 +28,11 @@ open QSpecBench (Matrix2 Matrix4 Matrix8 mul2 mul4 mul8 id2 id4 id8 ccx8 swap4 k
   hadamard_conjugates_x hadamard_mul_self cnot_mul_self cnot4_ctrl_tgt_mul_self mul2_assoc)
 open QSpecBench.Quantum (pauliY)
 open QSpecBench.Quantum.ComplexGate
+open QSpecBench.Quantum.QasmOp
+open QSpecBench.Generated
 open Complex
 
-inductive SingleGate where
-  | I | X | Y | Z | H | S | T | Sdg | Tdg
-  deriving DecidableEq, Repr
-
-inductive QasmOp where
-  | gate (g : SingleGate) (q : Nat)
-  | cx (control target : Nat)
-  | rx (θ : ℝ) (q : Nat)
-  | ccx (c0 c1 target : Nat)
-  | swap (a b : Nat)
+open QasmOp (SingleGate QasmOp)
 
 /-- Integer matrix scaffold: Pauli/H only; S/T use `denotateGateC` (complex model). -/
 def denotateGate : SingleGate → Matrix2
@@ -82,7 +87,8 @@ theorem qasm_CX_denotes_cnot (ctrl tgt : Nat) (i j : Fin 4) :
 theorem qasm_CX_denotes_cnot01 (i j : Fin 4) :
     denotateCX 0 1 i j = cnot4 i j := rfl
 
-noncomputable def denotateOps1 (ops : List QasmOp) : Matrix2 :=
+/-- Integer Pauli/H scaffold (1-qubit); RX(π/2) denoted as unnormalized H. -/
+noncomputable def denotateOps1IntScaffold (ops : List QasmOp) : Matrix2 :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => fun i j => mul2 (denotateGate g) acc i j
@@ -90,6 +96,12 @@ noncomputable def denotateOps1 (ops : List QasmOp) : Matrix2 :=
     | .cx _ _ => acc
     | .ccx _ _ _ => acc
     | .swap _ _ => acc) id2
+
+@[deprecated denotateOps1IntScaffold (since := "2026-06-28")]
+noncomputable def denotateOps1 (ops : List QasmOp) : Matrix2 := denotateOps1IntScaffold ops
+
+/-- Complex single-qubit denotation (H/S/T/RX); matches Python complex `qasm_matrix`. -/
+noncomputable def denotateOps1Complex (ops : List QasmOp) : Mat2C := denotateOps1C ops
 
 def applySingle2 (g : SingleGate) (q : Nat) : Matrix4 :=
   if q = 0 then kron2I (denotateGate g) else kronI2 (denotateGate g)
@@ -114,10 +126,10 @@ def denotateOps3 (ops : List QasmOp) : Matrix8 :=
 
 def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
-/-- Codegen-aligned name for CNOT self-inverse trace (matches bridge-codegen stub). -/
-def cnot_self_inverse_codegen_ops : List QasmOp := [.cx 0 1, .cx 0 1]
+/-- Deprecated hand trace; prefer `QSpecBench.Generated.CnotSelfInverse.ops`. -/
+def cnot_self_inverse_codegen_ops : List QasmOp := Generated.CnotSelfInverse.ops
 
-theorem cnot_codegen_ops_eq_hand_trace : cnot_self_inverse_codegen_ops = cnot_cx_cx := rfl
+theorem cnot_codegen_ops_eq_hand_trace : Generated.CnotSelfInverse.ops = cnot_cx_cx := rfl
 
 def cnot_cx_cxMat (i j : Fin 4) : Int := mul4 cnot4 (mul4 cnot4 id4) i j
 
@@ -130,61 +142,63 @@ theorem bridge_cnot_self_inverse (i j : Fin 4) :
   fin_cases i <;> fin_cases j <;> rfl
 
 theorem bridge_cnot_codegen_self_inverse (i j : Fin 4) :
-    denotateOps2 cnot_self_inverse_codegen_ops i j = id4 i j := by
+    denotateOps2 Generated.CnotSelfInverse.ops i j = id4 i j := by
   rw [cnot_codegen_ops_eq_hand_trace, bridge_cnot_self_inverse]
 
 /-- Codegen trace denotation matches the declared artifact matrix model. -/
 theorem bridge_cnot_codegen_denotes_artifact (i j : Fin 4) :
-    denotateOps2 cnot_self_inverse_codegen_ops i j = cnot_cx_cxMat i j := by
+    denotateOps2 Generated.CnotSelfInverse.ops i j = cnot_cx_cxMat i j := by
   rw [cnot_codegen_ops_eq_hand_trace, denotateOps2_cnot_cx_cx]
 
 /-- Codegen-aligned H-X-H trace (matches bridge-codegen stub). -/
-def hadamard_conjugates_x_to_z_codegen_ops : List QasmOp := [.gate .H 0, .gate .X 0, .gate .H 0]
+def hadamard_conjugates_x_to_z_codegen_ops : List QasmOp := Generated.HadamardConjugatesXToZ.ops
 
-def hadamard_hxh : List QasmOp := hadamard_conjugates_x_to_z_codegen_ops
+def hadamard_hxh : List QasmOp := Generated.HadamardConjugatesXToZ.ops
 
-theorem hadamard_codegen_ops_eq_hand_trace : hadamard_conjugates_x_to_z_codegen_ops = hadamard_hxh := rfl
+theorem hadamard_codegen_ops_eq_hand_trace : Generated.HadamardConjugatesXToZ.ops = hadamard_hxh := rfl
 
 def hadamard_hxhMat (i j : Fin 2) : Int := mul2 hadamard2 (mul2 pauliX2 hadamard2) i j
 
-theorem denotateOps1_hadamard_hxh (i j : Fin 2) : denotateOps1 hadamard_hxh i j = hadamard_hxhMat i j := by
+theorem denotateOps1IntScaffold_hadamard_hxh (i j : Fin 2) :
+    denotateOps1IntScaffold hadamard_hxh i j = hadamard_hxhMat i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
 theorem bridge_hadamard_conjugates_x (i j : Fin 2) :
-    denotateOps1 hadamard_hxh i j = scale2 2 pauliZ2 i j := by
-  rw [denotateOps1_hadamard_hxh, hadamard_hxhMat, mul2_assoc, hadamard_conjugates_x]
+    denotateOps1IntScaffold hadamard_hxh i j = scale2 2 pauliZ2 i j := by
+  rw [denotateOps1IntScaffold_hadamard_hxh, hadamard_hxhMat, mul2_assoc, hadamard_conjugates_x]
 
 theorem bridge_hadamard_codegen_conjugates_x (i j : Fin 2) :
-    denotateOps1 hadamard_conjugates_x_to_z_codegen_ops i j = scale2 2 pauliZ2 i j := by
+    denotateOps1IntScaffold Generated.HadamardConjugatesXToZ.ops i j = scale2 2 pauliZ2 i j := by
   rw [hadamard_codegen_ops_eq_hand_trace, bridge_hadamard_conjugates_x]
 
 theorem bridge_hadamard_codegen_denotes_artifact (i j : Fin 2) :
-    denotateOps1 hadamard_conjugates_x_to_z_codegen_ops i j = hadamard_hxhMat i j := by
-  rw [hadamard_codegen_ops_eq_hand_trace, denotateOps1_hadamard_hxh]
+    denotateOps1IntScaffold Generated.HadamardConjugatesXToZ.ops i j = hadamard_hxhMat i j := by
+  rw [hadamard_codegen_ops_eq_hand_trace, denotateOps1IntScaffold_hadamard_hxh]
 
-def single_qubit_gate_cancellation_codegen_ops : List QasmOp := [.gate .H 0, .gate .H 0]
+def single_qubit_gate_cancellation_codegen_ops : List QasmOp := Generated.SingleQubitGateCancellation.ops
 
-def hadamard_hh : List QasmOp := single_qubit_gate_cancellation_codegen_ops
+def hadamard_hh : List QasmOp := Generated.SingleQubitGateCancellation.ops
 
 theorem hadamard_cancel_codegen_ops_eq_hand_trace :
-    single_qubit_gate_cancellation_codegen_ops = hadamard_hh := rfl
+    Generated.SingleQubitGateCancellation.ops = hadamard_hh := rfl
 
 def hadamard_hhMat (i j : Fin 2) : Int := mul2 hadamard2 hadamard2 i j
 
-theorem denotateOps1_hadamard_hh (i j : Fin 2) : denotateOps1 hadamard_hh i j = hadamard_hhMat i j := by
+theorem denotateOps1IntScaffold_hadamard_hh (i j : Fin 2) :
+    denotateOps1IntScaffold hadamard_hh i j = hadamard_hhMat i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
 theorem bridge_hadamard_cancel (i j : Fin 2) :
-    denotateOps1 hadamard_hh i j = scale2 2 id2 i j := by
-  rw [denotateOps1_hadamard_hh, hadamard_hhMat, hadamard_mul_self]
+    denotateOps1IntScaffold hadamard_hh i j = scale2 2 id2 i j := by
+  rw [denotateOps1IntScaffold_hadamard_hh, hadamard_hhMat, hadamard_mul_self]
 
 theorem bridge_hadamard_codegen_cancel (i j : Fin 2) :
-    denotateOps1 single_qubit_gate_cancellation_codegen_ops i j = scale2 2 id2 i j := by
+    denotateOps1IntScaffold Generated.SingleQubitGateCancellation.ops i j = scale2 2 id2 i j := by
   rw [hadamard_cancel_codegen_ops_eq_hand_trace, bridge_hadamard_cancel]
 
 theorem bridge_hadamard_codegen_cancel_denotes_artifact (i j : Fin 2) :
-    denotateOps1 single_qubit_gate_cancellation_codegen_ops i j = hadamard_hhMat i j := by
-  rw [hadamard_cancel_codegen_ops_eq_hand_trace, denotateOps1_hadamard_hh]
+    denotateOps1IntScaffold Generated.SingleQubitGateCancellation.ops i j = hadamard_hhMat i j := by
+  rw [hadamard_cancel_codegen_ops_eq_hand_trace, denotateOps1IntScaffold_hadamard_hh]
 
 def qft2_ops : List QasmOp := [.gate .H 0, .cx 0 1, .gate .H 0]
 
@@ -306,7 +320,7 @@ theorem bridge_hs_gate (i j : Fin 2) :
   denotateOps1C_hs_gate i j
 
 /-- Bell-pair preparation scaffold (H on q0, CX q0→q1). -/
-def bell_prep_ops : List QasmOp := [.gate .H 0, .cx 0 1]
+def bell_prep_ops : List QasmOp := Generated.BellStatePreparation.ops
 
 def bellPrepMatrix (i j : Fin 4) : Int := mul4 cnot4 (kron2I hadamard2) i j
 
@@ -323,17 +337,17 @@ theorem bridge_bell_prep (i j : Fin 4) :
   denotateOps2_bell_prep i j
 
 /-- Codegen-aligned Bell prep trace (matches bridge-codegen stub). -/
-def bell_state_preparation_codegen_ops : List QasmOp := [.gate .H 0, .cx 0 1]
+def bell_state_preparation_codegen_ops : List QasmOp := Generated.BellStatePreparation.ops
 
 theorem bell_codegen_ops_eq_hand_trace :
-    bell_state_preparation_codegen_ops = bell_prep_ops := rfl
+    Generated.BellStatePreparation.ops = bell_prep_ops := rfl
 
 theorem bridge_bell_codegen_prep (i j : Fin 4) :
-    denotateOps2 bell_state_preparation_codegen_ops i j = bellPrepMatrix i j := by
+    denotateOps2 Generated.BellStatePreparation.ops i j = bellPrepMatrix i j := by
   rw [bell_codegen_ops_eq_hand_trace, denotateOps2_bell_prep]
 
 theorem bridge_bell_codegen_denotes_artifact (i j : Fin 4) :
-    denotateOps2 bell_state_preparation_codegen_ops i j = bellPrepMatrix i j := by
+    denotateOps2 Generated.BellStatePreparation.ops i j = bellPrepMatrix i j := by
   rw [bell_codegen_ops_eq_hand_trace, denotateOps2_bell_prep]
 
 /-- RX(π/2) on qubit 0; int scaffold maps π/2 to unnormalized H. -/
@@ -343,9 +357,9 @@ theorem denotateOps1C_rx_pi2 (i j : Fin 2) :
     denotateOps1C rx_pi2_ops i j = rxGate (Real.pi / 2) i j := by
   fin_cases i <;> fin_cases j <;> simp [denotateOps1C, rx_pi2_ops, rxGate, rxGateEntry, mul2C]
 
-theorem denotateOps1_rx_pi2 (i j : Fin 2) :
-    denotateOps1 rx_pi2_ops i j = hadamard2 i j := by
-  unfold denotateOps1 rx_pi2_ops hadamard2
+theorem denotateOps1IntScaffold_rx_pi2 (i j : Fin 2) :
+    denotateOps1IntScaffold rx_pi2_ops i j = hadamard2 i j := by
+  unfold denotateOps1IntScaffold rx_pi2_ops hadamard2
   fin_cases i <;> fin_cases j <;> simp [mul2, id2]
 
 /-- Complex denotation of RX(π/2) matches standard rotation matrix (not unnormalized H). -/
@@ -355,15 +369,15 @@ theorem bridge_rx_pi2_denotation (i j : Fin 2) :
 
 /-- Int scaffold: RX(π/2) denoted as unnormalized H (Python int-bridge model). -/
 theorem bridge_rx_pi2_int_eq_h (i j : Fin 2) :
-    denotateOps1 rx_pi2_ops i j = hadamard2 i j :=
-  denotateOps1_rx_pi2 i j
+    denotateOps1IntScaffold rx_pi2_ops i j = hadamard2 i j :=
+  denotateOps1IntScaffold_rx_pi2 i j
 
 /-- Legacy parser-plumbing alias; prefer `rx_pi2_ops`. -/
 noncomputable def rx_parser_plumbing_ops : List QasmOp := rx_pi2_ops
 
 theorem bridge_rx_parser_plumbing (i j : Fin 2) :
-    denotateOps1 rx_parser_plumbing_ops i j = hadamard2 i j :=
-  denotateOps1_rx_pi2 i j
+    denotateOps1IntScaffold rx_parser_plumbing_ops i j = hadamard2 i j :=
+  denotateOps1IntScaffold_rx_pi2 i j
 
 def ccx_single : List QasmOp := [.ccx 0 1 2]
 
@@ -386,7 +400,7 @@ theorem bridge_swap_single (i j : Fin 4) :
   denotateOps2_swap_single i j
 
 /-- Three CX gates in standard order implement SWAP (CX_{0,1} CX_{1,0} CX_{0,1}). -/
-def swap_from_three_cx_ops : List QasmOp := [.cx 0 1, .cx 1 0, .cx 0 1]
+def swap_from_three_cx_ops : List QasmOp := Generated.SwapFromThreeCx.ops
 
 theorem denotateOps2_swap_from_three_cx (i j : Fin 4) :
     denotateOps2 swap_from_three_cx_ops i j = swap4 i j := by
@@ -397,18 +411,17 @@ theorem bridge_swap_from_three_cx (i j : Fin 4) :
   denotateOps2_swap_from_three_cx i j
 
 /-- Codegen-aligned three-CX SWAP trace (matches bridge-codegen stub). -/
-def swap_from_three_cx_codegen_ops : List QasmOp := [.cx 0 1, .cx 1 0, .cx 0 1]
+def swap_from_three_cx_codegen_ops : List QasmOp := Generated.SwapFromThreeCx.ops
 
 theorem swap_codegen_ops_eq_hand_trace :
-    swap_from_three_cx_codegen_ops = swap_from_three_cx_ops := rfl
+    Generated.SwapFromThreeCx.ops = swap_from_three_cx_ops := rfl
 
 theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) :
-    denotateOps2 swap_from_three_cx_codegen_ops i j = swap4 i j := by
+    denotateOps2 Generated.SwapFromThreeCx.ops i j = swap4 i j := by
   rw [swap_codegen_ops_eq_hand_trace, denotateOps2_swap_from_three_cx]
 
 theorem bridge_swap_from_three_cx_codegen_denotes_artifact (i j : Fin 4) :
-    denotateOps2 swap_from_three_cx_codegen_ops i j = denotateOps2 swap_from_three_cx_ops i j := by
-  rw [swap_codegen_ops_eq_hand_trace]
+    denotateOps2 Generated.SwapFromThreeCx.ops i j = denotateOps2 swap_from_three_cx_ops i j := rfl
 
 /-- Layout-identity scaffold: H then CX on qubits 0,1. -/
 def layout_identity_ops : List QasmOp := [.gate .H 0, .cx 0 1]

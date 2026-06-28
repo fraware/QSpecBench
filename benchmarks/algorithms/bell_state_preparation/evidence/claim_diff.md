@@ -1,6 +1,6 @@
 # Claim diff: bell_state_preparation
 
-<!-- scope_fingerprint: c71d362aaec254f0e184985896b2b16dfa6b305e560270bb8a930de1af582563 -->
+<!-- scope_fingerprint: 15cbf9811f03a3a93d6d2ac29bc8f5083234d675e5b390fd4178ba42f1a8f70e -->
 
 **Maturity:** reference_claim
 **Headline status:** checked

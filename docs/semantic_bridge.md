@@ -7,7 +7,9 @@ evidence supports it.
 > **Current corpus (v0.2):** ten bridges use `manifest_checked_theorem_binding`
 > (manifest + theorem reference + hash anchors, **not** full artifact semantics).
 > Three bridges use `python_denotation_consistency` (Python matrix vs denotation model only).
-> Five bridges use `kernel_checked_artifact_semantics` (codegen trace + kernel proof + hash chain).
+> Five bridges use `kernel_checked_codegen_trace` (codegen trace + kernel proof + hash chain).
+> The legacy label `kernel_checked_artifact_semantics` is accepted only when the Lean theorem
+> imports a generated `QSpecBench.Generated.*.ops` module.
 
 ## Bridge taxonomy
 
@@ -16,7 +18,8 @@ evidence supports it.
 | `documented_not_proved` | Lean theorem is named; no automated matrix/manifest check |
 | `python_denotation_consistency` | `qspecbench verify-bridge` confirms Python QASM matrix equals Python denotation |
 | `manifest_checked_theorem_binding` | Manifest allowlist + SHA256 anchors + structured Lean `#check` evidence |
-| `kernel_checked_artifact_semantics` | Codegen AST → Lean trace → kernel proof + hash chain (`ast_sha256`, `theorem_sha256`) |
+| `kernel_checked_codegen_trace` | Codegen AST → generated Lean ops → kernel proof + hash chain (`ast_sha256`, `theorem_identifier_sha256`, `theorem_content_sha256`) |
+| `kernel_checked_artifact_semantics` | **Deprecated alias** — use only when generated-module import is kernel-proved |
 
 `manifest_checked_theorem_binding` is **not** a kernel-checked proof that the QASM artifact
 satisfies the named theorem end-to-end. It checks manifest membership, hash stability, and an

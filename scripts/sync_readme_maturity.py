@@ -52,7 +52,7 @@ benchmark{'s' if rc != 1 else ''} {'are' if rc != 1 else 'is'} `reference_claim`
 | **With any checked evidence** | {metrics['with_checked_evidence']} |
 | **Manifest-checked theorem bindings** | {metrics['manifest_checked_theorem_binding']} |
 | **Python denotation consistency checks** | {metrics['python_denotation_consistency']} |
-| **Kernel-checked artifact semantics bridges** | {metrics['kernel_checked_artifact_semantics']} |
+| **Kernel-checked codegen-trace bridges** | {metrics['kernel_checked_codegen_trace']} |
 | **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`)."""

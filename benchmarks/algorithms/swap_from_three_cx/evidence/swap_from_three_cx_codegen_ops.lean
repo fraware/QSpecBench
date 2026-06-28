@@ -1,6 +1,11 @@
-/- QSpecBench bridge codegen (pilot): regenerate via `qspecbench bridge-codegen generate`. -/
-import QSpecBench.Quantum.OpenQASM3
+/- QSpecBench bridge codegen witness (hash must match package stub). -/
+/- benchmark_id = 'swap_from_three_cx' -/
+import QSpecBench.Quantum.QasmOp
 
-open QSpecBench.Quantum.OpenQASM3
+namespace QSpecBench.Generated.SwapFromThreeCx
 
-def swap_from_three_cx_codegen_ops : List QasmOp := [.cx 0 1, .cx 1 0, .cx 0 1]
+open QSpecBench.Quantum.QasmOp
+
+def ops : List QasmOp := [.cx 0 1, .cx 1 0, .cx 0 1]
+
+end QSpecBench.Generated.SwapFromThreeCx

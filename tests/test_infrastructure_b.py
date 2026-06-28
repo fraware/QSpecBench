@@ -167,4 +167,4 @@ def test_full_dynamic_semantics_rejected_at_validate():
         )
         results = validate_path(claim)
         assert results and not results[0].ok
-        assert any("full_dynamic_semantics" in e for e in results[0].errors)
+        assert any("dynamic_fragment_recording" in e or "dynamic_circuit" in e for e in results[0].errors)

@@ -52,7 +52,7 @@ def test_verify_bridge_python_denotation_benchmarks():
 def test_verify_bridge_kernel_checked_cnot():
     claim = REPO / KERNEL_CHECKED[0]
     result = verify_bridge(claim)
-    assert result["claimed_link"] == "kernel_checked_artifact_semantics"
+    assert result["claimed_link"] == "kernel_checked_codegen_trace"
     assert result["ok"]
 
 
@@ -60,14 +60,14 @@ def test_verify_bridge_all_kernel_checked_benchmarks():
     for rel in KERNEL_CHECKED:
         claim = REPO / rel
         result = verify_bridge(claim)
-        assert result["claimed_link"] == "kernel_checked_artifact_semantics", rel
+        assert result["claimed_link"] == "kernel_checked_codegen_trace", rel
         assert result["ok"], f"{rel}: {result.get('errors')}"
 
 
 def test_verify_bridge_manifest_checked_cnot():
     claim = REPO / KERNEL_CHECKED[0]
     result = verify_bridge(claim)
-    assert result["claimed_link"] == "kernel_checked_artifact_semantics"
+    assert result["claimed_link"] == "kernel_checked_codegen_trace"
     assert result["ok"]
 
 
@@ -135,7 +135,7 @@ def test_manifest_bridge_rejects_missing_manifest_theorem():
 def test_verify_bridge_reads_semantic_bridge():
     claim = REPO / KERNEL_CHECKED[0]
     result = verify_bridge(claim)
-    assert result["claimed_link"] == "kernel_checked_artifact_semantics"
+    assert result["claimed_link"] == "kernel_checked_codegen_trace"
     assert "lean_module" in result
 
 

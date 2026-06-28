@@ -119,6 +119,7 @@ def collect_summary_metrics(root: Path) -> dict[str, int]:
         "with_checked_evidence": sum(1 for s in specs if _has_checked_evidence(s)),
         "manifest_checked_theorem_binding": bridge_links.get("manifest_checked_theorem_binding", 0),
         "python_denotation_consistency": bridge_links.get("python_denotation_consistency", 0),
+        "kernel_checked_codegen_trace": bridge_links.get("kernel_checked_codegen_trace", 0),
         "kernel_checked_artifact_semantics": bridge_links.get("kernel_checked_artifact_semantics", 0),
     }
 
@@ -145,6 +146,7 @@ def generate_dashboard(root: Path) -> str:
     bridge_links = _bridge_link_counts(rows)
     manifest_bridges = bridge_links.get("manifest_checked_theorem_binding", 0)
     python_bridges = bridge_links.get("python_denotation_consistency", 0)
+    kernel_codegen = bridge_links.get("kernel_checked_codegen_trace", 0)
     kernel_semantics = bridge_links.get("kernel_checked_artifact_semantics", 0)
     documented_bridges = bridge_links.get("documented_not_proved", 0)
     ref_by_track = _reference_coverage_by_track(rows)
@@ -182,7 +184,8 @@ def generate_dashboard(root: Path) -> str:
         f"- **With resource contracts:** {resources}",
         f"- **Manifest-checked theorem bindings:** {manifest_bridges}",
         f"- **Python denotation consistency checks:** {python_bridges}",
-        f"- **Kernel-checked artifact semantics bridges:** {kernel_semantics}",
+        f"- **Kernel-checked codegen-trace bridges:** {kernel_codegen}",
+        f"- **Kernel-checked artifact-semantics bridges (legacy label):** {kernel_semantics}",
         f"- **Documented (not proved) bridges:** {documented_bridges}",
         "",
         "### Passing evidence by trust level",

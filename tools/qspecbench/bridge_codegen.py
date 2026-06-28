@@ -1,9 +1,7 @@
 """OpenQASM → canonical AST → Lean stub generator (pilot).
 
-See docs/bridge_codegen_design.md. This module wires ast_sha256 and
-generated_lean_sha256 into bridge_theorem_manifest.json; it does not by itself
-establish kernel_checked_artifact_semantics (no kernel proof that generated ops
-denote the QASM artifact matrix).
+See docs/bridge_codegen_design.md. Emits generated ops into `lean/QSpecBench/Generated/`
+and copies a witness stub into benchmark evidence for hash verification.
 """
 
 from __future__ import annotations
@@ -18,10 +16,46 @@ from typing import Any
 from qspecbench.bridge_manifest import MANIFEST_PATH, compute_bridge_hashes, load_manifest
 from qspecbench.denotate import ops_from_qasm_matrix
 from qspecbench.qasm_matrix import extract_matrix
+from qspecbench.schema import REPO_ROOT
 
 CANONICAL_AST_VERSION = "0.1"
+LEAN_GENERATED_ROOT = REPO_ROOT / "lean" / "QSpecBench" / "Generated"
 
 _SINGLE_GATES = {"i", "x", "y", "z", "h", "s", "t", "sdg", "tdg"}
+
+KERNEL_CHECKED_LINK = "kernel_checked_codegen_trace"
+LEGACY_KERNEL_CHECKED_LINK = "kernel_checked_artifact_semantics"
+
+GENERATED_MODULE_MAP: dict[str, str] = {
+    "cnot_self_inverse_cancellation": "CnotSelfInverse",
+    "hadamard_conjugates_x_to_z": "HadamardConjugatesXToZ",
+    "single_qubit_gate_cancellation": "SingleQubitGateCancellation",
+    "bell_state_preparation": "BellStatePreparation",
+    "swap_from_three_cx": "SwapFromThreeCx",
+}
+
+KERNEL_THEOREM_CONTENT: dict[str, str] = {
+    "cnot_self_inverse_cancellation": (
+        "theorem bridge_cnot_codegen_self_inverse (i j : Fin 4) : "
+        "denotateOps2 QSpecBench.Generated.CnotSelfInverse.ops i j = id4 i j"
+    ),
+    "hadamard_conjugates_x_to_z": (
+        "theorem bridge_hadamard_codegen_conjugates_x (i j : Fin 2) : "
+        "denotateOps1IntScaffold QSpecBench.Generated.HadamardConjugatesXToZ.ops i j = scale2 2 pauliZ2 i j"
+    ),
+    "single_qubit_gate_cancellation": (
+        "theorem bridge_hadamard_codegen_cancel (i j : Fin 2) : "
+        "denotateOps1IntScaffold QSpecBench.Generated.SingleQubitGateCancellation.ops i j = scale2 2 id2 i j"
+    ),
+    "bell_state_preparation": (
+        "theorem bridge_bell_codegen_prep (i j : Fin 4) : "
+        "denotateOps2 QSpecBench.Generated.BellStatePreparation.ops i j = bellPrepMatrix i j"
+    ),
+    "swap_from_three_cx": (
+        "theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) : "
+        "denotateOps2 QSpecBench.Generated.SwapFromThreeCx.ops i j = swap4 i j"
+    ),
+}
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -125,22 +159,53 @@ def _lean_op_item(entry: dict[str, Any]) -> str:
     raise ValueError(f"unsupported gate for Lean codegen: {op!r}")
 
 
+def generated_module_name(benchmark_id: str) -> str | None:
+    return GENERATED_MODULE_MAP.get(benchmark_id)
+
+
+def package_lean_path(benchmark_id: str) -> Path | None:
+    name = generated_module_name(benchmark_id)
+    if not name:
+        return None
+    return LEAN_GENERATED_ROOT / f"{name}.lean"
+
+
 def generate_lean_stub(
     benchmark_id: str,
     ast: dict[str, Any],
     *,
-    module: str = "QSpecBench.Quantum.OpenQASM3",
+    witness: bool = False,
 ) -> str:
-    """Emit a Lean snippet declaring a QasmOp list from canonical AST."""
-    safe_id = re.sub(r"[^a-zA-Z0-9_]", "_", benchmark_id)
-    ops_name = f"{safe_id}_codegen_ops"
+    """Emit Lean declaring `ops : List QasmOp` in QSpecBench.Generated.*."""
+    module_name = generated_module_name(benchmark_id)
+    if module_name is None:
+        safe_id = re.sub(r"[^a-zA-Z0-9_]", "_", benchmark_id)
+        ops_name = f"{safe_id}_codegen_ops"
+        items = ", ".join(_lean_op_item(g) for g in ast["gates"])
+        return (
+            "/- QSpecBench bridge codegen (pilot): regenerate via "
+            "`qspecbench bridge-codegen generate`. -/\n"
+            "import QSpecBench.Quantum.QasmOp\n\n"
+            f"open QSpecBench.Quantum.QasmOp\n\n"
+            f"def {ops_name} : List QasmOp := [{items}]\n"
+        )
+
     items = ", ".join(_lean_op_item(g) for g in ast["gates"])
+    header = (
+        "/- QSpecBench bridge codegen: regenerate via `qspecbench bridge-codegen generate`. -/\n"
+        if not witness
+        else (
+            "/- QSpecBench bridge codegen witness (hash must match package stub). -/\n"
+            f"/- benchmark_id = {benchmark_id!r} -/\n"
+        )
+    )
     return (
-        "/- QSpecBench bridge codegen (pilot): regenerate via "
-        "`qspecbench bridge-codegen generate`. -/\n"
-        f"import {module}\n\n"
-        f"open {module}\n\n"
-        f"def {ops_name} : List QasmOp := [{items}]\n"
+        f"{header}"
+        "import QSpecBench.Quantum.QasmOp\n\n"
+        f"namespace QSpecBench.Generated.{module_name}\n\n"
+        "open QSpecBench.Quantum.QasmOp\n\n"
+        f"def ops : List QasmOp := [{items}]\n\n"
+        f"end QSpecBench.Generated.{module_name}\n"
     )
 
 
@@ -149,17 +214,33 @@ def generated_lean_sha256(text: str) -> str:
     return _sha256_bytes(normalized)
 
 
-def theorem_sha256(full_theorem: str) -> str:
+def theorem_identifier_sha256(full_theorem: str) -> str:
     """Stable hash of the kernel-checked theorem identifier (module + name)."""
     payload = json.dumps(
-        {"theorem": full_theorem, "kind": "kernel_checked_artifact_semantics"},
+        {"theorem": full_theorem, "kind": KERNEL_CHECKED_LINK},
         sort_keys=True,
         separators=(",", ":"),
     )
     return _sha256_bytes(payload.encode("utf-8"))
 
 
-# Benchmark-specific codegen kernel theorems (denotation on generated QasmOp trace).
+def theorem_sha256(full_theorem: str) -> str:
+    """Deprecated alias for theorem_identifier_sha256."""
+    return theorem_identifier_sha256(full_theorem)
+
+
+def theorem_content_sha256(benchmark_id: str) -> str | None:
+    content = KERNEL_THEOREM_CONTENT.get(benchmark_id)
+    if not content:
+        return None
+    payload = json.dumps(
+        {"theorem_content": content, "kind": KERNEL_CHECKED_LINK},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return _sha256_bytes(payload.encode("utf-8"))
+
+
 KERNEL_CHECKED_THEOREMS: dict[str, str] = {
     "cnot_self_inverse_cancellation": "QSpecBench.Quantum.OpenQASM3.bridge_cnot_codegen_self_inverse",
     "hadamard_conjugates_x_to_z": "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_conjugates_x",
@@ -211,10 +292,18 @@ def generate_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dic
     qasm_path = claim_dir / qasm_rel
     ast = build_canonical_ast(qasm_path, extraction=extraction)
     stub_id = benchmark_id if qasm_role == "source" else f"{benchmark_id}_target"
-    lean_text = generate_lean_stub(stub_id, ast)
+    lean_text = generate_lean_stub(stub_id, ast, witness=True)
     out_path = codegen_output_path(claim_dir, stub_id)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(lean_text, encoding="utf-8")
+
+    package_path = package_lean_path(stub_id)
+    package_rel: str | None = None
+    if package_path is not None:
+        package_path.parent.mkdir(parents=True, exist_ok=True)
+        package_text = generate_lean_stub(stub_id, ast, witness=False)
+        package_path.write_text(package_text, encoding="utf-8")
+        package_rel = str(package_path.relative_to(REPO_ROOT))
 
     artifact_sha, trace_sha, _trace = compute_bridge_hashes(qasm_path, extraction=extraction)
     return {
@@ -227,6 +316,8 @@ def generate_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dic
         "ast_sha256": ast_sha256(ast),
         "generated_lean_path": str(out_path.relative_to(claim_dir)),
         "generated_lean_sha256": generated_lean_sha256(lean_text),
+        "package_lean_path": package_rel,
+        "package_lean_sha256": generated_lean_sha256(package_text) if package_path else None,
     }
 
 
@@ -286,12 +377,15 @@ def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]
                     f"generated Lean file hash mismatch for {benchmark_id}: "
                     f"{result['generated_lean_path']}"
                 )
+    if entry.get("package_lean_sha256") and result.get("package_lean_sha256"):
+        if entry["package_lean_sha256"] != result["package_lean_sha256"]:
+            errors.append(f"package_lean_sha256 drift for {benchmark_id}")
     errors.extend(verify_manifest_target_codegen(entry, claim_dir))
     return errors
 
 
 def update_manifest_entry(benchmark_id: str, result: dict[str, Any]) -> None:
-    """Write ast_sha256 and generated_lean_sha256 into bridge_theorem_manifest.json."""
+    """Write codegen hashes into bridge_theorem_manifest.json."""
     manifest = load_manifest()
     updated = False
     kernel_theorem = kernel_checked_theorem_name(benchmark_id)
@@ -300,10 +394,16 @@ def update_manifest_entry(benchmark_id: str, result: dict[str, Any]) -> None:
             continue
         entry["ast_sha256"] = result["ast_sha256"]
         entry["generated_lean_sha256"] = result["generated_lean_sha256"]
+        if result.get("package_lean_sha256"):
+            entry["package_lean_sha256"] = result["package_lean_sha256"]
         entry["obligation_ids"] = entry.get("obligation_ids") or ["semantic_bridge"]
         if kernel_theorem:
             entry["kernel_checked_theorem"] = kernel_theorem.split(".")[-1]
-            entry["theorem_sha256"] = theorem_sha256(kernel_theorem)
+            entry["theorem_identifier_sha256"] = theorem_identifier_sha256(kernel_theorem)
+            entry["theorem_sha256"] = entry["theorem_identifier_sha256"]
+            content_hash = theorem_content_sha256(benchmark_id)
+            if content_hash:
+                entry["theorem_content_sha256"] = content_hash
         updated = True
         break
     if not updated:
@@ -311,8 +411,18 @@ def update_manifest_entry(benchmark_id: str, result: dict[str, Any]) -> None:
     MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
+def normalize_claimed_link(claimed_link: str | None) -> str | None:
+    if claimed_link == LEGACY_KERNEL_CHECKED_LINK:
+        return KERNEL_CHECKED_LINK
+    return claimed_link
+
+
+def is_kernel_checked_link(claimed_link: str | None) -> bool:
+    return claimed_link in {KERNEL_CHECKED_LINK, LEGACY_KERNEL_CHECKED_LINK}
+
+
 def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[str]:
-    """Verify full artifact-semantics codegen chain for kernel_checked bridges."""
+    """Verify full codegen-trace chain for kernel_checked bridges."""
     errors = verify_manifest_codegen(entry, claim_dir)
     benchmark_id = entry.get("benchmark_id", "")
     expected_theorem = kernel_checked_theorem_name(benchmark_id)
@@ -325,14 +435,22 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
             f"manifest {entry.get('kernel_checked_theorem')!r} != "
             f"{expected_theorem.split('.')[-1]!r}"
         )
-    expected_hash = theorem_sha256(expected_theorem)
-    if entry.get("theorem_sha256") and entry["theorem_sha256"] != expected_hash:
-        errors.append(f"theorem_sha256 drift for {benchmark_id}")
+    expected_id_hash = theorem_identifier_sha256(expected_theorem)
+    stored_id = entry.get("theorem_identifier_sha256") or entry.get("theorem_sha256")
+    if stored_id and stored_id != expected_id_hash:
+        errors.append(f"theorem_identifier_sha256 drift for {benchmark_id}")
+    expected_content = theorem_content_sha256(benchmark_id)
+    if expected_content and entry.get("theorem_content_sha256"):
+        if entry["theorem_content_sha256"] != expected_content:
+            errors.append(f"theorem_content_sha256 drift for {benchmark_id}")
     if not entry.get("ast_sha256") or not entry.get("generated_lean_sha256"):
         errors.append(
-            f"kernel_checked_artifact_semantics requires ast_sha256 and "
-            f"generated_lean_sha256 for {benchmark_id}"
+            f"{KERNEL_CHECKED_LINK} requires ast_sha256 and generated_lean_sha256 for {benchmark_id}"
         )
-    if not entry.get("theorem_sha256"):
-        errors.append(f"kernel_checked_artifact_semantics requires theorem_sha256 for {benchmark_id}")
+    if not stored_id:
+        errors.append(f"{KERNEL_CHECKED_LINK} requires theorem_identifier_sha256 for {benchmark_id}")
+    if expected_content and not entry.get("theorem_content_sha256"):
+        errors.append(f"{KERNEL_CHECKED_LINK} requires theorem_content_sha256 for {benchmark_id}")
+    if not generated_module_name(benchmark_id):
+        errors.append(f"kernel bridge {benchmark_id} missing generated module mapping")
     return errors

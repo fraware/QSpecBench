@@ -111,7 +111,12 @@ def _default_adapter_command(
     adapter_override: str | None = None,
     secondary: Path | None = None,
 ) -> str | None:
-    adapter_name = adapter_override or EVIDENCE_TYPE_ADAPTERS.get(evidence_type)
+    adapter_name = adapter_override
+    if adapter_name is None:
+        if evidence_type == "simulation" and artifact_path.suffix.lower() == ".json":
+            adapter_name = "dynamic_simulation"
+        else:
+            adapter_name = EVIDENCE_TYPE_ADAPTERS.get(evidence_type)
     if not adapter_name:
         return None
     return _adapter_command(adapter_name, secondary=secondary)

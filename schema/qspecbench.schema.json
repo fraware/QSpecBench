@@ -434,6 +434,7 @@
             "documented_not_proved",
             "python_denotation_consistency",
             "manifest_checked_theorem_binding",
+            "kernel_checked_codegen_trace",
             "kernel_checked_artifact_semantics"
           ]
         },
@@ -566,6 +567,14 @@
           "type": "string",
           "enum": ["checked", "assumed", "out_of_scope"]
         },
+        "qec_certificate_level": {
+          "type": "string",
+          "enum": [
+            "qec_small_code_checked",
+            "qec_external_certificate_checked",
+            "qec_family_checked"
+          ]
+        },
         "distance": {
           "type": "object",
           "properties": {
@@ -632,7 +641,12 @@
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["unitary_fragment", "full_dynamic_semantics", "syntax_only"]
+          "enum": [
+            "unitary_fragment",
+            "dynamic_fragment_recording",
+            "full_dynamic_semantics",
+            "syntax_only"
+          ]
         },
         "allowed_to_skip": {
           "type": "array",

@@ -99,7 +99,7 @@ def test_dynamic_simulator_measurements_recorded():
 
 
 def test_unitary_fragment_fail_closed_on_measure():
-    spec = yaml.safe_load((TELEPORT / "spec.yaml").read_text(encoding="utf-8"))
+    yaml.safe_load((TELEPORT / "spec.yaml").read_text(encoding="utf-8"))
     try:
         extract_matrix(
             TELEPORT / "artifacts" / "teleportation.qasm",

@@ -281,6 +281,22 @@ def release_bundle_cmd(
     console.print(
         f"Wrote release bundle ({manifest['benchmark_count']} benchmarks) to {out}"
     )
+    console.print(f"  bundle_manifest_sha256: {manifest['bundle_manifest_sha256'][:16]}…")
+
+
+@app.command("verify-release-bundle")
+def verify_release_bundle_cmd(
+    bundle: Path = typer.Argument(..., help="Release bundle .tar.gz path"),
+) -> None:
+    """Verify manifest integrity inside a release bundle."""
+    from qspecbench.release_bundle import verify_release_bundle
+
+    errors = verify_release_bundle(bundle)
+    if errors:
+        for err in errors:
+            console.print(f"[red]FAIL[/red] {err}")
+        raise typer.Exit(code=1)
+    console.print(f"[green]OK[/green] release bundle {bundle}")
 
 
 @app.command("dynamic-simulate")
@@ -329,7 +345,12 @@ def dynamic_simulate_cmd(
         report = simulate_dynamic_circuit(qasm, extraction)
 
     if out is None:
-        out = target / "evidence" / "dynamic_simulation.json"
+        for ev in spec.get("evidence", []):
+            if ev.get("id") == "dynamic_basis_check" and ev.get("path"):
+                out = target / ev["path"]
+                break
+        if out is None:
+            out = target / "evidence" / "dynamic_simulation.json"
     write_dynamic_simulation_report(out, attach_fingerprint(report))
     console.print(f"[green]Wrote[/green] {out}")
 

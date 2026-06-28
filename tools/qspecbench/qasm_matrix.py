@@ -150,7 +150,7 @@ def _extraction_allows_skip(extraction: dict[str, Any] | None, category: str) ->
     if not extraction:
         return False
     mode = extraction.get("mode", "unitary_fragment")
-    if mode == "full_dynamic_semantics":
+    if mode in {"full_dynamic_semantics", "dynamic_fragment_recording"}:
         return True
     if mode == "syntax_only":
         return True
@@ -628,8 +628,12 @@ def extract_matrix(
         "matrix": [[cell_to_json(unitary[i][j]) for j in range(len(unitary))] for i in range(len(unitary))],
     }
 
-    if extraction_mode == "full_dynamic_semantics":
-        result["extraction_mode"] = extraction_mode
+    if extraction_mode in {"full_dynamic_semantics", "dynamic_fragment_recording"}:
+        result["extraction_mode"] = (
+            "dynamic_fragment_recording"
+            if extraction_mode == "full_dynamic_semantics"
+            else extraction_mode
+        )
         result["dynamic_fragments"] = dynamic_fragments
         result["non_unitary_fragment"] = bool(dynamic_fragments)
         if has_measurement:

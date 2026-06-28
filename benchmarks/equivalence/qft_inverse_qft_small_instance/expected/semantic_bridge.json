@@ -10,5 +10,9 @@
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "929eac84843cd608c985c374bfa67fb7906ee0ce64b4c5fdcf742f39ba715c38",
-  "gate_trace_sha256": "e4b529813cd6f08e609012bd82f526b5e2e8395963ce1ce6fa8a55688d7403f4"
+  "gate_trace_sha256": "e4b529813cd6f08e609012bd82f526b5e2e8395963ce1ce6fa8a55688d7403f4",
+  "wire_order": {
+    "model": "legacy_kron_order",
+    "checked_against": "both"
+  }
 }

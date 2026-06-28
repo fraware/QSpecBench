@@ -27,12 +27,15 @@
       "lean_theorem": "bridge_cnot_codegen_self_inverse",
       "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
       "ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9",
-      "generated_lean_sha256": "b79ac88e2838fc6205e2debc45ded2884213d15a27ea932358e6676f8f2734c4",
+      "generated_lean_sha256": "af70d6950a1b6516d3a9399cc58268916da4ecd42eeda506cabf3feff4ed44d8",
       "kernel_checked_theorem": "bridge_cnot_codegen_self_inverse",
-      "theorem_sha256": "49f8865e363ebb928bab86d79000f56715dcd730ea2ad2a6c32b5d0e1250bd07",
+      "theorem_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
       "obligation_ids": [
         "semantic_bridge"
-      ]
+      ],
+      "package_lean_sha256": "7b04bd63e169cb1cce8e495dd0115d2e18ccdd1b4d5baecc0181e648ce1df69c",
+      "theorem_identifier_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
+      "theorem_content_sha256": "67cdb8d9a9909836490608102c82864316dc5578cdaa8479b7ebaa5db2f7ef4f"
     },
     {
       "benchmark_id": "hadamard_conjugates_x_to_z",
@@ -63,12 +66,15 @@
       "lean_theorem": "bridge_hadamard_codegen_conjugates_x",
       "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
       "ast_sha256": "20ba11fb108eb7d9fd66258197818165202009cf9a8ddaf1534b7627320c131f",
-      "generated_lean_sha256": "95faab229bb08d89387f035afacc348ef983217ef175dfd717d114b93fe08328",
+      "generated_lean_sha256": "c1c67ba08ef38883edf2b3a494cfdce653c8ab5b55ccc90da43f958501a391a8",
       "kernel_checked_theorem": "bridge_hadamard_codegen_conjugates_x",
-      "theorem_sha256": "e1df7eb43e201f7f0d5ba9570084dbf9e2cc10e5aab8743f11f7932d2bfe153f",
+      "theorem_sha256": "cb0ae0d2ef85d9df73c5005dad812d9466e47addbf96dde3f4901ecf8f98377c",
       "obligation_ids": [
         "semantic_bridge"
-      ]
+      ],
+      "package_lean_sha256": "28ef8142b64fb8228df08717469ef12cbe0bbeb31a745bdeb58f0a5c34d97729",
+      "theorem_identifier_sha256": "cb0ae0d2ef85d9df73c5005dad812d9466e47addbf96dde3f4901ecf8f98377c",
+      "theorem_content_sha256": "f87cec6e41cc8dd21e124805c6c1422793b16adbd83fc021763a919d91d9aab6"
     },
     {
       "benchmark_id": "single_qubit_gate_cancellation",
@@ -93,12 +99,15 @@
       "lean_theorem": "bridge_hadamard_codegen_cancel",
       "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
       "ast_sha256": "f731f909a694e3cc30b96260cc4f25a88888e093ef952d7bc9e0cbeb9973d4d9",
-      "generated_lean_sha256": "668c4dd6e7638e94d1e33e7a1b74a436aa5b59f21368e626443c7b932ff2d60f",
+      "generated_lean_sha256": "1b2abc850edd8ec2ec695aaabad7ec51b262536586d5f4871648d703920df23e",
       "kernel_checked_theorem": "bridge_hadamard_codegen_cancel",
-      "theorem_sha256": "2acdd04e8205481db94899b657e383f162f5cf36e22fe00f5e01594931e7d6ce",
+      "theorem_sha256": "444609491c695c04095883ccbfb9bf1d5565ef4de94ab4111be3ed1f939750cc",
       "obligation_ids": [
         "semantic_bridge"
-      ]
+      ],
+      "package_lean_sha256": "9f15ec7c4ee8db125efccbed4619b9f596e24122d92177f18e6c02268c72e452",
+      "theorem_identifier_sha256": "444609491c695c04095883ccbfb9bf1d5565ef4de94ab4111be3ed1f939750cc",
+      "theorem_content_sha256": "1c529664d6d76c041f56a2e794ed5c55c545c194f9bc0cd3fbb427397b7d0b78"
     },
     {
       "benchmark_id": "qft_inverse_qft_small_instance",
@@ -165,12 +174,15 @@
       "lean_theorem": "bridge_swap_from_three_cx_codegen",
       "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
       "ast_sha256": "f56ae68da29a95751c8273e8a97849139cf683ebdf9caa1a3061f219fd3962cc",
-      "generated_lean_sha256": "431989c7b5e9e165384184e9f7726b913a7a17a54d89b21f34f3c62ec8c10d67",
+      "generated_lean_sha256": "7bca344aba34b71cf7cbc0d1d68db01c3f359f2c5e58391d42d5b693c81a9523",
       "obligation_ids": [
         "semantic_bridge"
       ],
       "kernel_checked_theorem": "bridge_swap_from_three_cx_codegen",
-      "theorem_sha256": "3762d12b55a4d0e18091bb29a911c3082ae6fcbd31742fef7b399bf4ffe733b2"
+      "theorem_sha256": "90673f619c0d5d06700e1f07c301e4dcea53e23d27facc5b1e03d399007c4972",
+      "package_lean_sha256": "8e9eacbceb895b9c9806cc79c6fe3ac6e0ee9618036ca0996c852d400ffbc229",
+      "theorem_identifier_sha256": "90673f619c0d5d06700e1f07c301e4dcea53e23d27facc5b1e03d399007c4972",
+      "theorem_content_sha256": "6f3bffbce2124ffbe69bcbaa5cb5029982b231dd2c94f40350603d6a21d9a609"
     },
     {
       "benchmark_id": "toffoli_decomposition_equivalence",
@@ -277,12 +289,15 @@
       "lean_theorem": "bridge_bell_codegen_prep",
       "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
       "ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
-      "generated_lean_sha256": "6f63eb178d227343e7c5d12adda850711c5b3686ac2813217f5a375b9f72263c",
+      "generated_lean_sha256": "dd5a8ce12f7c5ecc4769fc1fe7fa6186c7f52534af21b5d2b1e3fdb267ae3d95",
       "kernel_checked_theorem": "bridge_bell_codegen_prep",
-      "theorem_sha256": "8d46335aa7fbd967a40b7e6da7477010f10ae787b54cbecdc329dc435a70b96f",
+      "theorem_sha256": "d5b06e63a6d1a04ea12ec81b77f5a4d8697f6a97ab171a2e2923af64b6b19c40",
       "obligation_ids": [
         "semantic_bridge"
-      ]
+      ],
+      "package_lean_sha256": "c77694903d65b978dbb4ff2f85b8465d92e47d36b454e426658343df8020fd75",
+      "theorem_identifier_sha256": "d5b06e63a6d1a04ea12ec81b77f5a4d8697f6a97ab171a2e2923af64b6b19c40",
+      "theorem_content_sha256": "55a1db53a884ce555011f505cf06016a3ad8eaf0a7bc78423d3c0f46f11523e1"
     },
     {
       "benchmark_id": "clifford_simplification_preserves_unitary",
@@ -313,7 +328,7 @@
       "lean_theorem": "bridge_clifford_hhs",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
       "ast_sha256": "8d877bec8367c1b09dc280937365b1e3eeb8d957246b8a6806098dd3a0232123",
-      "generated_lean_sha256": "c7e6f3782c8c61ff56c991260ba8180d67a31101c1edf02e4b50a4e4608a7b54",
+      "generated_lean_sha256": "3a7e86233dd356e0fa9c907ddfbeb4402f670b88294265d49ecde889f0c03eae",
       "target_qasm_artifact": "artifacts/target.qasm",
       "target_artifact_sha256": "b64706e2d1603b550ad1f7702914aac884098448a61977baa881d3e7bc90e6f4",
       "target_gate_trace": [
@@ -327,7 +342,7 @@
       "target_gate_trace_sha256": "757da467297db36f204c94bdcff4b2c004dc3d0544c88f7094dad1c1151ab566",
       "target_lean_theorem": "bridge_clifford_s_single",
       "target_ast_sha256": "d1e212be29cc79e5e58616e1acfc8aca50dab4d96a814246ed55350bf2a8fbb1",
-      "target_generated_lean_sha256": "046791dfd3f4cefe9f259b8cfe0f57fc910dfc0aa4cea4a5ffb6a6a278b9b3bc",
+      "target_generated_lean_sha256": "a020b8d7f97d53c6eda2bd490e73c0c07b538bc52e0bb299a150a1ca2be13a66",
       "obligation_ids": [
         "semantic_bridge"
       ]
@@ -350,7 +365,7 @@
       "lean_theorem": "bridge_rx_pi2_denotation",
       "theorem_statement_kind": "complex_denotation_on_declared_gate_trace",
       "ast_sha256": "d257c01553de88034d395e1db0b32f31c47c03ff70936a413ab1afe07cbea078",
-      "generated_lean_sha256": "597de54c3ecf180c7116d41debd7542df8a57a6e44db93adaec65c18e749eaee",
+      "generated_lean_sha256": "fe0b57ededdba49fd943c5f1135f933dab079dfdb275584965af5a6c80530f4b",
       "obligation_ids": [
         "semantic_bridge"
       ]

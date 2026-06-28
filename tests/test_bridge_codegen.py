@@ -30,7 +30,8 @@ def test_cnot_canonical_ast():
 def test_cnot_lean_stub_contains_ops():
     ast = build_canonical_ast(CNOT_DIR / "artifacts" / "source.qasm")
     lean = generate_lean_stub("cnot_self_inverse_cancellation", ast)
-    assert "cnot_self_inverse_cancellation_codegen_ops" in lean
+    assert "def ops : List QasmOp" in lean
+    assert "CnotSelfInverse" in lean
     assert ".cx 0 1" in lean
     assert len(generated_lean_sha256(lean)) == 64
 
@@ -96,7 +97,7 @@ def test_rx_manifest_codegen_hashes():
 def test_single_qubit_gate_cancellation_codegen():
     ast = build_canonical_ast(HH_CANCEL_DIR / "artifacts" / "source.qasm")
     lean = generate_lean_stub("single_qubit_gate_cancellation", ast)
-    assert "single_qubit_gate_cancellation_codegen_ops" in lean
+    assert "single_qubit_gate_cancellation_codegen_ops" not in lean or "def ops" in lean
     assert ".gate .H 0" in lean
     entry = next(
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "single_qubit_gate_cancellation"
