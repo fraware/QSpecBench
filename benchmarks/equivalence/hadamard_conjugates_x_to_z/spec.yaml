@@ -105,7 +105,8 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (python_denotation_consistency bridge).
+  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked_artifact_semantics
+    bridge with codegen trace).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -143,7 +144,7 @@ proof_obligations:
   notes: Hadamard conjugation on int model
 - id: semantic_bridge
   status: passing
-  notes: python_denotation_consistency verify-bridge
+  notes: kernel_checked_artifact_semantics via codegen trace + bridge_hadamard_codegen_conjugates_x
 claim_scope:
   headline_claim_id: hadamard_conjugates_x_to_z_headline
   headline_claim_text: Conjugating Pauli X by H yields Pauli Z up to global phase
@@ -164,6 +165,7 @@ headline_claim_status:
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
+  - kernel_checked_codegen_trace
   not_checked_under:
   - full_openqasm3
   - hardware_semantics
@@ -183,7 +185,7 @@ formal_claims:
   evidence_id: bridge_verify
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: bridge_hadamard_conjugates_x
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_conjugates_x
   supports:
   - python_denotation_bridge
   - semantic_bridge
