@@ -21,19 +21,25 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [x] README status block auto-sync from dashboard metrics
 - [x] QEC logical-preservation validator wired as structured evidence
 - [x] Hamiltonian artifact `type` migration complete (legacy skip removed)
-- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2 partial** (adapter smoke tests in validate job; no kernel)
+- [ ] Second proof assistant in CI (Coq/Rocq/Isabelle beyond stubs) — **P2 partial** (adapter smoke tests + evidence type wiring; local `tests/test_coq_adapter.py`; CI path documented below)
 - [x] Bridge codegen pilot (`ast_sha256` + `generated_lean_sha256` for CNOT) — **P2 partial** (see [bridge_codegen_design.md](bridge_codegen_design.md))
 - [x] Bridge codegen expanded to `hadamard_conjugates_x_to_z` and `single_qubit_gate_cancellation`
 - [x] First `kernel_checked_artifact_semantics` bridge — **P2 done** (`cnot_self_inverse_cancellation`; codegen trace + `bridge_cnot_codegen_self_inverse`)
-- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress** (3 benchmarks with AST/codegen hashes; RX manifest-bound)
-- [x] `full_dynamic_semantics` QASM mode — **P3 partial** (projective POVM stub + `dynamic_circuit` semantics_base; teleportation pilot)
-- [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D)
+- [x] Second and third `kernel_checked_artifact_semantics` bridges — **P2 done** (`hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`; codegen + kernel proofs)
+- [x] Fourth `kernel_checked_artifact_semantics` bridge — **P4 done** (`bell_state_preparation`; codegen + `bridge_bell_codegen_prep`)
+- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress** (5 benchmarks with AST/codegen hashes; RX manifest-bound; Lean parser stub designed)
+- [x] `full_dynamic_semantics` QASM mode — **P3 partial** (projective POVM stub + `dynamic_circuit` semantics_base; teleportation pilot; classical-control metadata)
+- [x] Compiler dual-manifest target hashes — **P3 partial** (`clifford_simplification_preserves_unitary` target-side codegen)
+- [x] External QEC certificate semantic validation — **P3 partial** (`qec_external.py` + provenance linkage)
+- [ ] Teleportation / Grover / no-cloning headline proofs — **research** (Section D; Grover `amplitude_lift` blocked on measurement semantics)
 
 ### Manifest bridge status (2026-06-27)
 
 Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds). Three
-`python_denotation_consistency` bridges. One `kernel_checked_artifact_semantics`
-(`cnot_self_inverse_cancellation`). RX manifest-bound at complex denotation (global phase vs H not claimed).
+`python_denotation_consistency` bridges. Four `kernel_checked_artifact_semantics`
+(`cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`,
+`bell_state_preparation`).
+RX manifest-bound at complex denotation (global phase vs H not claimed; Lean lemma documents gap).
 
 **Blocked from manifest binding:**
 
@@ -54,17 +60,105 @@ Before `qasm_extraction.mode=full_dynamic_semantics` is accepted by validators:
 Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 `allowed_to_skip` includes `measurement` (default remains `unitary_fragment`).
 
+## Phase 4 status (2026-06-27)
+
+| Goal | Status |
+|------|--------|
+| Kernel bridge expansion (H-X-H, H-H, Bell) | **Done** — 4 kernel-checked bridges |
+| Bell state kernel bridge | **Done** — 4th kernel bridge (`bell_state_preparation`) |
+| Python→AST trust boundary docs | **Done** — `bridge_codegen_design.md` |
+| `full_dynamic_semantics` foundation | **Partial** — projective stub + classical metadata + validate rules |
+| RX global phase | **Documented** — `rx_pi2_entry01_ne_hadamard_entry01`; headline narrowed |
+| QEC external certificate validate | **Partial** — schema + semantic checks in `qec_external.py` |
+| Compiler dual-manifest | **Partial** — Clifford target hashes wired |
+| Second proof assistant | **Partial** — stub adapters + expanded smoke tests |
+| Section D research milestone | **Partial** — teleportation dynamic pilot; Grover amplitude_lift documented blocked |
+| Docs / dashboard | **Done** — roadmap + regenerated `status.md` |
+
+## Phase 5 status (2026-06-27)
+
+| Goal | Status |
+|------|--------|
+| Bell state kernel bridge | **Done** — 4th `kernel_checked_artifact_semantics` |
+| Stale dynamic simulation evidence | **Done** — `validate_dynamic_simulation_evidence` |
+| Operational dynamic simulator | **Partial** — `dynamic_simulator.py` statevector + branch enumeration |
+| Teleportation basis check | **Done** — operational wire model; `all_ok` true for basis inputs |
+| Lean QASM parser stub | **Partial** — `OpenQASM3Parser.lean` line stub |
+| QEC external witness validation | **Partial** — witness cross-checks in `qec_external.py` |
+| CLI `dynamic-simulate` | **Done** |
+| Operational semantics doc | **Done** — `docs/operational_semantics.md` |
+| Protocol `reference_claim` | **Blocked** — kernel-checked dynamic semantics required |
+
+### Phase 5 blockers
+
+1. ~~Normalized gate model alignment for dynamic simulation vs OpenQASM int scaffold~~ — **Partial** (normalized operational path + int diagnostic)
+2. Lean byte-level QASM parser kernel
+3. Feed-forward corrections in teleportation artifacts
+4. Kernel-checked measurement update rules in Lean
+5. Compiler source→target equivalence proofs (Clifford)
+6. Second proof assistant kernel in CI
+
+## Phase 6 status (2026-06-28)
+
+| Goal | Status |
+|------|--------|
+| Teleportation basis check root-cause | **Done** — legacy Kronecker vs OpenQASM wire mismatch in dynamic sim; operational model fixed |
+| Teleportation `all_ok` (operational) | **Done** — documented Z-then-X correction table passes branch enumeration |
+| Feed-forward supplementary artifact | **Done** — `teleportation_with_feedforward.qasm` |
+| Lean parser line stub | **Partial** — real `cx q[i], q[j]` parse + `#eval` examples + Python cross-test |
+| Lean measurement scaffold | **Partial** — `QSpecBench.Quantum.Measurement` trivial Z-basis lemmas |
+| CI dynamic simulation | **Done** — `test_phase5.py` + `dynamic-simulate --teleport-basis-check` in validate workflow |
+| Fifth kernel bridge | **Skipped** — swap/toffoli proof chains not low-risk for this pass |
+| Grover / Hamiltonian housekeeping | **Done** — `amplitude_lift` blocked note; hamiltonian artifacts already typed v0.2.0 |
+
+### Phase 6 remaining blockers
+
+1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
+2. Kernel-checked projective measurement update in Lean
+3. Teleportation `reference_claim` (arbitrary-state relational transfer)
+4. Int-scaffold / operational wire model alignment for verify-bridge (documented gap)
+5. Compiler source→target equivalence proofs (Clifford)
+6. Second proof assistant kernel in CI
+
+## Phase 7 status (2026-06-28)
+
+| Goal | Status |
+|------|--------|
+| Lean parser parse→toQasmOp theorems | **Done** — bell/cnot gate lines + Python cross-test on 4 kernel bridges |
+| Measurement scaffold | **Partial** — `Measurement.lean` trivial Z-basis lemmas; teleportation evidence anchor |
+| Int-scaffold vs operational gap | **Documented** — Kronecker table + diagnostic test in `test_phase5.py` |
+| Feed-forward supplementary artifact | **Done** — spec object + `--feedforward` CLI path |
+| Fifth kernel bridge (`swap_from_three_cx`) | **Done** — codegen hash chain + `bridge_swap_from_three_cx_codegen` |
+| Grover / Clifford housekeeping | **Done** — amplitude_lift cross-ref to Measurement.lean; Clifford proof checklist |
+| Second proof assistant | **Partial** — `test_coq_adapter.py` + evidence_runner adapter command test; CI flag `QSPECBENCH_COQ=1` documented |
+
+### Phase 7 blockers
+
+1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
+2. Kernel-checked projective measurement update in Lean (`Measurement.lean` scaffold only)
+3. Teleportation `reference_claim` (arbitrary-state relational transfer)
+4. Full int-scaffold / operational alignment for verify-bridge on multi-qubit circuits
+5. Fifth kernel bridge — **Done** (`swap_from_three_cx` codegen hash wiring + manifest promotion)
+6. Compiler source→target equivalence proofs (Clifford checklist open)
+
+### Second proof assistant CI path (no yaml change in this pass)
+
+1. Add `coqc` / `rocq` to optional CI matrix job (feature flag `QSPECBENCH_COQ=1`)
+2. Run `python -m pytest tests/test_coq_adapter.py` (already in validate workflow)
+3. Wire `coq_proof` evidence through `evidence_runner` when adapter returns `ok`
+4. Require kernel-checked certificate before `reference_claim` promotion
+
 ## P1 deferred (post-P0)
 
 | Item | Notes |
 |------|-------|
-| First `kernel_checked_artifact_semantics` bridge | **Done** — `cnot_self_inverse_cancellation` |
+| First `kernel_checked_artifact_semantics` bridge | **Done** — 4 bridges (CNOT, H-X-H, H-H, Bell prep) |
 | Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics |
 | QEC correction `reference_claim` | **Done (narrow)** — `three_qubit_bit_flip_code_corrects_one_x` lookup-table scope |
 | Distance proofs | **Partial** — bruteforce `distance_result` wired for `distance_certificate_small_css_code` |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
-| RX(π/2) vs H | Manifest-bound `bridge_rx_pi2_denotation`; int scaffold `bridge_rx_pi2_int_eq_h`; global phase not claimed |
+| RX(π/2) vs H | Manifest-bound `bridge_rx_pi2_denotation`; Lean `rx_pi2_entry01_ne_hadamard_entry01`; global phase not claimed |
 
 ## Research (corpus milestones — not validator tasks)
 
@@ -81,3 +175,36 @@ These require new mathematics or substantial formalization effort:
 
 Promoting any of these to `reference_claim` before the proof exists would violate the project's core
 honesty rule.
+
+## Phase 8 status (2026-06-28)
+
+| Goal | Status |
+|------|--------|
+| Fifth kernel bridge (`swap_from_three_cx`) | **Done** — codegen hash chain + `bridge_swap_from_three_cx_codegen` promoted to `kernel_checked_artifact_semantics` |
+| Lean `parseLines` + gate-list theorems | **Done** — computable `parseLineQasmOp`; `parseLines_bell_*` + `parseLines_swap_*`; Python cross-test on 5 kernel QASM artifacts |
+| Measurement scaffold (2-qubit) | **Partial** — `TwoQubitZOutcome`, sequential syndrome stub; no Fin (2^n) amplitude update |
+| Int-scaffold wire-index gap | **Documented** — `docs/operational_semantics.md` + `test_int_scaffold_vs_operational_h_on_q0_three_qubits` |
+| Feed-forward teleportation tests | **Done** — `test_teleportation_feedforward_artifact_basis_check` + supplementary artifact |
+| Toffoli / circuit_identity kernel bridge | **Skipped** — `ast_sha256` null in manifest; CCX denotation chain not low-risk |
+| Clifford source→target kernel proof | **Blocked** — dual-manifest hashes present; `source_target_equivalence_open.lean` checklist open |
+| Coq second-assistant CI | **Partial** — `test_coq_adapter.py` + `QSPECBENCH_COQ=1` documented; no coqc in default matrix |
+
+### Phase 8 blockers (unchanged)
+
+1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
+2. Kernel-checked projective measurement update on state vectors in Lean
+3. Teleportation `reference_claim` (arbitrary-state relational transfer)
+4. Toffoli / layout-identity codegen kernel chains (`ast_sha256` null)
+5. Compiler source→target equivalence proofs (Clifford)
+6. Second proof assistant kernel in default CI
+
+## Phase 9 priorities (2026-06-28)
+
+| Goal | Status |
+|------|--------|
+| Lean bytes→AST parser kernel | **Blocked** — line-level `parseGateLine` / `parseLines` only |
+| Fin (2^n) projective measurement update | **Blocked** — `Measurement.lean` branch stubs |
+| Teleportation `reference_claim` | **Blocked** — relational transfer + feed-forward proof |
+| Toffoli / circuit_identity kernel bridge | **Blocked** — CCX denotation + `ast_sha256` null |
+| Clifford source→target kernel proof | **Blocked** — dual-manifest checklist open |
+| Coq/Rocq kernel in default CI | **Partial** — adapter stubs; enable with `QSPECBENCH_COQ=1` |
