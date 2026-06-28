@@ -30,8 +30,21 @@ benchmark tree. Validators will eventually require:
 Small instances use `qec_verifier_result.json` with embedded `distance_result` from the QEC JSON
 adapter (`distance_min_weight_bruteforce`). See `distance_certificate_small_css_code`.
 
-## Phase 3 wiring
+## Phase 3 wiring (2026-06-27)
 
-- Schema validation for `qec_external_certificate.json` via `validate_claim_artifacts` (stub envelope only)
-- Optional `acceptable_evidence` type `qec_external_certificate` (future)
-- CI job hook for reproducible prover versions
+- Schema validation for `qec_external_certificate.json` via `validate_claim_artifacts`
+- Semantic validation in `tools/qspecbench/qec_external.py`:
+  - `code_ref.artifact_sha256` matches on-disk artifact and `expected/provenance.json`
+  - `benchmark_id` matches spec `id`
+  - Stub certificates (`0.1-stub`) cannot claim `result.status=proved`
+- Optional `acceptable_evidence` type `qec_external_certificate` (future promotion gate)
+- CI job hook for reproducible prover versions (documented in roadmap; no yaml change required locally)
+
+## Scalable checker design (`tools/qspecbench/qec_external.py`)
+
+Future prover adapters will return certificates validated by:
+
+1. JSON Schema (`qec_external_certificate.schema.json`)
+2. `validate_qec_external_certificate()` semantic rules (this module)
+3. Track-specific `qec_claim_scope` promotion rules in `validate.py`
+4. Explicit `trust_boundary.assumptions_not_checked` — no silent `reference_claim`
