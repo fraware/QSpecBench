@@ -1,9 +1,9 @@
 {
   "ok": true,
   "claim": "hadamard_conjugates_x_to_z",
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_artifact_semantics",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_hadamard_conjugates_x",
+  "lean_theorem": "bridge_hadamard_codegen_conjugates_x",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\hadamard_conjugates_x_to_z\\artifacts\\source.qasm",
   "n_qubits": 1,
   "gates": 3,

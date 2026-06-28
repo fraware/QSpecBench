@@ -123,7 +123,7 @@ evidence:
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: python_denotation_consistency verify-bridge on source circuit.
+  notes: kernel_checked_artifact_semantics verify-bridge on source circuit.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -139,10 +139,10 @@ trust_boundary:
 proof_obligations:
 - id: lean_kernel_proof
   status: passing
-  notes: bridge_swap_from_three_cx anchor
+  notes: bridge_swap_from_three_cx_codegen kernel-checked anchor
 - id: semantic_bridge
   status: passing
-  notes: python_denotation_consistency verify-bridge
+  notes: kernel_checked_artifact_semantics verify-bridge
 - id: qcec_equivalence
   status: passing
   notes: External SWAP vs three-CX check
@@ -175,7 +175,7 @@ formal_claims:
   evidence_id: lean_swap_bridge
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen
   supports:
   - lean_kernel_proof
   does_not_support:

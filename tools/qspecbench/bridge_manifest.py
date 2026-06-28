@@ -268,6 +268,21 @@ def validate_manifest_bridge(claim_dir: Path, bridge: dict[str, Any], spec: dict
     if entry.get("gate_trace") and entry["gate_trace"] != trace:
         errors.append("gate_trace mismatch against bridge_theorem_manifest.json")
 
+    if entry.get("target_qasm_artifact"):
+        target_path = claim_dir / entry["target_qasm_artifact"]
+        if not target_path.is_file():
+            errors.append(f"target qasm artifact missing: {entry['target_qasm_artifact']}")
+        else:
+            targ_sha, targ_trace_sha, targ_trace = compute_bridge_hashes(
+                target_path, extraction=extraction
+            )
+            if entry.get("target_artifact_sha256") and entry["target_artifact_sha256"] != targ_sha:
+                errors.append("target_artifact_sha256 drift: target QASM artifact changed")
+            if entry.get("target_gate_trace_sha256") and entry["target_gate_trace_sha256"] != targ_trace_sha:
+                errors.append("target_gate_trace_sha256 drift: target gate trace changed")
+            if entry.get("target_gate_trace") and entry["target_gate_trace"] != targ_trace:
+                errors.append("target_gate_trace mismatch against bridge_theorem_manifest.json")
+
     if entry.get("ast_sha256") or entry.get("generated_lean_sha256"):
         from qspecbench.bridge_codegen import verify_manifest_codegen
 

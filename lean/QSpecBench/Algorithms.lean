@@ -29,7 +29,10 @@ theorem dj_constant_oracle_hadamard_square (i j : Fin 2) :
     mul2 hadamard2 hadamard2 i j = scale2 2 id2 i j :=
   hadamard_mul_self i j
 
-/-- Grover single-iteration diffuser scaffold H X H on the marked qubit. -/
+/-- Grover single-iteration diffuser scaffold H X H on the marked qubit.
+
+Amplitude-lift claims remain blocked on kernel-checked measurement semantics; see
+`QSpecBench.Quantum.Measurement` and `docs/operational_semantics.md`. -/
 def groverDiffuser (i j : Fin 2) : Int :=
   mul2 hadamard2 (mul2 pauliX2 hadamard2) i j
 

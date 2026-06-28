@@ -121,6 +121,29 @@ def test_qec_verifier_result_evidence_resolves_code_json():
     assert code.is_file()
 
 
+def test_qec_external_certificate_semantic_validation():
+    from qspecbench.qec_external import validate_qec_external_certificate_path
+
+    claim = REPO / "benchmarks" / "qec" / "distance_certificate_small_css_code"
+    spec = yaml.safe_load((claim / "spec.yaml").read_text(encoding="utf-8"))
+    cert_path = claim / "expected" / "qec_external_certificate.json"
+    assert validate_qec_external_certificate_path(cert_path, claim, spec) == []
+
+
+def test_qec_external_certificate_rejects_proved_stub():
+    from qspecbench.qec_external import validate_qec_external_certificate
+
+    bad = {
+        "certificate_version": "0.1-stub",
+        "claim_kind": "minimum_distance",
+        "code_ref": {"artifact_sha256": "a" * 64},
+        "prover": {"name": "stub", "method": "schema_only"},
+        "result": {"status": "proved"},
+    }
+    errors = validate_qec_external_certificate(bad, REPO, {"id": "x"})
+    assert any("stub" in e for e in errors)
+
+
 def test_full_dynamic_semantics_rejected_at_validate():
     with tempfile.TemporaryDirectory() as tmp:
         claim = Path(tmp)

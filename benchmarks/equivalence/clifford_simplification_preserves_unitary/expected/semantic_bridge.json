@@ -12,5 +12,11 @@
   "gate_model": "qspecbench.openqasm3.complex_unitary.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "929766d92f5a9bb80e986776e5a74023f01deae1d78d0be0bbd78bc40cea7876",
-  "gate_trace_sha256": "8804cd386c5179b088ed07b9aa6d83143a11687ad2bb309e068173df5ac2fe1e"
+  "gate_trace_sha256": "8804cd386c5179b088ed07b9aa6d83143a11687ad2bb309e068173df5ac2fe1e",
+  "target_qasm_artifact": "artifacts/target.qasm",
+  "target_artifact_sha256": "b64706e2d1603b550ad1f7702914aac884098448a61977baa881d3e7bc90e6f4",
+  "target_gate_trace_sha256": "757da467297db36f204c94bdcff4b2c004dc3d0544c88f7094dad1c1151ab566",
+  "target_lean_theorem": "bridge_clifford_s_single",
+  "target_ast_sha256": "d1e212be29cc79e5e58616e1acfc8aca50dab4d96a814246ed55350bf2a8fbb1",
+  "target_generated_lean_sha256": "046791dfd3f4cefe9f259b8cfe0f57fc910dfc0aa4cea4a5ffb6a6a278b9b3bc"
 }

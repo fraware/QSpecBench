@@ -94,7 +94,8 @@ proof_obligations:
   notes: Grover diffuser nontrivial
 - id: amplitude_lift
   status: partial
-  notes: Probability lift not proved
+  notes: Probability lift not proved; blocked on kernel-checked measurement semantics
+    (see QSpecBench.Quantum.Measurement and docs/operational_semantics.md)
 claim_scope:
   headline_claim_id: grover_single_iteration_amplitude_amplification_headline
   headline_claim_text: One Grover iteration increases the measurement probability
@@ -110,7 +111,15 @@ proved_scope:
   - semantic_correctness_of_circuit_vs_claim
 headline_claim_status:
   status: partially_checked
-  notes: null
+  notes: Diffuser scaffold kernel-checked; amplitude_lift requires measurement semantics
+    in Lean (`QSpecBench.Quantum.Measurement` scaffold) and full_dynamic_semantics kernel
+    proofs — blocked until projective update rules are kernel-checked.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  not_checked_under:
+  - full_dynamic_semantics
+  - measurement_outcome_distribution
 formal_claims:
 - id: formal_lean_grover_scaffold
   evidence_id: lean_grover_scaffold

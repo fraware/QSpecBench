@@ -12,8 +12,9 @@ on the receiver are documented but only the unitary fragment before measurement 
 kernel-checked against OpenQASM denotation.
 
 The relational claim (arbitrary `|ψ⟩` transfer after correction) is **not** proved here;
-see `teleportation_unitary_fragment_checked` for the checked unitary fragment and
-`teleportCorrectionLabel` for the documented Pauli correction table.
+see `teleportation_unitary_fragment_checked` for the checked unitary fragment,
+`teleportCorrectionLabel` for the documented Pauli correction table, and
+`QSpecBench.Quantum.Measurement.teleportSyndrome00` for the sequential Z-measurement scaffold.
 -/
 
 namespace QSpecBench
@@ -55,11 +56,11 @@ def teleportCorrectionLabel (c0 c1 : Bool) : String :=
   | false, false => "I"
   | false, true => "X"
   | true, false => "Z"
-  | true, true => "XZ"
+  | true, true => "Z,X"
 
 theorem teleport_correction_I : teleportCorrectionLabel false false = "I" := rfl
 theorem teleport_correction_X : teleportCorrectionLabel false true = "X" := rfl
 theorem teleport_correction_Z : teleportCorrectionLabel true false = "Z" := rfl
-theorem teleport_correction_XZ : teleportCorrectionLabel true true = "XZ" := rfl
+theorem teleport_correction_ZX : teleportCorrectionLabel true true = "Z,X" := rfl
 
 end QSpecBench

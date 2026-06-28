@@ -24,18 +24,18 @@ PYTHON_DENOTATION_CONSISTENCY = [
 
 KERNEL_CHECKED = [
     "benchmarks/equivalence/cnot_self_inverse_cancellation",
+    "benchmarks/equivalence/hadamard_conjugates_x_to_z",
+    "benchmarks/equivalence/single_qubit_gate_cancellation",
+    "benchmarks/algorithms/bell_state_preparation",
+    "benchmarks/algorithms/swap_from_three_cx",
 ]
 
 MANIFEST_CHECKED = [
-    "benchmarks/equivalence/hadamard_conjugates_x_to_z",
-    "benchmarks/equivalence/single_qubit_gate_cancellation",
     "benchmarks/equivalence/rx_gate_equivalence_small_instance",
     "benchmarks/equivalence/qft_inverse_qft_small_instance",
-    "benchmarks/algorithms/swap_from_three_cx",
     "benchmarks/equivalence/toffoli_decomposition_equivalence",
     "benchmarks/equivalence/circuit_identity_after_layout",
     "benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance",
-    "benchmarks/algorithms/bell_state_preparation",
     "benchmarks/equivalence/clifford_simplification_preserves_unitary",
     "benchmarks/equivalence/phase_polynomial_equivalence_small_instance",
 ]

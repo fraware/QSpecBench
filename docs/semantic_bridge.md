@@ -4,10 +4,10 @@ A **semantic bridge** ties a QASM artifact to a Lean theorem name. It does **not
 prove that the artifact satisfies the theorem — it documents what link is claimed and what
 evidence supports it.
 
-> **Current corpus (v0.1.0):** eleven bridges use `manifest_checked_theorem_binding`
+> **Current corpus (v0.2):** ten bridges use `manifest_checked_theorem_binding`
 > (manifest + theorem reference + hash anchors, **not** full artifact semantics).
 > Three bridges use `python_denotation_consistency` (Python matrix vs denotation model only).
-> `kernel_checked_artifact_semantics` is reserved; **none qualify yet**.
+> Five bridges use `kernel_checked_artifact_semantics` (codegen trace + kernel proof + hash chain).
 
 ## Bridge taxonomy
 
@@ -16,7 +16,7 @@ evidence supports it.
 | `documented_not_proved` | Lean theorem is named; no automated matrix/manifest check |
 | `python_denotation_consistency` | `qspecbench verify-bridge` confirms Python QASM matrix equals Python denotation |
 | `manifest_checked_theorem_binding` | Manifest allowlist + SHA256 anchors + structured Lean `#check` evidence |
-| `kernel_checked_artifact_semantics` | Reserved: real Lean-kernel proof that artifact semantics satisfy theorem |
+| `kernel_checked_artifact_semantics` | Codegen AST → Lean trace → kernel proof + hash chain (`ast_sha256`, `theorem_sha256`) |
 
 `manifest_checked_theorem_binding` is **not** a kernel-checked proof that the QASM artifact
 satisfies the named theorem end-to-end. It checks manifest membership, hash stability, and an
@@ -61,4 +61,4 @@ The validator requires **exact** anchor field matches and an **exact** `#check` 
 - `documented_not_proved`: scaffold theorem; QCEC/SAT may narrow practical gap but do not upgrade the link.
 - `python_denotation_consistency`: Python-side matrix consistency only; set when `verify-bridge` passes.
 - `manifest_checked_theorem_binding`: manifest entry + hashes + anchor; still not full semantic proof.
-- `kernel_checked_artifact_semantics`: unused until a real artifact-semantics kernel bridge exists.
+- `kernel_checked_artifact_semantics`: five bridges (`cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`, `bell_state_preparation`, `swap_from_three_cx`).

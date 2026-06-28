@@ -23,7 +23,15 @@ The joint state of `q[2]` with classical outcomes is related to \(|\psi\rangle\)
 | 0    | 0    | I                   |
 | 0    | 1    | X                   |
 | 1    | 0    | Z                   |
-| 1    | 1    | XZ                  |
+| 1    | 1    | Z, then X           |
+
+The dynamic simulator applies corrections in that order on Bob's qubit after branch projection.
+Supplementary feed-forward QASM: `artifacts/teleportation_with_feedforward.qasm`.
+
+`qspecbench dynamic-simulate --teleport-basis-check` uses an **OpenQASM-consistent wire model**
+(single-qubit gates and CNOT share the same `q[i]` bit indexing). The verify-bridge int scaffold
+uses a legacy Kronecker order aligned with Lean `kron2I`/`kronI2`; basis checks intentionally
+use the operational model documented here.
 
 Lean documents this table as `teleportCorrectionLabel` in `QSpecBench.Teleportation`.
 

@@ -37,7 +37,7 @@ headline claim is still unproved. The headline claim is only considered proved a
 - OpenQASM artifact parses and matrix matches `QSpecBench.Quantum.OpenQASM3` denotation (for Python bridge links)
 - `python_denotation_consistency`: Python matrix vs denotation only
 - `manifest_checked_theorem_binding`: manifest entry + SHA256 anchors + structured Lean evidence anchor (see `cnot_self_inverse_cancellation`)
-- `kernel_checked_artifact_semantics`: reserved; none in corpus v0.1.0
+- `kernel_checked_artifact_semantics`: five bridges with codegen AST + kernel proof + hash chain (see `cnot_self_inverse_cancellation`, `bell_state_preparation`, `swap_from_three_cx`)
 
 ## QEC claim scope (v0.2)
 
@@ -80,9 +80,9 @@ assumed lookup table); stabilizer commutation alone supports at most `reference_
 
 ## Current corpus (declared internal scope)
 
-- **`reference_claim`:** 5 benchmarks (equivalence ×3, algorithms ×1, hamiltonian ×1)
+- **`reference_claim`:** 9 benchmarks (see dashboard)
 - **`manifest_checked_theorem_binding` bridges:** 11
-- **`python_denotation_consistency` bridges:** 3
-- **`kernel_checked_artifact_semantics`:** 0
+- **`python_denotation_consistency` bridges:** 2
+- **`kernel_checked_artifact_semantics`:** 5
 
 Regenerate counts: `qspecbench dashboard benchmarks/ --out docs/status.md`

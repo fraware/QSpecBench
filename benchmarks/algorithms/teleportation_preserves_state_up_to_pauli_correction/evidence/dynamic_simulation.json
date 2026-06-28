@@ -1,0 +1,120 @@
+{
+  "type": "teleportation_basis_check_v0",
+  "artifact_role": "supplementary_feedforward",
+  "receiver_qubit": 2,
+  "correction_table": "informal_derivation.md",
+  "gate_model": "complex_normalized_unitary_prefix",
+  "failure_mode": null,
+  "calibration_note": "Basis-state teleportation check passed under complex-normalized unitary prefix with OpenQASM-consistent single-qubit/CNOT wire indexing.",
+  "results": [
+    {
+      "input": "|0>",
+      "branches": [
+        {
+          "classical": "0,0",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        },
+        {
+          "classical": "0,1",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        },
+        {
+          "classical": "1,0",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        },
+        {
+          "classical": "1,1",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        }
+      ],
+      "ok": true
+    },
+    {
+      "input": "|1>",
+      "branches": [
+        {
+          "classical": "0,0",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        },
+        {
+          "classical": "0,1",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        },
+        {
+          "classical": "1,0",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        },
+        {
+          "classical": "1,1",
+          "branch_probability": 0.2500000000000001,
+          "receiver_bit_probability": 1.0,
+          "ok": true
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "all_ok": true,
+  "int_scaffold_diagnostic": {
+    "gate_model": "extract_matrix_int_scaffold_unitary_prefix",
+    "all_ok": false,
+    "results": [
+      {
+        "input": "|0>",
+        "branches": [
+          {
+            "classical": "0,0",
+            "branch_probability": 0.5,
+            "receiver_bit_probability": 0.49999999999999994,
+            "ok": false
+          },
+          {
+            "classical": "0,1",
+            "branch_probability": 0.5,
+            "receiver_bit_probability": 0.49999999999999994,
+            "ok": false
+          }
+        ],
+        "ok": false
+      },
+      {
+        "input": "|1>",
+        "branches": [
+          {
+            "classical": "1,0",
+            "branch_probability": 0.5,
+            "receiver_bit_probability": 0.49999999999999994,
+            "ok": false
+          },
+          {
+            "classical": "1,1",
+            "branch_probability": 0.5,
+            "receiver_bit_probability": 0.49999999999999994,
+            "ok": false
+          }
+        ],
+        "ok": false
+      }
+    ],
+    "note": "Int scaffold (verify-bridge / Lean kron2I-kronI2 order) uses a different single-qubit wire convention than operational dynamic simulation; basis restoration failure here is expected until scaffold alignment is proved."
+  },
+  "not_checked": [
+    "arbitrary_state",
+    "kernel_checked"
+  ],
+  "report_fingerprint": "72ce5ce4c84e26bb81b17fdbd78ebfb3fd5dbe4e98d0373a22de29be00d4ce8f"
+}

@@ -1,9 +1,9 @@
 {
   "ok": true,
   "claim": "single_qubit_gate_cancellation",
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_artifact_semantics",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_hadamard_cancel",
+  "lean_theorem": "bridge_hadamard_codegen_cancel",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\single_qubit_gate_cancellation\\artifacts\\source.qasm",
   "n_qubits": 1,
   "gates": 2,

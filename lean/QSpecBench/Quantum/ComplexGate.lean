@@ -100,6 +100,20 @@ noncomputable def rxGateEntry (θ : ℝ) (i j : Fin 2) : ℂ :=
 
 noncomputable def rxGate (θ : ℝ) : Mat2C := Matrix.of (rxGateEntry θ)
 
+/-- RX(π/2) and unnormalized Hadamard differ on (0,1): rotation uses `-i sin(θ/2)`, H uses `1`.
+Global-phase equivalence to H is therefore not claimed under the complex model. -/
+theorem rx_pi2_entry01_ne_hadamard_entry01 :
+    rxGateEntry (Real.pi / 2) (0 : Fin 2) (1 : Fin 2) ≠ hadamardEntry (0 : Fin 2) (1 : Fin 2) := by
+  have hrx :
+      rxGateEntry (Real.pi / 2) (0 : Fin 2) (1 : Fin 2) =
+        -I * (Real.sin (Real.pi / 4) : ℂ) := by
+    simp [rxGateEntry, show Real.pi / 2 / 2 = Real.pi / 4 by ring]
+  have hhad : hadamardEntry (0 : Fin 2) (1 : Fin 2) = 1 := by simp [hadamardEntry]
+  rw [hrx, hhad]
+  intro h
+  have him := congrArg Complex.im h
+  simp [Complex.mul_im, Complex.I_im, Complex.I_re, Complex.ofReal_im, Real.sin_pi_div_four] at him
+
 /-- CNOT with control qubit 0 and target qubit 1 (lexicographic |00⟩,…,|11⟩). -/
 private def cnot4_01Entry (i j : Fin 4) : ℂ :=
   match i, j with
@@ -174,5 +188,14 @@ def mul2C (A B : Mat2C) (i j : Fin 2) : ℂ :=
   A i 0 * B 0 j + A i 1 * B 1 j
 
 def mul2C_mat (A B : Mat2C) : Mat2C := Matrix.of (mul2C A B)
+
+theorem mul2C_one_right (A : Mat2C) (i j : Fin 2) :
+    mul2C A (1 : Mat2C) i j = A i j := by
+  fin_cases i <;> fin_cases j <;> simp [mul2C, Matrix.one_apply, Fin.sum_univ_two]
+
+theorem hadamardC_mul_self (i j : Fin 2) :
+    mul2C hadamardC hadamardC i j = (2 : ℂ) * identityGate i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [mul2C, hadamardC, hadamardEntry, identityGate, identityEntry, Matrix.of_apply] <;> norm_num
 
 end QSpecBench.Quantum.ComplexGate
