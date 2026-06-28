@@ -1,19 +1,22 @@
+import QSpecBench.Quantum.QasmOp
 import QSpecBench.Quantum.OpenQASM3
 
 /-!
-# OpenQASM 3 parser stub (benchmark gate subset).
+# Gate-line parser stub for H/X/CX benchmark subset.
 
 Design stub toward closing the Python→AST trust boundary documented in
-`docs/bridge_codegen_design.md`. Raw QASM bytes are still parsed in Python;
-this module parses **individual gate lines** for cross-check against the
-canonical AST gate list.
+`docs/bridge_codegen_design.md`. This is **not** a full OpenQASM 3 parser.
+Raw QASM bytes are still parsed in Python; this module parses **individual
+gate lines** for cross-check against the canonical AST gate list (H/X/CX only).
 
 Remaining gap: no `artifactBytes → CanonicalAst` inside the Lean kernel.
 -/
 
 namespace QSpecBench.Quantum.OpenQASM3Parser
 
+open QSpecBench.Quantum.QasmOp
 open QSpecBench.Quantum.OpenQASM3
+open QSpecBench.Generated
 
 /-- Parsed gate line aligned with Python canonical AST ops (subset). -/
 inductive ParsedGate where
@@ -139,18 +142,27 @@ theorem parseGateLine_cnot_self_inverse_cx_toQasmOp :
     ∃ pg, parseGateLine "cx q[0], q[1];" = some pg ∧ toQasmOp pg = (.cx 0 1 : QasmOp) :=
   parseGateLine_bell_cx_toQasmOp
 
+lemma parseLineQasmOp_bell_h : parseLineQasmOp "h q[0];" = some (.gate .H 0) := by
+  simp [parseLineQasmOp, parseGateLine_bell_h]
+
+lemma parseLineQasmOp_bell_cx : parseLineQasmOp "cx q[0], q[1];" = some (.cx 0 1) := by
+  simp [parseLineQasmOp, parseGateLine_bell_cx]
+
+lemma parseLineQasmOp_cx10 : parseLineQasmOp "cx q[1], q[0];" = some (.cx 1 0) := by
+  simp [parseLineQasmOp, parseGateLine_cx10]
+
 /-- Bell artifact gate lines parse to the same `QasmOp` trace as codegen / `bell_prep_ops`. -/
 theorem parseLines_bell_eq_bell_prep_ops :
     parseLines ["h q[0];", "cx q[0], q[1];"] = bell_state_preparation_codegen_ops := by
-  simp [parseLines, bell_state_preparation_codegen_ops, parseLineQasmOp,
-    parseGateLine_bell_h, parseGateLine_bell_cx]
+  unfold bell_state_preparation_codegen_ops Generated.BellStatePreparation.ops
+  simp [parseLines, parseLineQasmOp_bell_h, parseLineQasmOp_bell_cx]
 
 /-- Three-CX SWAP artifact gate lines match codegen trace. -/
 theorem parseLines_swap_eq_swap_codegen_ops :
     parseLines ["cx q[0], q[1];", "cx q[1], q[0];", "cx q[0], q[1];"] =
       swap_from_three_cx_codegen_ops := by
-  simp [parseLines, swap_from_three_cx_codegen_ops, parseLineQasmOp,
-    parseGateLine_bell_cx, parseGateLine_cx10]
+  unfold swap_from_three_cx_codegen_ops Generated.SwapFromThreeCx.ops
+  simp [parseLines, parseLineQasmOp_bell_cx, parseLineQasmOp_cx10]
 
 example : parseGateLine "h q[0];" = some (.gate .H 0) := by native_decide
 example : parseGateLine "cx q[0], q[1];" = some (.cx 0 1) := by native_decide
