@@ -31,6 +31,8 @@ def validate(
     for result in results:
         if result.ok:
             console.print(f"[green]OK[/green] {result.spec_path}")
+            for warn in result.warnings:
+                console.print(f"  [yellow]warn[/yellow] {warn}")
         else:
             failed += 1
             console.print(f"[red]FAIL[/red] {result.spec_path}")

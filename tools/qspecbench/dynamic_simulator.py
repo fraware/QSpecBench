@@ -58,6 +58,8 @@ _IF_LINE = re.compile(
     re.IGNORECASE,
 )
 
+MAX_OPERATIONAL_QUBITS = 4
+
 
 def _vec_norm(st: list[tuple[Fraction, Fraction]]) -> float:
     return math.sqrt(sum(float(r * r + i * i) for r, i in st))
@@ -278,8 +280,10 @@ def simulate_dynamic_circuit(
     """
     text = qasm_path.read_text(encoding="utf-8")
     n = _register_size(text)
-    if n > 4:
-        raise ValueError("operational dynamic simulator supports at most 4 qubits")
+    if n > MAX_OPERATIONAL_QUBITS:
+        raise ValueError(
+            f"operational dynamic simulator supports at most {MAX_OPERATIONAL_QUBITS} qubits"
+        )
     state = _initial_state(n, initial_amplitudes)
     classical: dict[str, int] = {}
     steps: list[dict[str, Any]] = []
@@ -598,3 +602,20 @@ def verify_teleportation_basis_states(
 def write_dynamic_simulation_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+
+
+def warn_operational_qubit_limit(qasm_path: Path) -> list[str]:
+    """Return validator warnings when a dynamic-circuit QASM exceeds the operational limit."""
+    if not qasm_path.is_file():
+        return []
+    try:
+        n = _register_size(qasm_path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return []
+    if n > MAX_OPERATIONAL_QUBITS:
+        return [
+            f"dynamic_circuit QASM {qasm_path.name} declares {n} qubits; "
+            f"operational dynamic_simulator supports at most {MAX_OPERATIONAL_QUBITS} "
+            "(see docs/operational_semantics.md)"
+        ]
+    return []

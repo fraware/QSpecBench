@@ -239,14 +239,17 @@ def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str
     return errors
 
 
-def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: Path) -> list[str]:
+def validate_spec_dict(
+    spec: dict[str, Any], claim_dir: Path, benchmarks_root: Path
+) -> tuple[list[str], list[str]]:
     errors: list[str] = []
+    warnings: list[str] = []
     schema = load_schema()
     try:
         jsonschema.validate(spec, schema)
     except jsonschema.ValidationError as exc:
         errors.append(f"schema: {exc.message}")
-        return errors
+        return errors, warnings
 
     claim_id = spec.get("id", "")
     if not SNAKE_CASE.match(claim_id):
@@ -316,10 +319,29 @@ def validate_spec_dict(spec: dict[str, Any], claim_dir: Path, benchmarks_root: P
     from qspecbench.dynamic_simulation_evidence import validate_dynamic_simulation_evidence
 
     errors.extend(validate_dynamic_simulation_evidence(claim_dir, spec))
+    warnings.extend(_validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     errors.extend(_validate_qasm_extraction(spec))
-    return errors
+    return errors, warnings
+
+
+def _validate_dynamic_circuit_qubit_limit(claim_dir: Path, spec: dict[str, Any]) -> list[str]:
+    """Warn (non-fatal) when dynamic-circuit QASM artifacts exceed operational simulator limit."""
+    if spec.get("semantics_base") != "dynamic_circuit":
+        return []
+    from qspecbench.dynamic_simulator import warn_operational_qubit_limit
+
+    warnings: list[str] = []
+    for obj in spec.get("objects", []):
+        if obj.get("format") != "qasm3":
+            continue
+        path = obj.get("path")
+        if not path:
+            continue
+        qasm = claim_dir / path
+        warnings.extend(warn_operational_qubit_limit(qasm))
+    return warnings
 
 
 def _validate_qasm_extraction(spec: dict[str, Any]) -> list[str]:
@@ -363,6 +385,6 @@ def validate_path(target: Path) -> list[ValidationResult]:
         except yaml.YAMLError as exc:
             results.append(ValidationResult(spec_path, [f"yaml parse error: {exc}"]))
             continue
-        errors = validate_spec_dict(spec, claim_dir, benchmarks_root)
-        results.append(ValidationResult(spec_path, errors))
+        errors, warnings = validate_spec_dict(spec, claim_dir, benchmarks_root)
+        results.append(ValidationResult(spec_path, errors, warnings))
     return results

@@ -83,7 +83,15 @@ qspecbench dynamic-simulate benchmarks/algorithms/teleportation_preserves_state_
   --out evidence/dynamic_simulation_basis_check.json
 ```
 
+## Operational qubit limit
+
+`dynamic_simulator.py` supports at most **4 qubits** (`MAX_OPERATIONAL_QUBITS`). Larger
+registers raise `ValueError` at simulation time. `qspecbench validate` emits a **warning**
+(not a hard failure) when a `semantics_base=dynamic_circuit` benchmark declares a QASM
+artifact with more than four qubits.
+
 ## Fail-closed validation
 
-`qasm_extraction.mode=full_dynamic_semantics` requires `semantics_base=dynamic_circuit` and explicit
-`allowed_to_skip` for measurement/classical control. Default remains `unitary_fragment` (fail-closed).
+`qasm_extraction.mode=full_dynamic_semantics` is accepted only as a legacy alias for
+`dynamic_fragment_recording` when `semantics_base=dynamic_circuit` and explicit
+`allowed_to_skip` includes measurement. Default remains `unitary_fragment` (fail-closed).
