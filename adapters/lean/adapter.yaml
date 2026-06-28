@@ -4,7 +4,7 @@ supported_evidence_types:
 required_files:
   - "*.lean"
 check_command: "python parse_result.py {path}"
-success_condition: "lake build exits 0 in lean/ project"
+success_condition: "lake env lean on evidence file exits 0"
 failure_condition: "lake build fails or evidence missing"
 trust_level: checked
 output_format: json

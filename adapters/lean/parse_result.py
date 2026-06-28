@@ -1,4 +1,4 @@
-"""Run Lean 4 kernel check via Lake build."""
+"""Compile Lean evidence files directly via `lake env lean`."""
 
 from __future__ import annotations
 
@@ -23,38 +23,50 @@ def _lake_exe() -> str | None:
     return None
 
 
+def _evidence_relative_to_lean(evidence_file: Path) -> str:
+    return os.path.relpath(evidence_file.resolve(), LEAN_ROOT)
+
+
+def _evidence_has_sorry(evidence_text: str) -> bool:
+    for line in evidence_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("--") or stripped.startswith("/-"):
+            continue
+        if "sorry" in stripped:
+            return True
+    return False
+
+
+def _required_import_present(evidence_text: str) -> bool:
+    """Evidence must import the module it #checks (not rely on lake build alone)."""
+    for line in evidence_text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("#check"):
+            continue
+        target = stripped[len("#check") :].strip()
+        if not target:
+            continue
+        module = target.rsplit(".", 1)[0] if "." in target else target
+        if f"import {module}" not in evidence_text:
+            return False
+    return True
+
+
 def check(evidence_file: Path) -> dict:
     errors: list[str] = []
     if not evidence_file.is_file():
         return {"ok": False, "adapter": "lean_proof", "errors": ["evidence file missing"]}
 
-    sorry_hits: list[str] = []
-    qspec_root = LEAN_ROOT / "QSpecBench"
-    scan_roots = [qspec_root] if qspec_root.is_dir() else [LEAN_ROOT]
-    for root in scan_roots:
-        for lean_file in root.rglob("*.lean"):
-            if ".lake" in lean_file.parts:
-                continue
-            text = lean_file.read_text(encoding="utf-8")
-            if "sorry" in text and not lean_file.name.endswith(".olean"):
-                # ignore comments-only sorry by checking non-comment lines
-                for line in text.splitlines():
-                    stripped = line.strip()
-                    if stripped.startswith("--") or stripped.startswith("/-"):
-                        continue
-                    if "sorry" in stripped:
-                        sorry_hits.append(str(lean_file.relative_to(REPO_ROOT)))
-                        break
     evidence_text = evidence_file.read_text(encoding="utf-8")
-    if "sorry" in evidence_text:
-        sorry_hits.append(str(evidence_file))
+    if _evidence_has_sorry(evidence_text):
+        errors.append(f"sorry found in evidence file: {evidence_file}")
 
-    if sorry_hits:
-        return {
-            "ok": False,
-            "adapter": "lean_proof",
-            "errors": [f"sorry found in: {', '.join(sorry_hits)}"],
-        }
+    if "#check" in evidence_text and not _required_import_present(evidence_text):
+        errors.append(
+            "evidence file must import the exact module for each #check anchor "
+            "(e.g. import QSpecBench.Quantum.OpenQASM3 before "
+            "#check QSpecBench.Quantum.OpenQASM3.my_theorem)"
+        )
 
     lake = _lake_exe()
     if not lake:
@@ -82,8 +94,9 @@ def check(evidence_file: Path) -> dict:
             env=env,
         )
 
+    rel_evidence = _evidence_relative_to_lean(evidence_file)
     proc = subprocess.run(
-        [lake, "build"],
+        [lake, "env", "lean", rel_evidence],
         cwd=str(LEAN_ROOT),
         capture_output=True,
         text=True,
@@ -92,7 +105,7 @@ def check(evidence_file: Path) -> dict:
         env=env,
     )
     if proc.returncode != 0:
-        errors.append("lake build failed")
+        errors.append(f"lake env lean failed for {rel_evidence}")
         if proc.stderr:
             errors.append(proc.stderr.strip()[:500])
 
@@ -102,6 +115,7 @@ def check(evidence_file: Path) -> dict:
         "path": str(evidence_file),
         "trust_level": "checked",
         "checker": "Lean 4 kernel",
+        "command": f"lake env lean {rel_evidence}",
         "errors": errors,
         "stdout_tail": proc.stdout.strip().splitlines()[-3:] if proc.stdout else [],
     }
