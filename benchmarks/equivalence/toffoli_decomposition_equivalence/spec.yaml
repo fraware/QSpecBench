@@ -108,13 +108,13 @@ evidence:
   path: evidence/toffoli_bridge.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked CCX denotation anchor on source circuit.
+  notes: bridge_toffoli_codegen_ccx kernel-checked anchor on source CCX codegen trace
 - id: bridge_verify
   type: python_denotation_consistency_check
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: python_denotation_consistency verify-bridge on native CCX artifact.
+  notes: kernel_checked_codegen_trace verify-bridge on native CCX artifact
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -130,7 +130,7 @@ trust_boundary:
 proof_obligations:
 - id: lean_kernel_proof
   status: passing
-  notes: bridge_ccx_single anchor on source artifact
+  notes: bridge_toffoli_codegen_ccx anchor on source artifact
 - id: semantic_bridge
   status: passing
   notes: python_denotation_consistency verify-bridge
@@ -160,7 +160,7 @@ formal_claims:
   evidence_id: lean_toffoli_bridge
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: QSpecBench.Quantum.OpenQASM3.bridge_ccx_single
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx
   supports:
   - lean_kernel_proof
   does_not_support:

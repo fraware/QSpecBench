@@ -1,20 +1,27 @@
 {
   "artifact_gate_model": "openqasm3_complex_unitary",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_ccx_single",
+  "lean_theorem": "bridge_toffoli_codegen_ccx",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "phase_gates": "complex_diagonal",
     "target_circuit": "QCEC_equivalence_external"
   },
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_codegen_trace",
   "qasm_artifact": "artifacts/source.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
   "artifact_sha256": "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511",
   "gate_trace_sha256": "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d359be",
+  "ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
+  "generated_lean_sha256": "d081179341f6d920f77a537a3c634f46906af642d68d38c34fb6d45a733a4809",
+  "theorem_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
+  "theorem_identifier_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
+  "theorem_content_sha256": "b1f03266ac5bfc3a5745d8a32925f7a7525c2ca63e101a274fbbf0df2f9144a0",
+  "package_lean_sha256": "7f4007e3c454390a4c69274f95a49ae93a7dff1635c8bf0947380be14db46b3a",
   "wire_order": {
     "model": "legacy_kron_order",
     "checked_against": "both"
-  }
+  },
+  "wire_order_bridge_theorem": null
 }

@@ -200,11 +200,18 @@
       ],
       "gate_trace_sha256": "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d359be",
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
-      "lean_theorem": "bridge_ccx_single",
-      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
-      "ast_sha256": null,
-      "generated_lean_sha256": null,
-      "obligation_ids": null
+      "lean_theorem": "bridge_toffoli_codegen_ccx",
+      "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
+      "ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
+      "generated_lean_sha256": "d081179341f6d920f77a537a3c634f46906af642d68d38c34fb6d45a733a4809",
+      "obligation_ids": [
+        "semantic_bridge"
+      ],
+      "package_lean_sha256": "7f4007e3c454390a4c69274f95a49ae93a7dff1635c8bf0947380be14db46b3a",
+      "kernel_checked_theorem": "bridge_toffoli_codegen_ccx",
+      "theorem_identifier_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
+      "theorem_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
+      "theorem_content_sha256": "b1f03266ac5bfc3a5745d8a32925f7a7525c2ca63e101a274fbbf0df2f9144a0"
     },
     {
       "benchmark_id": "circuit_identity_after_layout",
@@ -229,9 +236,11 @@
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
       "lean_theorem": "bridge_circuit_identity_after_layout",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
-      "ast_sha256": null,
-      "generated_lean_sha256": null,
-      "obligation_ids": null
+      "ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
+      "generated_lean_sha256": "47d3ef480716c30802245d438dab96771af89b398011a227ec218fb5b2dd6c05",
+      "obligation_ids": [
+        "semantic_bridge"
+      ]
     },
     {
       "benchmark_id": "source_optimized_qasm_equivalence_small_instance",
