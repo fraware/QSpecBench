@@ -1,9 +1,9 @@
 {
   "ok": true,
   "claim": "toffoli_decomposition_equivalence",
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_codegen_trace",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_ccx_single",
+  "lean_theorem": "bridge_toffoli_codegen_ccx",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\toffoli_decomposition_equivalence\\artifacts\\source.qasm",
   "n_qubits": 3,
   "gates": 1,
