@@ -11,16 +11,26 @@ A kernel-checked compiler equivalence would require a Lean theorem relating
 `denotateOps1C clifford_hhs` to `denotateOps1C clifford_s_single` (global phase policy
 declared). QCEC certifies the pair externally; this file records the proof gap only.
 
-## Next proof obligation checklist
+## Checked lemmas (target-side codegen binding)
 
-1. [ ] Declare global-phase policy for complex denotation (`denotateOps1C`).
-2. [ ] Prove `denotateOps1C clifford_hhs` equals `denotateOps1C clifford_s_single` up to phase.
-3. [ ] Wire dual-manifest `kernel_checked_artifact_semantics` (source + target codegen hashes).
-4. [~] Add Python cross-test: source/target AST gate lines vs `OpenQASM3Parser.parseLines` (H/X/CX subset; Phase 8 covers kernel bridges only).
-5. [ ] Dual review before any `reference_claim` promotion on compiler equivalence.
+Target simplified trace `[.gate .S 0]` matches `clifford_s_single` and its complex denotation.
+Source/target unitary equivalence remains open.
 -/
 
 import QSpecBench.Quantum.OpenQASM3
+import QSpecBench.Quantum.QasmOp
 
-#check QSpecBench.Quantum.OpenQASM3.bridge_clifford_hhs
-#check QSpecBench.Quantum.OpenQASM3.bridge_clifford_s_single
+open QSpecBench.Quantum.OpenQASM3
+open QSpecBench.Quantum.QasmOp
+
+theorem target_trace_is_single_s :
+    clifford_s_single = [.gate .S 0] := by native_decide
+
+theorem target_codegen_denotes_clifford_s_single (i j : Fin 2) :
+    denotateOps1C clifford_s_single i j = clifford_s_singleMatC i j :=
+  denotateOps1C_clifford_s_single i j
+
+#check bridge_clifford_hhs
+#check bridge_clifford_s_single
+#check target_trace_is_single_s
+#check target_codegen_denotes_clifford_s_single
