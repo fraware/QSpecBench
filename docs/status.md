@@ -26,9 +26,9 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 - **With approximate specifications:** 2
 - **QEC claims:** 13
 - **With resource contracts:** 11
-- **Manifest-checked theorem bindings:** 7
+- **Manifest-checked theorem bindings:** 6
 - **Python denotation consistency checks:** 2
-- **Kernel-checked codegen-trace bridges:** 5
+- **Kernel-checked codegen-trace bridges:** 6
 - **Kernel-checked artifact-semantics bridges (legacy label):** 0
 - **Documented (not proved) bridges:** 4
 
