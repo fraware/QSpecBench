@@ -60,6 +60,40 @@ def _ci_run_id() -> str | None:
     return None
 
 
+def collect_sbom_summary() -> dict[str, Any]:
+    """Dependency lock summary for release bundle reproducibility (SBOM-lite)."""
+    pyproject = REPO_ROOT / "pyproject.toml"
+    lakefile = REPO_ROOT / "lean" / "lakefile.lean"
+    python_deps: list[str] = []
+    if pyproject.is_file():
+        text = pyproject.read_text(encoding="utf-8")
+        in_deps = False
+        for line in text.splitlines():
+            if line.strip().startswith("dependencies = ["):
+                in_deps = True
+                continue
+            if in_deps:
+                if line.strip() == "]":
+                    break
+                stripped = line.strip().strip(",").strip('"')
+                if stripped:
+                    python_deps.append(stripped)
+    lean_requires: list[str] = []
+    if lakefile.is_file():
+        for line in lakefile.read_text(encoding="utf-8").splitlines():
+            if "require " in line and "from git" in line:
+                lean_requires.append(line.strip())
+    return {
+        "format": "qspecbench-sbom-lite-v0.1",
+        "python_dependencies": python_deps,
+        "lean_requires": lean_requires,
+        "lock_files_present": {
+            "uv_lock": (REPO_ROOT / "uv.lock").is_file(),
+            "poetry_lock": (REPO_ROOT / "poetry.lock").is_file(),
+        },
+    }
+
+
 def collect_release_manifest(benchmarks_root: Path) -> dict[str, Any]:
     """Build a manifest of benchmark ids and maturity for a release bundle."""
     benchmarks_root = benchmarks_root.resolve()
@@ -90,6 +124,7 @@ def collect_release_manifest(benchmarks_root: Path) -> dict[str, Any]:
             "benchmarks_root": str(benchmarks_root.relative_to(REPO_ROOT)),
             "benchmark_count": len(entries),
             "reproducibility": repro,
+            "sbom_summary": collect_sbom_summary(),
             "summary": metrics,
             "benchmarks": sorted(entries, key=lambda e: e["id"]),
         }

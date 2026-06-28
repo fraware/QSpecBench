@@ -61,3 +61,24 @@ def test_verify_release_bundle_passes(tmp_path):
 def test_release_manifest_includes_git_commit():
     manifest = collect_release_manifest(REPO / "benchmarks")
     assert manifest["reproducibility"].get("git_commit")
+
+
+def test_release_manifest_includes_sbom_summary():
+    manifest = collect_release_manifest(REPO / "benchmarks")
+    sbom = manifest.get("sbom_summary") or {}
+    assert sbom.get("format") == "qspecbench-sbom-lite-v0.1"
+    assert sbom.get("python_dependencies")
+    assert sbom.get("lean_requires")
+
+
+def test_verify_release_bundle_integration_sample(tmp_path):
+    """Full verify on a corpus-sized bundle (manifest + file hashes + repro fields)."""
+    out = tmp_path / "bundle.tar.gz"
+    manifest = write_release_bundle(REPO / "benchmarks", out)
+    repro = manifest["reproducibility"]
+    assert repro.get("schema_version")
+    assert repro.get("git_commit")
+    assert manifest.get("sbom_summary")
+    assert manifest["benchmark_count"] == len(manifest["benchmarks"])
+    errors = verify_release_bundle(out)
+    assert errors == [], f"verify failed: {errors}"
