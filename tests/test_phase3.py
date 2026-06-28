@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from qspecbench.bridge_codegen import theorem_sha256, verify_kernel_checked_entry
+from qspecbench.bridge_codegen import theorem_identifier_sha256, verify_kernel_checked_entry
 from qspecbench.bridge_manifest import load_manifest, validate_kernel_checked_bridge
 from qspecbench.qasm_matrix import extract_matrix
 from qspecbench.validate import validate_path
@@ -67,7 +67,7 @@ def test_teleportation_full_dynamic_extracts_unitary_prefix():
         TELEPORT_DIR / "artifacts" / "teleportation.qasm",
         extraction=spec.get("qasm_extraction"),
     )
-    assert data.get("extraction_mode") == "full_dynamic_semantics"
+    assert data.get("extraction_mode") == "dynamic_fragment_recording"
     assert data.get("measurement_semantics") == "projective_povm_stub"
     assert len(data.get("dynamic_fragments") or []) >= 2
 
@@ -76,7 +76,7 @@ def test_hadamard_kernel_checked_manifest_chain():
     entry = next(
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "hadamard_conjugates_x_to_z"
     )
-    assert entry.get("theorem_sha256") == theorem_sha256(
+    assert entry.get("theorem_identifier_sha256") == theorem_identifier_sha256(
         "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_conjugates_x"
     )
     had_dir = REPO / "benchmarks" / "equivalence" / "hadamard_conjugates_x_to_z"
@@ -88,7 +88,7 @@ def test_single_qubit_gate_cancellation_kernel_checked_manifest_chain():
         e for e in load_manifest()["entries"]
         if e["benchmark_id"] == "single_qubit_gate_cancellation"
     )
-    assert entry.get("theorem_sha256") == theorem_sha256(
+    assert entry.get("theorem_identifier_sha256") == theorem_identifier_sha256(
         "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_cancel"
     )
     hh_dir = REPO / "benchmarks" / "equivalence" / "single_qubit_gate_cancellation"
@@ -122,7 +122,7 @@ def test_cnot_kernel_checked_manifest_chain():
     entry = next(
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "cnot_self_inverse_cancellation"
     )
-    assert entry.get("theorem_sha256") == theorem_sha256(
+    assert entry.get("theorem_identifier_sha256") == theorem_identifier_sha256(
         "QSpecBench.Quantum.OpenQASM3.bridge_cnot_codegen_self_inverse"
     )
     assert verify_kernel_checked_entry(entry, CNOT_DIR) == []
@@ -140,7 +140,7 @@ def test_bell_kernel_checked_manifest_chain():
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "bell_state_preparation"
     )
     assert entry.get("kernel_checked_theorem") == "bridge_bell_codegen_prep"
-    assert entry.get("theorem_sha256") == theorem_sha256(
+    assert entry.get("theorem_identifier_sha256") == theorem_identifier_sha256(
         "QSpecBench.Quantum.OpenQASM3.bridge_bell_codegen_prep"
     )
     assert verify_kernel_checked_entry(entry, BELL_DIR) == []
@@ -158,7 +158,7 @@ def test_swap_kernel_checked_manifest_chain():
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "swap_from_three_cx"
     )
     assert entry.get("kernel_checked_theorem") == "bridge_swap_from_three_cx_codegen"
-    assert entry.get("theorem_sha256") == theorem_sha256(
+    assert entry.get("theorem_identifier_sha256") == theorem_identifier_sha256(
         "QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen"
     )
     assert verify_kernel_checked_entry(entry, SWAP_DIR) == []

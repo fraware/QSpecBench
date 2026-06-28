@@ -8,7 +8,8 @@
     "lean_module",
     "lean_theorem",
     "normalization",
-    "claimed_link"
+    "claimed_link",
+    "wire_order"
   ],
   "properties": {
     "artifact_gate_model": { "type": "string", "minLength": 1 },
@@ -24,8 +25,24 @@
         "documented_not_proved",
         "python_denotation_consistency",
         "manifest_checked_theorem_binding",
+        "kernel_checked_codegen_trace",
         "kernel_checked_artifact_semantics"
       ]
+    },
+    "wire_order": {
+      "type": "object",
+      "required": ["model", "checked_against"],
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": ["legacy_kron_order", "openqasm_little_endian_wire_order"]
+        },
+        "checked_against": {
+          "type": "string",
+          "enum": ["lean", "python_operational", "both"]
+        }
+      },
+      "additionalProperties": false
     },
     "bridge_evidence_id": { "type": ["string", "null"] },
     "gate_set": { "type": ["string", "null"] },
@@ -35,6 +52,9 @@
     "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "ast_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "package_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "theorem_identifier_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "theorem_content_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "theorem_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "target_qasm_artifact": { "type": "string", "minLength": 1 },
     "target_artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },

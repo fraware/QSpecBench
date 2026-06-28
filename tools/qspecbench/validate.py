@@ -13,10 +13,17 @@ import yaml
 
 from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
 from qspecbench.schema import load_schema
-from qspecbench.models import ALL_REFERENCE_LEVELS, validate_spec_trust_slice
+from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL, validate_spec_trust_slice
 from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.bridge_manifest import validate_kernel_checked_bridge, validate_manifest_bridge
+from qspecbench.bridge_codegen import (
+    GENERATED_MODULE_MAP,
+    KERNEL_CHECKED_LINK,
+    LEGACY_KERNEL_CHECKED_LINK,
+    is_kernel_checked_link,
+    normalize_claimed_link,
+)
 from qspecbench.provenance import validate_provenance
 from qspecbench.verify_bridge import verify_bridge
 
@@ -25,7 +32,8 @@ from qspecbench.verify_bridge import verify_bridge
 VERIFIED_BRIDGE_LINKS = {
     "python_denotation_consistency",
     "manifest_checked_theorem_binding",
-    "kernel_checked_artifact_semantics",
+    KERNEL_CHECKED_LINK,
+    LEGACY_KERNEL_CHECKED_LINK,
     # Deprecated aliases (rejected at validation).
     "python_consistency_checked",
     "kernel_checked",
@@ -104,7 +112,12 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
             f"claimed_link {claimed_link!r} is deprecated; use "
             "python_denotation_consistency or manifest_checked_theorem_binding"
         )
-    if claimed_link in {"python_denotation_consistency", "manifest_checked_theorem_binding", "kernel_checked_artifact_semantics"}:
+    if claimed_link in {
+        "python_denotation_consistency",
+        "manifest_checked_theorem_binding",
+        KERNEL_CHECKED_LINK,
+        LEGACY_KERNEL_CHECKED_LINK,
+    }:
         if not _has_passing_bridge_verify(spec):
             errors.append(
                 f"claimed_link {claimed_link} requires passing bridge verify evidence "
@@ -119,9 +132,59 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
                 )
         if claimed_link == "manifest_checked_theorem_binding":
             errors.extend(validate_manifest_bridge(claim_dir, bridge, spec))
-        if claimed_link == "kernel_checked_artifact_semantics":
+        if is_kernel_checked_link(claimed_link):
             errors.extend(validate_kernel_checked_bridge(claim_dir, bridge, spec))
+            if claimed_link == LEGACY_KERNEL_CHECKED_LINK:
+                errors.append(
+                    f"claimed_link {LEGACY_KERNEL_CHECKED_LINK!r} is deprecated; "
+                    f"use {KERNEL_CHECKED_LINK!r} until artifact semantics is kernel-proved"
+                )
+    errors.extend(_validate_wire_order(spec, bridge))
+    errors.extend(_validate_reference_claim_bridge(spec, bridge))
     errors.extend(_validate_qec_claim_scope(spec, claim_dir))
+    return errors
+
+
+def _validate_wire_order(spec: dict[str, Any], bridge: dict[str, Any] | None) -> list[str]:
+    errors: list[str] = []
+    if not bridge:
+        return errors
+    wire_order = bridge.get("wire_order")
+    if not wire_order:
+        errors.append("semantic_bridge requires wire_order {model, checked_against}")
+        return errors
+    model = wire_order.get("model")
+    checked = wire_order.get("checked_against")
+    if model not in {"legacy_kron_order", "openqasm_little_endian_wire_order"}:
+        errors.append(f"wire_order.model invalid: {model!r}")
+    if checked not in {"lean", "python_operational", "both"}:
+        errors.append(f"wire_order.checked_against invalid: {checked!r}")
+    claimed = bridge.get("claimed_link")
+    if is_kernel_checked_link(claimed) and checked not in {"lean", "both"}:
+        errors.append(
+            f"kernel-checked bridge requires wire_order.checked_against in {{lean, both}}, got {checked!r}"
+        )
+    return errors
+
+
+def _validate_reference_claim_bridge(spec: dict[str, Any], bridge: dict[str, Any] | None) -> list[str]:
+    errors: list[str] = []
+    if spec.get("status", {}).get("maturity") != REFERENCE_CLAIM_LEVEL or not bridge:
+        return errors
+    headline = spec.get("headline_claim_status") or {}
+    checked_under = headline.get("checked_under") or []
+    not_checked = headline.get("not_checked_under") or []
+    if is_kernel_checked_link(bridge.get("claimed_link")):
+        if KERNEL_CHECKED_LINK not in checked_under and LEGACY_KERNEL_CHECKED_LINK not in checked_under:
+            errors.append(
+                f"reference_claim kernel bridge requires headline_claim_status.checked_under "
+                f"to include {KERNEL_CHECKED_LINK!r}"
+            )
+        for required in ("full_openqasm3", "hardware_semantics"):
+            if required not in not_checked:
+                errors.append(
+                    f"reference_claim kernel bridge requires not_checked_under to include {required!r}"
+                )
     return errors
 
 
@@ -146,6 +209,7 @@ def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str
     distance = scope.get("distance") or {}
     if distance.get("status") == "checked":
         has_distance_evidence = False
+        cert_level = scope.get("qec_certificate_level")
         for ev in spec.get("evidence", []):
             if ev.get("status") != "passing":
                 continue
@@ -164,6 +228,16 @@ def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str
                 "qec_claim_scope.distance.status checked requires distance_result evidence "
                 "from QEC adapter bruteforce run"
             )
+        if cert_level == "qec_external_certificate_checked":
+            has_smt = any(
+                e.get("type") == "smt_certificate" and e.get("status") == "passing"
+                for e in spec.get("evidence", [])
+            )
+            if not has_smt:
+                errors.append(
+                    "qec_certificate_level=qec_external_certificate_checked requires "
+                    "passing smt_certificate evidence"
+                )
     return errors
 
 
@@ -256,18 +330,19 @@ def _validate_qasm_extraction(spec: dict[str, Any]) -> list[str]:
     if not extraction:
         return []
     mode = extraction.get("mode")
-    if mode == "full_dynamic_semantics":
+    effective_mode = "dynamic_fragment_recording" if mode == "full_dynamic_semantics" else mode
+    if effective_mode == "dynamic_fragment_recording":
         semantics_base = spec.get("semantics_base")
         if semantics_base != "dynamic_circuit":
             return [
-                "qasm_extraction.mode=full_dynamic_semantics requires "
+                "qasm_extraction.mode=dynamic_fragment_recording requires "
                 "semantics_base=dynamic_circuit (projective measurement stub + "
                 "declared non-unitary skips)"
             ]
         allowed = set(extraction.get("allowed_to_skip") or [])
         if "measurement" not in allowed:
             return [
-                "full_dynamic_semantics requires allowed_to_skip to include "
+                "dynamic_fragment_recording requires allowed_to_skip to include "
                 "'measurement' (projective POVM stub; unitary fragment insufficient)"
             ]
     return []

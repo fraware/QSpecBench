@@ -312,14 +312,22 @@ def validate_manifest_bridge(claim_dir: Path, bridge: dict[str, Any], spec: dict
 
 
 def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec: dict[str, Any]) -> list[str]:
-    """Validate kernel_checked_artifact_semantics bridge (codegen + kernel proof chain)."""
+    """Validate kernel_checked_codegen_trace bridge (codegen + kernel proof chain)."""
+    from qspecbench.bridge_codegen import (
+        GENERATED_MODULE_MAP,
+        KERNEL_CHECKED_LINK,
+        LEGACY_KERNEL_CHECKED_LINK,
+        kernel_checked_theorem_name,
+        theorem_content_sha256,
+        theorem_identifier_sha256,
+        verify_kernel_checked_entry,
+    )
+
     errors = validate_manifest_bridge(claim_dir, bridge, spec)
     theorem_short = bridge.get("lean_theorem", "")
     entry = manifest_entry_for_theorem(theorem_short)
     if entry is None:
         return errors
-
-    from qspecbench.bridge_codegen import kernel_checked_theorem_name, verify_kernel_checked_entry
 
     benchmark_id = spec.get("id", "")
     expected = kernel_checked_theorem_name(benchmark_id)
@@ -345,9 +353,37 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
         errors.append(
             "semantic_bridge generated_lean_sha256 does not match manifest codegen hash"
         )
-    if bridge.get("theorem_sha256") and entry.get("theorem_sha256"):
-        if bridge["theorem_sha256"] != entry["theorem_sha256"]:
-            errors.append("semantic_bridge theorem_sha256 does not match manifest")
+    id_hash = bridge.get("theorem_identifier_sha256") or bridge.get("theorem_sha256")
+    entry_id = entry.get("theorem_identifier_sha256") or entry.get("theorem_sha256")
+    if id_hash and entry_id and id_hash != entry_id:
+        errors.append("semantic_bridge theorem_identifier_sha256 does not match manifest")
+    content_hash = theorem_content_sha256(benchmark_id)
+    if content_hash and bridge.get("theorem_content_sha256"):
+        if bridge["theorem_content_sha256"] != content_hash:
+            errors.append("semantic_bridge theorem_content_sha256 does not match manifest")
+    elif content_hash and not bridge.get("theorem_content_sha256"):
+        errors.append("semantic_bridge missing theorem_content_sha256 for kernel-checked bridge")
+
+    claimed = bridge.get("claimed_link")
+    module_name = GENERATED_MODULE_MAP.get(benchmark_id)
+    if claimed == LEGACY_KERNEL_CHECKED_LINK:
+        if not module_name:
+            errors.append(
+                f"{LEGACY_KERNEL_CHECKED_LINK} requires generated module for {benchmark_id!r}"
+            )
+        else:
+            openqasm3 = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3.lean"
+            if openqasm3.is_file():
+                text = openqasm3.read_text(encoding="utf-8")
+                import_line = f"import QSpecBench.Generated.{module_name}"
+                use_generated = f"Generated.{module_name}.ops"
+                if import_line not in text or use_generated not in text:
+                    errors.append(
+                        f"{LEGACY_KERNEL_CHECKED_LINK} requires OpenQASM3 theorem to import "
+                        f"and use QSpecBench.Generated.{module_name}.ops"
+                    )
+    if claimed == KERNEL_CHECKED_LINK and module_name is None:
+        errors.append(f"{KERNEL_CHECKED_LINK} benchmark {benchmark_id!r} missing generated module map")
 
     return errors
 

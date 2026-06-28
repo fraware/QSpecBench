@@ -12,6 +12,7 @@
       "enum": [
         "manifest_checked_theorem_binding",
         "python_denotation_consistency",
+        "kernel_checked_codegen_trace",
         "kernel_checked_artifact_semantics",
         "documented_not_proved"
       ]
