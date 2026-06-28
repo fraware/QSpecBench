@@ -138,7 +138,12 @@ theorem bridge_cnot_codegen_denotes_artifact (i j : Fin 4) :
     denotateOps2 cnot_self_inverse_codegen_ops i j = cnot_cx_cxMat i j := by
   rw [cnot_codegen_ops_eq_hand_trace, denotateOps2_cnot_cx_cx]
 
-def hadamard_hxh : List QasmOp := [.gate .H 0, .gate .X 0, .gate .H 0]
+/-- Codegen-aligned H-X-H trace (matches bridge-codegen stub). -/
+def hadamard_conjugates_x_to_z_codegen_ops : List QasmOp := [.gate .H 0, .gate .X 0, .gate .H 0]
+
+def hadamard_hxh : List QasmOp := hadamard_conjugates_x_to_z_codegen_ops
+
+theorem hadamard_codegen_ops_eq_hand_trace : hadamard_conjugates_x_to_z_codegen_ops = hadamard_hxh := rfl
 
 def hadamard_hxhMat (i j : Fin 2) : Int := mul2 hadamard2 (mul2 pauliX2 hadamard2) i j
 
@@ -149,7 +154,20 @@ theorem bridge_hadamard_conjugates_x (i j : Fin 2) :
     denotateOps1 hadamard_hxh i j = scale2 2 pauliZ2 i j := by
   rw [denotateOps1_hadamard_hxh, hadamard_hxhMat, mul2_assoc, hadamard_conjugates_x]
 
-def hadamard_hh : List QasmOp := [.gate .H 0, .gate .H 0]
+theorem bridge_hadamard_codegen_conjugates_x (i j : Fin 2) :
+    denotateOps1 hadamard_conjugates_x_to_z_codegen_ops i j = scale2 2 pauliZ2 i j := by
+  rw [hadamard_codegen_ops_eq_hand_trace, bridge_hadamard_conjugates_x]
+
+theorem bridge_hadamard_codegen_denotes_artifact (i j : Fin 2) :
+    denotateOps1 hadamard_conjugates_x_to_z_codegen_ops i j = hadamard_hxhMat i j := by
+  rw [hadamard_codegen_ops_eq_hand_trace, denotateOps1_hadamard_hxh]
+
+def single_qubit_gate_cancellation_codegen_ops : List QasmOp := [.gate .H 0, .gate .H 0]
+
+def hadamard_hh : List QasmOp := single_qubit_gate_cancellation_codegen_ops
+
+theorem hadamard_cancel_codegen_ops_eq_hand_trace :
+    single_qubit_gate_cancellation_codegen_ops = hadamard_hh := rfl
 
 def hadamard_hhMat (i j : Fin 2) : Int := mul2 hadamard2 hadamard2 i j
 
@@ -159,6 +177,14 @@ theorem denotateOps1_hadamard_hh (i j : Fin 2) : denotateOps1 hadamard_hh i j = 
 theorem bridge_hadamard_cancel (i j : Fin 2) :
     denotateOps1 hadamard_hh i j = scale2 2 id2 i j := by
   rw [denotateOps1_hadamard_hh, hadamard_hhMat, hadamard_mul_self]
+
+theorem bridge_hadamard_codegen_cancel (i j : Fin 2) :
+    denotateOps1 single_qubit_gate_cancellation_codegen_ops i j = scale2 2 id2 i j := by
+  rw [hadamard_cancel_codegen_ops_eq_hand_trace, bridge_hadamard_cancel]
+
+theorem bridge_hadamard_codegen_cancel_denotes_artifact (i j : Fin 2) :
+    denotateOps1 single_qubit_gate_cancellation_codegen_ops i j = hadamard_hhMat i j := by
+  rw [hadamard_cancel_codegen_ops_eq_hand_trace, denotateOps1_hadamard_hh]
 
 def qft2_ops : List QasmOp := [.gate .H 0, .cx 0 1, .gate .H 0]
 
@@ -174,12 +200,26 @@ theorem bridge_qft2_inverse (i j : Fin 4) :
 
 def clifford_hhs : List QasmOp := [.gate .H 0, .gate .H 0, .gate .S 0]
 
+/-- Target trace after Clifford simplification (single S gate). -/
+def clifford_s_single : List QasmOp := [.gate .S 0]
+
+def clifford_s_singleMatC (i j : Fin 2) : ℂ := sGate i j
+
+theorem denotateOps1C_clifford_s_single (i j : Fin 2) :
+    denotateOps1C clifford_s_single i j = clifford_s_singleMatC i j := by
+  fin_cases i <;> fin_cases j <;> simp [denotateOps1C, clifford_s_single, denotateGateC, clifford_s_singleMatC,
+    sGateEntry, Matrix.of_apply, mul2C, mul2C_one_right]
+
+theorem bridge_clifford_s_single (i j : Fin 2) :
+    denotateOps1C clifford_s_single i j = clifford_s_singleMatC i j :=
+  denotateOps1C_clifford_s_single i j
+
 def clifford_hhsMatC (i j : Fin 2) : ℂ := mul2C sGate (mul2C hadamardC hadamardC) i j
 
 theorem denotateOps1C_clifford_hhs (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = clifford_hhsMatC i j := by
   fin_cases i <;> fin_cases j <;> simp [denotateOps1C, clifford_hhs, denotateGateC, clifford_hhsMatC, mul2C,
-    sGateEntry, hadamardEntry, Matrix.one_apply, Matrix.of_apply]
+    sGateEntry, hadamardEntry, Matrix.of_apply, mul2C_one_right, hadamardC_mul_self]
 
 theorem bridge_clifford_hhs (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = clifford_hhsMatC i j :=
@@ -282,6 +322,20 @@ theorem bridge_bell_prep (i j : Fin 4) :
     denotateOps2 bell_prep_ops i j = bellPrepMatrix i j :=
   denotateOps2_bell_prep i j
 
+/-- Codegen-aligned Bell prep trace (matches bridge-codegen stub). -/
+def bell_state_preparation_codegen_ops : List QasmOp := [.gate .H 0, .cx 0 1]
+
+theorem bell_codegen_ops_eq_hand_trace :
+    bell_state_preparation_codegen_ops = bell_prep_ops := rfl
+
+theorem bridge_bell_codegen_prep (i j : Fin 4) :
+    denotateOps2 bell_state_preparation_codegen_ops i j = bellPrepMatrix i j := by
+  rw [bell_codegen_ops_eq_hand_trace, denotateOps2_bell_prep]
+
+theorem bridge_bell_codegen_denotes_artifact (i j : Fin 4) :
+    denotateOps2 bell_state_preparation_codegen_ops i j = bellPrepMatrix i j := by
+  rw [bell_codegen_ops_eq_hand_trace, denotateOps2_bell_prep]
+
 /-- RX(π/2) on qubit 0; int scaffold maps π/2 to unnormalized H. -/
 noncomputable def rx_pi2_ops : List QasmOp := [.rx (Real.pi / 2) 0]
 
@@ -341,6 +395,20 @@ theorem denotateOps2_swap_from_three_cx (i j : Fin 4) :
 theorem bridge_swap_from_three_cx (i j : Fin 4) :
     denotateOps2 swap_from_three_cx_ops i j = swap4 i j :=
   denotateOps2_swap_from_three_cx i j
+
+/-- Codegen-aligned three-CX SWAP trace (matches bridge-codegen stub). -/
+def swap_from_three_cx_codegen_ops : List QasmOp := [.cx 0 1, .cx 1 0, .cx 0 1]
+
+theorem swap_codegen_ops_eq_hand_trace :
+    swap_from_three_cx_codegen_ops = swap_from_three_cx_ops := rfl
+
+theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) :
+    denotateOps2 swap_from_three_cx_codegen_ops i j = swap4 i j := by
+  rw [swap_codegen_ops_eq_hand_trace, denotateOps2_swap_from_three_cx]
+
+theorem bridge_swap_from_three_cx_codegen_denotes_artifact (i j : Fin 4) :
+    denotateOps2 swap_from_three_cx_codegen_ops i j = denotateOps2 swap_from_three_cx_ops i j := by
+  rw [swap_codegen_ops_eq_hand_trace]
 
 /-- Layout-identity scaffold: H then CX on qubits 0,1. -/
 def layout_identity_ops : List QasmOp := [.gate .H 0, .cx 0 1]
