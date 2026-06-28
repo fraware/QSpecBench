@@ -11,6 +11,7 @@ import QSpecBench.Generated.HadamardConjugatesXToZ
 import QSpecBench.Generated.SingleQubitGateCancellation
 import QSpecBench.Generated.BellStatePreparation
 import QSpecBench.Generated.SwapFromThreeCx
+import QSpecBench.Generated.ToffoliDecompositionEquivalence
 
 /-!
 # Denotational OpenQASM 3 semantics for the benchmark gate subset.
@@ -423,6 +424,17 @@ theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) :
 
 theorem bridge_swap_from_three_cx_codegen_denotes_artifact (i j : Fin 4) :
     denotateOps2 Generated.SwapFromThreeCx.ops i j = denotateOps2 swap_from_three_cx_ops i j := rfl
+
+/-- Codegen-aligned CCX trace (matches bridge-codegen stub for toffoli source artifact). -/
+@[deprecated QSpecBench.Generated.ToffoliDecompositionEquivalence.ops (since := "2026-06-28")]
+def toffoli_codegen_ops : List QasmOp := Generated.ToffoliDecompositionEquivalence.ops
+
+theorem toffoli_codegen_ops_eq_hand_trace :
+    Generated.ToffoliDecompositionEquivalence.ops = ccx_single := rfl
+
+theorem bridge_toffoli_codegen_ccx (i j : Fin 8) :
+    denotateOps3 Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j := by
+  rw [toffoli_codegen_ops_eq_hand_trace, denotateOps3_ccx_single]
 
 /-- Layout-identity scaffold: H then CX on qubits 0,1. -/
 def layout_identity_ops : List QasmOp := [.gate .H 0, .cx 0 1]
