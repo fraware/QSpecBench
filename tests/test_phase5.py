@@ -211,6 +211,15 @@ def _lean_mirror_parse_gate_line(line: str) -> dict[str, object] | None:
         if c is None or t is None:
             return None
         return {"op": "cx", "qubits": [c, t]}
+    if s.startswith("ccx "):
+        rest = s.split(" ", 1)[1]
+        parts = [p.strip() for p in rest.split(",")]
+        if len(parts) != 3:
+            return None
+        c0, c1, t = _qubit(parts[0]), _qubit(parts[1]), _qubit(parts[2])
+        if c0 is None or c1 is None or t is None:
+            return None
+        return {"op": "ccx", "qubits": [c0, c1, t]}
     return None
 
 
@@ -220,6 +229,7 @@ KERNEL_CHECKED_QASM = [
     REPO / "benchmarks" / "equivalence" / "hadamard_conjugates_x_to_z" / "artifacts" / "source.qasm",
     REPO / "benchmarks" / "equivalence" / "single_qubit_gate_cancellation" / "artifacts" / "source.qasm",
     REPO / "benchmarks" / "algorithms" / "swap_from_three_cx" / "artifacts" / "source.qasm",
+    REPO / "benchmarks" / "equivalence" / "toffoli_decomposition_equivalence" / "artifacts" / "source.qasm",
 ]
 
 
@@ -233,6 +243,23 @@ def test_lean_parser_gate_lines_match_canonical_ast():
                 parsed.append(entry)
         assert [g["op"] for g in ast["gates"]] == [p["op"] for p in parsed], qasm
         assert [g["qubits"] for g in ast["gates"]] == [p["qubits"] for p in parsed], qasm
+        assert ast["canonical_ast_version"] == "0.1"
+        assert ast["n_qubits"] >= 1
+
+
+def test_canonical_ast_json_matches_lean_mirror_structure():
+    """Lean-parseable gate lines must match Python canonical_ast gate objects."""
+    qasm = REPO / "benchmarks" / "algorithms" / "bell_state_preparation" / "artifacts" / "circuit.qasm"
+    ast = build_canonical_ast(qasm)
+    mirror_ops: list[str] = []
+    mirror_qubits: list[list[int]] = []
+    for raw in qasm.read_text(encoding="utf-8").splitlines():
+        entry = _lean_mirror_parse_gate_line(raw)
+        if entry is not None:
+            mirror_ops.append(str(entry["op"]))
+            mirror_qubits.append(list(entry["qubits"]))  # type: ignore[arg-type]
+    assert mirror_ops == [g["op"] for g in ast["gates"]]
+    assert mirror_qubits == [g["qubits"] for g in ast["gates"]]
 
 
 def test_int_scaffold_vs_operational_h_on_q0_three_qubits():
@@ -253,6 +280,8 @@ def test_measurement_lean_scaffold_exists():
     assert "measure_state00_q0_zero" in text
     assert "joint_state00_zz" in text
     assert "syndrome00_from_state00" in text
+    assert "measure_state000_q0_zero" in text
+    assert "groverMeasurementCrossRefNote" in text
     assert "measurementTrustBoundaryNote" in text
 
 
