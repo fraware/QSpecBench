@@ -8,7 +8,6 @@ classical control or feed-forward inside the artifact unless explicitly declared
 
 from __future__ import annotations
 
-import hashlib
 import json
 import math
 import re
@@ -45,7 +44,6 @@ from qspecbench.qasm_matrix import (
     _single_qubit_gate,
     _swap,
     _u_matrix,
-    cell_from_json,
     cell_to_json,
     extract_matrix,
     matrix_from_json_rows,
@@ -402,7 +400,7 @@ def reduced_qubit_amplitudes(
     norm = (chosen[0] * chosen[0] + chosen[1] * chosen[1]).limit_denominator(10**12)
     if norm == 0:
         return (Fraction(1), Fraction(0))
-    inv = norm ** Fraction(-1, 2) if isinstance(norm, Fraction) else Fraction(1)
+    norm ** Fraction(-1, 2) if isinstance(norm, Fraction) else Fraction(1)
     # approximate normalize for comparison
     length = float(chosen[0] * chosen[0] + chosen[1] * chosen[1]) ** 0.5
     if length == 0:

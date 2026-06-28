@@ -125,19 +125,22 @@ evidence:
   path: evidence/dynamic_simulation_basis_check.json
   checker: dynamic-simulate CLI (operational, not kernel-checked)
   status: passing
-  notes: Branch-enumeration basis check; all_ok true under operational wire model (not kernel-checked).
+  notes: Branch-enumeration basis check; all_ok true under operational wire model
+    (not kernel-checked).
 - id: lean_measurement_scaffold
   type: lean_proof
   path: evidence/measurement_scaffold.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Scaffold anchor to QSpecBench.Quantum.Measurement (|0⟩ Z-basis stub only; not kernel-checked).
+  notes: Scaffold anchor to QSpecBench.Quantum.Measurement (|0⟩ Z-basis stub only;
+    not kernel-checked).
 - id: feedforward_artifact_parse
   type: qasm_parse
   path: artifacts/teleportation_with_feedforward.qasm
   checker: qasm parser adapter
   status: passing
-  notes: Supplementary artifact with classically controlled X/Z corrections; not used for verify-bridge.
+  notes: Supplementary artifact with classically controlled X/Z corrections; not used
+    for verify-bridge.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -176,9 +179,9 @@ proof_obligations:
   notes: Full |psi> transfer and corrections documented but not kernel-checked
 claim_scope:
   headline_claim_id: teleportation_preserves_state_up_to_pauli_correction_headline
-  headline_claim_text: The declared teleportation QASM unitary prefix (Bell prep + entangling
-    gates before measurement) matches the Lean/OpenQASM3 denotation; measurement and
-    Pauli correction lines use projective POVM stub skips (not kernel-checked).
+  headline_claim_text: The declared teleportation QASM unitary prefix (Bell prep +
+    entangling gates before measurement) matches the Lean/OpenQASM3 denotation; measurement
+    and Pauli correction lines use projective POVM stub skips (not kernel-checked).
   required_obligations:
   - unitary_fragment_matches_ordering
 proved_scope:
@@ -229,13 +232,13 @@ formal_claims:
   - arbitrary_state_relational_transfer_after_measur
   benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
 provenance:
-  generated_at: '2026-06-27T17:18:29.256747+00:00'
+  generated_at: '2026-06-28T16:40:42.906570+00:00'
   artifacts:
   - path: artifacts/teleportation.qasm
     sha256: caa1d081cc6c3ecf7415fd20f3c414e71e5476fb50a2c37df3b1fa2b6b592b22
     role: source
   - path: artifacts/teleportation_with_feedforward.qasm
-    sha256: c819fc2a31f19de026ca780a21238cbcc66027c8d99298fbfe299a8f55e8f439
+    sha256: 250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024
     role: witness
 qasm_extraction:
   mode: full_dynamic_semantics

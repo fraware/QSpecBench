@@ -319,7 +319,6 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
         LEGACY_KERNEL_CHECKED_LINK,
         kernel_checked_theorem_name,
         theorem_content_sha256,
-        theorem_identifier_sha256,
         verify_kernel_checked_entry,
     )
 

@@ -18,11 +18,9 @@ from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.bridge_manifest import validate_kernel_checked_bridge, validate_manifest_bridge
 from qspecbench.bridge_codegen import (
-    GENERATED_MODULE_MAP,
     KERNEL_CHECKED_LINK,
     LEGACY_KERNEL_CHECKED_LINK,
     is_kernel_checked_link,
-    normalize_claimed_link,
 )
 from qspecbench.provenance import validate_provenance
 from qspecbench.verify_bridge import verify_bridge
