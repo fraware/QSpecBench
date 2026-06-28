@@ -71,6 +71,18 @@ def test_hadamard_manifest_codegen_hashes():
     assert verify_manifest_codegen(entry, HADAMARD_DIR) == []
 
 
+def test_clifford_target_manifest_codegen():
+    from qspecbench.bridge_codegen import verify_manifest_target_codegen
+
+    cliff = REPO / "benchmarks" / "equivalence" / "clifford_simplification_preserves_unitary"
+    entry = next(
+        e for e in load_manifest()["entries"]
+        if e["benchmark_id"] == "clifford_simplification_preserves_unitary"
+    )
+    assert entry.get("target_ast_sha256")
+    assert verify_manifest_target_codegen(entry, cliff) == []
+
+
 def test_rx_manifest_codegen_hashes():
     rx_dir = REPO / "benchmarks" / "equivalence" / "rx_gate_equivalence_small_instance"
     entry = next(

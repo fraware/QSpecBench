@@ -162,6 +162,10 @@ def theorem_sha256(full_theorem: str) -> str:
 # Benchmark-specific codegen kernel theorems (denotation on generated QasmOp trace).
 KERNEL_CHECKED_THEOREMS: dict[str, str] = {
     "cnot_self_inverse_cancellation": "QSpecBench.Quantum.OpenQASM3.bridge_cnot_codegen_self_inverse",
+    "hadamard_conjugates_x_to_z": "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_conjugates_x",
+    "single_qubit_gate_cancellation": "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_cancel",
+    "bell_state_preparation": "QSpecBench.Quantum.OpenQASM3.bridge_bell_codegen_prep",
+    "swap_from_three_cx": "QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen",
 }
 
 
@@ -174,8 +178,8 @@ def codegen_output_path(claim_dir: Path, benchmark_id: str) -> Path:
     return claim_dir / "evidence" / f"{safe_id}_codegen_ops.lean"
 
 
-def generate_for_benchmark(claim_dir: Path) -> dict[str, Any]:
-    """Generate Lean stub + hashes for one benchmark."""
+def generate_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dict[str, Any]:
+    """Generate Lean stub + hashes for one benchmark (source or target QASM)."""
     import yaml
 
     spec_path = claim_dir / "spec.yaml"
@@ -187,25 +191,35 @@ def generate_for_benchmark(claim_dir: Path) -> dict[str, Any]:
     qasm_rel: str | None = None
     if bridge_path.is_file():
         bridge = json.loads(bridge_path.read_text(encoding="utf-8"))
-        qasm_rel = bridge.get("qasm_artifact")
+        if qasm_role == "target":
+            qasm_rel = bridge.get("target_qasm_artifact")
+        else:
+            qasm_rel = bridge.get("qasm_artifact")
     if not qasm_rel:
+        for obj in spec.get("objects", []):
+            if obj.get("format") == "qasm3" and obj.get("role") == qasm_role:
+                qasm_rel = obj.get("path")
+                break
+    if not qasm_rel and qasm_role == "source":
         for obj in spec.get("objects", []):
             if obj.get("format") == "qasm3" and obj.get("role") == "source":
                 qasm_rel = obj.get("path")
                 break
     if not qasm_rel:
-        raise FileNotFoundError(f"no qasm3 source artifact for {benchmark_id}")
+        raise FileNotFoundError(f"no qasm3 {qasm_role} artifact for {benchmark_id}")
 
     qasm_path = claim_dir / qasm_rel
     ast = build_canonical_ast(qasm_path, extraction=extraction)
-    lean_text = generate_lean_stub(benchmark_id, ast)
-    out_path = codegen_output_path(claim_dir, benchmark_id)
+    stub_id = benchmark_id if qasm_role == "source" else f"{benchmark_id}_target"
+    lean_text = generate_lean_stub(stub_id, ast)
+    out_path = codegen_output_path(claim_dir, stub_id)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(lean_text, encoding="utf-8")
 
     artifact_sha, trace_sha, _trace = compute_bridge_hashes(qasm_path, extraction=extraction)
     return {
         "benchmark_id": benchmark_id,
+        "qasm_role": qasm_role,
         "qasm_artifact": qasm_rel,
         "artifact_sha256": artifact_sha,
         "gate_trace_sha256": trace_sha,
@@ -214,6 +228,32 @@ def generate_for_benchmark(claim_dir: Path) -> dict[str, Any]:
         "generated_lean_path": str(out_path.relative_to(claim_dir)),
         "generated_lean_sha256": generated_lean_sha256(lean_text),
     }
+
+
+def verify_manifest_target_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]:
+    """Verify target-side ast_sha256 and generated_lean_sha256 when present."""
+    errors: list[str] = []
+    benchmark_id = entry.get("benchmark_id", "")
+    if not entry.get("target_ast_sha256") and not entry.get("target_generated_lean_sha256"):
+        return errors
+    try:
+        result = generate_for_benchmark(claim_dir, qasm_role="target")
+    except (FileNotFoundError, ValueError) as exc:
+        return [f"target codegen verify failed for {benchmark_id}: {exc}"]
+    if entry.get("target_ast_sha256") and entry["target_ast_sha256"] != result["ast_sha256"]:
+        errors.append(f"target_ast_sha256 drift for {benchmark_id}")
+    if entry.get("target_generated_lean_sha256"):
+        if entry["target_generated_lean_sha256"] != result["generated_lean_sha256"]:
+            errors.append(f"target_generated_lean_sha256 drift for {benchmark_id}")
+        gen_path = claim_dir / result["generated_lean_path"]
+        if gen_path.is_file():
+            on_disk = generated_lean_sha256(gen_path.read_text(encoding="utf-8"))
+            if on_disk != entry["target_generated_lean_sha256"]:
+                errors.append(
+                    f"target generated Lean file hash mismatch for {benchmark_id}: "
+                    f"{result['generated_lean_path']}"
+                )
+    return errors
 
 
 def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]:
@@ -246,6 +286,7 @@ def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]
                     f"generated Lean file hash mismatch for {benchmark_id}: "
                     f"{result['generated_lean_path']}"
                 )
+    errors.extend(verify_manifest_target_codegen(entry, claim_dir))
     return errors
 
 
