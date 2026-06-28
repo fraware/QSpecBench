@@ -17,6 +17,18 @@ def test_coq_stub_returns_not_checked():
     assert not result["ok"]
     assert result.get("skipped")
     assert result["trust_level"] == "not_checked"
+    assert "QSPECBENCH_COQ" in result["errors"][0]
+
+
+def test_coq_enabled_without_coqc_fail_closed(monkeypatch):
+    from adapters.coq import parse_result
+
+    monkeypatch.setenv("QSPECBENCH_COQ", "1")
+    monkeypatch.setattr(parse_result, "_coq_available", lambda: False)
+    result = parse_result.check(REPO / "adapters" / "coq" / "README.md")
+    assert not result["ok"]
+    assert result.get("skipped")
+    assert "coqc not found" in result["errors"][0]
 
 
 def test_rocq_stub_returns_not_checked():

@@ -1,3 +1,14 @@
-# Coq proof adapter (stub)
+# Coq proof adapter (optional kernel)
 
-Reserved for future Coq kernel integration. Returns `not_checked` until CI configures Coq.
+Default CI: returns `not_checked` with a clear message.
+
+Local optional path:
+
+```bash
+export QSPECBENCH_COQ=1
+coqc evidence/proof.v
+python adapters/coq/parse_result.py evidence/proof.v
+```
+
+When `QSPECBENCH_COQ=1` and `coqc` is on `PATH`, the adapter runs `coqc` on the evidence file.
+When the flag is unset or `coqc` is missing, the adapter fails closed with `skipped: true`.
