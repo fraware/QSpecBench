@@ -1,6 +1,6 @@
 # Claim diff: grover_single_iteration_amplitude_amplification
 
-<!-- scope_fingerprint: 58280d5eb88c6166d36595388f1f311086922e0589e7f4091175ac47a55ae73e -->
+<!-- scope_fingerprint: a9d480f23496ed68338389fb9ab4b4fc566e685f479303b152739d20c90cb301 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
