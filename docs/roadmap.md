@@ -199,13 +199,45 @@ honesty rule.
 5. Compiler source→target equivalence proofs (Clifford)
 6. Second proof assistant kernel in default CI
 
-## Phase 9 priorities (2026-06-28)
+## Phase 9 status (2026-06-28)
 
 | Goal | Status |
 |------|--------|
-| Lean bytes→AST parser kernel | **Blocked** — line-level `parseGateLine` / `parseLines` only |
-| Fin (2^n) projective measurement update | **Blocked** — `Measurement.lean` branch stubs |
-| Teleportation `reference_claim` | **Blocked** — relational transfer + feed-forward proof |
-| Toffoli / circuit_identity kernel bridge | **Blocked** — CCX denotation + `ast_sha256` null |
-| Clifford source→target kernel proof | **Blocked** — dual-manifest checklist open |
-| Coq/Rocq kernel in default CI | **Partial** — adapter stubs; enable with `QSPECBENCH_COQ=1` |
+| Lean `canonicalAstFromLines` mirroring Python JSON AST | **Done** — six kernel QASM gate lines + Python cross-test |
+| Sixth kernel-checked codegen-trace bridge (Toffoli CCX source) | **Done** — `bridge_toffoli_codegen_ccx` + manifest hashes |
+| Fin 8 basis-state measurement scaffold | **Partial** — Z-outcome checks; no amplitude update |
+| Teleportation basis-state Lean anchors | **Partial** — `measurement_scaffold.lean` Fin 8 examples |
+| Release bundle SBOM-lite + verify integration | **Done** |
+| QEC witness syndrome hash export | **Done** — `qec_witness.py` |
+| Coq optional CI job | **Done** — repo var `QSPECBENCH_COQ=1` |
+| Toffoli decomposition / circuit_identity full kernel | **Blocked** — target H/T/CX trace; layout proof open |
+
+### Phase 9 blockers
+
+1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
+2. Kernel-checked projective measurement on arbitrary amplitudes
+3. Teleportation `reference_claim` (arbitrary-state relational transfer)
+4. Decomposed Toffoli target circuit codegen (rotations outside stub subset)
+5. Compiler source→target equivalence proofs (Clifford)
+6. Wire-order alignment proof (`wire_order_bridge_theorem` reserved)
+
+## Phase 10 priorities (2026-06-28)
+
+| Goal | Status |
+|------|--------|
+| Bytes→AST Lean parser kernel | **Blocked** |
+| Arbitrary-amplitude projective measurement in Lean | **Blocked** |
+| Teleportation / Grover `reference_claim` | **Blocked** |
+| Clifford source→target kernel proof | **Blocked** |
+| Second proof assistant in default CI | **Partial** — optional Coq job only |
+| Pinned dependency lockfiles in release SBOM | **Partial** — SBOM-lite lists declared deps |
+
+### Phase 10 blockers
+
+1. No pinned Python lockfile in repo — SBOM lists `pyproject.toml` deps only
+2. External tool versions (QCEC) not embedded in release bundle
+3. Int-scaffold vs operational wire model proof gap
+4. QEC decoder correctness beyond lookup-table scope
+5. Analytic Hamiltonian simulation bounds (Trotter contracts)
+
+## P1 deferred (post-P0)
