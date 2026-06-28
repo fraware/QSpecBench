@@ -3,6 +3,8 @@ import QSpecBench.Pauli
 import QSpecBench.Matrix
 import QSpecBench.QFT2
 import QSpecBench.Stabilizer
+import QSpecBench.Quantum.QasmOp
+import QSpecBench.Generated
 import QSpecBench.Quantum.OpenQASM3
 import QSpecBench.Quantum.OpenQASM3Parser
 import QSpecBench.Quantum.Measurement

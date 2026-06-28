@@ -1,0 +1,5 @@
+import QSpecBench.Generated.CnotSelfInverse
+import QSpecBench.Generated.HadamardConjugatesXToZ
+import QSpecBench.Generated.SingleQubitGateCancellation
+import QSpecBench.Generated.BellStatePreparation
+import QSpecBench.Generated.SwapFromThreeCx
