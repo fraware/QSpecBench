@@ -35,7 +35,13 @@
     "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "ast_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-    "theorem_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    "theorem_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "target_qasm_artifact": { "type": "string", "minLength": 1 },
+    "target_artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "target_gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "target_lean_theorem": { "type": "string", "minLength": 1 },
+    "target_ast_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "target_generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
   },
   "additionalProperties": false
 }

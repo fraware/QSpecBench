@@ -128,5 +128,9 @@ def validate_claim_artifacts(spec: dict[str, Any], claim_dir: Path) -> list[str]
                 continue
             seen.add(resolved)
             errors.extend(validate_json_artifact(path, schema_path))
+            if rel_name == "qec_external_certificate.json":
+                from qspecbench.qec_external import validate_qec_external_certificate_path
+
+                errors.extend(validate_qec_external_certificate_path(path, claim_dir, spec))
 
     return errors
