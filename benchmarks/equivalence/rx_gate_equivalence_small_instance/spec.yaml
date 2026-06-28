@@ -76,7 +76,8 @@ evidence:
   path: evidence/rx_pi2.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Complex RX(π/2) denotation manifest-bound; global phase vs H not claimed.
+  notes: Complex RX(π/2) denotation manifest-bound; global phase vs H not claimed
+    (see ComplexGate.rx_pi2_entry01_ne_hadamard_entry01).
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
@@ -114,7 +115,7 @@ trust_boundary:
   untrusted_components: []
   assumptions_not_checked:
   - OpenQASM RX parameter semantics beyond pi/2 instance
-  - global phase between RX and H
+  - global phase between RX and H (Lean lemma rx_pi2_entry01_ne_hadamard_entry01)
 status:
   informal_claim: complete
   machine_spec: complete
