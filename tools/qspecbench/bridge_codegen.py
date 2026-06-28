@@ -32,6 +32,7 @@ GENERATED_MODULE_MAP: dict[str, str] = {
     "single_qubit_gate_cancellation": "SingleQubitGateCancellation",
     "bell_state_preparation": "BellStatePreparation",
     "swap_from_three_cx": "SwapFromThreeCx",
+    "toffoli_decomposition_equivalence": "ToffoliDecompositionEquivalence",
 }
 
 KERNEL_THEOREM_CONTENT: dict[str, str] = {
@@ -54,6 +55,10 @@ KERNEL_THEOREM_CONTENT: dict[str, str] = {
     "swap_from_three_cx": (
         "theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) : "
         "denotateOps2 QSpecBench.Generated.SwapFromThreeCx.ops i j = swap4 i j"
+    ),
+    "toffoli_decomposition_equivalence": (
+        "theorem bridge_toffoli_codegen_ccx (i j : Fin 8) : "
+        "denotateOps3 QSpecBench.Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j"
     ),
 }
 
@@ -247,6 +252,7 @@ KERNEL_CHECKED_THEOREMS: dict[str, str] = {
     "single_qubit_gate_cancellation": "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_cancel",
     "bell_state_preparation": "QSpecBench.Quantum.OpenQASM3.bridge_bell_codegen_prep",
     "swap_from_three_cx": "QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen",
+    "toffoli_decomposition_equivalence": "QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx",
 }
 
 
