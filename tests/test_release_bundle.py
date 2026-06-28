@@ -52,5 +52,12 @@ def test_release_bundle_includes_provenance_from_spec(tmp_path):
 
 def test_verify_release_bundle_passes(tmp_path):
     out = tmp_path / "bundle.tar.gz"
-    write_release_bundle(REPO / "benchmarks", out)
+    manifest = write_release_bundle(REPO / "benchmarks", out)
+    assert manifest.get("bundle_files")
+    assert manifest.get("bundle_file_count", 0) >= 10
     assert verify_release_bundle(out) == []
+
+
+def test_release_manifest_includes_git_commit():
+    manifest = collect_release_manifest(REPO / "benchmarks")
+    assert manifest["reproducibility"].get("git_commit")
