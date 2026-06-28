@@ -82,6 +82,9 @@ def parseGateLine (line : String) : Option ParsedGate :=
   else
     none
 
+def rxExcludedFromParseLinesNote : String :=
+  "parseGateLine accepts rx(...) but parseLineQasmOp/parseLines skip RX until global-phase policy is manifest-bound."
+
 /-- Map parsed gate to `QasmOp` for denotation (matches codegen emission). -/
 noncomputable def toQasmOp (pg : ParsedGate) : QasmOp :=
   match pg with
@@ -151,18 +154,56 @@ lemma parseLineQasmOp_bell_cx : parseLineQasmOp "cx q[0], q[1];" = some (.cx 0 1
 lemma parseLineQasmOp_cx10 : parseLineQasmOp "cx q[1], q[0];" = some (.cx 1 0) := by
   simp [parseLineQasmOp, parseGateLine_cx10]
 
-/-- Bell artifact gate lines parse to the same `QasmOp` trace as codegen / `bell_prep_ops`. -/
-theorem parseLines_bell_eq_bell_prep_ops :
-    parseLines ["h q[0];", "cx q[0], q[1];"] = bell_state_preparation_codegen_ops := by
-  unfold bell_state_preparation_codegen_ops Generated.BellStatePreparation.ops
+theorem parseGateLine_x : parseGateLine "x q[0];" = some (.gate .X 0) := by native_decide
+
+lemma parseLineQasmOp_x : parseLineQasmOp "x q[0];" = some (.gate .X 0) := by
+  simp [parseLineQasmOp, parseGateLine_x]
+
+theorem parseGateLine_hxh_h0 : parseGateLine "h q[0];" = some (.gate .H 0) := parseGateLine_bell_h
+
+theorem parseGateLine_hxh_x0 : parseGateLine "x q[0];" = some (.gate .X 0) := parseGateLine_x
+
+theorem parseGateLine_hh0 : parseGateLine "h q[0];" = some (.gate .H 0) := parseGateLine_bell_h
+
+/-- Bell artifact gate lines parse to the same `QasmOp` trace as codegen. -/
+theorem parseLines_bell_eq_generated_ops :
+    parseLines ["h q[0];", "cx q[0], q[1];"] = Generated.BellStatePreparation.ops := by
+  unfold Generated.BellStatePreparation.ops
   simp [parseLines, parseLineQasmOp_bell_h, parseLineQasmOp_bell_cx]
 
+theorem parseLines_bell_eq_bell_prep_ops :
+    parseLines ["h q[0];", "cx q[0], q[1];"] = Generated.BellStatePreparation.ops :=
+  parseLines_bell_eq_generated_ops
+
+/-- CNOT self-inverse artifact gate lines match codegen trace. -/
+theorem parseLines_cnot_eq_generated_ops :
+    parseLines ["cx q[0], q[1];", "cx q[0], q[1];"] = Generated.CnotSelfInverse.ops := by
+  unfold Generated.CnotSelfInverse.ops
+  simp [parseLines, parseLineQasmOp_bell_cx]
+
+/-- H-X-H artifact gate lines match codegen trace. -/
+theorem parseLines_hxh_eq_generated_ops :
+    parseLines ["h q[0];", "x q[0];", "h q[0];"] = Generated.HadamardConjugatesXToZ.ops := by
+  unfold Generated.HadamardConjugatesXToZ.ops
+  simp [parseLines, parseLineQasmOp_bell_h, parseLineQasmOp_x]
+
+/-- H-H cancellation artifact gate lines match codegen trace. -/
+theorem parseLines_hh_eq_generated_ops :
+    parseLines ["h q[0];", "h q[0];"] = Generated.SingleQubitGateCancellation.ops := by
+  unfold Generated.SingleQubitGateCancellation.ops
+  simp [parseLines, parseLineQasmOp_bell_h]
+
 /-- Three-CX SWAP artifact gate lines match codegen trace. -/
+theorem parseLines_swap_eq_generated_ops :
+    parseLines ["cx q[0], q[1];", "cx q[1], q[0];", "cx q[0], q[1];"] =
+      Generated.SwapFromThreeCx.ops := by
+  unfold Generated.SwapFromThreeCx.ops
+  simp [parseLines, parseLineQasmOp_bell_cx, parseLineQasmOp_cx10]
+
 theorem parseLines_swap_eq_swap_codegen_ops :
     parseLines ["cx q[0], q[1];", "cx q[1], q[0];", "cx q[0], q[1];"] =
-      swap_from_three_cx_codegen_ops := by
-  unfold swap_from_three_cx_codegen_ops Generated.SwapFromThreeCx.ops
-  simp [parseLines, parseLineQasmOp_bell_cx, parseLineQasmOp_cx10]
+      Generated.SwapFromThreeCx.ops :=
+  parseLines_swap_eq_generated_ops
 
 example : parseGateLine "h q[0];" = some (.gate .H 0) := by native_decide
 example : parseGateLine "cx q[0], q[1];" = some (.cx 0 1) := by native_decide
@@ -170,8 +211,12 @@ example : parseGateLine "  cx q[1], q[2];" = some (.cx 1 2) := by native_decide
 example : parseGateLine "x q[0];" = some (.gate .X 0) := by native_decide
 
 #check parseGateLine
-#check parseGateLine_bell_h_toQasmOp
-#check parseLines_bell_eq_bell_prep_ops
+#check parseLines_bell_eq_generated_ops
+#check parseLines_cnot_eq_generated_ops
+#check parseLines_hxh_eq_generated_ops
+#check parseLines_hh_eq_generated_ops
+#check parseLines_swap_eq_generated_ops
 #check parserTrustBoundaryNote
+#check rxExcludedFromParseLinesNote
 
 end QSpecBench.Quantum.OpenQASM3Parser
