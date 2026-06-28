@@ -283,6 +283,57 @@ def release_bundle_cmd(
     )
 
 
+@app.command("dynamic-simulate")
+def dynamic_simulate_cmd(
+    target: Path = typer.Argument(..., help="Claim directory with QASM artifact"),
+    out: Path = typer.Option(None, "--out", help="Write JSON report path"),
+    teleport_basis_check: bool = typer.Option(
+        False,
+        "--teleport-basis-check",
+        help="Run teleportation |0>/|1> branch enumeration (teleportation benchmark)",
+    ),
+    feedforward: bool = typer.Option(
+        False,
+        "--feedforward",
+        help="Use supplementary feed-forward QASM artifact (teleportation benchmark)",
+    ),
+) -> None:
+    """Operational dynamic-circuit simulation (Python, not kernel-checked)."""
+    from qspecbench.dynamic_simulator import (
+        simulate_dynamic_circuit,
+        verify_teleportation_basis_states,
+        write_dynamic_simulation_report,
+    )
+    from qspecbench.dynamic_simulation_evidence import attach_fingerprint
+
+    spec = load_spec(target / "spec.yaml")
+    extraction = spec.get("qasm_extraction")
+    if teleport_basis_check or spec.get("id") == "teleportation_preserves_state_up_to_pauli_correction":
+        qasm = None
+        artifact_role = "source"
+        for obj in spec.get("objects", []):
+            if obj.get("format") != "qasm3" or not obj.get("path"):
+                continue
+            if feedforward and obj.get("role") == "witness" and "feedforward" in obj.get("path", ""):
+                qasm = target / obj["path"]
+                artifact_role = "supplementary_feedforward"
+                break
+            if obj.get("role") == "source":
+                qasm = target / obj["path"]
+        if qasm is None:
+            console.print("[red]No QASM artifact in spec[/red]")
+            raise typer.Exit(code=1)
+        report = verify_teleportation_basis_states(qasm, extraction, artifact_role=artifact_role)
+    else:
+        qasm = target / spec["objects"][0]["path"]
+        report = simulate_dynamic_circuit(qasm, extraction)
+
+    if out is None:
+        out = target / "evidence" / "dynamic_simulation.json"
+    write_dynamic_simulation_report(out, attach_fingerprint(report))
+    console.print(f"[green]Wrote[/green] {out}")
+
+
 @app.command("list")
 def list_benchmarks(
     track: Optional[str] = typer.Option(None, "--track", help="Filter by track folder name"),
