@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -e .
+      - run: python -m pip install -e ".[dev]"
       - run: qspecbench validate benchmarks/
       - run: python -m pytest tests/test_infrastructure_b.py tests/test_claim_diff.py -q
       - name: Claim diff on changed benchmarks
