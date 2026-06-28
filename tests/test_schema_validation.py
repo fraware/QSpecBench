@@ -71,5 +71,5 @@ def test_approximate_requires_bounds():
     spec["specification"]["mode"] = "approximate"
     spec["specification"]["approximation"] = {"enabled": False, "metric": None, "bound": None}
     claim_dir = REPO / "benchmarks" / "algorithms" / "no_cloning_negative_claim"
-    errors = validate_spec_dict(spec, claim_dir, REPO / "benchmarks")
+    errors, _warnings = validate_spec_dict(spec, claim_dir, REPO / "benchmarks")
     assert any("approximate" in e for e in errors)
