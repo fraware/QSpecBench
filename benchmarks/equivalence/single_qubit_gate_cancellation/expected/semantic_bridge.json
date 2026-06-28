@@ -1,14 +1,17 @@
 {
   "artifact_gate_model": "openqasm3_1q_clifford",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_hadamard_cancel",
+  "lean_theorem": "bridge_hadamard_codegen_cancel",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_artifact_semantics",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "0a616794427bddf2144952d60642bd81229975c1017bdffa850721caa0ccab8a",
-  "gate_trace_sha256": "cbd175e0734480d649b0768d8698257ab120816947553c7f2b570a840dceab53"
+  "gate_trace_sha256": "cbd175e0734480d649b0768d8698257ab120816947553c7f2b570a840dceab53",
+  "ast_sha256": "f731f909a694e3cc30b96260cc4f25a88888e093ef952d7bc9e0cbeb9973d4d9",
+  "generated_lean_sha256": "668c4dd6e7638e94d1e33e7a1b74a436aa5b59f21368e626443c7b932ff2d60f",
+  "theorem_sha256": "2acdd04e8205481db94899b657e383f162f5cf36e22fe00f5e01594931e7d6ce"
 }
