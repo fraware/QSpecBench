@@ -19,7 +19,7 @@ import QSpecBench.Generated.SwapFromThreeCx
 
 - `denotateOps1IntScaffold`: integer Pauli/H matrix model (RX at π/2 maps to unnormalized H).
 - `denotateOps1Complex` / `denotateOps1C`: complex unitary model (RX/H match Python `qasm_matrix`).
-- `denotateOps1` is a deprecated alias for the int scaffold.
+- Prefer `QSpecBench.Generated.*.ops` for codegen traces (legacy `*_codegen_ops` aliases deprecated).
 -/
 
 namespace QSpecBench.Quantum.OpenQASM3
@@ -97,9 +97,6 @@ noncomputable def denotateOps1IntScaffold (ops : List QasmOp) : Matrix2 :=
     | .ccx _ _ _ => acc
     | .swap _ _ => acc) id2
 
-@[deprecated denotateOps1IntScaffold (since := "2026-06-28")]
-noncomputable def denotateOps1 (ops : List QasmOp) : Matrix2 := denotateOps1IntScaffold ops
-
 /-- Complex single-qubit denotation (H/S/T/RX); matches Python complex `qasm_matrix`. -/
 noncomputable def denotateOps1Complex (ops : List QasmOp) : Mat2C := denotateOps1C ops
 
@@ -126,7 +123,7 @@ def denotateOps3 (ops : List QasmOp) : Matrix8 :=
 
 def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
-/-- Deprecated hand trace; prefer `QSpecBench.Generated.CnotSelfInverse.ops`. -/
+@[deprecated QSpecBench.Generated.CnotSelfInverse.ops (since := "2026-06-28")]
 def cnot_self_inverse_codegen_ops : List QasmOp := Generated.CnotSelfInverse.ops
 
 theorem cnot_codegen_ops_eq_hand_trace : Generated.CnotSelfInverse.ops = cnot_cx_cx := rfl
@@ -151,6 +148,7 @@ theorem bridge_cnot_codegen_denotes_artifact (i j : Fin 4) :
   rw [cnot_codegen_ops_eq_hand_trace, denotateOps2_cnot_cx_cx]
 
 /-- Codegen-aligned H-X-H trace (matches bridge-codegen stub). -/
+@[deprecated QSpecBench.Generated.HadamardConjugatesXToZ.ops (since := "2026-06-28")]
 def hadamard_conjugates_x_to_z_codegen_ops : List QasmOp := Generated.HadamardConjugatesXToZ.ops
 
 def hadamard_hxh : List QasmOp := Generated.HadamardConjugatesXToZ.ops
@@ -175,6 +173,7 @@ theorem bridge_hadamard_codegen_denotes_artifact (i j : Fin 2) :
     denotateOps1IntScaffold Generated.HadamardConjugatesXToZ.ops i j = hadamard_hxhMat i j := by
   rw [hadamard_codegen_ops_eq_hand_trace, denotateOps1IntScaffold_hadamard_hxh]
 
+@[deprecated QSpecBench.Generated.SingleQubitGateCancellation.ops (since := "2026-06-28")]
 def single_qubit_gate_cancellation_codegen_ops : List QasmOp := Generated.SingleQubitGateCancellation.ops
 
 def hadamard_hh : List QasmOp := Generated.SingleQubitGateCancellation.ops
@@ -337,6 +336,7 @@ theorem bridge_bell_prep (i j : Fin 4) :
   denotateOps2_bell_prep i j
 
 /-- Codegen-aligned Bell prep trace (matches bridge-codegen stub). -/
+@[deprecated QSpecBench.Generated.BellStatePreparation.ops (since := "2026-06-28")]
 def bell_state_preparation_codegen_ops : List QasmOp := Generated.BellStatePreparation.ops
 
 theorem bell_codegen_ops_eq_hand_trace :
@@ -411,6 +411,7 @@ theorem bridge_swap_from_three_cx (i j : Fin 4) :
   denotateOps2_swap_from_three_cx i j
 
 /-- Codegen-aligned three-CX SWAP trace (matches bridge-codegen stub). -/
+@[deprecated QSpecBench.Generated.SwapFromThreeCx.ops (since := "2026-06-28")]
 def swap_from_three_cx_codegen_ops : List QasmOp := Generated.SwapFromThreeCx.ops
 
 theorem swap_codegen_ops_eq_hand_trace :
