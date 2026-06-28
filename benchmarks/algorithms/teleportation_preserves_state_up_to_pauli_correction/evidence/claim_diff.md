@@ -1,6 +1,6 @@
 # Claim diff: teleportation_preserves_state_up_to_pauli_correction
 
-<!-- scope_fingerprint: a2ef0d7446f7227cb88a11b4219d3db796801d2afe04dde98106a9cbf4366499 -->
+<!-- scope_fingerprint: ac42e14e706a22374aa94f04ce3fd39c1b20308198b822d25adf1cd537ecdf8f -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

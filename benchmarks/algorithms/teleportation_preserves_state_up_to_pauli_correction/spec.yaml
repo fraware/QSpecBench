@@ -23,6 +23,11 @@ objects:
   path: artifacts/teleportation.qasm
   format: qasm3
   role: source
+- name: teleportation_with_feedforward
+  type: circuit
+  path: artifacts/teleportation_with_feedforward.qasm
+  format: qasm3
+  role: witness
 specification:
   mode: relational
   preconditions:
@@ -84,6 +89,11 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: independently_checkable
+- type: simulation
+  checker: dynamic-simulate CLI
+  path: null
+  required_for_claim: false
+  trust_level: heuristic
 evidence:
 - id: qasm_syntax
   type: qasm_parse
@@ -110,6 +120,24 @@ evidence:
   checker: manual review
   status: passing
   notes: Informal derivation aligned with checked unitary fragment scope.
+- id: dynamic_basis_check
+  type: simulation
+  path: evidence/dynamic_simulation_basis_check.json
+  checker: dynamic-simulate CLI (operational, not kernel-checked)
+  status: passing
+  notes: Branch-enumeration basis check; all_ok true under operational wire model (not kernel-checked).
+- id: lean_measurement_scaffold
+  type: lean_proof
+  path: evidence/measurement_scaffold.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Scaffold anchor to QSpecBench.Quantum.Measurement (|0⟩ Z-basis stub only; not kernel-checked).
+- id: feedforward_artifact_parse
+  type: qasm_parse
+  path: artifacts/teleportation_with_feedforward.qasm
+  checker: qasm parser adapter
+  status: passing
+  notes: Supplementary artifact with classically controlled X/Z corrections; not used for verify-bridge.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -166,6 +194,12 @@ headline_claim_status:
   status: partially_checked
   notes: Unitary fragment and verify-bridge checked; full protocol transfer and correction
     semantics remain open.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - dynamic_circuit.projective_povm_stub
+  not_checked_under:
+  - kernel_checked_measurement_update
+  - classical_feed_forward_operational_semantics
 formal_claims:
 - id: formal_lean_teleportation
   evidence_id: lean_teleportation
@@ -200,6 +234,9 @@ provenance:
   - path: artifacts/teleportation.qasm
     sha256: caa1d081cc6c3ecf7415fd20f3c414e71e5476fb50a2c37df3b1fa2b6b592b22
     role: source
+  - path: artifacts/teleportation_with_feedforward.qasm
+    sha256: c819fc2a31f19de026ca780a21238cbcc66027c8d99298fbfe299a8f55e8f439
+    role: witness
 qasm_extraction:
   mode: full_dynamic_semantics
   allowed_to_skip:
