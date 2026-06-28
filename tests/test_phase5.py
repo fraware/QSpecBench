@@ -175,7 +175,7 @@ def test_lean_parser_stub_file_exists():
     text = path.read_text(encoding="utf-8")
     assert "parseGateLine" in text
     assert "parseLines" in text
-    assert "parseLines_bell_eq_bell_prep_ops" in text
+    assert "parseLines_bell_eq_generated_ops" in text or "parseLines_bell_eq_bell_prep_ops" in text
     assert "parserTrustBoundaryNote" in text
     assert 'parseGateLine "cx q[0], q[1];"' in text
 
@@ -250,10 +250,9 @@ def test_int_scaffold_vs_operational_h_on_q0_three_qubits():
 def test_measurement_lean_scaffold_exists():
     path = REPO / "lean" / "QSpecBench" / "Quantum" / "Measurement.lean"
     text = path.read_text(encoding="utf-8")
-    assert "measure_zero_outcome" in text
-    assert "measure_one_outcome" in text
-    assert "measure_zz_outcome" in text
-    assert "teleport_syndrome00_both_zero" in text
+    assert "measure_state00_q0_zero" in text
+    assert "joint_state00_zz" in text
+    assert "syndrome00_from_state00" in text
     assert "measurementTrustBoundaryNote" in text
 
 
