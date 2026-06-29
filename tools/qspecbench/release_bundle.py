@@ -137,7 +137,37 @@ def _bundle_dirs_for_spec(claim_dir: Path) -> tuple[str, ...]:
 
 def _schema_files() -> list[Path]:
     schema_dir = REPO_ROOT / "schema"
-    return sorted(schema_dir.glob("*.json")) + sorted(schema_dir.glob("*.schema.json"))
+    files = sorted(schema_dir.glob("*.json")) + sorted(schema_dir.glob("*.schema.json"))
+    manifest = schema_dir / "bridge_theorem_manifest.json"
+    if manifest.is_file() and manifest not in files:
+        files.append(manifest)
+    return files
+
+
+def _verify_bundle_bridge_manifest(manifest_path: Path) -> list[str]:
+    """Verify kernel bridge theorem_content_sha256 hashes when manifest is bundled."""
+    from qspecbench.bridge_codegen import kernel_checked_theorem_name, theorem_content_sha256
+
+    errors: list[str] = []
+    if not manifest_path.is_file():
+        return errors
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return ["bridge_theorem_manifest.json invalid JSON in bundle source"]
+    for entry in manifest.get("entries", []):
+        benchmark_id = entry.get("benchmark_id", "")
+        if not kernel_checked_theorem_name(benchmark_id):
+            continue
+        if not entry.get("theorem_content_sha256"):
+            errors.append(
+                f"bridge manifest entry {benchmark_id} missing theorem_content_sha256"
+            )
+            continue
+        expected = theorem_content_sha256(benchmark_id)
+        if expected and entry["theorem_content_sha256"] != expected:
+            errors.append(f"theorem_content_sha256 drift for {benchmark_id} in bundle manifest")
+    return errors
 
 
 def write_release_bundle(
@@ -265,5 +295,17 @@ def verify_release_bundle(bundle_path: Path) -> list[str]:
                         f"bundle file hash mismatch for {norm} "
                         f"(expected {expected_hash[:12]}…, got {on_disk[:12]}…)"
                     )
+
+        bridge_manifest_arc = "schema/bridge_theorem_manifest.json"
+        if bridge_manifest_arc in names:
+            extracted = tar.extractfile(bridge_manifest_arc)
+            if extracted is not None:
+                tmp = bundle_path.parent / ".bundle_bridge_manifest.json"
+                try:
+                    tmp.write_bytes(extracted.read())
+                    errors.extend(_verify_bundle_bridge_manifest(tmp))
+                finally:
+                    if tmp.is_file():
+                        tmp.unlink()
 
     return errors

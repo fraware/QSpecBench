@@ -80,5 +80,8 @@ def test_verify_release_bundle_integration_sample(tmp_path):
     assert repro.get("git_commit")
     assert manifest.get("sbom_summary")
     assert manifest["benchmark_count"] == len(manifest["benchmarks"])
+    with tarfile.open(out, "r:gz") as tar:
+        names = {n.replace("\\", "/") for n in tar.getnames()}
+        assert "schema/bridge_theorem_manifest.json" in names
     errors = verify_release_bundle(out)
     assert errors == [], f"verify failed: {errors}"
