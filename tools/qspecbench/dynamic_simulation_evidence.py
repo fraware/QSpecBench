@@ -34,8 +34,41 @@ def regenerate_dynamic_simulation_report(claim_dir: Path, spec: dict[str, Any]) 
                 break
         if qasm is None or not qasm.is_file():
             return None
-        return verify_teleportation_basis_states(qasm, spec.get("qasm_extraction"))
+        return attach_lean_cross_refs(
+            verify_teleportation_basis_states(qasm, spec.get("qasm_extraction")),
+            spec,
+        )
     return None
+
+
+_LEAN_MEASUREMENT_THEOREM_REFS = (
+    "QSpecBench.Quantum.Measurement.measure_state00_q0_zero",
+    "QSpecBench.Quantum.Measurement.postMeasure_state00_unchanged_at_basis",
+    "QSpecBench.Quantum.Measurement.pauli_x4_corrects_state01_at_receiver",
+    "QSpecBench.Quantum.Measurement.pauli_z4_flips_sign_on_state11_at_basis",
+    "QSpecBench.Quantum.Measurement.pauli_x8_corrects_state001_at_receiver",
+    "QSpecBench.Quantum.Measurement.pauli_z8_flips_sign_on_state101_at_basis",
+    "QSpecBench.Quantum.Measurement.teleport_pauli_correction_anchor_note",
+)
+
+
+def lean_measurement_cross_refs() -> dict[str, Any]:
+    """Lean theorem names anchoring basis-state measurement / Pauli correction checks."""
+    return {
+        "lean_theorem_refs": list(_LEAN_MEASUREMENT_THEOREM_REFS),
+        "trust_boundary": (
+            "Basis-state scaffold only; arbitrary superposition update not kernel-checked."
+        ),
+    }
+
+
+def attach_lean_cross_refs(report: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]:
+    bid = spec.get("id", "")
+    if bid == "teleportation_preserves_state_up_to_pauli_correction":
+        out = dict(report)
+        out["lean_cross_ref"] = lean_measurement_cross_refs()
+        return out
+    return report
 
 
 def attach_fingerprint(report: dict[str, Any]) -> dict[str, Any]:

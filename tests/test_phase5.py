@@ -51,6 +51,7 @@ def test_dynamic_simulation_evidence_freshness_passes():
     spec = yaml.safe_load((TELEPORT / "spec.yaml").read_text(encoding="utf-8"))
     report = regenerate_dynamic_simulation_report(TELEPORT, spec)
     assert report is not None
+    assert report.get("lean_cross_ref", {}).get("lean_theorem_refs")
     path = TELEPORT / "evidence" / "dynamic_simulation_basis_check.json"
     path.write_text(json.dumps(attach_fingerprint(report), indent=2) + "\n", encoding="utf-8")
     errors = validate_dynamic_simulation_evidence(TELEPORT, spec)
