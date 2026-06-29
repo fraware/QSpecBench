@@ -58,7 +58,16 @@
     "generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "package_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "theorem_identifier_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-    "theorem_content_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "theorem_source_statement_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 of syntactic Lean theorem statement extraction (not elaborator export)"
+    },
+    "theorem_content_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Deprecated alias for theorem_source_statement_hash"
+    },
     "theorem_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "target_qasm_artifact": { "type": "string", "minLength": 1 },
     "target_artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
