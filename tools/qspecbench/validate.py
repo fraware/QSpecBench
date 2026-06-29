@@ -186,6 +186,19 @@ def _validate_reference_claim_bridge(spec: dict[str, Any], bridge: dict[str, Any
     return errors
 
 
+def _validate_qec_witness_file(claim_dir: Path) -> list[str]:
+    witness_path = claim_dir / "expected" / "qec_witness.json"
+    if not witness_path.is_file():
+        return []
+    try:
+        witness = json.loads(witness_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"expected/qec_witness.json invalid JSON: {exc}"]
+    from qspecbench.qec_witness import validate_qec_witness
+
+    return validate_qec_witness(witness, claim_dir)
+
+
 def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str]:
     errors: list[str] = []
     if spec.get("track") != "qec":
@@ -320,6 +333,7 @@ def validate_spec_dict(
     errors.extend(validate_dynamic_simulation_evidence(claim_dir, spec))
     warnings.extend(_validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
+    errors.extend(_validate_qec_witness_file(claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     errors.extend(_validate_qasm_extraction(spec))
     return errors, warnings

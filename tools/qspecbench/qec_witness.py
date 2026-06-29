@@ -7,6 +7,14 @@ import json
 from pathlib import Path
 from typing import Any
 
+CLAIM_KIND_ALLOWED_METHODS: dict[str, frozenset[str]] = {
+    "minimum_distance": frozenset({"bruteforce_weight_enumeration", "schema_only"}),
+    "logical_preservation": frozenset({"lookup_table", "schema_only"}),
+    "decoder_correctness": frozenset({"lookup_table", "schema_only"}),
+    "syndrome_extraction": frozenset({"lookup_table", "schema_only"}),
+    "stabilizer_commutation": frozenset({"schema_only", "bruteforce_weight_enumeration"}),
+}
+
 
 def _canonical_json_bytes(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -22,11 +30,37 @@ def correction_table_sha256(table: dict[str, Any]) -> str:
     return hashlib.sha256(_canonical_json_bytes(table)).hexdigest()
 
 
-def validate_witness_fields(witness: dict[str, Any]) -> list[str]:
+def _resolve_artifact_path(claim_dir: Path, relative_path: str) -> Path:
+    direct = claim_dir / relative_path
+    if direct.is_file():
+        return direct
+    return claim_dir / "artifacts" / relative_path
+
+
+def validate_witness_fields(
+    witness: dict[str, Any],
+    *,
+    claim_kind: str | None = None,
+) -> list[str]:
     """Semantic validation for QEC witness envelopes (beyond JSON Schema)."""
     errors: list[str] = []
     if not witness.get("complete_for"):
         errors.append("witness.complete_for is required")
+
+    method = witness.get("method")
+    if claim_kind and method:
+        allowed = CLAIM_KIND_ALLOWED_METHODS.get(claim_kind)
+        if allowed is not None and method not in allowed:
+            errors.append(
+                f"witness.method {method!r} incompatible with claim_kind {claim_kind!r}"
+            )
+
+    if witness.get("syndrome_table_sha256") and not witness.get("syndrome_table_path"):
+        errors.append("witness.syndrome_table_path is required when syndrome_table_sha256 is set")
+    if witness.get("correction_table_sha256") and not witness.get("correction_table_path"):
+        errors.append(
+            "witness.correction_table_path is required when correction_table_sha256 is set"
+        )
     return errors
 
 
@@ -38,35 +72,51 @@ def verify_witness_table_hashes(
     errors: list[str] = []
     syndrome_path = witness.get("syndrome_table_path")
     expected_syndrome = witness.get("syndrome_table_sha256")
-    if expected_syndrome and syndrome_path:
-        artifact = claim_dir / "artifacts" / syndrome_path
-        if not artifact.is_file():
-            artifact = claim_dir / syndrome_path
-        if artifact.is_file():
-            table = json.loads(artifact.read_text(encoding="utf-8"))
-            actual = syndrome_table_sha256(table)
-            if actual != expected_syndrome:
-                errors.append(
-                    f"witness.syndrome_table_sha256 mismatch for {syndrome_path}"
-                )
+    if expected_syndrome:
+        if not syndrome_path:
+            errors.append("witness.syndrome_table_path is required when syndrome_table_sha256 is set")
         else:
-            errors.append(f"witness syndrome table artifact missing: {syndrome_path}")
+            artifact = _resolve_artifact_path(claim_dir, syndrome_path)
+            if not artifact.is_file():
+                errors.append(f"witness syndrome table artifact missing: {syndrome_path}")
+            else:
+                table = json.loads(artifact.read_text(encoding="utf-8"))
+                actual = syndrome_table_sha256(table)
+                if actual != expected_syndrome:
+                    errors.append(
+                        f"witness.syndrome_table_sha256 mismatch for {syndrome_path}"
+                    )
 
     correction_path = witness.get("correction_table_path")
     expected_correction = witness.get("correction_table_sha256")
-    if expected_correction and correction_path:
-        artifact = claim_dir / "artifacts" / correction_path
-        if not artifact.is_file():
-            artifact = claim_dir / correction_path
-        if artifact.is_file():
-            table = json.loads(artifact.read_text(encoding="utf-8"))
-            actual = correction_table_sha256(table)
-            if actual != expected_correction:
-                errors.append(
-                    f"witness.correction_table_sha256 mismatch for {correction_path}"
-                )
+    if expected_correction:
+        if not correction_path:
+            errors.append(
+                "witness.correction_table_path is required when correction_table_sha256 is set"
+            )
         else:
-            errors.append(f"witness correction table artifact missing: {correction_path}")
+            artifact = _resolve_artifact_path(claim_dir, correction_path)
+            if not artifact.is_file():
+                errors.append(f"witness correction table artifact missing: {correction_path}")
+            else:
+                table = json.loads(artifact.read_text(encoding="utf-8"))
+                actual = correction_table_sha256(table)
+                if actual != expected_correction:
+                    errors.append(
+                        f"witness.correction_table_sha256 mismatch for {correction_path}"
+                    )
+    return errors
+
+
+def validate_qec_witness(
+    witness: dict[str, Any],
+    claim_dir: Path,
+    *,
+    claim_kind: str | None = None,
+) -> list[str]:
+    """Deep validation: fields, claim_kind/method pairing, and on-disk table hashes."""
+    errors = validate_witness_fields(witness, claim_kind=claim_kind)
+    errors.extend(verify_witness_table_hashes(witness, claim_dir))
     return errors
 
 

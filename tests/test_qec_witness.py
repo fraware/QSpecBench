@@ -85,6 +85,30 @@ def test_verify_witness_table_hashes_negative():
     assert any("syndrome_table_sha256 mismatch" in e for e in errors)
 
 
+def test_qec_external_rejects_claim_kind_method_mismatch():
+    witness = export_small_code_witness(
+        syndrome_table_path=BIT_FLIP / "artifacts/syndrome_table.json",
+        correction_table_path=BIT_FLIP / "artifacts/correction_table.json",
+        complete_for="[[3,1,3]] bit-flip lookup decoder",
+    )
+    cert = {
+        "certificate_version": "qec-external-v0-stub",
+        "claim_kind": "minimum_distance",
+        "code_ref": {"artifact_sha256": "a" * 64},
+        "prover": {"name": "stub", "method": "schema_only"},
+        "result": {"status": "unknown", "witness": witness},
+    }
+    errors = validate_qec_external_certificate(cert, BIT_FLIP, {"id": "three_qubit_bit_flip_code_corrects_one_x"})
+    assert any("incompatible with claim_kind" in e for e in errors)
+
+
+def test_validate_qec_witness_deep_on_expected_file():
+    from qspecbench.qec_witness import validate_qec_witness
+
+    stored = json.loads((BIT_FLIP / "expected/qec_witness.json").read_text(encoding="utf-8"))
+    assert validate_qec_witness(stored, BIT_FLIP) == []
+
+
 def test_qec_external_certificate_validates_witness_hashes():
     witness = export_small_code_witness(
         syndrome_table_path=BIT_FLIP / "artifacts/syndrome_table.json",

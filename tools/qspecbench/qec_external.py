@@ -83,7 +83,7 @@ def validate_qec_external_certificate(
     elif isinstance(witness, dict):
         from qspecbench.qec_witness import validate_witness_fields
 
-        errors.extend(validate_witness_fields(witness))
+        errors.extend(validate_witness_fields(witness, claim_kind=cert.get("claim_kind")))
         errors.extend(_validate_witness(witness, result, cert, claim_dir))
 
     return errors
@@ -134,6 +134,19 @@ def _validate_witness(
             errors.append(
                 "stabilizer_commutation witness with commutes=true and status=proved "
                 "requires proof_artifact_sha256"
+            )
+
+    if kind and witness.get("method"):
+        allowed = {
+            "minimum_distance": {"bruteforce_weight_enumeration", "schema_only"},
+            "logical_preservation": {"lookup_table", "schema_only"},
+            "decoder_correctness": {"lookup_table", "schema_only"},
+            "syndrome_extraction": {"lookup_table", "schema_only"},
+            "stabilizer_commutation": {"schema_only", "bruteforce_weight_enumeration"},
+        }.get(kind)
+        if allowed is not None and witness["method"] not in allowed:
+            errors.append(
+                f"witness.method {witness['method']!r} incompatible with claim_kind {kind!r}"
             )
 
     if witness.get("syndrome_table_sha256") and not isinstance(witness["syndrome_table_sha256"], str):
