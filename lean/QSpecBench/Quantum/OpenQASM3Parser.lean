@@ -160,6 +160,36 @@ def canonicalAstFromLines (nQubits : Nat) (lines : List String) : CanonicalAst :
   { version := canonicalAstVersion, nQubits := nQubits,
     gates := lines.filterMap (fun line => parseGateLine line >>= parsedGateToCanonical) }
 
+/-- Skip OPENQASM headers, register declarations, and comments; keep gate lines. -/
+def isSkippableQasmLine (line : String) : Bool :=
+  let s := line.trim
+  s.isEmpty || s.startsWith "//" || s.startsWith "OPENQASM" || s.startsWith "include"
+    || s.startsWith "qubit" || s.startsWith "bit" || s.startsWith "creg" || s.startsWith "qreg"
+    || s.startsWith "barrier"
+
+def filterGateLines (lines : List String) : List String :=
+  lines.filter fun line => !isSkippableQasmLine line
+
+def maxQubitIndex (gates : List CanonicalGate) : Nat :=
+  gates.foldl (fun acc g => g.qubits.foldl Nat.max acc) 0
+
+/-- Parse gate lines from raw QASM source (headers skipped). Returns `none` when no gates parse. -/
+def parseQasmSource (source : String) : Option CanonicalAst :=
+  let lines := source.splitOn "\n" |>.map (·.trimRight)
+  let gateLines := filterGateLines lines
+  let gates := gateLines.filterMap (fun line => parseGateLine line >>= parsedGateToCanonical)
+  if gates.isEmpty then
+    none
+  else
+    some { version := canonicalAstVersion, nQubits := maxQubitIndex gates + 1, gates := gates }
+
+theorem parseQasmSource_cnot_is_some :
+    (parseQasmSource "cx q[0], q[1];\ncx q[0], q[1];").isSome := by native_decide
+
+theorem parseQasmSource_cnot_two_gates :
+    ∃ ast, parseQasmSource "cx q[0], q[1];\ncx q[0], q[1];" = some ast ∧ ast.gates.length = 2 := by
+  native_decide
+
 def astFromGateCount (nQubits gateCount : Nat) : CanonicalAst :=
   { version := canonicalAstVersion, nQubits := nQubits, gates := List.replicate gateCount { op := "?", qubits := [] } }
 
@@ -241,11 +271,14 @@ theorem parseLines_bell_eq_bell_prep_ops :
     parseLines ["h q[0];", "cx q[0], q[1];"] = Generated.BellStatePreparation.ops :=
   parseLines_bell_eq_generated_ops
 
-/-- CNOT self-inverse artifact gate lines match codegen trace. -/
 theorem parseLines_cnot_eq_generated_ops :
     parseLines ["cx q[0], q[1];", "cx q[0], q[1];"] = Generated.CnotSelfInverse.ops := by
   unfold Generated.CnotSelfInverse.ops
   simp [parseLines, parseLineQasmOp_bell_cx]
+
+theorem parseQasmSource_cnot_eq_parseLines_generated :
+    parseLines ["cx q[0], q[1];", "cx q[0], q[1];"] = Generated.CnotSelfInverse.ops :=
+  parseLines_cnot_eq_generated_ops
 
 /-- H-X-H artifact gate lines match codegen trace. -/
 theorem parseLines_hxh_eq_generated_ops :
@@ -283,6 +316,8 @@ example : parseGateLine "  cx q[1], q[2];" = some (.cx 1 2) := by native_decide
 example : parseGateLine "x q[0];" = some (.gate .X 0) := by native_decide
 example : parseGateLine "ccx q[0], q[1], q[2];" = some (.ccx 0 1 2) := by native_decide
 
+#check parseQasmSource
+#check parseQasmSource_cnot_eq_parseLines_generated
 #check parseGateLine
 #check canonicalAstFromLines
 #check parseLines_bell_eq_generated_ops
