@@ -20,6 +20,7 @@ from qspecbench.schema import REPO_ROOT
 
 CANONICAL_AST_VERSION = "0.1"
 LEAN_GENERATED_ROOT = REPO_ROOT / "lean" / "QSpecBench" / "Generated"
+OPENQASM3_LEAN = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3.lean"
 
 _SINGLE_GATES = {"i", "x", "y", "z", "h", "s", "t", "sdg", "tdg"}
 
@@ -234,16 +235,65 @@ def theorem_sha256(full_theorem: str) -> str:
     return theorem_identifier_sha256(full_theorem)
 
 
-def theorem_content_sha256(benchmark_id: str) -> str | None:
-    content = KERNEL_THEOREM_CONTENT.get(benchmark_id)
-    if not content:
+def _normalize_theorem_statement(text: str) -> str:
+    return " ".join(text.split())
+
+
+def extract_lean_theorem_statement(path: Path, theorem_name: str) -> str | None:
+    """Parse `theorem name ... :=` from a Lean file (statement only, before proof)."""
+    if not path.is_file():
         return None
-    payload = json.dumps(
-        {"theorem_content": content, "kind": KERNEL_CHECKED_LINK},
-        sort_keys=True,
-        separators=(",", ":"),
+    text = path.read_text(encoding="utf-8")
+    match = re.search(rf"\btheorem\s+{re.escape(theorem_name)}\b", text)
+    if not match:
+        return None
+    rest = text[match.start() :]
+    assign = rest.find(":=")
+    if assign < 0:
+        return None
+    return _normalize_theorem_statement(rest[:assign])
+
+
+def theorem_content_sha256_from_parts(statement: str, module_text: str | None = None) -> str:
+    """Hash normalized theorem statement plus optional generated-module content."""
+    payload: dict[str, Any] = {
+        "theorem_content": _normalize_theorem_statement(statement),
+        "kind": KERNEL_CHECKED_LINK,
+    }
+    if module_text is not None:
+        payload["generated_module_sha256"] = generated_lean_sha256(module_text)
+    return _sha256_bytes(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     )
-    return _sha256_bytes(payload.encode("utf-8"))
+
+
+def _canonicalize_module_refs(text: str) -> str:
+    return text.replace("QSpecBench.Generated.", "Generated.")
+
+
+def theorem_content_sha256(benchmark_id: str) -> str | None:
+    """Stable hash of kernel theorem statement extracted from Lean source."""
+    theorem_full = kernel_checked_theorem_name(benchmark_id)
+    if not theorem_full:
+        return None
+    theorem_short = theorem_full.split(".")[-1]
+    extracted = extract_lean_theorem_statement(OPENQASM3_LEAN, theorem_short)
+    hardcoded = KERNEL_THEOREM_CONTENT.get(benchmark_id)
+    if extracted and hardcoded:
+        canon_hard = _canonicalize_module_refs(_normalize_theorem_statement(hardcoded))
+        if canon_hard != extracted:
+            raise ValueError(
+                f"KERNEL_THEOREM_CONTENT drift for {benchmark_id!r}: "
+                "update hardcoded map or Lean source"
+            )
+    statement = extracted or hardcoded
+    if not statement:
+        return None
+    package_path = package_lean_path(benchmark_id)
+    module_text = (
+        package_path.read_text(encoding="utf-8") if package_path and package_path.is_file() else None
+    )
+    return theorem_content_sha256_from_parts(statement, module_text)
 
 
 KERNEL_CHECKED_THEOREMS: dict[str, str] = {
@@ -265,15 +315,13 @@ def codegen_output_path(claim_dir: Path, benchmark_id: str) -> Path:
     return claim_dir / "evidence" / f"{safe_id}_codegen_ops.lean"
 
 
-def generate_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dict[str, Any]:
-    """Generate Lean stub + hashes for one benchmark (source or target QASM)."""
-    import yaml
-
-    spec_path = claim_dir / "spec.yaml"
-    spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
+def _resolve_qasm_artifact(
+    claim_dir: Path,
+    spec: dict[str, Any],
+    *,
+    qasm_role: str,
+) -> tuple[str, Path]:
     benchmark_id = spec.get("id", claim_dir.name)
-    extraction = spec.get("qasm_extraction")
-
     bridge_path = claim_dir / "expected" / "semantic_bridge.json"
     qasm_rel: str | None = None
     if bridge_path.is_file():
@@ -294,37 +342,67 @@ def generate_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dic
                 break
     if not qasm_rel:
         raise FileNotFoundError(f"no qasm3 {qasm_role} artifact for {benchmark_id}")
+    return qasm_rel, claim_dir / qasm_rel
 
-    qasm_path = claim_dir / qasm_rel
+
+def render_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dict[str, Any]:
+    """Pure render: AST, witness/package Lean text, hashes — no filesystem writes."""
+    import yaml
+
+    spec_path = claim_dir / "spec.yaml"
+    spec = yaml.safe_load(spec_path.read_text(encoding="utf-8"))
+    benchmark_id = spec.get("id", claim_dir.name)
+    extraction = spec.get("qasm_extraction")
+    qasm_rel, qasm_path = _resolve_qasm_artifact(claim_dir, spec, qasm_role=qasm_role)
+
     ast = build_canonical_ast(qasm_path, extraction=extraction)
     stub_id = benchmark_id if qasm_role == "source" else f"{benchmark_id}_target"
-    lean_text = generate_lean_stub(stub_id, ast, witness=True)
-    out_path = codegen_output_path(claim_dir, stub_id)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(lean_text, encoding="utf-8")
-
+    witness_text = generate_lean_stub(stub_id, ast, witness=True)
     package_path = package_lean_path(stub_id)
+    package_text: str | None = None
     package_rel: str | None = None
     if package_path is not None:
-        package_path.parent.mkdir(parents=True, exist_ok=True)
         package_text = generate_lean_stub(stub_id, ast, witness=False)
-        package_path.write_text(package_text, encoding="utf-8")
         package_rel = str(package_path.relative_to(REPO_ROOT))
 
     artifact_sha, trace_sha, _trace = compute_bridge_hashes(qasm_path, extraction=extraction)
     return {
         "benchmark_id": benchmark_id,
+        "stub_id": stub_id,
         "qasm_role": qasm_role,
         "qasm_artifact": qasm_rel,
         "artifact_sha256": artifact_sha,
         "gate_trace_sha256": trace_sha,
         "ast": ast,
         "ast_sha256": ast_sha256(ast),
-        "generated_lean_path": str(out_path.relative_to(claim_dir)),
-        "generated_lean_sha256": generated_lean_sha256(lean_text),
+        "witness_lean_text": witness_text,
+        "package_lean_text": package_text,
+        "generated_lean_path": str(codegen_output_path(claim_dir, stub_id).relative_to(claim_dir)),
+        "generated_lean_sha256": generated_lean_sha256(witness_text),
         "package_lean_path": package_rel,
-        "package_lean_sha256": generated_lean_sha256(package_text) if package_path else None,
+        "package_lean_sha256": generated_lean_sha256(package_text) if package_text else None,
     }
+
+
+def write_generated_outputs(claim_dir: Path, result: dict[str, Any]) -> None:
+    """Write witness and package Lean files from a render_for_benchmark result."""
+    out_path = claim_dir / result["generated_lean_path"]
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(result["witness_lean_text"], encoding="utf-8")
+
+    package_rel = result.get("package_lean_path")
+    package_text = result.get("package_lean_text")
+    if package_rel and package_text:
+        package_path = REPO_ROOT / package_rel
+        package_path.parent.mkdir(parents=True, exist_ok=True)
+        package_path.write_text(package_text, encoding="utf-8")
+
+
+def generate_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dict[str, Any]:
+    """Generate Lean stub + hashes for one benchmark (source or target QASM)."""
+    result = render_for_benchmark(claim_dir, qasm_role=qasm_role)
+    write_generated_outputs(claim_dir, result)
+    return result
 
 
 def verify_manifest_target_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]:
@@ -334,7 +412,7 @@ def verify_manifest_target_codegen(entry: dict[str, Any], claim_dir: Path) -> li
     if not entry.get("target_ast_sha256") and not entry.get("target_generated_lean_sha256"):
         return errors
     try:
-        result = generate_for_benchmark(claim_dir, qasm_role="target")
+        result = render_for_benchmark(claim_dir, qasm_role="target")
     except (FileNotFoundError, ValueError) as exc:
         return [f"target codegen verify failed for {benchmark_id}: {exc}"]
     if entry.get("target_ast_sha256") and entry["target_ast_sha256"] != result["ast_sha256"]:
@@ -361,7 +439,7 @@ def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]
         return errors
 
     try:
-        result = generate_for_benchmark(claim_dir)
+        result = render_for_benchmark(claim_dir)
     except (FileNotFoundError, ValueError) as exc:
         return [f"codegen verify failed for {benchmark_id}: {exc}"]
 
