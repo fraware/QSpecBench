@@ -20,6 +20,6 @@
     "checked_against": "both"
   },
   "theorem_identifier_sha256": "90673f619c0d5d06700e1f07c301e4dcea53e23d27facc5b1e03d399007c4972",
-  "theorem_content_sha256": "6f3bffbce2124ffbe69bcbaa5cb5029982b231dd2c94f40350603d6a21d9a609",
+  "theorem_content_sha256": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
   "package_lean_sha256": "8e9eacbceb895b9c9806cc79c6fe3ac6e0ee9618036ca0996c852d400ffbc229"
 }

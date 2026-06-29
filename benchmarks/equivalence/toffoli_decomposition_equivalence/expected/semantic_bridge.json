@@ -17,7 +17,7 @@
   "generated_lean_sha256": "d081179341f6d920f77a537a3c634f46906af642d68d38c34fb6d45a733a4809",
   "theorem_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
   "theorem_identifier_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
-  "theorem_content_sha256": "b1f03266ac5bfc3a5745d8a32925f7a7525c2ca63e101a274fbbf0df2f9144a0",
+  "theorem_content_sha256": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a",
   "package_lean_sha256": "7f4007e3c454390a4c69274f95a49ae93a7dff1635c8bf0947380be14db46b3a",
   "wire_order": {
     "model": "legacy_kron_order",

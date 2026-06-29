@@ -19,6 +19,6 @@
     "checked_against": "both"
   },
   "theorem_identifier_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
-  "theorem_content_sha256": "67cdb8d9a9909836490608102c82864316dc5578cdaa8479b7ebaa5db2f7ef4f",
+  "theorem_content_sha256": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
   "package_lean_sha256": "7b04bd63e169cb1cce8e495dd0115d2e18ccdd1b4d5baecc0181e648ce1df69c"
 }
