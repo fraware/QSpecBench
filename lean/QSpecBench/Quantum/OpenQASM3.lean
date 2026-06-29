@@ -12,6 +12,7 @@ import QSpecBench.Generated.SingleQubitGateCancellation
 import QSpecBench.Generated.BellStatePreparation
 import QSpecBench.Generated.SwapFromThreeCx
 import QSpecBench.Generated.ToffoliDecompositionEquivalence
+import QSpecBench.Quantum.BridgeMetadata
 
 /-!
 # Denotational OpenQASM 3 semantics for the benchmark gate subset.
@@ -124,28 +125,7 @@ def denotateOps3 (ops : List QasmOp) : Matrix8 :=
 
 def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
-/-- Manifest-aligned metadata for kernel-checked codegen-trace bridges (CNOT pilot). -/
-structure BridgeMetadata where
-  benchmarkId : String
-  claimedLink : String
-  artifactSha256 : String
-  astSha256 : String
-  generatedLeanSha256 : String
-  theoremIdentifierSha256 : String
-  theoremSourceStatementHash : String
-  packageLeanSha256 : String
-  deriving Repr
-
-def bridge_cnot_metadata : BridgeMetadata := {
-  benchmarkId := "cnot_self_inverse_cancellation"
-  claimedLink := "kernel_checked_codegen_trace"
-  artifactSha256 := "cb1e1e91496dd761ac2ec2c06b077e619452fd3804162aa646a054aa02a37354"
-  astSha256 := "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9"
-  generatedLeanSha256 := "af70d6950a1b6516d3a9399cc58268916da4ecd42eeda506cabf3feff4ed44d8"
-  theoremIdentifierSha256 := "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07"
-  theoremSourceStatementHash := "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0"
-  packageLeanSha256 := "7b04bd63e169cb1cce8e495dd0115d2e18ccdd1b4d5baecc0181e648ce1df69c"
-}
+open QSpecBench.Quantum.BridgeMetadata
 
 @[deprecated QSpecBench.Generated.CnotSelfInverse.ops (since := "2026-06-28")]
 def cnot_self_inverse_codegen_ops : List QasmOp := Generated.CnotSelfInverse.ops

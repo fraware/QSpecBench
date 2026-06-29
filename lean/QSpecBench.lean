@@ -6,6 +6,7 @@ import QSpecBench.Stabilizer
 import QSpecBench.Quantum.QasmOp
 import QSpecBench.Generated
 import QSpecBench.Quantum.OpenQASM3
+import QSpecBench.Quantum.BridgeMetadata
 import QSpecBench.Quantum.OpenQASM3Parser
 import QSpecBench.Quantum.Measurement
 import QSpecBench.Teleportation
