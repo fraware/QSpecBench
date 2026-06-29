@@ -37,6 +37,9 @@ VERIFIED_BRIDGE_LINKS = {
     "kernel_checked",
 }
 
+ARTIFACT_BOUND_LEVEL = "artifact_bound_reference_claim"
+REQUIRED_ARTIFACT_BOUND_REVIEWS = ("formal_evidence_review", "domain_semantics_review")
+
 SNAKE_CASE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
@@ -139,9 +142,80 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
                 )
     errors.extend(_validate_wire_order(spec, bridge))
     errors.extend(_validate_reference_claim_bridge(spec, bridge))
+    errors.extend(_validate_artifact_bound_reference_claim(spec, claim_dir, bridge))
     errors.extend(_validate_qec_claim_scope(spec, claim_dir))
     return errors
 
+
+def _validate_artifact_bound_reference_claim(
+    spec: dict[str, Any],
+    claim_dir: Path,
+    bridge: dict[str, Any] | None,
+) -> list[str]:
+    """Fail closed on artifact_bound_reference_claim until full promotion obligations are met."""
+    errors: list[str] = []
+    maturity = spec.get("status", {}).get("maturity")
+    if maturity != ARTIFACT_BOUND_LEVEL:
+        return errors
+
+    headline = spec.get("headline_claim_status") or {}
+    if headline.get("status") != "checked":
+        errors.append(
+            f"{ARTIFACT_BOUND_LEVEL} requires headline_claim_status.status: checked"
+        )
+
+    reviews = (spec.get("status") or {}).get("reviews") or {}
+    for review_key in REQUIRED_ARTIFACT_BOUND_REVIEWS:
+        block = reviews.get(review_key) or {}
+        status = block.get("status")
+        reviewer = (block.get("reviewer") or "").strip()
+        if status not in {"approved", "required"}:
+            errors.append(
+                f"{ARTIFACT_BOUND_LEVEL} requires status.reviews.{review_key}.status "
+                "approved or required"
+            )
+        if not reviewer or reviewer == "maintainer-bootstrap":
+            errors.append(
+                f"{ARTIFACT_BOUND_LEVEL} requires status.reviews.{review_key}.reviewer "
+                "with a named non-bootstrap identity"
+            )
+
+    if not bridge:
+        errors.append(
+            f"{ARTIFACT_BOUND_LEVEL} requires semantic_bridge with hash anchors"
+        )
+        return errors
+
+    if bridge.get("claimed_link") != KERNEL_CHECKED_LINK:
+        errors.append(
+            f"{ARTIFACT_BOUND_LEVEL} requires claimed_link {KERNEL_CHECKED_LINK!r}"
+        )
+
+    for anchor in (
+        "artifact_sha256",
+        "gate_trace_sha256",
+        "ast_sha256",
+        "generated_lean_sha256",
+        "theorem_identifier_sha256",
+        "theorem_source_statement_hash",
+    ):
+        if not bridge.get(anchor):
+            errors.append(
+                f"{ARTIFACT_BOUND_LEVEL} requires semantic_bridge.{anchor} anchor"
+            )
+
+    proved = spec.get("proved_scope") or {}
+    if proved.get("unproved_obligations"):
+        errors.append(
+            f"{ARTIFACT_BOUND_LEVEL} requires proved_scope.unproved_obligations to be empty"
+        )
+
+    if not _has_passing_bridge_verify(spec):
+        errors.append(
+            f"{ARTIFACT_BOUND_LEVEL} requires passing bridge verify evidence"
+        )
+
+    return errors
 
 def _validate_wire_order(spec: dict[str, Any], bridge: dict[str, Any] | None) -> list[str]:
     errors: list[str] = []
