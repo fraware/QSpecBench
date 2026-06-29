@@ -69,3 +69,22 @@ def test_reference_has_passing_lean_proof():
     assert spec["status"]["maturity"] == "reference_claim"
     lean = [e for e in spec["evidence"] if e["type"] == "lean_proof" and e["status"] == "passing"]
     assert len(lean) >= 1
+
+
+def test_scan_lean_package_for_sorry_clean():
+    from adapters.lean.parse_result import scan_lean_package_for_sorry
+
+    assert scan_lean_package_for_sorry() == []
+
+
+def test_lean_adapter_fails_when_package_contains_sorry(tmp_path, monkeypatch):
+    from adapters.lean import parse_result
+
+    sorry_file = tmp_path / "SorryModule.lean"
+    sorry_file.write_text("theorem bad : True := sorry\n", encoding="utf-8")
+    monkeypatch.setattr(parse_result, "scan_lean_package_for_sorry", lambda root=None: ["QSpecBench/SorryModule.lean"])
+
+    evidence = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation/evidence/cnot_self_inverse.lean"
+    result = parse_result.check(evidence)
+    assert not result["ok"]
+    assert any("sorry found in lean package" in e for e in result.get("errors", []))
