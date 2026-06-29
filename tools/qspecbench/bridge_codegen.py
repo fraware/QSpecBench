@@ -36,32 +36,8 @@ GENERATED_MODULE_MAP: dict[str, str] = {
     "toffoli_decomposition_equivalence": "ToffoliDecompositionEquivalence",
 }
 
-KERNEL_THEOREM_CONTENT: dict[str, str] = {
-    "cnot_self_inverse_cancellation": (
-        "theorem bridge_cnot_codegen_self_inverse (i j : Fin 4) : "
-        "denotateOps2 QSpecBench.Generated.CnotSelfInverse.ops i j = id4 i j"
-    ),
-    "hadamard_conjugates_x_to_z": (
-        "theorem bridge_hadamard_codegen_conjugates_x (i j : Fin 2) : "
-        "denotateOps1IntScaffold QSpecBench.Generated.HadamardConjugatesXToZ.ops i j = scale2 2 pauliZ2 i j"
-    ),
-    "single_qubit_gate_cancellation": (
-        "theorem bridge_hadamard_codegen_cancel (i j : Fin 2) : "
-        "denotateOps1IntScaffold QSpecBench.Generated.SingleQubitGateCancellation.ops i j = scale2 2 id2 i j"
-    ),
-    "bell_state_preparation": (
-        "theorem bridge_bell_codegen_prep (i j : Fin 4) : "
-        "denotateOps2 QSpecBench.Generated.BellStatePreparation.ops i j = bellPrepMatrix i j"
-    ),
-    "swap_from_three_cx": (
-        "theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) : "
-        "denotateOps2 QSpecBench.Generated.SwapFromThreeCx.ops i j = swap4 i j"
-    ),
-    "toffoli_decomposition_equivalence": (
-        "theorem bridge_toffoli_codegen_ccx (i j : Fin 8) : "
-        "denotateOps3 QSpecBench.Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j"
-    ),
-}
+# Deprecated fallback only when Lean source extraction fails (should not happen for kernel bridges).
+_KERNEL_THEOREM_CONTENT_DEPRECATED: dict[str, str] = {}
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -278,15 +254,21 @@ def theorem_content_sha256(benchmark_id: str) -> str | None:
         return None
     theorem_short = theorem_full.split(".")[-1]
     extracted = extract_lean_theorem_statement(OPENQASM3_LEAN, theorem_short)
-    hardcoded = KERNEL_THEOREM_CONTENT.get(benchmark_id)
-    if extracted and hardcoded:
-        canon_hard = _canonicalize_module_refs(_normalize_theorem_statement(hardcoded))
-        if canon_hard != extracted:
+    if benchmark_id in GENERATED_MODULE_MAP:
+        if not extracted:
             raise ValueError(
-                f"KERNEL_THEOREM_CONTENT drift for {benchmark_id!r}: "
-                "update hardcoded map or Lean source"
+                f"kernel bridge {benchmark_id!r} missing theorem {theorem_short!r} "
+                f"in {OPENQASM3_LEAN.relative_to(REPO_ROOT)}"
             )
-    statement = extracted or hardcoded
+        deprecated = _KERNEL_THEOREM_CONTENT_DEPRECATED.get(benchmark_id)
+        if deprecated:
+            canon_dep = _canonicalize_module_refs(_normalize_theorem_statement(deprecated))
+            if canon_dep != extracted:
+                raise ValueError(
+                    f"_KERNEL_THEOREM_CONTENT_DEPRECATED drift for {benchmark_id!r}: "
+                    "update deprecated map or Lean source"
+                )
+    statement = extracted or _KERNEL_THEOREM_CONTENT_DEPRECATED.get(benchmark_id)
     if not statement:
         return None
     package_path = package_lean_path(benchmark_id)
