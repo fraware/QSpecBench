@@ -1,4 +1,8 @@
 qspecbench_version: '0.2'
+# Future artifact_bound_reference_claim pilot (schema only — not promoted):
+#   maturity: artifact_bound_reference_claim
+#   requires: dual named reviews, headline_claim_status.checked, kernel_checked_codegen_trace
+#   bridge with artifact_sha256 + theorem_source_statement_hash anchors, empty unproved_obligations
 id: cnot_self_inverse_cancellation
 title: CNOT self-inverse cancellation
 track: equivalence
