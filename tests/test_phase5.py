@@ -261,6 +261,23 @@ def test_qasm_bytes_hash_and_gate_list_stable():
         assert ast["gates"]
         assert ast_sha256(ast)
 
+
+def test_cnot_kernel_source_matches_artifact_and_codegen_ops():
+    """Cross-test full CNOT QASM grammar against Python canonical AST gate trace."""
+    qasm = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation/artifacts/source.qasm"
+    source = qasm.read_text(encoding="utf-8")
+    assert source.startswith("OPENQASM 3.0;")
+    assert 'include "stdgates.inc";' in source
+    assert "qubit[2] q;" in source
+    ast = build_canonical_ast(qasm)
+    assert ast["gates"] == [{"op": "cx", "qubits": [0, 1]}, {"op": "cx", "qubits": [0, 1]}]
+    gate_lines = [
+        line
+        for line in source.splitlines()
+        if line.strip() and not line.strip().startswith(("OPENQASM", "include", "qubit"))
+    ]
+    assert gate_lines == ["cx q[0], q[1];", "cx q[0], q[1];"]
+
 def test_canonical_ast_json_matches_lean_mirror_structure():
     """Lean-parseable gate lines must match Python canonical_ast gate objects."""
     qasm = REPO / "benchmarks" / "algorithms" / "bell_state_preparation" / "artifacts" / "circuit.qasm"

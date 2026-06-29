@@ -280,6 +280,42 @@ theorem parseQasmSource_cnot_eq_parseLines_generated :
     parseLines ["cx q[0], q[1];", "cx q[0], q[1];"] = Generated.CnotSelfInverse.ops :=
   parseLines_cnot_eq_generated_ops
 
+/-- Exact on-disk CNOT kernel artifact (OPENQASM header, include, qubit register, two CX lines). -/
+def cnotKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[0], q[1];\ncx q[0], q[1];"
+
+def gateLinesFromSource (source : String) : List String :=
+  filterGateLines (source.splitOn "\n" |>.map (·.trimRight))
+
+/-- Gate-trace view of raw QASM source (headers/includes/registers skipped). -/
+def parseQasmSourceToOps (source : String) : Option (List QasmOp) :=
+  match parseLines (gateLinesFromSource source) with
+  | [] => none
+  | ops@(_ :: _) => some ops
+
+def cnotKernelGateLines : List String :=
+  ["cx q[0], q[1];", "cx q[0], q[1];"]
+
+theorem gateLinesFromSource_cnot :
+    filterGateLines (cnotKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = cnotKernelGateLines := by
+  native_decide
+
+theorem cnotKernelGateLines_eq :
+    cnotKernelGateLines = ["cx q[0], q[1];", "cx q[0], q[1];"] := rfl
+
+theorem parseQasmSource_cnot_kernel_eq_generated_ops :
+    parseQasmSourceToOps cnotKernelArtifactSource = some Generated.CnotSelfInverse.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_cnot, cnotKernelGateLines_eq, parseLines_cnot_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_cnot_kernel_is_some :
+    (parseQasmSource cnotKernelArtifactSource).isSome := by native_decide
+
+theorem parseQasmSource_cnot_kernel_gate_count :
+    ∃ ast, parseQasmSource cnotKernelArtifactSource = some ast ∧ ast.gates.length = 2 := by
+  native_decide
+
 /-- H-X-H artifact gate lines match codegen trace. -/
 theorem parseLines_hxh_eq_generated_ops :
     parseLines ["h q[0];", "x q[0];", "h q[0];"] = Generated.HadamardConjugatesXToZ.ops := by
