@@ -217,6 +217,32 @@ def _validate_artifact_bound_reference_claim(
 
     return errors
 
+
+def _validate_ai_formalization_reviewer(spec: dict[str, Any]) -> list[str]:
+    """Warn when ai_formalization reference_claim lacks named reviewer identity."""
+    warnings: list[str] = []
+    if spec.get("track") != "ai_formalization":
+        return warnings
+    maturity = spec.get("status", {}).get("maturity")
+    if maturity != REFERENCE_CLAIM_LEVEL:
+        return warnings
+    reviews = (spec.get("status") or {}).get("reviews") or {}
+    for review_key in REQUIRED_ARTIFACT_BOUND_REVIEWS:
+        block = reviews.get(review_key) or {}
+        reviewer = (block.get("reviewer") or "").strip()
+        if not reviewer:
+            warnings.append(
+                f"ai_formalization {REFERENCE_CLAIM_LEVEL} should declare "
+                f"status.reviews.{review_key}.reviewer before promotion"
+            )
+        elif reviewer == "maintainer-bootstrap":
+            warnings.append(
+                f"ai_formalization {REFERENCE_CLAIM_LEVEL} should replace "
+                f"status.reviews.{review_key}.reviewer maintainer-bootstrap with a named reviewer"
+            )
+    return warnings
+
+
 def _validate_wire_order(spec: dict[str, Any], bridge: dict[str, Any] | None) -> list[str]:
     errors: list[str] = []
     if not bridge:
@@ -410,6 +436,7 @@ def validate_spec_dict(
     errors.extend(_validate_qec_witness_file(claim_dir))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     errors.extend(_validate_qasm_extraction(spec))
+    warnings.extend(_validate_ai_formalization_reviewer(spec))
     return errors, warnings
 
 
