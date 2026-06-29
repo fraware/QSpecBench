@@ -118,6 +118,30 @@ def test_teleportation_classical_control_metadata():
     assert data.get("measurement_semantics") == "projective_povm_stub"
 
 
+def test_dynamic_fragment_recording_rejects_classical_control_without_skip():
+    from qspecbench.qasm_matrix import UnsupportedQasmError
+
+    feedforward = TELEPORT_DIR / "artifacts" / "teleportation_with_feedforward.qasm"
+    extraction = {"mode": "dynamic_fragment_recording", "allowed_to_skip": ["measurement"]}
+    try:
+        extract_matrix(feedforward, extraction=extraction)
+        raise AssertionError("expected UnsupportedQasmError for if-line without classical_control skip")
+    except UnsupportedQasmError as exc:
+        assert "classical_control" in str(exc)
+
+
+def test_dynamic_fragment_recording_allows_classical_control_when_declared():
+    feedforward = TELEPORT_DIR / "artifacts" / "teleportation_with_feedforward.qasm"
+    extraction = {
+        "mode": "dynamic_fragment_recording",
+        "allowed_to_skip": ["measurement", "classical_control"],
+    }
+    data = extract_matrix(feedforward, extraction=extraction)
+    ctrl = [f for f in data.get("dynamic_fragments") or [] if f.get("category") == "classical_control"]
+    assert len(ctrl) >= 2
+    assert any("if" in f.get("line", "") for f in ctrl)
+
+
 def test_cnot_kernel_checked_manifest_chain():
     entry = next(
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "cnot_self_inverse_cancellation"

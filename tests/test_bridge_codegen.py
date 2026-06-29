@@ -7,9 +7,12 @@ from pathlib import Path
 from qspecbench.bridge_codegen import (
     ast_sha256,
     build_canonical_ast,
+    extract_lean_theorem_statement,
     generate_for_benchmark,
     generate_lean_stub,
     generated_lean_sha256,
+    OPENQASM3_LEAN,
+    render_for_benchmark,
     verify_manifest_codegen,
 )
 from qspecbench.bridge_manifest import load_manifest
@@ -103,3 +106,37 @@ def test_single_qubit_gate_cancellation_codegen():
         e for e in load_manifest()["entries"] if e["benchmark_id"] == "single_qubit_gate_cancellation"
     )
     assert verify_manifest_codegen(entry, HH_CANCEL_DIR) == []
+
+
+def test_extract_lean_theorem_statement_from_openqasm3():
+    stmt = extract_lean_theorem_statement(OPENQASM3_LEAN, "bridge_cnot_codegen_self_inverse")
+    assert stmt is not None
+    assert "bridge_cnot_codegen_self_inverse" in stmt
+    assert "Generated.CnotSelfInverse.ops" in stmt
+    assert ":=" not in stmt
+
+
+def test_bridge_codegen_verify_is_read_only():
+    import hashlib
+
+    generated_files = list((REPO / "lean" / "QSpecBench" / "Generated").glob("*.lean"))
+    witness_files = list((REPO / "benchmarks").rglob("evidence/*_codegen_ops.lean"))
+
+    before: dict[str, tuple[float, str]] = {}
+    for path in generated_files + witness_files:
+        stat = path.stat()
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        before[str(path)] = (stat.st_mtime_ns, digest)
+
+    entry = next(
+        e for e in load_manifest()["entries"] if e["benchmark_id"] == "cnot_self_inverse_cancellation"
+    )
+    assert verify_manifest_codegen(entry, CNOT_DIR) == []
+    render_for_benchmark(CNOT_DIR)
+
+    for path in generated_files + witness_files:
+        stat = path.stat()
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        mtime_ns, old_digest = before[str(path)]
+        assert digest == old_digest, f"{path} content changed during verify/render"
+        assert stat.st_mtime_ns == mtime_ns, f"{path} mtime changed during verify/render"
