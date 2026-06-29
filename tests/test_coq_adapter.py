@@ -94,3 +94,13 @@ def test_coq_ci_flag_documented():
     import os
 
     assert os.environ.get("QSPECBENCH_COQ", "0") in {"0", "1", ""}
+
+
+def test_cnot_coq_smoke_stub_present():
+    smoke = (
+        REPO
+        / "benchmarks/equivalence/cnot_self_inverse_cancellation/evidence/cnot_coq_smoke.v"
+    )
+    assert smoke.is_file()
+    text = smoke.read_text(encoding="utf-8")
+    assert "cnot_coq_smoke" in text
