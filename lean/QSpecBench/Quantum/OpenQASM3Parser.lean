@@ -340,6 +340,53 @@ theorem parseLines_swap_eq_swap_codegen_ops :
       Generated.SwapFromThreeCx.ops :=
   parseLines_swap_eq_generated_ops
 
+/-- Exact on-disk Bell kernel artifact (OPENQASM header, include, qubit register, H + CX). -/
+def bellKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\nh q[0];\ncx q[0], q[1];"
+
+def bellKernelGateLines : List String :=
+  ["h q[0];", "cx q[0], q[1];"]
+
+theorem gateLinesFromSource_bell :
+    filterGateLines (bellKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = bellKernelGateLines := by
+  native_decide
+
+theorem bellKernelGateLines_eq :
+    bellKernelGateLines = ["h q[0];", "cx q[0], q[1];"] := rfl
+
+theorem parseQasmSource_bell_kernel_eq_generated_ops :
+    parseQasmSourceToOps bellKernelArtifactSource = some Generated.BellStatePreparation.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_bell, bellKernelGateLines_eq, parseLines_bell_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_bell_kernel_is_some :
+    (parseQasmSource bellKernelArtifactSource).isSome := by native_decide
+
+/-- Exact on-disk three-CX SWAP kernel artifact. -/
+def swapKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[0], q[1];\ncx q[1], q[0];\ncx q[0], q[1];"
+
+def swapKernelGateLines : List String :=
+  ["cx q[0], q[1];", "cx q[1], q[0];", "cx q[0], q[1];"]
+
+theorem gateLinesFromSource_swap :
+    filterGateLines (swapKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = swapKernelGateLines := by
+  native_decide
+
+theorem swapKernelGateLines_eq :
+    swapKernelGateLines =
+      ["cx q[0], q[1];", "cx q[1], q[0];", "cx q[0], q[1];"] := rfl
+
+theorem parseQasmSource_swap_kernel_eq_generated_ops :
+    parseQasmSourceToOps swapKernelArtifactSource = some Generated.SwapFromThreeCx.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_swap, swapKernelGateLines_eq, parseLines_swap_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_swap_kernel_is_some :
+    (parseQasmSource swapKernelArtifactSource).isSome := by native_decide
+
 /-- Toffoli source artifact gate line matches codegen trace. -/
 theorem parseLines_toffoli_eq_generated_ops :
     parseLines ["ccx q[0], q[1], q[2];"] = Generated.ToffoliDecompositionEquivalence.ops := by
@@ -353,7 +400,9 @@ example : parseGateLine "x q[0];" = some (.gate .X 0) := by native_decide
 example : parseGateLine "ccx q[0], q[1], q[2];" = some (.ccx 0 1 2) := by native_decide
 
 #check parseQasmSource
-#check parseQasmSource_cnot_eq_parseLines_generated
+#check parseQasmSource_bell_kernel_eq_generated_ops
+#check parseQasmSource_swap_kernel_eq_generated_ops
+#check parseQasmSource_cnot_kernel_eq_generated_ops
 #check parseGateLine
 #check canonicalAstFromLines
 #check parseLines_bell_eq_generated_ops
