@@ -281,6 +281,9 @@ def test_measurement_lean_scaffold_exists():
     assert "joint_state00_zz" in text
     assert "syndrome00_from_state00" in text
     assert "measure_state000_q0_zero" in text
+    assert "pauli_x4_corrects_state01_at_receiver" in text
+    assert "pauli_x8_corrects_state001_at_receiver" in text
+    assert "teleport_pauli_correction_anchor_note" in text
     assert "groverMeasurementCrossRefNote" in text
     assert "measurementTrustBoundaryNote" in text
 
