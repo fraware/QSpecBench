@@ -322,7 +322,7 @@ def dynamic_simulate_cmd(
         verify_teleportation_basis_states,
         write_dynamic_simulation_report,
     )
-    from qspecbench.dynamic_simulation_evidence import attach_fingerprint
+    from qspecbench.dynamic_simulation_evidence import attach_fingerprint, attach_lean_cross_refs
 
     spec = load_spec(target / "spec.yaml")
     extraction = spec.get("qasm_extraction")
@@ -353,6 +353,7 @@ def dynamic_simulate_cmd(
                 break
         if out is None:
             out = target / "evidence" / "dynamic_simulation.json"
+    report = attach_lean_cross_refs(report, spec)
     write_dynamic_simulation_report(out, attach_fingerprint(report))
     console.print(f"[green]Wrote[/green] {out}")
 
