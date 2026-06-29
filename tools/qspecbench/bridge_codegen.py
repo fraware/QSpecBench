@@ -230,8 +230,14 @@ def extract_lean_theorem_statement(path: Path, theorem_name: str) -> str | None:
     return _normalize_theorem_statement(rest[:assign])
 
 
-def theorem_content_sha256_from_parts(statement: str, module_text: str | None = None) -> str:
-    """Hash normalized theorem statement plus optional generated-module content."""
+THEOREM_SOURCE_HASH_FIELD = "theorem_source_statement_hash"
+THEOREM_SOURCE_HASH_FIELD_LEGACY = "theorem_content_sha256"
+
+
+def theorem_source_statement_hash_from_parts(
+    statement: str, module_text: str | None = None
+) -> str:
+    """Hash syntactic Lean theorem statement extraction (not elaborator export)."""
     payload: dict[str, Any] = {
         "theorem_content": _normalize_theorem_statement(statement),
         "kind": KERNEL_CHECKED_LINK,
@@ -243,12 +249,17 @@ def theorem_content_sha256_from_parts(statement: str, module_text: str | None = 
     )
 
 
+def theorem_content_sha256_from_parts(statement: str, module_text: str | None = None) -> str:
+    """Deprecated alias for ``theorem_source_statement_hash_from_parts``."""
+    return theorem_source_statement_hash_from_parts(statement, module_text)
+
+
 def _canonicalize_module_refs(text: str) -> str:
     return text.replace("QSpecBench.Generated.", "Generated.")
 
 
-def theorem_content_sha256(benchmark_id: str) -> str | None:
-    """Stable hash of kernel theorem statement extracted from Lean source."""
+def theorem_source_statement_hash(benchmark_id: str) -> str | None:
+    """Stable hash of kernel theorem statement from syntactic Lean source extraction."""
     theorem_full = kernel_checked_theorem_name(benchmark_id)
     if not theorem_full:
         return None
@@ -275,7 +286,29 @@ def theorem_content_sha256(benchmark_id: str) -> str | None:
     module_text = (
         package_path.read_text(encoding="utf-8") if package_path and package_path.is_file() else None
     )
-    return theorem_content_sha256_from_parts(statement, module_text)
+    return theorem_source_statement_hash_from_parts(statement, module_text)
+
+
+def theorem_content_sha256(benchmark_id: str) -> str | None:
+    """Deprecated alias for ``theorem_source_statement_hash`` (legacy manifest field name)."""
+    return theorem_source_statement_hash(benchmark_id)
+
+
+def read_theorem_source_hash(record: dict[str, Any]) -> str | None:
+    """Read canonical or legacy theorem statement hash from manifest/bridge JSON."""
+    canonical = record.get(THEOREM_SOURCE_HASH_FIELD)
+    legacy = record.get(THEOREM_SOURCE_HASH_FIELD_LEGACY)
+    if canonical and legacy and canonical != legacy:
+        return None
+    return canonical or legacy
+
+
+def sync_theorem_source_hash_fields(record: dict[str, Any], expected: str | None) -> None:
+    """Ensure manifest/bridge records carry both hash field names when expected is known."""
+    if not expected:
+        return
+    record[THEOREM_SOURCE_HASH_FIELD] = expected
+    record[THEOREM_SOURCE_HASH_FIELD_LEGACY] = expected
 
 
 KERNEL_CHECKED_THEOREMS: dict[str, str] = {
@@ -446,6 +479,14 @@ def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]
     if entry.get("package_lean_sha256") and result.get("package_lean_sha256"):
         if entry["package_lean_sha256"] != result["package_lean_sha256"]:
             errors.append(f"package_lean_sha256 drift for {benchmark_id}")
+    package_path = package_lean_path(benchmark_id)
+    if entry.get("package_lean_sha256") and package_path and package_path.is_file():
+        on_disk_pkg = generated_lean_sha256(package_path.read_text(encoding="utf-8"))
+        if on_disk_pkg != entry["package_lean_sha256"]:
+            errors.append(
+                f"on-disk package Lean hash mismatch for {benchmark_id}: "
+                f"{package_path.relative_to(REPO_ROOT)}"
+            )
     errors.extend(verify_manifest_target_codegen(entry, claim_dir))
     return errors
 
@@ -467,9 +508,9 @@ def update_manifest_entry(benchmark_id: str, result: dict[str, Any]) -> None:
             entry["kernel_checked_theorem"] = kernel_theorem.split(".")[-1]
             entry["theorem_identifier_sha256"] = theorem_identifier_sha256(kernel_theorem)
             entry["theorem_sha256"] = entry["theorem_identifier_sha256"]
-            content_hash = theorem_content_sha256(benchmark_id)
+            content_hash = theorem_source_statement_hash(benchmark_id)
             if content_hash:
-                entry["theorem_content_sha256"] = content_hash
+                sync_theorem_source_hash_fields(entry, content_hash)
         updated = True
         break
     if not updated:
@@ -505,18 +546,29 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
     stored_id = entry.get("theorem_identifier_sha256") or entry.get("theorem_sha256")
     if stored_id and stored_id != expected_id_hash:
         errors.append(f"theorem_identifier_sha256 drift for {benchmark_id}")
-    expected_content = theorem_content_sha256(benchmark_id)
-    if expected_content and entry.get("theorem_content_sha256"):
-        if entry["theorem_content_sha256"] != expected_content:
-            errors.append(f"theorem_content_sha256 drift for {benchmark_id}")
+    expected_content = theorem_source_statement_hash(benchmark_id)
+    stored_content = read_theorem_source_hash(entry)
+    if expected_content and stored_content:
+        if stored_content != expected_content:
+            errors.append(f"theorem_source_statement_hash drift for {benchmark_id}")
+        if (
+            entry.get(THEOREM_SOURCE_HASH_FIELD)
+            and entry.get(THEOREM_SOURCE_HASH_FIELD_LEGACY)
+            and entry[THEOREM_SOURCE_HASH_FIELD] != entry[THEOREM_SOURCE_HASH_FIELD_LEGACY]
+        ):
+            errors.append(
+                f"theorem_source_statement_hash and theorem_content_sha256 disagree for {benchmark_id}"
+            )
     if not entry.get("ast_sha256") or not entry.get("generated_lean_sha256"):
         errors.append(
             f"{KERNEL_CHECKED_LINK} requires ast_sha256 and generated_lean_sha256 for {benchmark_id}"
         )
     if not stored_id:
         errors.append(f"{KERNEL_CHECKED_LINK} requires theorem_identifier_sha256 for {benchmark_id}")
-    if expected_content and not entry.get("theorem_content_sha256"):
-        errors.append(f"{KERNEL_CHECKED_LINK} requires theorem_content_sha256 for {benchmark_id}")
+    if expected_content and not stored_content:
+        errors.append(
+            f"{KERNEL_CHECKED_LINK} requires theorem_source_statement_hash for {benchmark_id}"
+        )
     if not generated_module_name(benchmark_id):
         errors.append(f"kernel bridge {benchmark_id} missing generated module mapping")
     return errors
