@@ -30,9 +30,9 @@ Responsible for adapters, checker integration, trust-level rules, and CI behavio
 
 Every benchmark PR is reviewed across:
 
-1. **Scientific review** — claim sense, assumptions, terminology
-2. **Specification review** — spec matches informal claim, semantics clear
-3. **Evidence review** — evidence supports claim, checker declared, trust honest
+1. **Scientific review** â€” claim sense, assumptions, terminology
+2. **Specification review** â€” spec matches informal claim, semantics clear
+3. **Evidence review** â€” evidence supports claim, checker declared, trust honest
 
 No maintainer should merge their own reference-level benchmark without review.
 
@@ -53,8 +53,8 @@ status:
       date: YYYY-MM-DD
 ```
 
-- **Formal evidence review** — Lean/kernel proofs, bridge manifests, checker output, obligation mapping
-- **Domain semantics review** — Claim wording, assumptions, `checked_under` / `not_checked_under` scope
+- **Formal evidence review** â€” Lean/kernel proofs, bridge manifests, checker output, obligation mapping
+- **Domain semantics review** â€” Claim wording, assumptions, `checked_under` / `not_checked_under` scope
 
 `qspecbench validate` rejects `reference_claim` without both reviews at `approved` or `required` status.
 Bootstrap corpus entries may use `maintainer-bootstrap` with documented notes; new promotions must use real reviewers.
@@ -69,6 +69,27 @@ QEC-specific: a correction claim (for example, "corrects any single X error") re
 correction evidence** for `reference_claim`. An assumed decoder/lookup table supports at most
 `reference_scaffold` / `reference_artifact`, and the correction obligation must remain in
 `proved_scope.unproved_obligations`.
+
+
+### `artifact_bound_reference_claim` (reserved tier — schema only)
+
+This maturity tier is defined in schema v0.2 but **not assigned to any benchmark** until a pilot
+promotion completes the checklist below. Do not set `status.maturity: artifact_bound_reference_claim`
+without meeting every requirement; `qspecbench validate` fails closed.
+
+**Promotion checklist (all required):**
+
+1. Dual review — both `formal_evidence_review` and `domain_semantics_review` at `approved` with named non-bootstrap reviewers
+2. `headline_claim_status.status: checked` with honest `checked_under` / `not_checked_under`
+3. `proved_scope.unproved_obligations` empty
+4. `semantic_bridge.claimed_link: kernel_checked_codegen_trace` with anchors:
+   - `artifact_sha256`, `gate_trace_sha256`, `ast_sha256`, `generated_lean_sha256`
+   - `theorem_identifier_sha256`, `theorem_source_statement_hash`
+5. Passing `bridge_verify` evidence and matching Lean `BridgeMetadata` pins (manifest-sourced hashes)
+6. README claim card documents artifact hash binding and checker chain
+
+Pilot candidate: `cnot_self_inverse_cancellation` (comment block in `spec.yaml`; not promoted yet).
+
 
 ## Schema changes
 
