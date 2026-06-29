@@ -11,11 +11,11 @@ arbitrary amplitudes remains operational in Python.
 
 import QSpecBench.Quantum.Measurement
 
-#check QSpecBench.Quantum.Measurement.measure_state00_q0_zero
-#check QSpecBench.Quantum.Measurement.joint_state00_zz
-#check QSpecBench.Quantum.Measurement.syndrome00_from_state00
-#check QSpecBench.Quantum.Measurement.measure_state000_q0_zero
-#check QSpecBench.Quantum.Measurement.measure_state001_q0_one
+#check QSpecBench.Quantum.Measurement.teleport_basis00_lemma_chain
+#check QSpecBench.Quantum.Measurement.teleport_basis01_lemma_chain
+#check QSpecBench.Quantum.Measurement.teleport_basis000_lemma_chain
+#check QSpecBench.Quantum.Measurement.recordZOutcome
+#check QSpecBench.Quantum.Measurement.applyPauliCorrection4
 #check QSpecBench.Quantum.Measurement.measurementTrustBoundaryNote
 
 /-- Basis-state input |0⟩ yields Z-outcome zero on qubit 0 (Fin 8 scaffold). -/
