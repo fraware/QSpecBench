@@ -121,6 +121,7 @@ def collect_summary_metrics(root: Path) -> dict[str, int]:
         "python_denotation_consistency": bridge_links.get("python_denotation_consistency", 0),
         "kernel_checked_codegen_trace": bridge_links.get("kernel_checked_codegen_trace", 0),
         "kernel_checked_artifact_semantics": bridge_links.get("kernel_checked_artifact_semantics", 0),
+        "coq_second_assistant_excluded": 1,
     }
 
 
@@ -187,6 +188,8 @@ def generate_dashboard(root: Path) -> str:
         f"- **Kernel-checked codegen-trace bridges:** {kernel_codegen}",
         f"- **Kernel-checked artifact-semantics bridges (legacy label):** {kernel_semantics}",
         f"- **Documented (not proved) bridges:** {documented_bridges}",
+        "- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity "
+        "counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`)",
         "",
         "### Passing evidence by trust level",
         "",

@@ -204,6 +204,7 @@ benchmarks are `reference_claim` under declared internal scope (see `headline_cl
 | **Manifest-checked theorem bindings** | 6 |
 | **Python denotation consistency checks** | 2 |
 | **Kernel-checked codegen-trace bridges** | 6 |
+| **Coq/Rocq/Isabelle (optional CI)** | excluded from default maturity counts |
 | **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).
