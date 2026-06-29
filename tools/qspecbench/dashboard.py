@@ -104,6 +104,21 @@ def zero_evidence_count(root: Path) -> int:
     return sum(1 for r in rows if not r["spec"].get("evidence"))
 
 
+def _count_qec_certificate_levels(rows: list[dict[str, Any]]) -> tuple[int, int]:
+    small = 0
+    external = 0
+    for row in rows:
+        if row.get("track") != "qec":
+            continue
+        scope = row["spec"].get("qec_claim_scope") or {}
+        level = scope.get("qec_certificate_level")
+        if level == "qec_small_code_checked":
+            small += 1
+        elif level == "qec_external_certificate_checked":
+            external += 1
+    return small, external
+
+
 def collect_summary_metrics(root: Path) -> dict[str, int]:
     """Single source of truth for dashboard and README status sync."""
     rows = collect_statuses(root)
@@ -111,6 +126,7 @@ def collect_summary_metrics(root: Path) -> dict[str, int]:
     bridge_links = _bridge_link_counts(rows)
     by_maturity = Counter(r["maturity"] for r in rows)
     ref_levels = sum(by_maturity.get(m, 0) for m in ALL_REFERENCE_LEVELS)
+    qec_small, qec_external = _count_qec_certificate_levels(rows)
     return {
         "total_benchmarks": len(rows),
         "reference_scaffolds_any_level": ref_levels,
@@ -121,6 +137,8 @@ def collect_summary_metrics(root: Path) -> dict[str, int]:
         "python_denotation_consistency": bridge_links.get("python_denotation_consistency", 0),
         "kernel_checked_codegen_trace": bridge_links.get("kernel_checked_codegen_trace", 0),
         "kernel_checked_artifact_semantics": bridge_links.get("kernel_checked_artifact_semantics", 0),
+        "qec_small_code_checked": qec_small,
+        "qec_external_certificate_checked": qec_external,
         "coq_second_assistant_excluded": 1,
     }
 
@@ -151,6 +169,7 @@ def generate_dashboard(root: Path) -> str:
     kernel_semantics = bridge_links.get("kernel_checked_artifact_semantics", 0)
     documented_bridges = bridge_links.get("documented_not_proved", 0)
     ref_by_track = _reference_coverage_by_track(rows)
+    qec_small, qec_external = _count_qec_certificate_levels(rows)
 
     lines = [
         "# QSpecBench Dashboard",
@@ -182,6 +201,8 @@ def generate_dashboard(root: Path) -> str:
         f"- **With AI draft evidence:** {ai_draft}",
         f"- **With approximate specifications:** {approx}",
         f"- **QEC claims:** {qec}",
+        f"- **QEC small-code certificate level (`qec_small_code_checked`):** {qec_small}",
+        f"- **QEC external certificate level (`qec_external_certificate_checked`):** {qec_external}",
         f"- **With resource contracts:** {resources}",
         f"- **Manifest-checked theorem bindings:** {manifest_bridges}",
         f"- **Python denotation consistency checks:** {python_bridges}",
