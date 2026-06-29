@@ -31,6 +31,7 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 - **Kernel-checked codegen-trace bridges:** 6
 - **Kernel-checked artifact-semantics bridges (legacy label):** 0
 - **Documented (not proved) bridges:** 4
+- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`)
 
 ### Passing evidence by trust level
 
