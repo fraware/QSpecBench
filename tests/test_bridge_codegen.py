@@ -196,6 +196,37 @@ def test_bridge_cnot_metadata_matches_manifest():
     assert verify_bridge_cnot_metadata_against_manifest() == []
 
 
+
+
+@pytest.mark.parametrize(
+    "module_name,benchmark_id",
+    [
+        ("SwapFromThreeCx", "swap_from_three_cx"),
+        ("BellStatePreparation", "bell_state_preparation"),
+    ],
+)
+def test_verify_fails_on_corrupted_generated_module(module_name, benchmark_id):
+    """Corrupting Generated/*.lean must fail verify without self-healing."""
+    from qspecbench.bridge_codegen import verify_kernel_checked_entry
+
+    claim_dir = REPO / "benchmarks" / (
+        "algorithms" if benchmark_id in {"swap_from_three_cx", "bell_state_preparation"} else "equivalence"
+    ) / benchmark_id
+    generated = REPO / "lean" / "QSpecBench" / "Generated" / f"{module_name}.lean"
+    original = generated.read_text(encoding="utf-8")
+    corrupted = original.replace(".cx 0 1", ".cx 9 9", 1)
+    if corrupted == original:
+        corrupted = original + "\n-- corrupt"
+    entry = next(e for e in load_manifest()["entries"] if e["benchmark_id"] == benchmark_id)
+    try:
+        generated.write_text(corrupted, encoding="utf-8")
+        errors = verify_manifest_codegen(entry, claim_dir)
+        errors.extend(verify_kernel_checked_entry(entry, claim_dir))
+        assert errors, f"verify must fail when {module_name} is corrupted"
+        assert generated.read_text(encoding="utf-8") == corrupted
+    finally:
+        generated.write_text(original, encoding="utf-8")
+
 def test_theorem_source_statement_hash_alias_matches_legacy():
     from qspecbench.bridge_codegen import (
         theorem_content_sha256,
@@ -205,5 +236,9 @@ def test_theorem_source_statement_hash_alias_matches_legacy():
     for bid in (
         "cnot_self_inverse_cancellation",
         "hadamard_conjugates_x_to_z",
-        "single_qubit_gate_cancellation",`n    ):
+        "single_qubit_gate_cancellation",
+        "bell_state_preparation",
+        "swap_from_three_cx",
+        "toffoli_decomposition_equivalence",
+    ):
         assert theorem_source_statement_hash(bid) == theorem_content_sha256(bid)
