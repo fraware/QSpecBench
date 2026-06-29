@@ -11,6 +11,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LEAN_ROOT = REPO_ROOT / "lean"
+PACKAGE_LEAN_ROOT = LEAN_ROOT / "QSpecBench"
 
 
 def _lake_exe() -> str | None:
@@ -27,14 +28,30 @@ def _evidence_relative_to_lean(evidence_file: Path) -> str:
     return os.path.relpath(evidence_file.resolve(), LEAN_ROOT)
 
 
-def _evidence_has_sorry(evidence_text: str) -> bool:
-    for line in evidence_text.splitlines():
+def _lean_source_has_sorry(text: str) -> bool:
+    for line in text.splitlines():
         stripped = line.strip()
         if stripped.startswith("--") or stripped.startswith("/-"):
             continue
         if "sorry" in stripped:
             return True
     return False
+
+
+def _evidence_has_sorry(evidence_text: str) -> bool:
+    return _lean_source_has_sorry(evidence_text)
+
+
+def scan_lean_package_for_sorry(root: Path | None = None) -> list[str]:
+    """Return relative paths under lean/QSpecBench that contain sorry (non-comment)."""
+    scan_root = root or PACKAGE_LEAN_ROOT
+    if not scan_root.is_dir():
+        return []
+    hits: list[str] = []
+    for path in sorted(scan_root.rglob("*.lean")):
+        if _lean_source_has_sorry(path.read_text(encoding="utf-8")):
+            hits.append(str(path.relative_to(LEAN_ROOT)))
+    return hits
 
 
 def _required_import_present(evidence_text: str) -> bool:
@@ -60,6 +77,14 @@ def check(evidence_file: Path) -> dict:
     evidence_text = evidence_file.read_text(encoding="utf-8")
     if _evidence_has_sorry(evidence_text):
         errors.append(f"sorry found in evidence file: {evidence_file}")
+
+    package_sorry = scan_lean_package_for_sorry()
+    if package_sorry:
+        preview = ", ".join(package_sorry[:3])
+        suffix = "…" if len(package_sorry) > 3 else ""
+        errors.append(
+            f"sorry found in lean package ({len(package_sorry)} file(s)): {preview}{suffix}"
+        )
 
     if "#check" in evidence_text and not _required_import_present(evidence_text):
         errors.append(
