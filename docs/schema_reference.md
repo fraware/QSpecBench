@@ -152,7 +152,7 @@ At least one list must be non-empty.
 | `informal_claim`, `machine_spec` | `missing`, `draft`, `complete` |
 | `artifacts`, `evidence` | `missing`, `partial`, `complete` |
 | `ci` | `not_applicable`, `failing`, `passing` |
-| `maturity` | `seed`, `usable`, `reference_scaffold`, `reference_contract`, `reference_artifact`, `reference_claim`, `deprecated` |
+| `maturity` | `seed`, `usable`, `reference_scaffold`, `reference_contract`, `reference_artifact`, `reference_claim`, `artifact_bound_reference_claim`, `deprecated` |
 
 Any scoped reference level requires `ci: passing` and passing checked evidence (`lean_proof`, `smt_certificate`, `sat_certificate`). `reference_claim` additionally requires `claim_scope`, a `proved_scope` covering every required obligation, `headline_claim_status: checked`, and passing evidence for each `required_for_claim` acceptable-evidence type. Scaffold-level benchmarks must not declare `headline_claim_status: checked`. See [reference benchmarks](reference_benchmarks.md) and [versioning](versioning.md).
 

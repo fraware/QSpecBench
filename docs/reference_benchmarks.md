@@ -12,6 +12,7 @@ headline claim is still unproved. The headline claim is only considered proved a
 | `reference_contract` | Same, where the checked evidence is a declared contract (resource/error bound) rather than a proof of the bound. |
 | `reference_artifact` | Same, where the checked evidence is artifact-structural (e.g. stabilizer commutation). |
 | `reference_claim` | Headline claim fully proved (see requirements below). |
+| `artifact_bound_reference_claim` | **Reserved (schema v0.2):** headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Documented for future promotion; not assigned to any benchmark yet. |
 
 ## Universal requirements (any scoped reference level)
 
