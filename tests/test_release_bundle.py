@@ -58,6 +58,17 @@ def test_verify_release_bundle_passes(tmp_path):
     assert verify_release_bundle(out) == []
 
 
+def test_release_manifest_accepts_explicit_ci_run_metadata():
+    manifest = collect_release_manifest(
+        REPO / "benchmarks",
+        ci_run_id="123456789",
+        ci_run_url="https://github.com/example/actions/runs/123456789",
+    )
+    repro = manifest["reproducibility"]
+    assert repro["ci_run_id"] == "123456789"
+    assert repro["ci_run_url"] == "https://github.com/example/actions/runs/123456789"
+
+
 def test_release_manifest_includes_git_commit():
     manifest = collect_release_manifest(REPO / "benchmarks")
     assert manifest["reproducibility"].get("git_commit")

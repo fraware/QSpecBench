@@ -241,6 +241,11 @@ def bridge_codegen_cmd(
 
     if action == "verify":
         failed = 0
+        from qspecbench.bridge_codegen import (
+            is_kernel_checked_link,
+            verify_kernel_checked_entry,
+        )
+
         manifest = load_manifest()
         entries_with_codegen = {
             e["benchmark_id"]: e
@@ -256,6 +261,15 @@ def bridge_codegen_cmd(
             if entry is None:
                 continue
             errs = verify_manifest_codegen(entry, claim_dir)
+            bridge_path = claim_dir / "expected" / "semantic_bridge.json"
+            if bridge_path.is_file():
+                import json
+
+                bridge = json.loads(bridge_path.read_text(encoding="utf-8"))
+                if isinstance(bridge, dict) and is_kernel_checked_link(bridge.get("claimed_link")):
+                    errs.extend(verify_kernel_checked_entry(entry, claim_dir))
+            elif is_kernel_checked_link((spec.get("semantic_bridge") or {}).get("claimed_link")):
+                errs.extend(verify_kernel_checked_entry(entry, claim_dir))
             if errs:
                 failed += 1
                 console.print(f"[red]FAIL[/red] {bid}")
@@ -275,11 +289,19 @@ def bridge_codegen_cmd(
 def release_bundle_cmd(
     target: Path = typer.Argument(..., help="Benchmarks root"),
     out: Path = typer.Option(..., "--out", help="Output .tar.gz path"),
+    ci_run_id: Optional[str] = typer.Option(
+        None, "--ci-run-id", help="CI workflow run id for reproducibility metadata"
+    ),
+    ci_run_url: Optional[str] = typer.Option(
+        None, "--ci-run-url", help="CI workflow run URL for reproducibility metadata"
+    ),
 ) -> None:
     """Build a release bundle stub (manifest + spec/README tar.gz)."""
     from qspecbench.release_bundle import write_release_bundle
 
-    manifest = write_release_bundle(target, out)
+    manifest = write_release_bundle(
+        target, out, ci_run_id=ci_run_id, ci_run_url=ci_run_url
+    )
     console.print(
         f"Wrote release bundle ({manifest['benchmark_count']} benchmarks) to {out}"
     )

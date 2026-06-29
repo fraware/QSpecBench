@@ -52,11 +52,24 @@ def _git_commit() -> str | None:
         return None
 
 
-def _ci_run_id() -> str | None:
+def _ci_run_id(explicit: str | None = None) -> str | None:
+    if explicit:
+        return explicit
     for key in ("GITHUB_RUN_ID", "CI_RUN_ID", "BUILD_ID"):
         value = os.environ.get(key)
         if value:
             return value
+    return None
+
+
+def _ci_run_url(explicit: str | None = None, run_id: str | None = None) -> str | None:
+    if explicit:
+        return explicit
+    env_url = os.environ.get("GITHUB_RUN_URL")
+    if env_url:
+        return env_url
+    if run_id and os.environ.get("GITHUB_REPOSITORY"):
+        return f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
     return None
 
 
@@ -94,7 +107,12 @@ def collect_sbom_summary() -> dict[str, Any]:
     }
 
 
-def collect_release_manifest(benchmarks_root: Path) -> dict[str, Any]:
+def collect_release_manifest(
+    benchmarks_root: Path,
+    *,
+    ci_run_id: str | None = None,
+    ci_run_url: str | None = None,
+) -> dict[str, Any]:
     """Build a manifest of benchmark ids and maturity for a release bundle."""
     benchmarks_root = benchmarks_root.resolve()
     entries: list[dict[str, Any]] = []
@@ -115,9 +133,12 @@ def collect_release_manifest(benchmarks_root: Path) -> dict[str, Any]:
         "release_tag": RELEASE_TAG,
         "git_commit": _git_commit(),
     }
-    ci_run = _ci_run_id()
+    ci_run = _ci_run_id(ci_run_id)
     if ci_run:
         repro["ci_run_id"] = ci_run
+    ci_url = _ci_run_url(ci_run_url, ci_run)
+    if ci_url:
+        repro["ci_run_url"] = ci_url
     return finalize_manifest(
         {
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -145,8 +166,12 @@ def _schema_files() -> list[Path]:
 
 
 def _verify_bundle_bridge_manifest(manifest_path: Path) -> list[str]:
-    """Verify kernel bridge theorem_content_sha256 hashes when manifest is bundled."""
-    from qspecbench.bridge_codegen import kernel_checked_theorem_name, theorem_content_sha256
+    """Verify kernel bridge theorem statement hashes when manifest is bundled."""
+    from qspecbench.bridge_codegen import (
+        kernel_checked_theorem_name,
+        read_theorem_source_hash,
+        theorem_source_statement_hash,
+    )
 
     errors: list[str] = []
     if not manifest_path.is_file():
@@ -159,14 +184,17 @@ def _verify_bundle_bridge_manifest(manifest_path: Path) -> list[str]:
         benchmark_id = entry.get("benchmark_id", "")
         if not kernel_checked_theorem_name(benchmark_id):
             continue
-        if not entry.get("theorem_content_sha256"):
+        stored = read_theorem_source_hash(entry)
+        if not stored:
             errors.append(
-                f"bridge manifest entry {benchmark_id} missing theorem_content_sha256"
+                f"bridge manifest entry {benchmark_id} missing theorem_source_statement_hash"
             )
             continue
-        expected = theorem_content_sha256(benchmark_id)
-        if expected and entry["theorem_content_sha256"] != expected:
-            errors.append(f"theorem_content_sha256 drift for {benchmark_id} in bundle manifest")
+        expected = theorem_source_statement_hash(benchmark_id)
+        if expected and stored != expected:
+            errors.append(
+                f"theorem_source_statement_hash drift for {benchmark_id} in bundle manifest"
+            )
     return errors
 
 
@@ -176,11 +204,15 @@ def write_release_bundle(
     *,
     include_specs: bool = True,
     include_schemas: bool = True,
+    ci_run_id: str | None = None,
+    ci_run_url: str | None = None,
 ) -> dict[str, Any]:
     """Write a tar.gz bundling specs, artifacts, evidence, provenance, and schema copies."""
     benchmarks_root = benchmarks_root.resolve()
     out_path = out_path.resolve()
-    manifest = collect_release_manifest(benchmarks_root)
+    manifest = collect_release_manifest(
+        benchmarks_root, ci_run_id=ci_run_id, ci_run_url=ci_run_url
+    )
     file_hashes: dict[str, str] = {}
     payloads: dict[str, bytes] = {}
     out_path.parent.mkdir(parents=True, exist_ok=True)
