@@ -104,3 +104,4 @@ def test_cnot_coq_smoke_stub_present():
     assert smoke.is_file()
     text = smoke.read_text(encoding="utf-8")
     assert "cnot_coq_smoke" in text
+    assert "cnot_coq_smoke_statement" in text
