@@ -1,0 +1,8 @@
+{
+  "method": "lookup_table",
+  "complete_for": "distance-3 surface code single-round syndrome extraction; lookup tables",
+  "syndrome_table_sha256": "347dec0db86e38812dc769e382c6bb48c559d9eea36566d3fab318de507caf8a",
+  "syndrome_table_path": "syndrome_table.json",
+  "correction_table_sha256": "9a9b6fe5e0724e2168b7b42bbd3acbc88f2a81f9cf4f8543066775c87d6c21cd",
+  "correction_table_path": "correction_table.json"
+}
