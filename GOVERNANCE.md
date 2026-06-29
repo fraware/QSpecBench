@@ -59,6 +59,26 @@ status:
 `qspecbench validate` rejects `reference_claim` without both reviews at `approved` or `required` status.
 Bootstrap corpus entries may use `maintainer-bootstrap` with documented notes; new promotions must use real reviewers.
 
+
+### AI-formalization track
+
+Benchmarks on the `ai_formalization` track promoted to `reference_claim` require **named reviewer identity**
+in both review blocks before the headline claim is considered governance-complete:
+
+- `status.reviews.formal_evidence_review.reviewer` — non-empty, not `maintainer-bootstrap`
+- `status.reviews.domain_semantics_review.reviewer` — non-empty, not `maintainer-bootstrap`
+
+`qspecbench validate` emits a **warning** (not a hard failure) when these fields are missing on
+`reference_claim` ai_formalization benchmarks. Promotions should resolve warnings before merge.
+
+### Coq / Rocq / Isabelle second-assistant track
+
+Coq (and Rocq/Isabelle stub adapters) are **excluded from default maturity and dashboard counts**
+until an optional CI job runs with `QSPECBENCH_COQ=1` and a working `coqc` on `PATH`. Lean 4 remains
+the only kernel-checked proof assistant in the default CI gate. Coq smoke files (for example
+`cnot_coq_smoke.v`) document the intended second-assistant path but do not affect maturity tiers.
+
+
 ## Reference-claim promotion
 
 Reference levels are scoped (see [docs/reference_benchmarks.md](docs/reference_benchmarks.md)). A
@@ -101,3 +121,5 @@ Breaking schema changes require a version bump and migration notes in `docs/sche
 
 Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
 and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).
+
+**Current release:** tag `v0.2.1` (commit `278119a`); CI gate [run 28395530818](https://github.com/QSpecBench/QSpecBench/actions/runs/28395530818).
