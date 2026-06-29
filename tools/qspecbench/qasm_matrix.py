@@ -150,8 +150,6 @@ def _extraction_allows_skip(extraction: dict[str, Any] | None, category: str) ->
     if not extraction:
         return False
     mode = extraction.get("mode", "unitary_fragment")
-    if mode in {"full_dynamic_semantics", "dynamic_fragment_recording"}:
-        return True
     if mode == "syntax_only":
         return True
     allowed = set(extraction.get("allowed_to_skip") or [])
