@@ -161,3 +161,44 @@ def test_bridge_codegen_verify_is_read_only():
         mtime_ns, old_digest = before[str(path)]
         assert digest == old_digest, f"{path} content changed during verify/render"
         assert stat.st_mtime_ns == mtime_ns, f"{path} mtime changed during verify/render"
+
+
+def test_verify_fails_on_corrupted_package_lean_without_self_healing():
+    """Corrupting Generated/CnotSelfInverse.lean must fail verify and leave file corrupted."""
+    from qspecbench.bridge_codegen import verify_kernel_checked_entry
+
+    generated = REPO / "lean" / "QSpecBench" / "Generated" / "CnotSelfInverse.lean"
+    original = generated.read_text(encoding="utf-8")
+    corrupted = original.replace(".cx 0 1", ".cx 9 9", 1)
+    assert corrupted != original
+    entry = next(
+        e for e in load_manifest()["entries"] if e["benchmark_id"] == "cnot_self_inverse_cancellation"
+    )
+    try:
+        generated.write_text(corrupted, encoding="utf-8")
+        errors = verify_manifest_codegen(entry, CNOT_DIR)
+        errors.extend(verify_kernel_checked_entry(entry, CNOT_DIR))
+        assert errors, "verify must fail when package Lean is corrupted"
+        assert generated.read_text(encoding="utf-8") == corrupted
+    finally:
+        generated.write_text(original, encoding="utf-8")
+
+
+def test_bridge_cnot_metadata_matches_manifest():
+    from qspecbench.bridge_metadata import verify_bridge_cnot_metadata_against_manifest
+
+    assert verify_bridge_cnot_metadata_against_manifest() == []
+
+
+def test_theorem_source_statement_hash_alias_matches_legacy():
+    from qspecbench.bridge_codegen import (
+        theorem_content_sha256,
+        theorem_source_statement_hash,
+    )
+
+    for bid in (
+        "cnot_self_inverse_cancellation",
+        "hadamard_conjugates_x_to_z",
+        "single_qubit_gate_cancellation",
+    ):
+        assert theorem_source_statement_hash(bid) == theorem_content_sha256(bid)
