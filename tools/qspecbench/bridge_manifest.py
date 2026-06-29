@@ -318,7 +318,8 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
         KERNEL_CHECKED_LINK,
         LEGACY_KERNEL_CHECKED_LINK,
         kernel_checked_theorem_name,
-        theorem_content_sha256,
+        read_theorem_source_hash,
+        theorem_source_statement_hash,
         verify_kernel_checked_entry,
     )
 
@@ -356,12 +357,13 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
     entry_id = entry.get("theorem_identifier_sha256") or entry.get("theorem_sha256")
     if id_hash and entry_id and id_hash != entry_id:
         errors.append("semantic_bridge theorem_identifier_sha256 does not match manifest")
-    content_hash = theorem_content_sha256(benchmark_id)
-    if content_hash and bridge.get("theorem_content_sha256"):
-        if bridge["theorem_content_sha256"] != content_hash:
-            errors.append("semantic_bridge theorem_content_sha256 does not match manifest")
-    elif content_hash and not bridge.get("theorem_content_sha256"):
-        errors.append("semantic_bridge missing theorem_content_sha256 for kernel-checked bridge")
+    content_hash = theorem_source_statement_hash(benchmark_id)
+    bridge_hash = read_theorem_source_hash(bridge)
+    if content_hash and bridge_hash:
+        if bridge_hash != content_hash:
+            errors.append("semantic_bridge theorem_source_statement_hash does not match manifest")
+    elif content_hash and not bridge_hash:
+        errors.append("semantic_bridge missing theorem_source_statement_hash for kernel-checked bridge")
 
     claimed = bridge.get("claimed_link")
     module_name = GENERATED_MODULE_MAP.get(benchmark_id)
