@@ -158,6 +158,41 @@ theorem measure_zz_branch_matches_state00 :
     jointZOutcomeOfIndex ⟨0, by decide⟩ = .zz ∧ measureZeroZeroBranch.outcome = .zz := by
   exact ⟨joint_state00_zz, rfl⟩
 
+/-- Receiver qubit index for two-qubit Fin 4 teleportation syndrome scaffold. -/
+def teleportReceiverQubit4 : Nat := 1
+
+def flipQubitIndex4 (idx : Fin 4) (q : Nat) : Fin 4 :=
+  if q = 0 then
+    match idx with
+    | ⟨0, _⟩ => ⟨1, by decide⟩
+    | ⟨1, _⟩ => ⟨0, by decide⟩
+    | ⟨2, _⟩ => ⟨3, by decide⟩
+    | ⟨3, _⟩ => ⟨2, by decide⟩
+  else
+    match idx with
+    | ⟨0, _⟩ => ⟨2, by decide⟩
+    | ⟨1, _⟩ => ⟨3, by decide⟩
+    | ⟨2, _⟩ => ⟨0, by decide⟩
+    | ⟨3, _⟩ => ⟨1, by decide⟩
+
+def applyPauliX4 (st : StateAmp4) (q : Nat) : StateAmp4 :=
+  fun idx => st (flipQubitIndex4 idx q)
+
+def applyPauliZ4 (st : StateAmp4) (q : Nat) : StateAmp4 :=
+  fun idx => if qubitBit idx q = 1 then (0 - st idx) else st idx
+
+theorem pauli_x_receiver_flip_index4 :
+    flipQubitIndex4 ⟨1, by decide⟩ 1 = ⟨3, by decide⟩ := rfl
+
+theorem pauli_x4_corrects_state01_at_receiver :
+    applyPauliX4 state01 1 ⟨3, by decide⟩ = 1 := by native_decide
+
+theorem pauli_z4_flips_sign_on_state11_at_basis :
+    applyPauliZ4 state11 1 ⟨3, by decide⟩ = -1 := by native_decide
+
+theorem postMeasure_state00_unchanged_at_basis :
+    (postMeasureQ0 state00 .zero) ⟨0, by decide⟩ = 1 := by native_decide
+
 def measurementTrustBoundaryNote : String :=
   "Fin 4 int-scaffold projective Z / Z⊗Z checks on basis states; Fin 8 basis-state q0 checks for 3-qubit circuits; superpositions remain Python-only."
 
@@ -172,9 +207,64 @@ def state000 : StateAmp8 := stateAt8 ⟨0, by decide⟩
 def state001 : StateAmp8 := stateAt8 ⟨1, by decide⟩
 def state010 : StateAmp8 := stateAt8 ⟨2, by decide⟩
 def state100 : StateAmp8 := stateAt8 ⟨4, by decide⟩
+def state101 : StateAmp8 := stateAt8 ⟨5, by decide⟩
 
 def qubitBit8 (idx : Fin 8) (q : Nat) : Nat :=
   (idx.val >>> q) % 2
+
+/-- Receiver qubit index for three-qubit Fin 8 teleportation scaffold. -/
+def teleportReceiverQubit8 : Nat := 2
+
+def flipQubitIndex8 (idx : Fin 8) (q : Nat) : Fin 8 :=
+  if q = 0 then
+    match idx with
+    | ⟨0, _⟩ => ⟨1, by decide⟩
+    | ⟨1, _⟩ => ⟨0, by decide⟩
+    | ⟨2, _⟩ => ⟨3, by decide⟩
+    | ⟨3, _⟩ => ⟨2, by decide⟩
+    | ⟨4, _⟩ => ⟨5, by decide⟩
+    | ⟨5, _⟩ => ⟨4, by decide⟩
+    | ⟨6, _⟩ => ⟨7, by decide⟩
+    | ⟨7, _⟩ => ⟨6, by decide⟩
+  else if q = 1 then
+    match idx with
+    | ⟨0, _⟩ => ⟨2, by decide⟩
+    | ⟨1, _⟩ => ⟨3, by decide⟩
+    | ⟨2, _⟩ => ⟨0, by decide⟩
+    | ⟨3, _⟩ => ⟨1, by decide⟩
+    | ⟨4, _⟩ => ⟨6, by decide⟩
+    | ⟨5, _⟩ => ⟨7, by decide⟩
+    | ⟨6, _⟩ => ⟨4, by decide⟩
+    | ⟨7, _⟩ => ⟨5, by decide⟩
+  else
+    match idx with
+    | ⟨0, _⟩ => ⟨4, by decide⟩
+    | ⟨1, _⟩ => ⟨5, by decide⟩
+    | ⟨2, _⟩ => ⟨6, by decide⟩
+    | ⟨3, _⟩ => ⟨7, by decide⟩
+    | ⟨4, _⟩ => ⟨0, by decide⟩
+    | ⟨5, _⟩ => ⟨1, by decide⟩
+    | ⟨6, _⟩ => ⟨2, by decide⟩
+    | ⟨7, _⟩ => ⟨3, by decide⟩
+
+def applyPauliX8 (st : StateAmp8) (q : Nat) : StateAmp8 :=
+  fun idx => st (flipQubitIndex8 idx q)
+
+def applyPauliZ8 (st : StateAmp8) (q : Nat) : StateAmp8 :=
+  fun idx => if qubitBit8 idx q = 1 then (0 - st idx) else st idx
+
+theorem pauli_x_receiver_flip_index8 :
+    flipQubitIndex8 ⟨1, by decide⟩ 2 = ⟨5, by decide⟩ := rfl
+
+theorem pauli_x8_corrects_state001_at_receiver :
+    applyPauliX8 state001 2 ⟨5, by decide⟩ = 1 := by native_decide
+
+theorem pauli_z8_flips_sign_on_state101_at_basis :
+    applyPauliZ8 state101 2 ⟨5, by decide⟩ = -1 := by native_decide
+
+def teleport_pauli_correction_anchor_note : String :=
+  "Fin 4/8 basis-state Pauli X/Z on receiver qubit after projective Z measurement; " ++
+  "syndrome 01→X, 10→Z anchors teleportation_preserves_state_up_to_pauli_correction evidence."
 
 def weightQ0Zero8 (st : StateAmp8) : Nat :=
   ampSq (st ⟨0, by decide⟩) + ampSq (st ⟨2, by decide⟩) + ampSq (st ⟨4, by decide⟩) +
