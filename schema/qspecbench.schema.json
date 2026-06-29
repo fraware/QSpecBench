@@ -335,6 +335,7 @@
             "reference_contract",
             "reference_artifact",
             "reference_claim",
+            "artifact_bound_reference_claim",
             "deprecated"
           ]
         },
@@ -412,40 +413,7 @@
       "additionalProperties": false
     },
     "semantic_bridge": {
-      "type": "object",
-      "required": [
-        "artifact_gate_model",
-        "lean_module",
-        "lean_theorem",
-        "normalization",
-        "claimed_link"
-      ],
-      "properties": {
-        "artifact_gate_model": { "type": "string", "minLength": 1 },
-        "lean_module": { "type": "string", "minLength": 1 },
-        "lean_theorem": { "type": "string", "minLength": 1 },
-        "normalization": {
-          "type": "object",
-          "additionalProperties": { "type": "string" }
-        },
-        "claimed_link": {
-          "type": "string",
-          "enum": [
-            "documented_not_proved",
-            "python_denotation_consistency",
-            "manifest_checked_theorem_binding",
-            "kernel_checked_codegen_trace",
-            "kernel_checked_artifact_semantics"
-          ]
-        },
-        "bridge_evidence_id": { "type": ["string", "null"] },
-        "gate_set": { "type": ["string", "null"] },
-        "qasm_artifact": { "type": "string", "minLength": 1 },
-        "gate_model": { "type": "string", "minLength": 1 },
-        "artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-        "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
-      },
-      "additionalProperties": false
+      "$ref": "semantic_bridge.schema.json"
     },
     "proof_obligation": {
       "type": "object",

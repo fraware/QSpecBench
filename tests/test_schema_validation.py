@@ -6,7 +6,7 @@ import jsonschema
 import pytest
 import yaml
 
-from qspecbench.schema import load_schema
+from qspecbench.schema import load_schema, validate_spec_schema
 from qspecbench.validate import validate_spec_dict
 
 REPO = Path(__file__).resolve().parents[1]
@@ -28,7 +28,7 @@ def schema():
 ])
 def test_example_specs_validate(schema, name):
     spec = yaml.safe_load((EXAMPLES / name).read_text(encoding="utf-8"))
-    jsonschema.validate(spec, schema)
+    validate_spec_schema(spec)
 
 
 def test_invalid_id_rejected(schema):
@@ -47,7 +47,39 @@ def test_coq_proof_type_accepted(schema):
         "required_for_claim": False,
         "trust_level": "checked",
     })
-    jsonschema.validate(spec, schema)
+    validate_spec_schema(spec)
+
+
+def test_inline_semantic_bridge_with_codegen_hashes_validates():
+    spec = yaml.safe_load((EXAMPLES / "minimal.spec.yaml").read_text(encoding="utf-8"))
+    spec["semantic_bridge"] = {
+        "artifact_gate_model": "openqasm3_1q2q_clifford",
+        "lean_module": "QSpecBench.Quantum.OpenQASM3",
+        "lean_theorem": "bridge_cnot_self_inverse",
+        "normalization": {"cnot": "standard_01_control_target"},
+        "claimed_link": "kernel_checked_codegen_trace",
+        "wire_order": {
+            "model": "openqasm_little_endian_wire_order",
+            "checked_against": "lean",
+        },
+        "package_lean_sha256": "a" * 64,
+        "theorem_identifier_sha256": "b" * 64,
+        "theorem_content_sha256": "c" * 64,
+    }
+    validate_spec_schema(spec)
+
+
+def test_inline_semantic_bridge_missing_wire_order_rejected():
+    spec = yaml.safe_load((EXAMPLES / "minimal.spec.yaml").read_text(encoding="utf-8"))
+    spec["semantic_bridge"] = {
+        "artifact_gate_model": "openqasm3_1q2q_clifford",
+        "lean_module": "QSpecBench.Quantum.OpenQASM3",
+        "lean_theorem": "bridge_cnot_self_inverse",
+        "normalization": {"cnot": "standard_01_control_target"},
+        "claimed_link": "documented_not_proved",
+    }
+    with pytest.raises(jsonschema.ValidationError):
+        validate_spec_schema(spec)
 
 
 def test_coq_stub_adapter_fails_honestly():

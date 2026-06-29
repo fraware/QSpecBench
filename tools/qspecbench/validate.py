@@ -12,7 +12,7 @@ import jsonschema
 import yaml
 
 from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
-from qspecbench.schema import load_schema
+from qspecbench.schema import validate_spec_schema
 from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL, validate_spec_trust_slice
 from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
@@ -244,9 +244,8 @@ def validate_spec_dict(
 ) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
-    schema = load_schema()
     try:
-        jsonschema.validate(spec, schema)
+        validate_spec_schema(spec)
     except jsonschema.ValidationError as exc:
         errors.append(f"schema: {exc.message}")
         return errors, warnings
