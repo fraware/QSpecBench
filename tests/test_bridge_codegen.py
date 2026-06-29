@@ -184,6 +184,12 @@ def test_verify_fails_on_corrupted_package_lean_without_self_healing():
         generated.write_text(original, encoding="utf-8")
 
 
+def test_all_kernel_bridge_metadata_matches_manifest():
+    from qspecbench.bridge_metadata import verify_all_kernel_bridge_metadata
+
+    assert verify_all_kernel_bridge_metadata() == []
+
+
 def test_bridge_cnot_metadata_matches_manifest():
     from qspecbench.bridge_metadata import verify_bridge_cnot_metadata_against_manifest
 
@@ -199,6 +205,5 @@ def test_theorem_source_statement_hash_alias_matches_legacy():
     for bid in (
         "cnot_self_inverse_cancellation",
         "hadamard_conjugates_x_to_z",
-        "single_qubit_gate_cancellation",
-    ):
+        "single_qubit_gate_cancellation",`n    ):
         assert theorem_source_statement_hash(bid) == theorem_content_sha256(bid)
