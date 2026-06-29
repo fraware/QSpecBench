@@ -6,9 +6,10 @@ import json
 from fractions import Fraction
 from pathlib import Path
 
+import hashlib
 import yaml
 
-from qspecbench.bridge_codegen import build_canonical_ast
+from qspecbench.bridge_codegen import ast_sha256, build_canonical_ast
 from qspecbench.dynamic_simulation_evidence import (
     attach_fingerprint,
     regenerate_dynamic_simulation_report,
@@ -246,6 +247,18 @@ def test_lean_parser_gate_lines_match_canonical_ast():
         assert ast["canonical_ast_version"] == "0.1"
         assert ast["n_qubits"] >= 1
 
+
+
+
+def test_qasm_bytes_hash_and_gate_list_stable():
+    """Python gate list + artifact bytes hash for kernel QASM files (Lean parseQasmSource cross-ref)."""
+    for qasm in KERNEL_CHECKED_QASM:
+        raw = qasm.read_bytes()
+        digest = hashlib.sha256(raw).hexdigest()
+        assert len(digest) == 64
+        ast = build_canonical_ast(qasm)
+        assert ast["gates"]
+        assert ast_sha256(ast)
 
 def test_canonical_ast_json_matches_lean_mirror_structure():
     """Lean-parseable gate lines must match Python canonical_ast gate objects."""
