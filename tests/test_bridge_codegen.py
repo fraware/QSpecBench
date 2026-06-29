@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from qspecbench.bridge_codegen import (
     ast_sha256,
     build_canonical_ast,
@@ -114,6 +116,25 @@ def test_extract_lean_theorem_statement_from_openqasm3():
     assert "bridge_cnot_codegen_self_inverse" in stmt
     assert "Generated.CnotSelfInverse.ops" in stmt
     assert ":=" not in stmt
+
+
+@pytest.mark.parametrize(
+    "benchmark_id,theorem_short",
+    [
+        ("cnot_self_inverse_cancellation", "bridge_cnot_codegen_self_inverse"),
+        ("hadamard_conjugates_x_to_z", "bridge_hadamard_codegen_conjugates_x"),
+        ("single_qubit_gate_cancellation", "bridge_hadamard_codegen_cancel"),
+        ("bell_state_preparation", "bridge_bell_codegen_prep"),
+        ("swap_from_three_cx", "bridge_swap_from_three_cx_codegen"),
+        ("toffoli_decomposition_equivalence", "bridge_toffoli_codegen_ccx"),
+    ],
+)
+def test_kernel_bridge_theorem_extracted_from_lean(benchmark_id, theorem_short):
+    from qspecbench.bridge_codegen import theorem_content_sha256
+
+    stmt = extract_lean_theorem_statement(OPENQASM3_LEAN, theorem_short)
+    assert stmt is not None, f"missing {theorem_short} in OpenQASM3.lean"
+    assert theorem_content_sha256(benchmark_id)
 
 
 def test_bridge_codegen_verify_is_read_only():
