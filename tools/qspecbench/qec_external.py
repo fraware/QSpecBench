@@ -81,7 +81,7 @@ def validate_qec_external_certificate(
     if witness is not None and not isinstance(witness, dict):
         errors.append("qec_external_certificate.result.witness must be an object")
     elif isinstance(witness, dict):
-        errors.extend(_validate_witness(witness, result, cert))
+        errors.extend(_validate_witness(witness, result, cert, claim_dir))
 
     return errors
 
@@ -90,6 +90,7 @@ def _validate_witness(
     witness: dict[str, Any],
     result: dict[str, Any],
     cert: dict[str, Any],
+    claim_dir: Path,
 ) -> list[str]:
     """Cross-check witness fields against result and claim_kind (fail-closed)."""
     errors: list[str] = []
@@ -131,6 +132,10 @@ def _validate_witness(
 
     if witness.get("syndrome_table_sha256") and not isinstance(witness["syndrome_table_sha256"], str):
         errors.append("witness.syndrome_table_sha256 must be a hex string")
+
+    from qspecbench.qec_witness import verify_witness_table_hashes
+
+    errors.extend(verify_witness_table_hashes(witness, claim_dir))
 
     return errors
 
