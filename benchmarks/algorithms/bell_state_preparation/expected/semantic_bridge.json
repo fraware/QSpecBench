@@ -22,5 +22,6 @@
   },
   "theorem_identifier_sha256": "d5b06e63a6d1a04ea12ec81b77f5a4d8697f6a97ab171a2e2923af64b6b19c40",
   "theorem_content_sha256": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
-  "package_lean_sha256": "c77694903d65b978dbb4ff2f85b8465d92e47d36b454e426658343df8020fd75"
+  "package_lean_sha256": "c77694903d65b978dbb4ff2f85b8465d92e47d36b454e426658343df8020fd75",
+  "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da"
 }

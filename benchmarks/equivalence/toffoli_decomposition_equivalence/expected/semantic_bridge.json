@@ -23,5 +23,6 @@
     "model": "legacy_kron_order",
     "checked_against": "both"
   },
-  "wire_order_bridge_theorem": null
+  "wire_order_bridge_theorem": null,
+  "theorem_source_statement_hash": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a"
 }
