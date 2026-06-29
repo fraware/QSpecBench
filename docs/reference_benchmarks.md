@@ -12,7 +12,24 @@ headline claim is still unproved. The headline claim is only considered proved a
 | `reference_contract` | Same, where the checked evidence is a declared contract (resource/error bound) rather than a proof of the bound. |
 | `reference_artifact` | Same, where the checked evidence is artifact-structural (e.g. stabilizer commutation). |
 | `reference_claim` | Headline claim fully proved (see requirements below). |
-| `artifact_bound_reference_claim` | **Reserved (schema v0.2):** headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Documented for future promotion; not assigned to any benchmark yet. |
+| `artifact_bound_reference_claim` | **Reserved (schema v0.2):** headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Documented for future promotion; not assigned to any benchmark yet. See promotion checklist below. |
+
+### `artifact_bound_reference_claim` promotion checklist (not assigned yet)
+
+All items required before setting `status.maturity: artifact_bound_reference_claim`:
+
+| Requirement | Validator gate |
+|---|---|
+| Dual named reviews (`formal_evidence_review`, `domain_semantics_review`) | Hard fail if missing or bootstrap-only |
+| `headline_claim_status.status: checked` | Hard fail |
+| Empty `proved_scope.unproved_obligations` | Hard fail |
+| `semantic_bridge.claimed_link: kernel_checked_codegen_trace` | Hard fail |
+| Bridge hash anchors (`artifact_sha256`, `gate_trace_sha256`, `ast_sha256`, `generated_lean_sha256`, `theorem_identifier_sha256`, `theorem_source_statement_hash`) | Hard fail |
+| Passing `bridge_verify` evidence | Hard fail |
+| Lean `BridgeMetadata` literals match manifest (Python cross-check) | CI test |
+| README documents artifact binding scope | Maintainer review |
+
+Pilot (not promoted): `cnot_self_inverse_cancellation` — future obligations noted in `spec.yaml`.
 
 ## Universal requirements (any scoped reference level)
 
