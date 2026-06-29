@@ -158,6 +158,32 @@ theorem measure_zz_branch_matches_state00 :
     jointZOutcomeOfIndex ⟨0, by decide⟩ = .zz ∧ measureZeroZeroBranch.outcome = .zz := by
   exact ⟨joint_state00_zz, rfl⟩
 
+/-! ## Classical bit recording (measurement outcome stub) -/
+
+structure RecordedBit where
+  outcome : ZOutcome
+  value : Bool
+  deriving DecidableEq, Repr
+
+def recordZOutcome (o : ZOutcome) : RecordedBit :=
+  { outcome := o, value := o == .one }
+
+theorem recordZOutcome_zero : (recordZOutcome .zero).value = false := rfl
+
+theorem recordZOutcome_one : (recordZOutcome .one).value = true := rfl
+
+structure RecordedSyndrome where
+  c0 : RecordedBit
+  c1 : RecordedBit
+  deriving Repr
+
+def recordSyndrome (o0 o1 : ZOutcome) : RecordedSyndrome :=
+  { c0 := recordZOutcome o0, c1 := recordZOutcome o1 }
+
+theorem record_syndrome00_values :
+    (recordSyndrome .zero .zero).c0.value = false ∧
+      (recordSyndrome .zero .zero).c1.value = false := by decide
+
 /-- Receiver qubit index for two-qubit Fin 4 teleportation syndrome scaffold. -/
 def teleportReceiverQubit4 : Nat := 1
 
@@ -180,6 +206,41 @@ def applyPauliX4 (st : StateAmp4) (q : Nat) : StateAmp4 :=
 
 def applyPauliZ4 (st : StateAmp4) (q : Nat) : StateAmp4 :=
   fun idx => if qubitBit idx q = 1 then (0 - st idx) else st idx
+
+/-! ## Conditional Pauli correction on Fin 4 (teleportation syndrome table) -/
+
+def applyPauliCorrection4 (c0 c1 : ZOutcome) (st : StateAmp4) : StateAmp4 :=
+  match c0, c1 with
+  | .zero, .zero => st
+  | .zero, .one => applyPauliX4 st teleportReceiverQubit4
+  | .one, .zero => applyPauliZ4 st teleportReceiverQubit4
+  | .one, .one => applyPauliZ4 (applyPauliX4 st teleportReceiverQubit4) teleportReceiverQubit4
+
+theorem pauli_correction_I_state00 :
+    applyPauliCorrection4 .zero .zero state00 = state00 := by native_decide
+
+theorem pauli_correction_X_syndrome01 :
+    applyPauliCorrection4 .zero .one state01 = state11 := by native_decide
+
+/-- Basis-state |00⟩: measure q0→0, post-measure q0→0, identity correction preserves |00⟩. -/
+theorem teleport_basis00_lemma_chain :
+    measureZOutcomeQ0 state00 = .zero ∧
+      measureZOutcomeQ0 (postMeasureQ0 state00 .zero) = .zero ∧
+      applyPauliCorrection4 .zero .zero state00 = state00 := by
+  exact ⟨measure_state00_q0_zero, syndrome00_from_state00.right, pauli_correction_I_state00⟩
+
+/-- Basis-state |01⟩ on receiver wire: syndrome (0,1) applies X correction to |11⟩ amplitude slot. -/
+theorem teleport_basis01_lemma_chain :
+    measureZOutcomeQ0 state01 = .one ∧
+      applyPauliCorrection4 .zero .one state01 = state11 := by
+  exact ⟨measure_state01_q0_one, pauli_correction_X_syndrome01⟩
+
+/-- Classical recording matches Z-outcome for basis |00⟩. -/
+theorem teleport_basis00_recorded_syndrome :
+    (recordSyndrome (measureZOutcomeQ0 state00) (measureZOutcomeQ0 (postMeasureQ0 state00 .zero))).c0.outcome = .zero ∧
+      (recordSyndrome (measureZOutcomeQ0 state00) (measureZOutcomeQ0 (postMeasureQ0 state00 .zero))).c1.outcome =
+        .zero := by
+  native_decide
 
 theorem pauli_x_receiver_flip_index4 :
     flipQubitIndex4 ⟨1, by decide⟩ 1 = ⟨3, by decide⟩ := rfl
@@ -262,6 +323,19 @@ theorem pauli_x8_corrects_state001_at_receiver :
 theorem pauli_z8_flips_sign_on_state101_at_basis :
     applyPauliZ8 state101 2 ⟨5, by decide⟩ = -1 := by native_decide
 
+def applyPauliCorrection8 (c0 c1 : ZOutcome) (st : StateAmp8) : StateAmp8 :=
+  match c0, c1 with
+  | .zero, .zero => st
+  | .zero, .one => applyPauliX8 st teleportReceiverQubit8
+  | .one, .zero => applyPauliZ8 st teleportReceiverQubit8
+  | .one, .one => applyPauliZ8 (applyPauliX8 st teleportReceiverQubit8) teleportReceiverQubit8
+
+theorem pauli_correction8_I_state000 :
+    applyPauliCorrection8 .zero .zero state000 = state000 := by native_decide
+
+theorem pauli_correction8_X_syndrome01 :
+    applyPauliCorrection8 .zero .one state001 = state101 := by native_decide
+
 def teleport_pauli_correction_anchor_note : String :=
   "Fin 4/8 basis-state Pauli X/Z on receiver qubit after projective Z measurement; " ++
   "syndrome 01→X, 10→Z anchors teleportation_preserves_state_up_to_pauli_correction evidence."
@@ -281,6 +355,12 @@ def measureZOutcomeQ (st : StateAmp8) (q : Nat) : ZOutcome :=
   if q = 0 then measureZOutcomeQ0_8 st else .zero
 
 theorem measure_state000_q0_zero : measureZOutcomeQ state000 0 = .zero := by native_decide
+
+/-- Three-qubit basis |0⟩ on wire 0: Z measure → 0, identity correction. -/
+theorem teleport_basis000_lemma_chain :
+    measureZOutcomeQ state000 0 = .zero ∧
+      applyPauliCorrection8 .zero .zero state000 = state000 := by
+  exact ⟨measure_state000_q0_zero, pauli_correction8_I_state000⟩
 
 theorem measure_state001_q0_one : measureZOutcomeQ state001 0 = .one := by native_decide
 
