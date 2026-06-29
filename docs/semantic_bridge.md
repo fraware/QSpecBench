@@ -18,7 +18,7 @@ evidence supports it.
 | `documented_not_proved` | Lean theorem is named; no automated matrix/manifest check |
 | `python_denotation_consistency` | `qspecbench verify-bridge` confirms Python QASM matrix equals Python denotation |
 | `manifest_checked_theorem_binding` | Manifest allowlist + SHA256 anchors + structured Lean `#check` evidence |
-| `kernel_checked_codegen_trace` | Codegen AST → generated Lean ops → kernel proof + hash chain (`ast_sha256`, `theorem_identifier_sha256`, `theorem_content_sha256`) |
+| `kernel_checked_codegen_trace` | Codegen AST → generated Lean ops → kernel proof + hash chain (`ast_sha256`, `theorem_identifier_sha256`, `theorem_source_statement_hash`; legacy field `theorem_content_sha256`) |
 | `kernel_checked_artifact_semantics` | **Deprecated alias** — use only when generated-module import is kernel-proved |
 
 `manifest_checked_theorem_binding` is **not** a kernel-checked proof that the QASM artifact
