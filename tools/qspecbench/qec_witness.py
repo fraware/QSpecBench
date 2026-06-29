@@ -22,6 +22,14 @@ def correction_table_sha256(table: dict[str, Any]) -> str:
     return hashlib.sha256(_canonical_json_bytes(table)).hexdigest()
 
 
+def validate_witness_fields(witness: dict[str, Any]) -> list[str]:
+    """Semantic validation for QEC witness envelopes (beyond JSON Schema)."""
+    errors: list[str] = []
+    if not witness.get("complete_for"):
+        errors.append("witness.complete_for is required")
+    return errors
+
+
 def verify_witness_table_hashes(
     witness: dict[str, Any],
     claim_dir: Path,
@@ -67,17 +75,16 @@ def export_small_code_witness(
     syndrome_table_path: Path,
     correction_table_path: Path | None = None,
     method: str = "lookup_table",
-    complete_for: str | None = None,
+    complete_for: str,
 ) -> dict[str, Any]:
     """Build witness JSON fragment with syndrome_table_sha256 for external certificates."""
     table = json.loads(syndrome_table_path.read_text(encoding="utf-8"))
     witness: dict[str, Any] = {
         "method": method,
+        "complete_for": complete_for,
         "syndrome_table_sha256": syndrome_table_sha256(table),
         "syndrome_table_path": syndrome_table_path.name,
     }
-    if complete_for:
-        witness["complete_for"] = complete_for
     if correction_table_path is not None and correction_table_path.is_file():
         correction = json.loads(correction_table_path.read_text(encoding="utf-8"))
         witness["correction_table_sha256"] = correction_table_sha256(correction)

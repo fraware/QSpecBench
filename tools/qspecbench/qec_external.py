@@ -81,6 +81,9 @@ def validate_qec_external_certificate(
     if witness is not None and not isinstance(witness, dict):
         errors.append("qec_external_certificate.result.witness must be an object")
     elif isinstance(witness, dict):
+        from qspecbench.qec_witness import validate_witness_fields
+
+        errors.extend(validate_witness_fields(witness))
         errors.extend(_validate_witness(witness, result, cert, claim_dir))
 
     return errors
@@ -113,12 +116,15 @@ def _validate_witness(
         md = witness.get("min_distance")
         if md is not None and not isinstance(md, int):
             errors.append("witness.min_distance must be an integer")
-        if witness.get("method") == "bruteforce_weight_enumeration":
-            complete = witness.get("complete_for")
-            if not complete:
-                errors.append(
-                    "bruteforce witness requires complete_for scope declaration"
-                )
+    if witness.get("method") == "lookup_table" and not witness.get("complete_for"):
+        errors.append("lookup_table witness requires complete_for scope declaration")
+
+    if witness.get("method") == "bruteforce_weight_enumeration":
+        complete = witness.get("complete_for")
+        if not complete:
+            errors.append(
+                "bruteforce witness requires complete_for scope declaration"
+            )
 
     if witness.get("over_claim") is True:
         errors.append("witness.over_claim must not be true")
