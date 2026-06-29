@@ -182,14 +182,13 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 | **Schema** (`qspecbench_version`) | 0.2 |
 | **Tooling** (`qspecbench` CLI / Lean lib) | 0.2.0 |
 | **Corpus** (benchmark suite) | 0.2.0 |
-| **Release tag** | v0.2.0 |
+| **Release tag** | v0.2.1 |
 
-## Project status
-
-**Release honesty (v0.2):** the tagged release delivers schema v0.2, validation tooling, and a
-48-benchmark corpus — but most entries are **reference scaffolds**, not fully proved claims.
-Only benchmarks at `reference_claim` maturity assert a checked headline under declared scope.
-See [versioning.md](docs/versioning.md) for what v0.2 does and does not claim.
+**Release honesty (v0.2.1):** tag `v0.2.1` (`278119a`) delivers incremental bridge metadata, measurement
+semantics stubs, and governance docs on the v0.2 schema. CI run
+[28395530818](https://github.com/QSpecBench/QSpecBench/actions/runs/28395530818) validated the release gate.
+Most benchmarks remain **reference scaffolds**; only `reference_claim` entries assert a checked headline.
+See [versioning.md](docs/versioning.md) for honest scope.
 
 <!-- qspecbench-status-begin -->
 Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **9**

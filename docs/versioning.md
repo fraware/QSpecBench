@@ -8,7 +8,7 @@ others. Conflating them is how an evidence format starts to overclaim.
 | Schema | `qspecbench_version` in each `spec.yaml`; `schema/qspecbench.schema.json` | `0.2` | The structure of a benchmark specification (fields, enums, validation contract). |
 | Tooling | `qspecbench` CLI (`pyproject.toml`), `tools/qspecbench/__init__.py`, Lean lib (`lean/lakefile.lean`) | `0.2.0` | The validators, dashboard generator, bridge checker, and Lean proof library. |
 | Corpus | the benchmark suite under `benchmarks/` | `0.2.0` | The collection of benchmarks and the evidence actually attached to them. |
-| Release tag | git tag | `v0.2.0` | A tagged snapshot of schema + tooling + corpus together. |
+| Release tag | git tag | `v0.2.1` | A tagged snapshot of schema + tooling + corpus together. |
 
 ## Why separate versions
 
@@ -60,7 +60,28 @@ See [versioning.md](versioning.md) for the corpus gate checklist and [status.md]
 | Provenance wired | All file-backed artifacts in `spec.yaml` `provenance` | **Met** | Drift fails validation |
 
 **Not claimed at v0.2.0 tag:** QEC `reference_claim` with proved decoder; full OpenQASM3 / dynamic semantics.
-**Working tree (post-v0.2.1):** five kernel-checked codegen-trace bridges (`kernel_checked_codegen_trace`; codegen AST hash chain + kernel proofs).
+**Working tree (post-v0.2.1):** six kernel-checked codegen-trace bridges (`kernel_checked_codegen_trace`; codegen AST hash chain + kernel proofs); Lean `BridgeMetadata` pins for all six; CI run [28395530818](https://github.com/QSpecBench/QSpecBench/actions/runs/28395530818) on tag `v0.2.1` (commit `278119a`).
+
+## v0.2.1 release notes (2026-06-29)
+
+Tag **`v0.2.1`** (`278119a`) is an incremental tooling and honesty milestone on top of v0.2.0 — not a
+corpus-wide proof advance.
+
+**Scope (honest):**
+
+- Six **kernel-checked codegen-trace** bridges with read-only verify, `theorem_source_statement_hash`, and Lean `BridgeMetadata` manifest pins (hashes from manifest, not elaborator export)
+- Incremental Lean dynamic semantics: `Measurement.lean` classical-bit recording stub, conditional Pauli on `Fin 4`/`Fin 8`, basis-state teleportation lemma chain (no `sorry`)
+- `parseQasmSource` expansion for Bell and SWAP exact on-disk kernel artifact grammars
+- QEC dashboard split: `qec_small_code_checked` vs `qec_external_certificate_checked`; witness hash backfill
+- Governance: `artifact_bound_reference_claim` promotion checklist (schema only; no benchmark promoted), Coq excluded from maturity until CI-bound proof, ai_formalization reviewer warnings
+- Corrupt-verify tests for swap and bell Generated modules
+
+**Not claimed at v0.2.1:**
+
+- `artifact_bound_reference_claim` assigned to any benchmark
+- Full OpenQASM 3 / dynamic-circuit kernel semantics for teleportation relational claim
+- Coq proofs in default CI
+- QEC `reference_claim` with proved decoder
 
 ## Raising the corpus version further
 
