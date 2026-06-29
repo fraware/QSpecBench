@@ -278,6 +278,37 @@ def test_cnot_kernel_source_matches_artifact_and_codegen_ops():
     ]
     assert gate_lines == ["cx q[0], q[1];", "cx q[0], q[1];"]
 
+
+def test_bell_kernel_source_matches_artifact_and_codegen_ops():
+    """Cross-test full Bell QASM grammar against Python canonical AST gate trace."""
+    qasm = REPO / "benchmarks" / "algorithms" / "bell_state_preparation" / "artifacts" / "circuit.qasm"
+    source = qasm.read_text(encoding="utf-8")
+    assert source.startswith("OPENQASM 3.0;")
+    assert 'include "stdgates.inc";' in source
+    assert "qubit[2] q;" in source
+    ast = build_canonical_ast(qasm)
+    assert ast["gates"] == [{"op": "h", "qubits": [0]}, {"op": "cx", "qubits": [0, 1]}]
+    gate_lines = [
+        line
+        for line in source.splitlines()
+        if line.strip() and not line.strip().startswith(("OPENQASM", "include", "qubit"))
+    ]
+    assert gate_lines == ["h q[0];", "cx q[0], q[1];"]
+
+
+def test_swap_kernel_source_matches_artifact_and_codegen_ops():
+    """Cross-test full three-CX SWAP QASM grammar against Python canonical AST gate trace."""
+    qasm = REPO / "benchmarks" / "algorithms" / "swap_from_three_cx" / "artifacts" / "source.qasm"
+    source = qasm.read_text(encoding="utf-8")
+    assert source.startswith("OPENQASM 3.0;")
+    ast = build_canonical_ast(qasm)
+    assert ast["gates"] == [
+        {"op": "cx", "qubits": [0, 1]},
+        {"op": "cx", "qubits": [1, 0]},
+        {"op": "cx", "qubits": [0, 1]},
+    ]
+
+
 def test_canonical_ast_json_matches_lean_mirror_structure():
     """Lean-parseable gate lines must match Python canonical_ast gate objects."""
     qasm = REPO / "benchmarks" / "algorithms" / "bell_state_preparation" / "artifacts" / "circuit.qasm"
@@ -315,6 +346,9 @@ def test_measurement_lean_scaffold_exists():
     assert "pauli_x4_corrects_state01_at_receiver" in text
     assert "pauli_x8_corrects_state001_at_receiver" in text
     assert "teleport_pauli_correction_anchor_note" in text
+    assert "teleport_basis00_lemma_chain" in text
+    assert "applyPauliCorrection4" in text
+    assert "recordZOutcome" in text
     assert "groverMeasurementCrossRefNote" in text
     assert "measurementTrustBoundaryNote" in text
 
