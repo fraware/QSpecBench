@@ -17,6 +17,39 @@ others. Conflating them is how an evidence format starts to overclaim.
   benchmark headline claim.
 - The **corpus** version tracks checked claim content, not scaffold count alone.
 
+## v0.2 release honesty
+
+The **v0.2.0** tag is a schema and tooling milestone, not a claim that the corpus is fully
+proved. Most benchmarks remain **reference scaffolds** with honest trust boundaries. Only
+benchmarks at **`reference_claim`** maturity (or the future **`artifact_bound_reference_claim`**
+tier documented below) assert a checked headline under declared scope.
+
+What v0.2 **does** provide:
+
+- A stable evidence format (`qspecbench_version: "0.2"`) with fail-closed validation
+- Six **kernel-checked codegen-trace** bridges (AST hash chain + Lean kernel proof)
+- One QEC small-code correction check with table-backed preservation (decoder algorithm assumed)
+- CI that runs schema validation, evidence adapters, Lean compile, and bridge verification
+
+What v0.2 **does not** claim:
+
+- Full OpenQASM 3 or dynamic-circuit semantics for all protocol benchmarks
+- QEC `reference_claim` with a proved decoder (bit-flip remains `reference_scaffold` with narrowed headline)
+- That manifest-checked theorem bindings prove artifact semantics end-to-end
+
+See [versioning.md](versioning.md) for the corpus gate checklist and [status.md](status.md) for per-benchmark breakdown.
+
+## Maturity tiers
+
+| `status.maturity` | Meaning |
+|---|---|
+| `seed` / `usable` | Early or contributor-ready package |
+| `reference_scaffold` | Reference format example; headline not checked |
+| `reference_contract` | Machine spec complete; evidence partial |
+| `reference_artifact` | Artifacts validated; claim still open |
+| `reference_claim` | Headline checked under declared scope (`headline_claim_status.checked_under`) |
+| `artifact_bound_reference_claim` | **Reserved tier (schema only):** headline checked and explicitly bound to named artifact hashes + checker chain. Not assigned to any benchmark in v0.2. |
+
 ## Corpus v0.2.0 gate checklist (satisfied 2026-06-27)
 
 | Criterion | Target | Status | Footnote |

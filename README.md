@@ -186,6 +186,11 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 
 ## Project status
 
+**Release honesty (v0.2):** the tagged release delivers schema v0.2, validation tooling, and a
+48-benchmark corpus — but most entries are **reference scaffolds**, not fully proved claims.
+Only benchmarks at `reference_claim` maturity assert a checked headline under declared scope.
+See [versioning.md](docs/versioning.md) for what v0.2 does and does not claim.
+
 <!-- qspecbench-status-begin -->
 Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **9**
 benchmarks are `reference_claim` under declared internal scope (see `headline_claim_status.checked_under`).
