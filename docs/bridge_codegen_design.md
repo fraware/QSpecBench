@@ -21,6 +21,23 @@ manifest-listed theorem on a fixed gate trace.
   Lean lemma `rx_pi2_entry01_ne_hadamard_entry01` documents that global-phase equivalence to H
   is **not** claimed under the complex model.
 
+## CNOT gold-standard chain (kernel_checked_codegen_trace)
+
+End-to-end verification for `cnot_self_inverse_cancellation` (see `tests/test_cnot_end_to_end.py`):
+
+```mermaid
+flowchart LR
+  QASM["artifacts/source.qasm\nartifact_sha256"] --> AST["build_canonical_ast\nast_sha256"]
+  AST --> Gen["Generated/CnotSelfInverse.lean\ngenerated_lean_sha256"]
+  Gen --> Thm["OpenQASM3.bridge_cnot_codegen_self_inverse\ntheorem_content_sha256"]
+  Thm --> Man["bridge_theorem_manifest.json"]
+  Man --> Bridge["semantic_bridge.json"]
+  Bridge --> Verify["qspecbench bridge-codegen verify\n(read-only: no mtime drift)"]
+```
+
+Read-only rule: `bridge-codegen verify` and `render_for_benchmark` must not write
+`lean/QSpecBench/Generated/*.lean` or evidence witness copies; only `generate` mutates files.
+
 ## Python → AST trust boundary
 
 The codegen pipeline currently builds the canonical AST from **Python** `extract_matrix` gate
@@ -45,8 +62,9 @@ Module `QSpecBench.Quantum.OpenQASM3Parser` (in lake graph):
 
 1. `structure CanonicalAst` mirroring JSON AST metadata (`gateCount`, `nQubits`)
 2. `def parseGateLine : String → Option ParsedGate` for `h`, `x`, `cx`/`cnot`, and `rx(...)` lines
-3. Theorems `parseGateLine_bell_h_toQasmOp`, `parseGateLine_bell_cx_toQasmOp` (parse → `toQasmOp` soundness)
-4. Python cross-test in `tests/test_phase5.py`: gate lines from all four kernel-checked artifacts vs `build_canonical_ast`
+3. `def parseQasmSource : String → Option CanonicalAst` — gate lines from raw QASM (headers skipped)
+4. Theorem `parseQasmSource_cnot_ops_eq_generated` — CNOT file content parses to `Generated.CnotSelfInverse.ops`
+5. Python cross-test in `tests/test_phase5.py`: gate lines + bytes hash for all six kernel-checked QASM artifacts
 
 **Remaining gap:** bytes→AST is still Python-side (`build_canonical_ast` / `extract_matrix`). The Lean
 parser validates line-level alignment only; it does not close `kernel_checked_artifact_semantics` alone.
