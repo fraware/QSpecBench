@@ -7,6 +7,7 @@ from typing import Any
 
 from qspecbench.models import (
     ALL_REFERENCE_LEVELS,
+    ARTIFACT_BOUND_LEVEL,
     REFERENCE_CLAIM_LEVEL,
     REFERENCE_SCAFFOLD_LEVELS,
 )
@@ -251,23 +252,24 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
             "(use reference_claim for a fully proved headline claim)"
         )
 
-    if maturity == REFERENCE_CLAIM_LEVEL:
+    if maturity in {REFERENCE_CLAIM_LEVEL, ARTIFACT_BOUND_LEVEL}:
+        label = maturity
         if not claim_scope:
-            errors.append("reference_claim requires a claim_scope block")
+            errors.append(f"{label} requires a claim_scope block")
         if not proved_scope:
-            errors.append("reference_claim requires a proved_scope block")
+            errors.append(f"{label} requires a proved_scope block")
         if headline_state != "checked":
-            errors.append("reference_claim requires headline_claim_status.status == checked")
+            errors.append(f"{label} requires headline_claim_status.status == checked")
         checked_under = headline_status.get("checked_under") or []
         if not checked_under:
             errors.append(
-                "reference_claim requires headline_claim_status.checked_under "
+                f"{label} requires headline_claim_status.checked_under "
                 "(semantic bases under which the headline is checked)"
             )
         not_checked = headline_status.get("not_checked_under") or []
         if not not_checked:
             errors.append(
-                "reference_claim requires headline_claim_status.not_checked_under "
+                f"{label} requires headline_claim_status.not_checked_under "
                 "(explicit scope limits)"
             )
 
@@ -276,17 +278,17 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
             checked = set(proved_scope.get("checked_obligations", []))
             unproved = set(proved_scope.get("unproved_obligations", []))
             if not required:
-                errors.append("reference_claim claim_scope must list at least one required obligation")
+                errors.append(f"{label} claim_scope must list at least one required obligation")
             missing = [o for o in required if o not in checked]
             if missing:
                 errors.append(
-                    "reference_claim cannot pass with unchecked headline obligations: "
+                    f"{label} cannot pass with unchecked headline obligations: "
                     + ", ".join(sorted(missing))
                 )
             still_open = [o for o in required if o in unproved]
             if still_open:
                 errors.append(
-                    "reference_claim has required obligations listed as unproved: "
+                    f"{label} has required obligations listed as unproved: "
                     + ", ".join(sorted(still_open))
                 )
 
@@ -295,28 +297,28 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
         for entry in spec.get("acceptable_evidence", []):
             if entry.get("required_for_claim") and entry.get("type") not in passing_types:
                 errors.append(
-                    "reference_claim requires passing evidence for required_for_claim type "
+                    f"{label} requires passing evidence for required_for_claim type "
                     f"{entry.get('type')!r}"
                 )
 
-        errors.extend(_validate_reference_claim_reviews(spec))
+        errors.extend(_validate_reference_claim_reviews(spec, label=label))
 
     return errors
 
 
-def _validate_reference_claim_reviews(spec: dict[str, Any]) -> list[str]:
-    """reference_claim promotions require dual maintainer review metadata."""
+def _validate_reference_claim_reviews(spec: dict[str, Any], *, label: str = REFERENCE_CLAIM_LEVEL) -> list[str]:
+    """reference_claim / artifact_bound promotions require dual maintainer review metadata."""
     errors: list[str] = []
     reviews = (spec.get("status") or {}).get("reviews") or {}
     for key in ("formal_evidence_review", "domain_semantics_review"):
         review = reviews.get(key)
         if not review:
-            errors.append(f"reference_claim requires status.reviews.{key}")
+            errors.append(f"{label} requires status.reviews.{key}")
             continue
         status = review.get("status")
         if status not in {"approved", "required"}:
             errors.append(
-                f"reference_claim status.reviews.{key}.status must be approved or required "
+                f"{label} status.reviews.{key}.status must be approved or required "
                 f"(got {status!r})"
             )
     return errors
