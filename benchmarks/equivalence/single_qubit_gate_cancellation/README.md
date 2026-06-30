@@ -10,28 +10,41 @@ Minimal equivalence pattern for compiler peephole rules.
 
 ## Objects
 
-- `artifacts/source.qasm`, `artifacts/target.qasm`
+- `artifacts/source.qasm` — H H circuit (SHA256-bound; LF bytes)
+- `artifacts/target.qasm` — identity
 
 ## Specification
 
-Exact unitary equality; no ancillae; no measurements.
+Exact unitary equality on one qubit under the int-scaffold model.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- QASM syntax checks (passing; syntax only)
+- **Lean 4 kernel proof** `QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_cancel` (passing)
+- **Artifact parse chain**: `parseQasmSourceToOps hhKernelArtifactSource = some Generated.SingleQubitGateCancellation.ops`
+- QCEC external equivalence (supplementary)
+- `qspecbench bridge-codegen verify` + `qspecbench bridge-metadata verify` (CI)
 
-## Trust boundary
+## Trust boundary / checker chain
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+| Stage | Anchor | Checked by |
+|-------|--------|------------|
+| QASM bytes | `artifact_sha256` | provenance + Lean embedded source |
+| Canonical AST | `lean_ast_sha256` (`ast_authority: lean_mirror`) | Lean-mirror parse |
+| Generated ops | `generated_lean_sha256` | lake build + manifest |
+| Kernel claim | `theorem_elaborator_hash` (primary) | BridgeMetadata pins |
+
+Honest limits: int-scaffold H-H cancellation; OpenQASM H normalization factor not checked under this headline.
 
 ## Status
 
-Current maturity: **reference_claim**.
+Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 
-OpenQASM H normalization factor links integer matrix model to gate semantics (see spec unproved obligations).
+- OpenQASM H normalization factor links integer matrix model to gate semantics
+- Full OpenQASM 3 / hardware semantics
 
 ## References
 
-- (add references when promoting beyond seed)
+- Standard inverse-gate cancellation

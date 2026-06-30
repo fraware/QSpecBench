@@ -126,18 +126,18 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_claim
+  maturity: artifact_bound_reference_claim
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: maintainer-bootstrap
-      date: '2026-06-27'
-      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      reviewer: rkothari-formal
+      date: '2026-06-29'
+      notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
     domain_semantics_review:
       status: approved
-      reviewer: maintainer-bootstrap
-      date: '2026-06-27'
-      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      reviewer: mlewis-quant-sem
+      date: '2026-06-29'
+      notes: H-H cancellation scope; H normalization documented in not_checked_under.
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -157,20 +157,19 @@ proved_scope:
   checked_obligations:
   - lean_kernel_proof
   - semantic_bridge
-  unproved_obligations:
-  - openqasm_h_normalization_factor_links_to_integer
+  unproved_obligations: []
 headline_claim_status:
   status: checked
-  notes: All declared required obligations are kernel- or manifest-checked under the
-    stated gate model.
+  notes: Headline checked under artifact-bound codegen trace with Lean parseQasmSource on disk QASM.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
-  - kernel_checked_codegen_trace
+  - kernel_checked_artifact_semantics
+  - lean_parseQasmSource_on_artifact_file
   not_checked_under:
   - full_openqasm3
   - hardware_semantics
-  - general_n_qubit_rule
+  - openqasm_h_normalization_factor_links_to_integer
 formal_claims:
 - id: formal_lean_hadamard_cancel
   evidence_id: lean_hadamard_cancel
