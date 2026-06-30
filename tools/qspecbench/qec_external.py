@@ -156,6 +156,24 @@ def _validate_witness(
 
     errors.extend(verify_witness_table_hashes(witness, claim_dir))
 
+    verifier_path = witness.get("verifier_result_path")
+    verifier_sha = witness.get("verifier_result_sha256")
+    if verifier_sha:
+        if not verifier_path:
+            errors.append("witness.verifier_result_path required when verifier_result_sha256 is set")
+        else:
+            import hashlib
+
+            artifact = claim_dir / verifier_path
+            if not artifact.is_file():
+                errors.append(f"witness verifier result artifact missing: {verifier_path}")
+            else:
+                on_disk = hashlib.sha256(artifact.read_bytes()).hexdigest()
+                if on_disk != verifier_sha:
+                    errors.append(
+                        f"witness.verifier_result_sha256 mismatch for {verifier_path}"
+                    )
+
     return errors
 
 
