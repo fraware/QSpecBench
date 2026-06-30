@@ -28,6 +28,16 @@ jobs:
           cd lean
           lake build
 
+      - name: Install Coq (smoke)
+        run: sudo apt-get update && sudo apt-get install -y coq
+
+      - name: Coq smoke compile
+        working-directory: benchmarks/equivalence/cnot_self_inverse_cancellation/evidence
+        run: coqc cnot_coq_smoke.v
+
+      - name: Mark Coq smoke for dashboard
+        run: echo "QSPECBENCH_COQ_SMOKE_CI=1" >> $GITHUB_ENV
+
       - name: Export theorem elaborator types
         run: python scripts/export_theorem_types.py > /dev/null
 

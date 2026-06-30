@@ -18,10 +18,16 @@ from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
 from qspecbench.bridge_manifest import validate_kernel_checked_bridge, validate_manifest_bridge
 from qspecbench.bridge_codegen import (
+    KERNEL_BRIDGE_IDS,
     KERNEL_CHECKED_LINK,
     LEGACY_KERNEL_CHECKED_LINK,
+    AST_AUTHORITY_FIELD,
+    AST_AUTHORITY_LEAN_MIRROR,
     is_kernel_checked_link,
+    read_theorem_source_hash,
+    theorem_source_statement_hash,
     verify_kernel_artifact_semantics_bridge,
+    _elaborator_exported_types,
 )
 from qspecbench.provenance import validate_provenance
 from qspecbench.verify_bridge import verify_bridge
@@ -94,8 +100,52 @@ def _has_passing_bridge_verify(spec: dict[str, Any]) -> bool:
     return False
 
 
-def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> list[str]:
+def _validate_kernel_bridge_authority_warnings(
+    spec: dict[str, Any], bridge: dict[str, Any] | None
+) -> list[str]:
+    """Non-fatal warnings for v0.3 hash/AST authority transition on kernel bridges."""
+    warnings: list[str] = []
+    if not bridge:
+        return warnings
+    benchmark_id = spec.get("id", "")
+    if benchmark_id not in KERNEL_BRIDGE_IDS:
+        return warnings
+    if not is_kernel_checked_link(bridge.get("claimed_link")):
+        return warnings
+
+    has_elab = benchmark_id in _elaborator_exported_types()
+    bridge_source = read_theorem_source_hash(bridge)
+    expected_source = theorem_source_statement_hash(benchmark_id)
+    if has_elab and expected_source and bridge_source and bridge_source != expected_source:
+        warnings.append(
+            f"theorem_source_statement_hash differs from syntactic regex extraction for "
+            f"{benchmark_id}; theorem_elaborator_hash is primary authority (v0.3)"
+        )
+    elif has_elab and expected_source and not bridge_source:
+        warnings.append(
+            f"theorem_source_statement_hash missing for {benchmark_id}; "
+            "theorem_elaborator_hash is primary authority (v0.3)"
+        )
+
+    authority = bridge.get(AST_AUTHORITY_FIELD)
+    if authority and authority != AST_AUTHORITY_LEAN_MIRROR:
+        warnings.append(
+            f"semantic_bridge.ast_authority={authority!r}; kernel bridges should use "
+            f"{AST_AUTHORITY_LEAN_MIRROR!r}"
+        )
+    lean_ast = bridge.get("lean_ast_sha256")
+    py_ast = bridge.get("ast_sha256")
+    if lean_ast and py_ast and lean_ast != py_ast:
+        warnings.append(
+            f"lean_ast_sha256 != ast_sha256 for {benchmark_id}; "
+            "Lean-mirror parse is sole AST authority for kernel bridges"
+        )
+    return warnings
+
+
+def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> tuple[list[str], list[str]]:
     errors: list[str] = []
+    warnings: list[str] = []
     maturity = spec.get("status", {}).get("maturity")
     bridge = _load_semantic_bridge(spec, claim_dir)
     if (
@@ -144,7 +194,8 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
     errors.extend(_validate_reference_claim_bridge(spec, bridge))
     errors.extend(_validate_artifact_bound_reference_claim(spec, claim_dir, bridge))
     errors.extend(_validate_qec_claim_scope(spec, claim_dir))
-    return errors
+    warnings.extend(_validate_kernel_bridge_authority_warnings(spec, bridge))
+    return errors, warnings
 
 
 def _validate_artifact_bound_reference_claim(
@@ -492,7 +543,9 @@ def validate_spec_dict(
     warnings.extend(_validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(_validate_qec_witness_file(claim_dir, spec))
-    errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
+    bridge_errors, bridge_warnings = validate_semantic_bridge_rules(spec, claim_dir)
+    errors.extend(bridge_errors)
+    warnings.extend(bridge_warnings)
     errors.extend(_validate_qasm_extraction(spec))
     errors.extend(_validate_ai_formalization_reviewer(spec))
     return errors, warnings

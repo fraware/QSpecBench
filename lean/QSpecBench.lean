@@ -13,4 +13,5 @@ import QSpecBench.Teleportation
 import QSpecBench.NoCloning
 import QSpecBench.Hamiltonian
 import QSpecBench.QECDistant
+import QSpecBench.QEC.BitFlip
 import QSpecBench.Algorithms

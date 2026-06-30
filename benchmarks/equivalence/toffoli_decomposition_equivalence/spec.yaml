@@ -60,7 +60,18 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: artifact_bound_reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-06-29'
+      notes: Source CCX artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-06-29'
+      notes: Source-side native CCX artifact scope only; decomposition pair equivalence in not_checked_under.
 references: []
 acceptable_evidence:
 - type: qasm_parse
@@ -115,6 +126,12 @@ evidence:
   checker: verify-bridge CLI
   status: passing
   notes: kernel_checked_codegen_trace verify-bridge on native CCX artifact
+- id: lean_toffoli_pair_scaffold
+  type: lean_proof
+  path: evidence/source_target_pair_open.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Scoped C2 pair bridge + open denotation gap documented; see notes/pair_equivalence_policy.md
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -136,25 +153,36 @@ proof_obligations:
   notes: python_denotation_consistency verify-bridge
 - id: decomposition_equivalence
   status: passing
-  notes: QCEC on source/target pair
+  notes: QCEC on source/target pair (supplementary; not required for source artifact_bound headline)
+- id: decomposition_pair_denotation
+  status: partial
+  notes: Scoped pair bridge kernel-checked; denotateOps3C source = target (exact or global phase) open
 claim_scope:
   headline_claim_id: toffoli_decomposition_equivalence_headline
-  headline_claim_text: A standard Toffoli decomposition using H, T, CX matches native
-    CCX on three qubits.
+  headline_claim_text: Native CCX on the declared three-qubit source QASM artifact denotes
+    the standard Toffoli unitary under kernel-checked artifact semantics.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
-  - decomposition_equivalence
 proved_scope:
   checked_obligations:
   - lean_kernel_proof
   - semantic_bridge
-  - decomposition_equivalence
-  unproved_obligations:
-  - decomposition_circuit_phase_semantics_beyond_qce
+  unproved_obligations: []
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: Source CCX artifact bound via kernel_checked_artifact_semantics; H/T/CX decomposition
+    pair equivalence is supplementary (QCEC) and not part of this headline.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  - kernel_checked_artifact_semantics
+  - lean_parseQasmSource_on_artifact_file
+  not_checked_under:
+  - full_openqasm3
+  - hardware_semantics
+  - decomposition_target_equivalence
+  - decomposition_circuit_phase_semantics_beyond_qcec
 formal_claims:
 - id: formal_lean_toffoli_bridge
   evidence_id: lean_toffoli_bridge

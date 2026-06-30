@@ -6,20 +6,20 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 
 ## Versions
 
-- **Schema:** 0.2
+- **Schema:** 0.3
 - **Tooling:** 0.2.0
 - **Corpus:** 0.2.0
-- **Release tag:** v0.2.2
+- **Release tag:** v0.2.3
 
 ## Summary
 
 - **Total benchmarks:** 48
 - **By track:** ai_formalization: 7, algorithms: 10, equivalence: 10, hamiltonian: 8, qec: 13
-- **By maturity:** artifact_bound_reference_claim: 1, reference_claim: 8, reference_contract: 2, reference_scaffold: 29, seed: 1, usable: 7
+- **By maturity:** artifact_bound_reference_claim: 6, reference_claim: 4, reference_contract: 2, reference_scaffold: 28, seed: 1, usable: 7
 - **With any checked evidence:** 44
-- **With headline claim checked (reference_claim or checked headline):** 9
-- **With scaffold-only checked evidence:** 35
-- **With unchecked headline assumptions:** 39
+- **With headline claim checked (reference_claim or checked headline):** 10
+- **With scaffold-only checked evidence:** 34
+- **With unchecked headline assumptions:** 38
 - **With partial (non-checked) evidence only:** 4
 - **With no evidence:** 0
 - **With AI draft evidence:** 7
@@ -28,16 +28,16 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 - **QEC small-code certificate level (`qec_small_code_checked`):** 12
 - **QEC external certificate level (`qec_external_certificate_checked`):** 1
 - **With resource contracts:** 11
-- **Manifest-checked theorem bindings:** 6
+- **Manifest-checked theorem bindings:** 5
 - **Python denotation consistency checks:** 2
-- **Kernel-checked codegen-trace bridges:** 0
+- **Kernel-checked codegen-trace bridges:** 1
 - **Kernel-checked artifact-semantics bridges (legacy label):** 6
 - **Documented (not proved) bridges:** 4
-- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`)
+- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`). `coq_smoke` compiles `cnot_coq_smoke.v` on every push when `coqc` is installed.
 
 ### Passing evidence by trust level
 
-- **checked:** 44
+- **checked:** 47
 - **independently_checkable:** 19
 - **externally_trusted:** 62
 - **heuristic:** 9
@@ -62,25 +62,25 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 | formalize_stabilizer_commutation_statement | ai_formalization | formalization_faithfulness | intermediate | reference_scaffold | lean_proof, human_review | passing | proof_scope: fragment; headline: partially_checked; checked: Lean; unchecked: draft_faithfulness, full_faithfulness_of_ai_draft_text_to_source_phr |
 | formalize_teleportation_spec_statement | ai_formalization | formalization | intermediate | usable | lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean; unchecked: full_faithfulness_of_ai_draft_text_to_source_phr |
 | amplitude_damping_channel_specification | algorithms | channel_specification | intermediate | usable | simulation | passing | proof_scope: syntax_or_review; headline: unproved; checked: declared checks; unchecked: simulation_heuristic, cptp_property_proof |
-| bell_state_preparation | algorithms | state_preparation | introductory | reference_claim | qasm_parse, lean_proof... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +1 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge; unchecked: openqasm_h_normalization_links_integer_model_to_, global_phase_of_phi_state |
+| bell_state_preparation | algorithms | state_preparation | introductory | artifact_bound_reference_claim | qasm_parse, lean_proof... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +2 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge |
 | deutsch_jozsa_constant_balanced_distinction | algorithms | oracle_distinction | intermediate | reference_scaffold | qasm_parse, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax; unchecked: oracle_distinction, dj_correctness_for_constant_vs_balanced |
 | grover_single_iteration_amplitude_amplification | algorithms | amplitude_amplification | intermediate | reference_scaffold | qasm_parse, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; checked: Lean, QASM syntax; unchecked: amplitude_lift, semantic_correctness_of_circuit_vs_claim |
 | no_cloning_negative_claim | algorithms | negative_claim | frontier | reference_scaffold | lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean; unchecked: full_universal_cloner_formalization_beyond_basis |
 | phase_estimation_exact_eigenphase_small_instance | algorithms | eigenphase_estimation | frontier | reference_scaffold | qasm_parse, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax; unchecked: eigenphase_relation, semantic_correctness_of_circuit_vs_claim |
 | qft_then_inverse_qft_identity_up_to_ordering | algorithms | algorithm_identity | intermediate | reference_claim | qasm_parse, lean_proof... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge; unchecked: semantic_correctness_of_circuit_vs_claim |
 | superdense_coding_decodes_two_classical_bits | algorithms | protocol_correctness | introductory | reference_scaffold | qasm_parse, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax; unchecked: decoding_relation, artifact_parsing_semantics, idealized_gate_semantics |
-| swap_from_three_cx | algorithms | circuit_construction | introductory | reference_claim | qasm_parse, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +1 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge; unchecked: unitary_equivalence_beyond_declared_gate_subset |
-| teleportation_preserves_state_up_to_pauli_correction | algorithms | protocol_correctness | introductory | reference_scaffold | qasm_parse, lean_proof... | passing | proof_scope: fragment; headline: partially_checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, dynamic_circuit.projective_povm_stub; checked: Lean, QASM syntax, Python bridge; unchecked: arbitrary_state_relational_transfer, measurement_conditioned_pauli_correction, arbitrary_state_relational_transfer_after_measur, +2 more |
+| swap_from_three_cx | algorithms | circuit_construction | introductory | artifact_bound_reference_claim | qasm_parse, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +2 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge |
+| teleportation_preserves_state_up_to_pauli_correction | algorithms | protocol_correctness | introductory | reference_scaffold | qasm_parse, lean_proof... | passing | proof_scope: fragment; headline: partially_checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, dynamic_circuit.projective_povm_stub; +1 bases; checked: Lean, QASM syntax, Python bridge; unchecked: arbitrary_state_relational_transfer, measurement_conditioned_pauli_correction, arbitrary_state_relational_transfer_after_measur, +2 more |
 | circuit_identity_after_layout | equivalence | unitary_equivalence | introductory | reference_scaffold | qasm_parse, qasm_parse... | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax, Python bridge; unchecked: register_renaming_semantics_beyond_isomorphic_ma |
 | clifford_simplification_preserves_unitary | equivalence | unitary_equivalence | advanced | reference_scaffold | qasm_parse, qasm_parse... | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax, Python bridge; unchecked: semantic_correctness_of_circuit_vs_claim |
 | cnot_self_inverse_cancellation | equivalence | unitary_equivalence | introductory | artifact_bound_reference_claim | qasm_parse, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +2 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge |
-| hadamard_conjugates_x_to_z | equivalence | unitary_equivalence | intermediate | reference_claim | lean_proof, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +1 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge; unchecked: openqasm_h_normalization_links_integer_model_to_ |
+| hadamard_conjugates_x_to_z | equivalence | unitary_equivalence | intermediate | artifact_bound_reference_claim | lean_proof, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +2 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge |
 | phase_polynomial_equivalence_small_instance | equivalence | unitary_equivalence | intermediate | reference_scaffold | qasm_parse, qasm_parse... | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax, Python bridge; unchecked: semantic_correctness_of_circuit_vs_claim |
 | qft_inverse_qft_small_instance | equivalence | unitary_equivalence | intermediate | reference_claim | qasm_parse, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; not_checked: full_openqasm3, general_n_qubit_qft; checked: Lean, QASM syntax, Python bridge; unchecked: openqasm_h_normalization_matches_lean_integer_mo |
 | rx_gate_equivalence_small_instance | equivalence | unitary_equivalence | introductory | reference_scaffold | lean_proof, qasm_parse... | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax, Python bridge; unchecked: openqasm_rx_parameter_semantics_beyond_pi_2_inst, global_phase_between_rx_and_h |
-| single_qubit_gate_cancellation | equivalence | unitary_equivalence | introductory | reference_claim | lean_proof, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +1 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge; unchecked: openqasm_h_normalization_factor_links_to_integer |
+| single_qubit_gate_cancellation | equivalence | unitary_equivalence | introductory | artifact_bound_reference_claim | lean_proof, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +2 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge |
 | source_optimized_qasm_equivalence_small_instance | equivalence | unitary_equivalence | intermediate | reference_scaffold | qasm_parse, qasm_parse... | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax, Python bridge; unchecked: semantic_correctness_of_circuit_vs_claim |
-| toffoli_decomposition_equivalence | equivalence | unitary_equivalence | intermediate | reference_scaffold | qasm_parse, qasm_parse... | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QASM syntax, Python bridge; unchecked: decomposition_circuit_phase_semantics_beyond_qce |
+| toffoli_decomposition_equivalence | equivalence | unitary_equivalence | intermediate | artifact_bound_reference_claim | qasm_parse, qasm_parse... | passing | proof_scope: full; headline: checked; checked_under: qspecbench.openqasm3.int_scaffold.v0, finite_matrix_model; +2 bases; not_checked: full_openqasm3, hardware_semantics; checked: Lean, QASM syntax, Python bridge |
 | bravyi_kitaev_small_instance | hamiltonian | mapping_sanity | intermediate | usable | simulation | passing | proof_scope: syntax_or_review; headline: unproved; checked: declared checks; unchecked: simulation_heuristic, formal_anticommutation_preservation |
 | heisenberg_model_hermiticity_small_instance | hamiltonian | hermiticity | introductory | reference_scaffold | simulation, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean; unchecked: formal_proof_in_lean |
 | jordan_wigner_preserves_anticommutation_small_instance | hamiltonian | hamiltonian_claim | intermediate | reference_scaffold | simulation, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean; unchecked: formal_proof_of_claim |
@@ -100,5 +100,5 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 | surface_code_distance_three_stabilizer_sanity | qec | qec_claim | intermediate | reference_scaffold | qec_verifier_result, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QEC structure; unchecked: algebraic_commutation_proof, decoder_and_correction_claims |
 | surface_code_single_pauli_error_correction | qec | qec_claim | intermediate | reference_scaffold | qec_verifier_result, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QEC structure; unchecked: algebraic_commutation_proof, decoder_and_correction_claims |
 | surface_code_single_round_syndrome_extraction | qec | qec_claim | intermediate | reference_scaffold | qec_verifier_result, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QEC structure; unchecked: algebraic_commutation_proof, decoder_and_correction_claims |
-| three_qubit_bit_flip_code_corrects_one_x | qec | error_correction | intermediate | reference_claim | qec_verifier_result, qec_verifier_result... | passing | proof_scope: full; headline: checked; checked_under: stabilizer_tableau, lookup_table_decoder; +1 bases; not_checked: general_decoder_correctness, syndrome_extraction_circuits; checked: Lean, QEC structure; unchecked: syndrome_extraction_circuit_semantics, decoder_algorithm_beyond_lookup_tables, repeated_round_fault_tolerance |
+| three_qubit_bit_flip_code_corrects_one_x | qec | error_correction | intermediate | reference_claim | qec_verifier_result, qec_verifier_result... | passing | proof_scope: full; headline: checked; checked_under: stabilizer_tableau, lookup_table_decoder; +2 bases; not_checked: syndrome_extraction_circuits, repeated_round_fault_tolerance; checked: Lean, QEC structure; unchecked: syndrome_extraction_circuit_semantics, repeated_round_fault_tolerance |
 | three_qubit_phase_flip_code_corrects_one_z | qec | error_correction | intermediate | reference_scaffold | qec_verifier_result, lean_proof | passing | proof_scope: fragment; headline: partially_checked; checked: Lean, QEC structure; unchecked: correction_restores_logical_state |

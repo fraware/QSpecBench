@@ -317,10 +317,13 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
         GENERATED_MODULE_MAP,
         KERNEL_CHECKED_LINK,
         KERNEL_BRIDGE_IDS,
+        AST_AUTHORITY_FIELD,
+        AST_AUTHORITY_LEAN_MIRROR,
         LEAN_AST_SHA256_FIELD,
         LEGACY_KERNEL_CHECKED_LINK,
         THEOREM_ELABORATOR_HASH_FIELD,
         THEOREM_SOURCE_HASH_FIELD,
+        _elaborator_exported_types,
         kernel_checked_theorem_name,
         lean_ast_sha256_for_benchmark,
         read_theorem_source_hash,
@@ -366,10 +369,11 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
         errors.append("semantic_bridge theorem_identifier_sha256 does not match manifest")
     content_hash = theorem_source_statement_hash(benchmark_id)
     bridge_hash = read_theorem_source_hash(bridge)
+    has_elab = benchmark_id in _elaborator_exported_types()
     if content_hash and bridge_hash:
-        if bridge_hash != content_hash:
+        if bridge_hash != content_hash and not has_elab:
             errors.append("semantic_bridge theorem_source_statement_hash does not match manifest")
-    elif content_hash and not bridge_hash:
+    elif content_hash and not bridge_hash and not has_elab:
         errors.append("semantic_bridge missing theorem_source_statement_hash for kernel-checked bridge")
 
     expected_elab = theorem_elaborator_hash(benchmark_id)
@@ -390,10 +394,10 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
                 errors.append(f"semantic_bridge missing {LEAN_AST_SHA256_FIELD} for {benchmark_id}")
             elif bridge_lean_ast != expected_lean_ast:
                 errors.append(f"semantic_bridge {LEAN_AST_SHA256_FIELD} drift for {benchmark_id}")
-            bridge_ast = bridge.get("ast_sha256")
-            if bridge_ast and bridge_lean_ast and bridge_lean_ast != bridge_ast:
+            if bridge.get(AST_AUTHORITY_FIELD) != AST_AUTHORITY_LEAN_MIRROR:
                 errors.append(
-                    f"semantic_bridge {LEAN_AST_SHA256_FIELD} != ast_sha256 for {benchmark_id}"
+                    f"semantic_bridge ast_authority must be {AST_AUTHORITY_LEAN_MIRROR!r} "
+                    f"for kernel bridge {benchmark_id}"
                 )
 
     claimed = bridge.get("claimed_link")

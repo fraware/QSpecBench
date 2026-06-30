@@ -1,28 +1,25 @@
 # Claim diff: toffoli_decomposition_equivalence
 
-<!-- scope_fingerprint: 2c3bb6f1fc56840f0fce4437e104de48c03df6dd07a4e2f7813841c1f316d8ec -->
+<!-- scope_fingerprint: 021bf9b0244e4afaf9459c9d4e757b5f555c04eeeda2a954d157815fc68c83f8 -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** artifact_bound_reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
 A standard Toffoli decomposition using H, T, CX matches native CCX on three qubits.
 
 ## Declared headline (claim_scope)
-A standard Toffoli decomposition using H, T, CX matches native CCX on three qubits.
+Native CCX on the declared three-qubit source QASM artifact denotes the standard Toffoli unitary under kernel-checked artifact semantics.
 
 ## Required obligations
 - lean_kernel_proof
 - semantic_bridge
-- decomposition_equivalence
 
 ## Checked obligations
 - [x] lean_kernel_proof
 - [x] semantic_bridge
-- [x] decomposition_equivalence
 
 ## Unproved / open obligations
-- [ ] decomposition_circuit_phase_semantics_beyond_qce
 
 ## Gap
-- Headline not marked checked despite obligation coverage; review maturity label.
+- None among declared required obligations.

@@ -16,6 +16,9 @@ import QSpecBench.Quantum.Measurement
 #check QSpecBench.Quantum.Measurement.teleport_basis001_lemma_chain
 #check QSpecBench.Quantum.Measurement.measureZ8
 #check QSpecBench.Quantum.Measurement.applyPauliCorrection8
+#check QSpecBench.Quantum.Measurement.teleport_basis_input_transfer_fin4
+#check QSpecBench.Quantum.Measurement.teleport_basis_input_transfer_fin2
+#check QSpecBench.Quantum.Measurement.teleportArbitraryStateTransferBlocker
 #check QSpecBench.Quantum.Measurement.measurementTrustBoundaryNote
 
 /-- Basis-state input |0⟩ yields Z-outcome zero on qubit 0 (Fin 8 scaffold). -/

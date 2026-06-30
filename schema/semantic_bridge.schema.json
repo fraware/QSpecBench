@@ -73,6 +73,11 @@
       "pattern": "^[a-f0-9]{64}$",
       "description": "SHA-256 of Lean-mirror canonical AST JSON from parseQasmSource gate list"
     },
+    "ast_authority": {
+      "type": "string",
+      "enum": ["lean_mirror", "python_extract_matrix"],
+      "description": "Which AST hash is primary in bridge-codegen verify (kernel bridges: lean_mirror)"
+    },
     "generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "package_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "theorem_identifier_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
@@ -97,7 +102,11 @@
       "pattern": "^[a-f0-9]{64}$",
       "description": "Lean-mirror canonical AST hash for target QASM when dual-manifest target fields are pinned"
     },
-    "target_generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    "target_generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "pair_lean_theorem": {
+      "type": ["string", "null"],
+      "description": "Lean theorem id for source-target pair equivalence on dual-manifest compiler bridges"
+    }
   },
   "additionalProperties": false
 }

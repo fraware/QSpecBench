@@ -5,10 +5,10 @@ others. Conflating them is how an evidence format starts to overclaim.
 
 | Component | Field / source | Current | Meaning |
 |---|---|---|---|
-| Schema | `qspecbench_version` in each `spec.yaml`; `schema/qspecbench.schema.json` | `0.2` | The structure of a benchmark specification (fields, enums, validation contract). |
+| Schema | `qspecbench_version` in each `spec.yaml`; `schema/qspecbench.schema.json` | `0.3` | The structure of a benchmark specification (fields, enums, validation contract). |
 | Tooling | `qspecbench` CLI (`pyproject.toml`), `tools/qspecbench/__init__.py`, Lean lib (`lean/lakefile.lean`) | `0.2.0` | The validators, dashboard generator, bridge checker, and Lean proof library. |
 | Corpus | the benchmark suite under `benchmarks/` | `0.2.0` | The collection of benchmarks and the evidence actually attached to them. |
-| Release tag | git tag | `v0.2.2` | A tagged snapshot of schema + tooling + corpus together. |
+| Release tag | git tag | `v0.2.3` | A tagged snapshot of schema + tooling + corpus together. |
 
 ## Why separate versions
 
@@ -48,7 +48,7 @@ See [versioning.md](versioning.md) for the corpus gate checklist and [status.md]
 | `reference_contract` | Machine spec complete; evidence partial |
 | `reference_artifact` | Artifacts validated; claim still open |
 | `reference_claim` | Headline checked under declared scope (`headline_claim_status.checked_under`) |
-| `artifact_bound_reference_claim` | **Reserved tier (schema only):** headline checked and explicitly bound to named artifact hashes + checker chain. Not assigned to any benchmark in v0.2. |
+| `artifact_bound_reference_claim` | **Reserved tier (schema v0.2+):** headline checked and explicitly bound to named artifact hashes + checker chain. Assigned to kernel-bridge pilots (see v0.2.3 notes). |
 
 ## Corpus v0.2.0 gate checklist (satisfied 2026-06-27)
 
@@ -60,7 +60,26 @@ See [versioning.md](versioning.md) for the corpus gate checklist and [status.md]
 | Provenance wired | All file-backed artifacts in `spec.yaml` `provenance` | **Met** | Drift fails validation |
 
 **Not claimed at v0.2.0 tag:** QEC `reference_claim` with proved decoder; full OpenQASM3 / dynamic semantics.
-**Working tree (post-v0.2.2):** six kernel-checked codegen-trace bridges (`kernel_checked_codegen_trace`; codegen AST hash chain + kernel proofs); Lean `BridgeMetadata` pins for all six; tag `v0.2.2` (commit `e5ee749`).
+**Working tree (post-v0.2.3):** six `kernel_checked_artifact_semantics` bridges with `ast_authority: lean_mirror`; elaborator hash primary authority (schema **0.3**); tag `v0.2.3` (commit `49e8899`).
+
+## v0.2.3 release notes (2026-06-29)
+
+Tag **`v0.2.3`** (`49e8899`) is a middle-tier closure milestone: governance sync, AST authority transition, and elaborator hash as v0.3 primary gate.
+
+**Scope (honest):**
+
+- **`artifact_bound_reference_claim` pilots:** six kernel bridges (CNOT, Bell prep, H-X-H, H-H cancel, SWAP-from-CX, Toffoli CCX source) with dual named reviews and hash anchor chain
+- Six **`kernel_checked_artifact_semantics`** bridges with `lean_ast_sha256` + `ast_authority: lean_mirror` (Python `ast_sha256` secondary cross-check)
+- **`theorem_elaborator_hash`** from `ExportTheoremTypesCheck.lean` + `scripts/export_theorem_types.py` (primary); regex `theorem_source_statement_hash` warning-only when elaborator cache present
+- Schema bump to **0.3** for elaborator/AST authority fields; tooling/corpus remain **0.2.0**
+- Pinned **`uv.lock`** in release SBOM
+
+**Not claimed at v0.2.3:**
+
+- Full Toffoli decomposition kernel equivalence (target-side trace open)
+- QEC `reference_claim` with proved decoder
+- Teleportation or major protocol `reference_claim`
+- Git tag on remote (process step; `RELEASE_TAG` constant updated)
 
 ## v0.2.2 release notes (2026-06-29)
 

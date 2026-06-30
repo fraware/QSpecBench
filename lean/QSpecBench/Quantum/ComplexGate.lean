@@ -198,4 +198,49 @@ theorem hadamardC_mul_self (i j : Fin 2) :
   fin_cases i <;> fin_cases j <;>
     simp [mul2C, hadamardC, hadamardEntry, identityGate, identityEntry, Matrix.of_apply] <;> norm_num
 
+theorem mul2C_smul_identity_right (A : Mat2C) (c : ℂ) (i j : Fin 2) :
+    mul2C A (Matrix.of (fun i' j' => c * identityEntry i' j')) i j = c * A i j := by
+  fin_cases i <;> fin_cases j <;> simp [mul2C, identityEntry, Matrix.of_apply] <;> ring
+
+theorem mul2C_sGate_hadamard_sq (i j : Fin 2) :
+    mul2C sGate (mul2C hadamardC hadamardC) i j = (2 : ℂ) * sGate i j := by
+  rw [show mul2C hadamardC hadamardC = Matrix.of (fun i' j' => (2 : ℂ) * identityEntry i' j') from by
+    ext i' j'
+    simp [hadamardC_mul_self, identityGate, identityEntry, Matrix.of_apply]]
+  exact mul2C_smul_identity_right sGate (2 : ℂ) i j
+
+def mul8C (A B : Mat8C) (i j : Fin 8) : ℂ :=
+  A i 0 * B 0 j + A i 1 * B 1 j + A i 2 * B 2 j + A i 3 * B 3 j +
+    A i 4 * B 4 j + A i 5 * B 5 j + A i 6 * B 6 j + A i 7 * B 7 j
+
+def mul8C_mat (A B : Mat8C) : Mat8C := Matrix.of (mul8C A B)
+
+private def tensorIdx3 (i : Fin 8) : Fin 2 × Fin 2 × Fin 2 :=
+  (⟨i.val % 2, by omega⟩, ⟨(i.val / 2) % 2, by omega⟩, ⟨i.val / 4, by omega⟩)
+
+def kron3Entry (A B C : Mat2C) (i j : Fin 8) : ℂ :=
+  let (i0, i1, i2) := tensorIdx3 i
+  let (j0, j1, j2) := tensorIdx3 j
+  A i0 j0 * B i1 j1 * C i2 j2
+
+def kron3 (A B C : Mat2C) : Mat8C := Matrix.of (kron3Entry A B C)
+
+def applySingle3C (g : Mat2C) (q : Nat) : Mat8C :=
+  kron3
+    (if q = 0 then g else identityGate)
+    (if q = 1 then g else identityGate)
+    (if q = 2 then g else identityGate)
+
+private def cnot8Col (ctrl tgt row : Nat) : Nat :=
+  if (row >>> ctrl) &&& 1 = 1 then row ^ (1 <<< tgt) else row
+
+def cnot8Entry (ctrl tgt : Nat) (i j : Fin 8) : ℂ :=
+  if j.val = cnot8Col ctrl tgt i.val then (1 : ℂ) else 0
+
+def cnot8 (ctrl tgt : Nat) : Mat8C := Matrix.of (cnot8Entry ctrl tgt)
+
+theorem mul8C_one_right (A : Mat8C) (i j : Fin 8) :
+    mul8C A (1 : Mat8C) i j = A i j := by
+  fin_cases j <;> fin_cases i <;> simp [mul8C, Matrix.one_apply]
+
 end QSpecBench.Quantum.ComplexGate

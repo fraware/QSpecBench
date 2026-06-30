@@ -220,8 +220,8 @@ BENCHMARK_ID_BY_QASM = {
 }
 
 
-def test_release_tag_v022():
-    assert RELEASE_TAG == "v0.2.2"
+def test_release_tag_v023():
+    assert RELEASE_TAG == "v0.2.3"
 
 
 def test_cnot_kernel_artifact_source_matches_disk_and_manifest():

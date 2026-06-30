@@ -125,6 +125,20 @@ def denotateOps3 (ops : List QasmOp) : Matrix8 :=
     | .ccx _ _ _ => fun i j => mul8 ccx8 acc i j
     | .swap _ _ => acc) id8
 
+noncomputable def denotateOps3C (ops : List QasmOp) : Mat8C :=
+  ops.foldl (fun acc op =>
+    match op with
+    | .gate g q => mul8C_mat (applySingle3C (denotateGateC g) q) acc
+    | .cx c t => mul8C_mat (cnot8 c t) acc
+    | .ccx _ _ _ => mul8C_mat ccx8C acc
+    | .rx _ _ => acc
+    | .swap _ _ => acc) (1 : Mat8C)
+
+def toffoli_target_codegen_ops : List QasmOp := Generated.ToffoliDecompositionEquivalenceTarget.ops
+
+theorem toffoli_target_codegen_ops_eq_hand_trace :
+    Generated.ToffoliDecompositionEquivalenceTarget.ops = toffoli_target_codegen_ops := rfl
+
 def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
 open QSpecBench.Quantum.BridgeMetadata
@@ -238,11 +252,26 @@ def clifford_hhsMatC (i j : Fin 2) : ℂ := mul2C sGate (mul2C hadamardC hadamar
 theorem denotateOps1C_clifford_hhs (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = clifford_hhsMatC i j := by
   fin_cases i <;> fin_cases j <;> simp [denotateOps1C, clifford_hhs, denotateGateC, clifford_hhsMatC, mul2C,
-    sGateEntry, hadamardEntry, Matrix.of_apply, mul2C_one_right, hadamardC_mul_self]
+    sGate, sGateEntry, hadamardC, hadamardEntry, Matrix.of_apply, mul2C_one_right]
 
 theorem bridge_clifford_hhs (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = clifford_hhsMatC i j :=
   denotateOps1C_clifford_hhs i j
+
+theorem clifford_hhsMatC_eq_two_s (i j : Fin 2) :
+    clifford_hhsMatC i j = (2 : ℂ) * sGate i j := by
+  unfold clifford_hhsMatC
+  exact mul2C_sGate_hadamard_sq i j
+
+/-- Unnormalized H·H = 2·I ⇒ HHS denotes 2·S (see normalized_unitary_policy.md). -/
+theorem clifford_source_target_denotation_scaled (i j : Fin 2) :
+    denotateOps1C clifford_hhs i j = (2 : ℂ) * denotateOps1C clifford_s_single i j := by
+  rw [denotateOps1C_clifford_hhs, denotateOps1C_clifford_s_single, clifford_hhsMatC_eq_two_s,
+    clifford_s_singleMatC]
+
+theorem bridge_clifford_source_target_scaled (i j : Fin 2) :
+    denotateOps1C clifford_hhs i j = (2 : ℂ) * denotateOps1C clifford_s_single i j :=
+  clifford_source_target_denotation_scaled i j
 
 def cnot_single : List QasmOp := [.cx 0 1]
 
@@ -440,6 +469,22 @@ theorem toffoli_codegen_ops_eq_hand_trace :
 theorem bridge_toffoli_codegen_ccx (i j : Fin 8) :
     denotateOps3 Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j := by
   rw [toffoli_codegen_ops_eq_hand_trace, denotateOps3_ccx_single]
+
+theorem denotateOps3C_ccx_single (i j : Fin 8) :
+    denotateOps3C ccx_single i j = ccx8C i j := by
+  simp [denotateOps3C, ccx_single, mul8C_mat, Matrix.of_apply, mul8C_one_right, ccx8Entry]
+
+theorem bridge_toffoli_codegen_ccxC (i j : Fin 8) :
+    denotateOps3C Generated.ToffoliDecompositionEquivalence.ops i j = ccx8C i j := by
+  rw [show Generated.ToffoliDecompositionEquivalence.ops = ccx_single from rfl,
+    denotateOps3C_ccx_single]
+
+theorem denotateOps3C_toffoli_target (i j : Fin 8) :
+    denotateOps3C toffoli_target_codegen_ops i j =
+      denotateOps3C Generated.ToffoliDecompositionEquivalenceTarget.ops i j := rfl
+
+def bridge_toffoli_pair_equivalence_scoped_note : String :=
+  "Source CCX kernel-checked; target trace pinned in OpenQASM3Parser; matrix pair equality open."
 
 /-- Layout-identity scaffold: H then CX on qubits 0,1. -/
 def layout_identity_ops : List QasmOp := Generated.CircuitIdentityAfterLayout.ops

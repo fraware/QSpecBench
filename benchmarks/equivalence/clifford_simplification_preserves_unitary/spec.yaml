@@ -86,6 +86,13 @@ evidence:
   status: passing
   notes: QASM matrix matches OpenQASM3 complex denotation (manifest_checked_theorem_binding
     bridge).
+- id: lean_clifford_pair_scaffold
+  type: lean_proof
+  path: evidence/source_target_equivalence_open.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Scaled pair relation bridge_clifford_source_target_scaled (factor 2); not exact matrix
+    equality; see notes/normalized_unitary_policy.md.
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -131,6 +138,10 @@ proof_obligations:
 - id: semantic_bridge
   status: passing
   notes: manifest_checked_theorem_binding verify-bridge with complex S gate model
+- id: compiler_source_target_denotation
+  status: partial
+  notes: Scaled pair theorem kernel-checked (factor 2); exact matrix equality and normalized
+    dual-manifest verify-bridge open
 claim_scope:
   headline_claim_id: clifford_simplification_preserves_unitary_headline
   headline_claim_text: A Clifford simplification pass preserves the circuit unitary
@@ -146,7 +157,8 @@ proved_scope:
   - semantic_correctness_of_circuit_vs_claim
 headline_claim_status:
   status: partially_checked
-  notes: null
+  notes: Source manifest + scaled pair theorem checked; exact compiler unitary headline open
+    (semantic_correctness_of_circuit_vs_claim).
 formal_claims:
 - id: formal_lean_clifford_anchor
   evidence_id: lean_clifford_anchor

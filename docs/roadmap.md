@@ -221,23 +221,26 @@ honesty rule.
 5. Compiler source→target equivalence proofs (Clifford)
 6. Wire-order alignment proof (`wire_order_bridge_theorem` reserved)
 
-## Phase 10 priorities (2026-06-28)
+## Phase 10 priorities (2026-06-29)
 
 | Goal | Status |
 |------|--------|
-| Bytes→AST Lean parser kernel | **Blocked** |
+| Bytes→AST Lean parser kernel | **Partial** — embedded `*KernelArtifactSource` sync + `parseQasmSourceToOps` theorems; `ast_authority: lean_mirror` closed for six kernel bridges |
 | Arbitrary-amplitude projective measurement in Lean | **Blocked** |
 | Teleportation / Grover `reference_claim` | **Blocked** |
 | Clifford source→target kernel proof | **Blocked** |
 | Second proof assistant in default CI | **Partial** — optional Coq job only |
-| Pinned dependency lockfiles in release SBOM | **Partial** — SBOM-lite lists declared deps |
+| Pinned dependency lockfiles in release SBOM | **Done** — `uv.lock` pinned; SBOM-lite lists lockfile + declared deps |
+| `artifact_bound_reference_claim` replication | **Done** — six kernel-bridge pilots (CNOT + five promoted 2026-06-29) |
+| Phase 3 elaborator hash authority | **Done** — `ExportTheoremTypesCheck.lean` + export cache; schema **0.3** |
 
 ### Phase 10 blockers
 
-1. No pinned Python lockfile in repo — SBOM lists `pyproject.toml` deps only
+1. ~~No pinned Python lockfile in repo~~ — **Done** (`uv.lock` @ `49e8899`)
 2. External tool versions (QCEC) not embedded in release bundle
-3. Int-scaffold vs operational wire model proof gap
+3. Int-scaffold vs operational wire model proof gap (CNOT 2-qubit wire-order lemma only)
 4. QEC decoder correctness beyond lookup-table scope
 5. Analytic Hamiltonian simulation bounds (Trotter contracts)
+6. Toffoli target-side kernel equivalence (source CCX artifact-bound only)
 
 ## P1 deferred (post-P0)

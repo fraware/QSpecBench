@@ -1,25 +1,23 @@
-# Claim diff: swap_from_three_cx
+# Claim diff: single_qubit_gate_cancellation
 
-<!-- scope_fingerprint: 4280d37c61cdef761158706a9cb44f90ad25b407499e4606f00704618a776889 -->
+<!-- scope_fingerprint: b97cb4915de5a5cdc4d8b3a4205af8dcd8255dafc2c585ad453aabff1d1e678d -->
 
 **Maturity:** artifact_bound_reference_claim
 **Headline status:** checked
 
 ## Informal claim (README/spec)
-Three CNOT gates in standard order implement SWAP on two qubits.
+Consecutive inverse single-qubit gates on the same wire cancel to identity.
 
 ## Declared headline (claim_scope)
-Three CNOT gates in standard order implement SWAP on two qubits.
+Consecutive inverse single-qubit gates on the same wire cancel to identity.
 
 ## Required obligations
 - lean_kernel_proof
 - semantic_bridge
-- qcec_equivalence
 
 ## Checked obligations
 - [x] lean_kernel_proof
 - [x] semantic_bridge
-- [x] qcec_equivalence
 
 ## Unproved / open obligations
 

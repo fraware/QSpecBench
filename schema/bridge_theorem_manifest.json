@@ -38,7 +38,8 @@
       "theorem_content_sha256": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
       "theorem_source_statement_hash": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
       "lean_ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9",
-      "theorem_elaborator_hash": "d5eb7ecbb9f29f95f7bff4887de8997cb34815e1e3012733afc3b1e6c5242f44"
+      "theorem_elaborator_hash": "d5eb7ecbb9f29f95f7bff4887de8997cb34815e1e3012733afc3b1e6c5242f44",
+      "ast_authority": "lean_mirror"
     },
     {
       "benchmark_id": "hadamard_conjugates_x_to_z",
@@ -80,7 +81,8 @@
       "theorem_content_sha256": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
       "theorem_source_statement_hash": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
       "lean_ast_sha256": "20ba11fb108eb7d9fd66258197818165202009cf9a8ddaf1534b7627320c131f",
-      "theorem_elaborator_hash": "d19b731099df836f7b6e3387306fa0d82a85a57658dbb7e2fe50dd4fbfda1e30"
+      "theorem_elaborator_hash": "d19b731099df836f7b6e3387306fa0d82a85a57658dbb7e2fe50dd4fbfda1e30",
+      "ast_authority": "lean_mirror"
     },
     {
       "benchmark_id": "single_qubit_gate_cancellation",
@@ -116,7 +118,8 @@
       "theorem_content_sha256": "1a1e5daae2c6f128938cdfd74d1a76920e82681b6cc347f93ce1b806cc8267a0",
       "theorem_source_statement_hash": "1a1e5daae2c6f128938cdfd74d1a76920e82681b6cc347f93ce1b806cc8267a0",
       "lean_ast_sha256": "f731f909a694e3cc30b96260cc4f25a88888e093ef952d7bc9e0cbeb9973d4d9",
-      "theorem_elaborator_hash": "7baa6f6317bee71629f295e1f602e0e5ed06224ae38cae50b48c08855164f720"
+      "theorem_elaborator_hash": "7baa6f6317bee71629f295e1f602e0e5ed06224ae38cae50b48c08855164f720",
+      "ast_authority": "lean_mirror"
     },
     {
       "benchmark_id": "qft_inverse_qft_small_instance",
@@ -194,7 +197,8 @@
       "theorem_content_sha256": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
       "theorem_source_statement_hash": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
       "lean_ast_sha256": "f56ae68da29a95751c8273e8a97849139cf683ebdf9caa1a3061f219fd3962cc",
-      "theorem_elaborator_hash": "b3f11063a041dcecf8401c3626fa161bfb83096177cb1cfa773e79cc5ade8bff"
+      "theorem_elaborator_hash": "b3f11063a041dcecf8401c3626fa161bfb83096177cb1cfa773e79cc5ade8bff",
+      "ast_authority": "lean_mirror"
     },
     {
       "benchmark_id": "toffoli_decomposition_equivalence",
@@ -330,7 +334,8 @@
       "target_generated_lean_sha256": "b66a39fa3ef69933d39cb41727e3d6098cef250d59e8be01c40e8702fea1da5b",
       "lean_ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
       "target_lean_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
-      "theorem_elaborator_hash": "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6"
+      "theorem_elaborator_hash": "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6",
+      "ast_authority": "lean_mirror"
     },
     {
       "benchmark_id": "circuit_identity_after_layout",
@@ -436,7 +441,8 @@
       "theorem_content_sha256": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
       "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
       "lean_ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
-      "theorem_elaborator_hash": "0857f84b49f7b7d5522811279ba3024dff365f34613a4e9df7f07c03c0cbf202"
+      "theorem_elaborator_hash": "0857f84b49f7b7d5522811279ba3024dff365f34613a4e9df7f07c03c0cbf202",
+      "ast_authority": "lean_mirror"
     },
     {
       "benchmark_id": "clifford_simplification_preserves_unitary",

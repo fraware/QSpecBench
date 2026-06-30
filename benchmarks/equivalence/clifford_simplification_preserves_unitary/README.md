@@ -18,7 +18,8 @@ Exact unitary equality; ancillae/garbage per preconditions.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- See `spec.yaml` evidence block (QCEC, source anchor, verify-bridge, scaled pair scaffold in
+  `evidence/source_target_equivalence_open.lean`).
 
 ## Trust boundary
 
@@ -31,9 +32,12 @@ Current maturity: **reference_scaffold**.
 ## Known gaps
 
 Lean kernel anchor proves complex OpenQASM3 denotation of the **source** gate trace (H H S on one
-qubit), aligned with Python `qasm_matrix` for S/T phases. It does **not** prove source/target QASM
-equivalence or full compiler simplification correctness (`semantic_correctness_of_circuit_vs_claim`
-remains open). Maturity stays **reference_scaffold** until that obligation is discharged.
+qubit), aligned with Python `qasm_matrix` for S/T phases. **Scaled pair relation** under the
+unnormalized model: `denotateOps1C clifford_hhs = 2 · denotateOps1C clifford_s_single`
+(`bridge_clifford_source_target_scaled`; see `notes/normalized_unitary_policy.md`). Exact matrix
+equality is false in that model; QCEC certifies physical unitary equivalence externally. Full
+compiler simplification headline (`semantic_correctness_of_circuit_vs_claim`) remains open.
+Maturity stays **reference_scaffold** until normalized dual-manifest verify-bridge closes the gap.
 
 ## References
 

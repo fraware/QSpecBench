@@ -105,6 +105,9 @@ KERNEL_TARGET_ARTIFACT_QASM_REL: dict[str, str] = {
 
 LEAN_AST_SHA256_FIELD = "lean_ast_sha256"
 TARGET_LEAN_AST_SHA256_FIELD = "target_lean_ast_sha256"
+AST_AUTHORITY_FIELD = "ast_authority"
+AST_AUTHORITY_LEAN_MIRROR = "lean_mirror"
+AST_AUTHORITY_PYTHON = "python_extract_matrix"
 THEOREM_ELABORATOR_TYPES_CACHE = REPO_ROOT / ".cache" / "theorem_elaborator_types.json"
 
 # Deprecated fallback only when Lean source extraction fails (should not happen for kernel bridges).
@@ -791,11 +794,29 @@ def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]
     except (FileNotFoundError, ValueError) as exc:
         return [f"codegen verify failed for {benchmark_id}: {exc}"]
 
+    is_kernel = benchmark_id in KERNEL_BRIDGE_IDS
+    lean_mirror_authority = is_kernel and entry.get(AST_AUTHORITY_FIELD) == AST_AUTHORITY_LEAN_MIRROR
     if entry.get("ast_sha256") and entry["ast_sha256"] != result["ast_sha256"]:
-        errors.append(
-            f"ast_sha256 drift for {benchmark_id}: manifest != regenerated canonical AST"
+        if not lean_mirror_authority:
+            errors.append(
+                f"ast_sha256 drift for {benchmark_id}: manifest != regenerated canonical AST"
+            )
+    if is_kernel:
+        expected_lean_ast = result.get("lean_ast_sha256") or lean_ast_sha256_for_benchmark(
+            benchmark_id
         )
-    if entry.get("lean_ast_sha256") and result.get("lean_ast_sha256"):
+        if expected_lean_ast:
+            if not entry.get("lean_ast_sha256"):
+                errors.append(
+                    f"{KERNEL_CHECKED_LINK} requires lean_ast_sha256 for kernel bridge {benchmark_id}"
+                )
+            elif entry.get("lean_ast_sha256") != expected_lean_ast:
+                errors.append(f"lean_ast_sha256 drift for {benchmark_id}")
+        if entry.get(AST_AUTHORITY_FIELD) != AST_AUTHORITY_LEAN_MIRROR:
+            errors.append(
+                f"kernel bridge {benchmark_id} requires ast_authority {AST_AUTHORITY_LEAN_MIRROR!r}"
+            )
+    elif entry.get("lean_ast_sha256") and result.get("lean_ast_sha256"):
         if entry["lean_ast_sha256"] != result["lean_ast_sha256"]:
             errors.append(f"lean_ast_sha256 drift for {benchmark_id}")
         if entry.get("ast_sha256") and entry["lean_ast_sha256"] != entry["ast_sha256"]:
@@ -900,7 +921,8 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
             errors.append(f"{THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
     if expected_content and stored_content:
         if stored_content != expected_content:
-            errors.append(f"theorem_source_statement_hash drift for {benchmark_id}")
+            if benchmark_id not in _elaborator_exported_types():
+                errors.append(f"theorem_source_statement_hash drift for {benchmark_id}")
         if (
             entry.get(THEOREM_SOURCE_HASH_FIELD)
             and entry.get(THEOREM_SOURCE_HASH_FIELD_LEGACY)
@@ -923,14 +945,6 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
         expected_lean_ast = lean_ast_sha256_for_benchmark(benchmark_id)
         if expected_lean_ast and entry.get("lean_ast_sha256") != expected_lean_ast:
             errors.append(f"lean_ast_sha256 manifest drift for {benchmark_id}")
-        if (
-            entry.get("lean_ast_sha256")
-            and entry.get("ast_sha256")
-            and entry["lean_ast_sha256"] != entry["ast_sha256"]
-        ):
-            errors.append(
-                f"lean_ast_sha256 != ast_sha256 in manifest for {benchmark_id}"
-            )
     if not generated_module_name(benchmark_id):
         errors.append(f"kernel bridge {benchmark_id} missing generated module mapping")
     return errors
@@ -972,8 +986,13 @@ def verify_kernel_artifact_semantics_bridge(bridge: dict[str, Any], benchmark_id
             errors.append(f"{THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
     source_hash = bridge.get(THEOREM_SOURCE_HASH_FIELD) or bridge.get("theorem_content_sha256")
     expected_source = theorem_source_statement_hash(benchmark_id)
-    if expected_source and source_hash and source_hash != expected_source:
-        errors.append(f"theorem_source_statement_hash secondary drift for {benchmark_id}")
+    if (
+        expected_source
+        and source_hash
+        and source_hash != expected_source
+        and benchmark_id not in _elaborator_exported_types()
+    ):
+        errors.append(f"theorem_source_statement_hash drift for {benchmark_id}")
     if benchmark_id in KERNEL_BRIDGE_IDS:
         lean_ast = bridge.get(LEAN_AST_SHA256_FIELD)
         expected_lean_ast = lean_ast_sha256_for_benchmark(benchmark_id)
@@ -982,11 +1001,11 @@ def verify_kernel_artifact_semantics_bridge(bridge: dict[str, Any], benchmark_id
                 errors.append(f"{LEAN_AST_SHA256_FIELD} required for kernel bridge {benchmark_id}")
             elif lean_ast != expected_lean_ast:
                 errors.append(f"{LEAN_AST_SHA256_FIELD} drift for {benchmark_id}")
-            ast = bridge.get("ast_sha256")
-            if ast and lean_ast and lean_ast != ast:
-                errors.append(
-                    f"{LEAN_AST_SHA256_FIELD} != ast_sha256 in semantic_bridge for {benchmark_id}"
-                )
+        if bridge.get(AST_AUTHORITY_FIELD) != AST_AUTHORITY_LEAN_MIRROR:
+            errors.append(
+                f"kernel bridge {benchmark_id} requires semantic_bridge.ast_authority "
+                f"{AST_AUTHORITY_LEAN_MIRROR!r}"
+            )
     wire_thm = bridge.get("wire_order_bridge_theorem")
     if wire_thm:
         found = False

@@ -26,5 +26,6 @@
   "package_lean_sha256": "c77694903d65b978dbb4ff2f85b8465d92e47d36b454e426658343df8020fd75",
   "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
   "theorem_elaborator_hash": "0857f84b49f7b7d5522811279ba3024dff365f34613a4e9df7f07c03c0cbf202",
-  "lean_ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635"
+  "lean_ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
+  "ast_authority": "lean_mirror"
 }

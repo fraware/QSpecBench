@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import subprocess
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -11,6 +14,45 @@ from qspecbench import CORPUS_VERSION, RELEASE_TAG, SCHEMA_VERSION, TOOLING_VERS
 from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL
 from qspecbench.status import collect_statuses
 from qspecbench.trust import CHECKED_EVIDENCE_TYPES
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+COQ_SMOKE_V = (
+    REPO_ROOT
+    / "benchmarks/equivalence/cnot_self_inverse_cancellation/evidence/cnot_coq_smoke.v"
+)
+
+
+def _coq_smoke_status() -> str:
+    """Return passing | failed | unknown for default-CI Coq smoke compile."""
+    if os.environ.get("QSPECBENCH_COQ_SMOKE_CI", "").lower() in {"1", "true", "pass", "passed"}:
+        return "passing"
+    coqc = shutil.which("coqc")
+    if not coqc or not COQ_SMOKE_V.is_file():
+        return "unknown"
+    try:
+        subprocess.run(
+            [coqc, str(COQ_SMOKE_V.name)],
+            cwd=COQ_SMOKE_V.parent,
+            check=True,
+            capture_output=True,
+        )
+        return "passing"
+    except (subprocess.CalledProcessError, OSError):
+        return "failed"
+
+
+def _coq_dashboard_lines() -> list[str]:
+    if _coq_smoke_status() == "passing":
+        return [
+            "- **Coq smoke (`cnot_coq_smoke.v`):** 1 (passing in default CI)",
+            "- **Coq/Rocq/Isabelle full adapter:** optional job only "
+            "(`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`)",
+        ]
+    return [
+        "- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity "
+        "counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`). "
+        "`coq_smoke` compiles `cnot_coq_smoke.v` on every push when `coqc` is installed.",
+    ]
 
 
 def _has_checked_evidence(spec: dict[str, Any]) -> bool:
@@ -139,7 +181,7 @@ def collect_summary_metrics(root: Path) -> dict[str, int]:
         "kernel_checked_artifact_semantics": bridge_links.get("kernel_checked_artifact_semantics", 0),
         "qec_small_code_checked": qec_small,
         "qec_external_certificate_checked": qec_external,
-        "coq_second_assistant_excluded": 1,
+        "coq_smoke_ci": 1 if _coq_smoke_status() == "passing" else 0,
     }
 
 
@@ -209,12 +251,15 @@ def generate_dashboard(root: Path) -> str:
         f"- **Kernel-checked codegen-trace bridges:** {kernel_codegen}",
         f"- **Kernel-checked artifact-semantics bridges (legacy label):** {kernel_semantics}",
         f"- **Documented (not proved) bridges:** {documented_bridges}",
-        "- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity "
-        "counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`)",
-        "",
-        "### Passing evidence by trust level",
-        "",
     ]
+    lines.extend(_coq_dashboard_lines())
+    lines.extend(
+        [
+            "",
+            "### Passing evidence by trust level",
+            "",
+        ]
+    )
     for level in ("checked", "independently_checkable", "externally_trusted", "heuristic"):
         lines.append(f"- **{level}:** {trust_levels.get(level, 0)}")
     lines.extend(
