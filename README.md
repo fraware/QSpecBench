@@ -182,29 +182,28 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 | **Schema** (`qspecbench_version`) | 0.2 |
 | **Tooling** (`qspecbench` CLI / Lean lib) | 0.2.0 |
 | **Corpus** (benchmark suite) | 0.2.0 |
-| **Release tag** | v0.2.1 |
+| **Release tag** | v0.2.2 |
 
-**Release honesty (v0.2.1):** tag `v0.2.1` (`278119a`) delivers incremental bridge metadata, measurement
-semantics stubs, and governance docs on the v0.2 schema. CI run
-[28395530818](https://github.com/QSpecBench/QSpecBench/actions/runs/28395530818) validated the release gate.
+**Release honesty (v0.2.2):** tag `v0.2.2` (`e5ee749`) delivers six kernel-checked codegen-trace bridges,
+Lean `BridgeMetadata` manifest pins, and `parseQasmSource` artifact binding on the v0.2 schema.
 Most benchmarks remain **reference scaffolds**; only `reference_claim` entries assert a checked headline.
 See [versioning.md](docs/versioning.md) for honest scope.
 
 <!-- qspecbench-status-begin -->
-Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **9**
-benchmarks are `reference_claim` under declared internal scope (see `headline_claim_status.checked_under`).
+Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **8**
+benchmarks are `reference_claim` and **1** is `artifact_bound_reference_claim` under declared scope.
 
 | | |
 |---|---|
 | **Benchmarks** | 48 across 5 tracks |
 | **Reference scaffolds** (any scoped reference level) | 40 |
-| **With headline claim checked** (`reference_claim`) | 9 |
+| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | 9 |
 | **With any checked evidence** | 44 |
 | **Manifest-checked theorem bindings** | 6 |
 | **Python denotation consistency checks** | 2 |
-| **Kernel-checked codegen-trace bridges** | 6 |
+| **Kernel-checked artifact-semantics bridges** | 6 |
 | **Coq/Rocq/Isabelle (optional CI)** | excluded from default maturity counts |
-| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, circuit equivalence (QCEC) |
+| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, bridge-metadata verify, circuit equivalence (QCEC) |
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).
 <!-- qspecbench-status-end -->
