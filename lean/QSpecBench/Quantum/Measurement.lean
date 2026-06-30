@@ -4,10 +4,11 @@ import Mathlib.Tactic.FinCases
 /-!
 # Projective measurement semantics (finite statevector scaffold).
 
-Operational measurement update rules for small finite instances (`n ≤ 2` qubits,
-`Fin 4` amplitudes). This module documents the intended branch-probability /
-post-measurement state structure used by the Python `dynamic_simulator.py`.
-Kernel-checked proofs of full OpenQASM measurement semantics are not claimed here.
+Operational measurement update rules for small finite instances (`n ≤ 3` qubits,
+`Fin (2^n)` amplitudes for n ∈ {1,2,3}). This module documents the intended
+branch-probability / post-measurement state structure used by the Python
+`dynamic_simulator.py`. Kernel-checked proofs of full OpenQASM measurement
+semantics are not claimed here.
 
 Evidence anchor: `teleportation_preserves_state_up_to_pauli_correction` uses
 `reference_scaffold` only — not `reference_claim`.
@@ -83,11 +84,82 @@ def teleportSyndrome00 : SequentialMeasure := { q0 := .zero, q1 := .zero }
 theorem teleport_syndrome00_both_zero :
     teleportSyndrome00.q0 = .zero ∧ teleportSyndrome00.q1 = .zero := by decide
 
-/-! ## Finite statevector scaffold (int amplitudes, `Fin 4`) -/
-
-abbrev StateAmp4 := Fin 4 → Int
-
 def ampSq (a : Int) : Nat := (a * a).natAbs
+
+/-! ## Amplitude / statevector types (n ∈ {1,2,3} → Fin 2 / Fin 4 / Fin 8) -/
+
+/-- Integer amplitude scaffold (real amplitudes in Z basis; sign encodes relative phase). -/
+abbrev Amplitude := Int
+
+abbrev StateVec2 := Fin 2 → Amplitude
+abbrev StateVec4 := Fin 4 → Amplitude
+abbrev StateVec8 := Fin 8 → Amplitude
+
+/-- Branch weights and post-measurement states for projective Z measurement on qubit `q`. -/
+structure MeasureZResult (α : Type) where
+  weightZero : Nat
+  weightOne : Nat
+  postZero : α
+  postOne : α
+  deriving Repr
+
+def amplitudeNormSq (a : Amplitude) : Nat := ampSq a
+
+/-! ## Single-qubit basis-state scaffold (`Fin 2`, n = 1) -/
+
+abbrev StateAmp2 := StateVec2
+
+def stateAt2 (k : Fin 2) : StateAmp2 :=
+  fun i => if i = k then 1 else 0
+
+def state0 : StateAmp2 := stateAt2 ⟨0, by decide⟩
+def state1 : StateAmp2 := stateAt2 ⟨1, by decide⟩
+
+def weightQ0Zero2 (st : StateAmp2) : Nat := ampSq (st ⟨0, by decide⟩)
+def weightQ0One2 (st : StateAmp2) : Nat := ampSq (st ⟨1, by decide⟩)
+
+def measureZOutcomeQ0_2 (st : StateAmp2) : ZOutcome :=
+  if weightQ0Zero2 st > weightQ0One2 st then .zero else .one
+
+def postMeasureQ0_2 (st : StateAmp2) (outcome : ZOutcome) : StateAmp2 :=
+  fun idx => if (outcome == .zero && idx.val = 0) || (outcome == .one && idx.val = 1) then st idx else 0
+
+/-- Projective Z measurement on the sole qubit (`Fin 2`, arbitrary amplitudes). -/
+def measureZ2 (st : StateVec2) : MeasureZResult StateVec2 :=
+  { weightZero := amplitudeNormSq (st ⟨0, by decide⟩)
+    weightOne := amplitudeNormSq (st ⟨1, by decide⟩)
+    postZero := postMeasureQ0_2 st .zero
+    postOne := postMeasureQ0_2 st .one }
+
+theorem measureZ2_state0_branch_weights :
+    (measureZ2 state0).weightZero = 1 ∧ (measureZ2 state0).weightOne = 0 := by native_decide
+
+theorem measureZ2_state1_branch_weights :
+    (measureZ2 state1).weightZero = 0 ∧ (measureZ2 state1).weightOne = 1 := by native_decide
+
+theorem measureZ2_state0_post_zero :
+    (measureZ2 state0).postZero = state0 := by
+  funext i
+  fin_cases i <;> simp [measureZ2, postMeasureQ0_2, state0, stateAt2]
+
+theorem measureZ2_state1_post_one :
+    (measureZ2 state1).postOne = state1 := by
+  funext i
+  fin_cases i <;> simp [measureZ2, postMeasureQ0_2, state1, stateAt2]
+
+theorem measure_state0_q0_zero : measureZOutcomeQ0_2 state0 = .zero := by native_decide
+
+theorem postMeasure_state0_q0_zero_2 : postMeasureQ0_2 state0 .zero = state0 := by
+  funext i
+  fin_cases i <;> simp [postMeasureQ0_2, state0, stateAt2]
+
+theorem single_qubit_basis0_lemma_chain :
+    measureZOutcomeQ0_2 state0 = .zero ∧ postMeasureQ0_2 state0 .zero = state0 := by
+  exact ⟨measure_state0_q0_zero, postMeasure_state0_q0_zero_2⟩
+
+/-! ## Finite statevector scaffold (int amplitudes, `Fin 4`, n = 2) -/
+
+abbrev StateAmp4 := StateVec4
 
 /-- Computational-basis bit of qubit `q` in index `idx` (q0 = LSB). -/
 def qubitBit (idx : Fin 4) (q : Nat) : Nat :=
@@ -117,6 +189,38 @@ def postMeasureQ0 (st : StateAmp4) (outcome : ZOutcome) : StateAmp4 :=
       st idx
     else
       0
+
+def weightQubitZeroAt (st : StateVec4) (q : Nat) : Nat :=
+  if q = 0 then weightQubitZero st
+  else ampSq (st ⟨0, by decide⟩) + ampSq (st ⟨1, by decide⟩)
+
+def weightQubitOneAt (st : StateVec4) (q : Nat) : Nat :=
+  if q = 0 then weightQubitOne st
+  else ampSq (st ⟨2, by decide⟩) + ampSq (st ⟨3, by decide⟩)
+
+def postMeasureQ4 (st : StateVec4) (q : Nat) (outcome : ZOutcome) : StateVec4 :=
+  fun idx =>
+    if (outcome == .zero && qubitBit idx q = 0) ||
+       (outcome == .one && qubitBit idx q = 1) then
+      st idx
+    else
+      0
+
+def measureZ4 (st : StateVec4) (q : Nat) : MeasureZResult StateVec4 :=
+  { weightZero := weightQubitZeroAt st q
+    weightOne := weightQubitOneAt st q
+    postZero := postMeasureQ4 st q .zero
+    postOne := postMeasureQ4 st q .one }
+
+theorem measureZ4_state00_branch_weights :
+    (measureZ4 state00 0).weightZero = 1 ∧ (measureZ4 state00 0).weightOne = 0 := by native_decide
+
+theorem measureZ4_state01_branch_weights :
+    (measureZ4 state01 0).weightZero = 0 ∧ (measureZ4 state01 0).weightOne = 1 := by native_decide
+
+theorem measureZ4_state00_post_zero :
+    (measureZ4 state00 0).postZero = state00 := by
+  native_decide
 
 def jointZOutcomeOfIndex (idx : Fin 4) : TwoQubitZOutcome :=
   match idx.val with
@@ -255,11 +359,13 @@ theorem postMeasure_state00_unchanged_at_basis :
     (postMeasureQ0 state00 .zero) ⟨0, by decide⟩ = 1 := by native_decide
 
 def measurementTrustBoundaryNote : String :=
-  "Fin 4 int-scaffold projective Z / Z⊗Z checks on basis states; Fin 8 basis-state q0 checks for 3-qubit circuits; superpositions remain Python-only."
+  "Fin 2/4/8 int-scaffold projective Z measures on basis states (n≤3); superpositions remain Python-only."
+
+def projectiveMeasureScaffoldDims : List Nat := [2, 4, 8]
 
 /-! ## Three-qubit basis-state scaffold (`Fin 8`) -/
 
-abbrev StateAmp8 := Fin 8 → Int
+abbrev StateAmp8 := StateVec8
 
 def stateAt8 (k : Fin 8) : StateAmp8 :=
   fun i => if i = k then 1 else 0
@@ -351,6 +457,48 @@ def weightQ0One8 (st : StateAmp8) : Nat :=
 def measureZOutcomeQ0_8 (st : StateAmp8) : ZOutcome :=
   if weightQ0Zero8 st > weightQ0One8 st then .zero else .one
 
+def weightQubitZeroAt8 (st : StateVec8) (q : Nat) : Nat :=
+  if q = 0 then weightQ0Zero8 st
+  else if q = 1 then
+    ampSq (st ⟨0, by decide⟩) + ampSq (st ⟨1, by decide⟩) + ampSq (st ⟨4, by decide⟩) +
+      ampSq (st ⟨5, by decide⟩)
+  else
+    ampSq (st ⟨0, by decide⟩) + ampSq (st ⟨1, by decide⟩) + ampSq (st ⟨2, by decide⟩) +
+      ampSq (st ⟨3, by decide⟩)
+
+def weightQubitOneAt8 (st : StateVec8) (q : Nat) : Nat :=
+  if q = 0 then weightQ0One8 st
+  else if q = 1 then
+    ampSq (st ⟨2, by decide⟩) + ampSq (st ⟨3, by decide⟩) + ampSq (st ⟨6, by decide⟩) +
+      ampSq (st ⟨7, by decide⟩)
+  else
+    ampSq (st ⟨4, by decide⟩) + ampSq (st ⟨5, by decide⟩) + ampSq (st ⟨6, by decide⟩) +
+      ampSq (st ⟨7, by decide⟩)
+
+def postMeasureQ8 (st : StateVec8) (q : Nat) (outcome : ZOutcome) : StateVec8 :=
+  fun idx =>
+    if (outcome == .zero && qubitBit8 idx q = 0) ||
+       (outcome == .one && qubitBit8 idx q = 1) then
+      st idx
+    else
+      0
+
+def measureZ8 (st : StateVec8) (q : Nat) : MeasureZResult StateVec8 :=
+  { weightZero := weightQubitZeroAt8 st q
+    weightOne := weightQubitOneAt8 st q
+    postZero := postMeasureQ8 st q .zero
+    postOne := postMeasureQ8 st q .one }
+
+theorem measureZ8_state000_branch_weights :
+    (measureZ8 state000 0).weightZero = 1 ∧ (measureZ8 state000 0).weightOne = 0 := by native_decide
+
+theorem measureZ8_state001_branch_weights :
+    (measureZ8 state001 0).weightZero = 0 ∧ (measureZ8 state001 0).weightOne = 1 := by native_decide
+
+theorem measureZ8_state000_post_zero :
+    (measureZ8 state000 0).postZero = state000 := by
+  native_decide
+
 def measureZOutcomeQ (st : StateAmp8) (q : Nat) : ZOutcome :=
   if q = 0 then measureZOutcomeQ0_8 st else .zero
 
@@ -363,6 +511,12 @@ theorem teleport_basis000_lemma_chain :
   exact ⟨measure_state000_q0_zero, pauli_correction8_I_state000⟩
 
 theorem measure_state001_q0_one : measureZOutcomeQ state001 0 = .one := by native_decide
+
+/-- Fin 8 teleportation: |001⟩ → measure q0→1, X correction on receiver → |101⟩. -/
+theorem teleport_basis001_lemma_chain :
+    (measureZ8 state001 0).weightOne = 1 ∧
+      applyPauliCorrection8 .zero .one state001 = state101 := by
+  exact ⟨measureZ8_state001_branch_weights.2, pauli_correction8_X_syndrome01⟩
 
 theorem measure_state010_q1_one : measureZOutcomeQ state010 1 = .zero := by native_decide
 
