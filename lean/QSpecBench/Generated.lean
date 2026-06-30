@@ -4,3 +4,5 @@ import QSpecBench.Generated.SingleQubitGateCancellation
 import QSpecBench.Generated.BellStatePreparation
 import QSpecBench.Generated.SwapFromThreeCx
 import QSpecBench.Generated.ToffoliDecompositionEquivalence
+import QSpecBench.Generated.ToffoliDecompositionEquivalenceTarget
+import QSpecBench.Generated.CircuitIdentityAfterLayout
