@@ -10,28 +10,41 @@ Standard circuit identity for routing and compilation tracks.
 
 ## Objects
 
-- `artifacts/source.qasm`, `artifacts/target.qasm`
+- `artifacts/source.qasm` — three CX gates (SHA256-bound; LF bytes)
+- `artifacts/target.qasm` — SWAP
 
 ## Specification
 
-Exact unitary equivalence.
+Exact unitary equivalence on two qubits under the declared gate subset.
 
 ## Evidence
 
-Lean kernel bridge (`bridge_hadamard_cancel`), verify-bridge, QASM parse, QCEC.
+- QASM syntax checks (passing; syntax only)
+- **Lean 4 kernel proof** `QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen` (passing)
+- **Artifact parse chain**: `parseQasmSourceToOps swapKernelArtifactSource = some Generated.SwapFromThreeCx.ops`
+- QCEC external equivalence (supplementary)
+- `qspecbench bridge-codegen verify` + `qspecbench bridge-metadata verify` (CI)
 
-## Trust boundary
+## Trust boundary / checker chain
 
-See spec.yaml.
+| Stage | Anchor | Checked by |
+|-------|--------|------------|
+| QASM bytes | `artifact_sha256` | provenance + Lean embedded source |
+| Canonical AST | `lean_ast_sha256` (`ast_authority: lean_mirror`) | Lean-mirror parse |
+| Generated ops | `generated_lean_sha256` | lake build + manifest |
+| Kernel claim | `theorem_elaborator_hash` (primary) | BridgeMetadata pins |
+
+Honest limits: declared gate subset only; not general n-qubit or full OpenQASM 3.
 
 ## Status
 
-Current maturity: **reference_claim**.
+Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 
-Unitary equivalence beyond declared gate subset remains an unproved obligation.
+- Unitary equivalence beyond declared gate subset
+- Full OpenQASM 3 / hardware semantics
 
 ## References
 
-- (add references when promoting beyond usable)
+- Standard three-CX SWAP construction

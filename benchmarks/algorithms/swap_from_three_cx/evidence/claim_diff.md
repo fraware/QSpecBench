@@ -1,8 +1,8 @@
 # Claim diff: swap_from_three_cx
 
-<!-- scope_fingerprint: f02da98f834c8b7df14ba842c6b2600366ff5a445c169d8df3dc41294a14dd40 -->
+<!-- scope_fingerprint: 4280d37c61cdef761158706a9cb44f90ad25b407499e4606f00704618a776889 -->
 
-**Maturity:** reference_claim
+**Maturity:** artifact_bound_reference_claim
 **Headline status:** checked
 
 ## Informal claim (README/spec)
@@ -22,7 +22,6 @@ Three CNOT gates in standard order implement SWAP on two qubits.
 - [x] qcec_equivalence
 
 ## Unproved / open obligations
-- [ ] unitary_equivalence_beyond_declared_gate_subset
 
 ## Gap
 - None among declared required obligations.
