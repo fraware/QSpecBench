@@ -1,6 +1,6 @@
 # Claim diff: teleportation_preserves_state_up_to_pauli_correction
 
-<!-- scope_fingerprint: ac42e14e706a22374aa94f04ce3fd39c1b20308198b822d25adf1cd537ecdf8f -->
+<!-- scope_fingerprint: 5e2467d91ab1b0d8e4edc3ffc2e98308bb6e09d4a8c1293bc6fd3c83ffac2220 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
@@ -16,6 +16,7 @@ The declared teleportation QASM unitary prefix (Bell prep + entangling gates bef
 
 ## Checked obligations
 - [x] unitary_fragment_matches_ordering
+- [x] basis_state_measurement_correction
 
 ## Unproved / open obligations
 - [ ] arbitrary_state_relational_transfer

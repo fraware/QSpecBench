@@ -132,8 +132,8 @@ evidence:
   path: evidence/measurement_scaffold.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Scaffold anchor to QSpecBench.Quantum.Measurement (|0⟩ Z-basis stub only;
-    not kernel-checked).
+  notes: Scaffold anchor to QSpecBench.Quantum.Measurement (Fin 8 basis-state measureZ
+    + Pauli correction table; D5 arbitrary ψ transfer blocked).
 - id: feedforward_artifact_parse
   type: qasm_parse
   path: artifacts/teleportation_with_feedforward.qasm
@@ -174,9 +174,12 @@ proof_obligations:
 - id: qasm_lean_bridge
   status: passing
   notes: Bell-prep scaffold python_denotation_consistency via verify-bridge
+- id: basis_state_measurement_correction
+  status: passing
+  notes: Fin 2/4/8 basis-state Z measure + Pauli correction table kernel-checked (D4 chains); D5 arbitrary ψ blocked
 - id: relational_protocol
   status: partial
-  notes: Full |psi> transfer and corrections documented but not kernel-checked
+  notes: Full |ψ⟩ relational transfer after unitary prefix + measurement not kernel-checked
 claim_scope:
   headline_claim_id: teleportation_preserves_state_up_to_pauli_correction_headline
   headline_claim_text: The declared teleportation QASM unitary prefix (Bell prep +
@@ -187,6 +190,7 @@ claim_scope:
 proved_scope:
   checked_obligations:
   - unitary_fragment_matches_ordering
+  - basis_state_measurement_correction
   unproved_obligations:
   - arbitrary_state_relational_transfer
   - measurement_conditioned_pauli_correction
@@ -195,14 +199,16 @@ proved_scope:
   - classical_feed_forward_control_semantics_in_qasm
 headline_claim_status:
   status: partially_checked
-  notes: Unitary fragment and verify-bridge checked; full protocol transfer and correction
-    semantics remain open.
+  notes: Unitary fragment and verify-bridge checked; Fin 8 basis-state measureZ/Pauli table
+    kernel-checked; arbitrary relational transfer and feed-forward remain open.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - dynamic_circuit.projective_povm_stub
+  - lean_kernel_basis_state_measurement_scaffold
   not_checked_under:
   - kernel_checked_measurement_update
   - classical_feed_forward_operational_semantics
+  - arbitrary_state_relational_transfer
 formal_claims:
 - id: formal_lean_teleportation
   evidence_id: lean_teleportation
@@ -230,6 +236,18 @@ formal_claims:
   - arbitrary_state_relational_transfer
   - measurement_conditioned_pauli_correction
   - arbitrary_state_relational_transfer_after_measur
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+- id: formal_lean_measurement_scaffold
+  evidence_id: lean_measurement_scaffold
+  formal_system: lean
+  module: QSpecBench.Quantum.Measurement
+  theorem: QSpecBench.Quantum.Measurement.teleport_basis000_lemma_chain
+  supports:
+  - basis_state_measurement_correction
+  does_not_support:
+  - arbitrary_state_relational_transfer
+  - measurement_conditioned_pauli_correction
+  - classical_feed_forward_control_semantics_in_qasm
   benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
 provenance:
   generated_at: '2026-06-28T16:40:42.906570+00:00'
