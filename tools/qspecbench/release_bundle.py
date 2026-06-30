@@ -73,9 +73,70 @@ def _ci_run_url(explicit: str | None = None, run_id: str | None = None) -> str |
     return None
 
 
+def _file_sha256(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    return _sha256_bytes(path.read_bytes())
+
+
+def _lean_toolchain_version() -> str | None:
+    toolchain = REPO_ROOT / "lean" / "lean-toolchain"
+    if not toolchain.is_file():
+        return None
+    line = toolchain.read_text(encoding="utf-8").strip()
+    return line.split(":", 1)[-1].strip() if line else None
+
+
+def _elan_toolchain_pin() -> str | None:
+    """Return elan toolchain pin from lean-toolchain when present."""
+    raw = _lean_toolchain_version()
+    if not raw:
+        return None
+    return f"leanprover/lean4:{raw}" if not raw.startswith("leanprover/") else raw
+
+
+def _qcec_pinned_version() -> str | None:
+    """Pinned QCEC version from pyproject optional dev deps or docker build arg default."""
+    pyproject = REPO_ROOT / "pyproject.toml"
+    if pyproject.is_file():
+        for line in pyproject.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip().strip(",").strip('"')
+            if stripped.startswith("mqt.qcec=="):
+                return stripped.split("==", 1)[1]
+    return "3.6.0"
+
+
+def _tool_version_from_path(command: list[str]) -> str | None:
+    try:
+        out = subprocess.check_output(
+            command,
+            cwd=REPO_ROOT,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        return out.strip().splitlines()[0] if out.strip() else None
+    except (subprocess.CalledProcessError, FileNotFoundError, IndexError):
+        return None
+
+
+def collect_external_tool_versions() -> dict[str, Any]:
+    """Record pinned and on-host external tool versions for release reproducibility."""
+    pinned: dict[str, str | None] = {
+        "lean_toolchain": _lean_toolchain_version(),
+        "elan_toolchain": _elan_toolchain_pin(),
+        "qcec_pinned": _qcec_pinned_version(),
+    }
+    detected: dict[str, str | None] = {
+        "lean_version": _tool_version_from_path(["lake", "--version"]),
+        "qcec_version": _tool_version_from_path(["python", "-m", "mqt.qcec", "--version"]),
+    }
+    return {"pinned": pinned, "detected_at_build": detected}
+
+
 def collect_sbom_summary() -> dict[str, Any]:
     """Dependency lock summary for release bundle reproducibility (SBOM-lite)."""
     pyproject = REPO_ROOT / "pyproject.toml"
+    uv_lock = REPO_ROOT / "uv.lock"
     lakefile = REPO_ROOT / "lean" / "lakefile.lean"
     python_deps: list[str] = []
     if pyproject.is_file():
@@ -96,14 +157,21 @@ def collect_sbom_summary() -> dict[str, Any]:
         for line in lakefile.read_text(encoding="utf-8").splitlines():
             if "require " in line and "from git" in line:
                 lean_requires.append(line.strip())
+    lock_hashes: dict[str, str | None] = {
+        "uv_lock_sha256": _file_sha256(uv_lock),
+        "poetry_lock_sha256": _file_sha256(REPO_ROOT / "poetry.lock"),
+    }
     return {
-        "format": "qspecbench-sbom-lite-v0.1",
+        "format": "qspecbench-sbom-lite-v0.2",
         "python_dependencies": python_deps,
         "lean_requires": lean_requires,
         "lock_files_present": {
-            "uv_lock": (REPO_ROOT / "uv.lock").is_file(),
+            "uv_lock": uv_lock.is_file(),
             "poetry_lock": (REPO_ROOT / "poetry.lock").is_file(),
         },
+        "uv_lock_sha256": lock_hashes["uv_lock_sha256"],
+        "lock_file_hashes": lock_hashes,
+        "external_tools": collect_external_tool_versions(),
     }
 
 
@@ -308,6 +376,23 @@ def verify_release_bundle(bundle_path: Path) -> list[str]:
         for key in ("schema_version", "tooling_version", "corpus_version"):
             if not repro.get(key):
                 errors.append(f"reproducibility.{key} missing")
+
+        sbom = manifest.get("sbom_summary") or {}
+        if sbom.get("format", "").startswith("qspecbench-sbom-lite"):
+            if sbom.get("lock_files_present", {}).get("uv_lock") and not sbom.get("uv_lock_sha256"):
+                errors.append("sbom_summary.uv_lock_sha256 missing while uv.lock is present")
+
+        sbom = manifest.get("sbom_summary") or {}
+        if sbom.get("format") != "qspecbench-sbom-lite-v0.2":
+            errors.append("sbom_summary.format must be qspecbench-sbom-lite-v0.2")
+        lock_hashes = sbom.get("lock_file_hashes") or {}
+        if sbom.get("lock_files_present", {}).get("uv_lock") and not lock_hashes.get("uv_lock_sha256"):
+            errors.append("sbom_summary.lock_file_hashes.uv_lock_sha256 missing while uv.lock present")
+        external = sbom.get("external_tools") or {}
+        pinned = external.get("pinned") or {}
+        for tool_key in ("lean_toolchain", "qcec_pinned"):
+            if not pinned.get(tool_key):
+                errors.append(f"sbom_summary.external_tools.pinned.{tool_key} missing")
 
         bundle_files = manifest.get("bundle_files")
         if not isinstance(bundle_files, dict) or not bundle_files:
