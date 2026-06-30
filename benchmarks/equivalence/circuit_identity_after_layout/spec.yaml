@@ -129,7 +129,7 @@ trust_boundary:
 proof_obligations:
 - id: lean_kernel_proof
   status: passing
-  notes: bridge_circuit_identity_after_layout anchor
+  notes: bridge_circuit_identity_after_layout_codegen anchor
 - id: semantic_bridge
   status: passing
   notes: python_denotation_consistency verify-bridge
@@ -159,7 +159,7 @@ formal_claims:
   evidence_id: lean_layout_bridge
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: QSpecBench.Quantum.OpenQASM3.bridge_circuit_identity_after_layout
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_circuit_identity_after_layout_codegen
   supports:
   - lean_kernel_proof
   does_not_support:
