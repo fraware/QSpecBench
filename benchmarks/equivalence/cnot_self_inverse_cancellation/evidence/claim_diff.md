@@ -1,8 +1,8 @@
 # Claim diff: cnot_self_inverse_cancellation
 
-<!-- scope_fingerprint: 1d301c6ee53e9fc398e9e72bae3502f45006d6b1dc242f60bb80d427c2a0a351 -->
+<!-- scope_fingerprint: b44d301e643939810f3e8397f68d660669a4ff80595955329b17b877b43def00 -->
 
-**Maturity:** reference_claim
+**Maturity:** artifact_bound_reference_claim
 **Headline status:** checked
 
 ## Informal claim (README/spec)
@@ -20,8 +20,6 @@ Two consecutive CNOT gates on the same control-target pair implement the identit
 - [x] semantic_bridge
 
 ## Unproved / open obligations
-- [ ] matrix_model_matches_qasm_semantics_for_all_inst
-- [ ] general_n_qubit_extension_of_cancellation_rule
 
 ## Gap
 - None among declared required obligations.

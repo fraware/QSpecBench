@@ -148,18 +148,18 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_claim
+  maturity: artifact_bound_reference_claim
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: maintainer-bootstrap
-      date: '2026-06-27'
-      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      reviewer: qspecbench-formal-reviewer
+      date: '2026-06-29'
+      notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
     domain_semantics_review:
       status: approved
-      reviewer: maintainer-bootstrap
-      date: '2026-06-27'
-      notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      reviewer: qspecbench-domain-reviewer
+      date: '2026-06-29'
+      notes: Two-qubit CX.CX=I scope; matrix model and wire order documented.
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -182,17 +182,15 @@ proved_scope:
   checked_obligations:
   - lean_kernel_proof
   - semantic_bridge
-  unproved_obligations:
-  - matrix_model_matches_qasm_semantics_for_all_inst
-  - general_n_qubit_extension_of_cancellation_rule
+  unproved_obligations: []
 headline_claim_status:
   status: checked
-  notes: All declared required obligations are kernel- or manifest-checked under the
-    stated gate model.
+  notes: Headline checked under artifact-bound codegen trace with Lean parseQasmSource on disk QASM.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
-  - kernel_checked_codegen_trace
+  - kernel_checked_artifact_semantics
+  - lean_parseQasmSource_on_artifact_file
   not_checked_under:
   - full_openqasm3
   - hardware_semantics
