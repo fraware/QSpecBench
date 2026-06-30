@@ -46,7 +46,20 @@
     },
     "wire_order_bridge_theorem": {
       "type": ["string", "null"],
-      "description": "Optional future Lean theorem id for wire-order alignment proof"
+      "description": "Optional Lean theorem id for wire-order alignment proof"
+    },
+    "artifact_parse_theorem": {
+      "type": ["string", "null"],
+      "description": "Lean theorem binding on-disk QASM bytes to codegen ops (kernel_checked_artifact_semantics)"
+    },
+    "target_artifact_parse_theorem": {
+      "type": ["string", "null"],
+      "description": "Lean parse theorem for target-side kernel artifact when present"
+    },
+    "theorem_elaborator_hash": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 of normalized Lean theorem type (v0.3 primary authority; syntactic hash retained as cross-check)"
     },
     "bridge_evidence_id": { "type": ["string", "null"] },
     "gate_set": { "type": ["string", "null"] },
@@ -55,13 +68,18 @@
     "artifact_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "ast_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "lean_ast_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 of Lean-mirror canonical AST JSON from parseQasmSource gate list"
+    },
     "generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "package_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "theorem_identifier_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "theorem_source_statement_hash": {
       "type": "string",
       "pattern": "^[a-f0-9]{64}$",
-      "description": "SHA-256 of syntactic Lean theorem statement extraction (not elaborator export)"
+      "description": "SHA-256 of syntactic Lean theorem statement extraction (secondary cross-check at v0.3)"
     },
     "theorem_content_sha256": {
       "type": "string",
@@ -74,6 +92,11 @@
     "target_gate_trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "target_lean_theorem": { "type": "string", "minLength": 1 },
     "target_ast_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "target_lean_ast_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Lean-mirror canonical AST hash for target QASM when dual-manifest target fields are pinned"
+    },
     "target_generated_lean_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
   },
   "additionalProperties": false
