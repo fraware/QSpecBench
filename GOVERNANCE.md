@@ -94,8 +94,9 @@ correction evidence** for `reference_claim`. An assumed decoder/lookup table sup
 
 ### `artifact_bound_reference_claim` (reserved tier — schema only)
 
-This maturity tier is defined in schema v0.2. The pilot benchmark
-`cnot_self_inverse_cancellation` is promoted when the checklist below is satisfied.
+This maturity tier is defined in schema v0.2. Six kernel-bridge pilots are promoted at **v0.2.3**
+(`49e8899`): `cnot_self_inverse_cancellation`, `bell_state_preparation`, `hadamard_conjugates_x_to_z`,
+`single_qubit_gate_cancellation`, `swap_from_three_cx`, and source-side `toffoli_decomposition_equivalence`.
 Do not set `status.maturity: artifact_bound_reference_claim` without meeting every requirement;
 `qspecbench validate` fails closed (including `qspecbench bridge-metadata verify` for BridgeMetadata pins).
 
@@ -105,8 +106,8 @@ Do not set `status.maturity: artifact_bound_reference_claim` without meeting eve
 2. `headline_claim_status.status: checked` with honest `checked_under` / `not_checked_under`
 3. `proved_scope.unproved_obligations` empty
 4. `semantic_bridge.claimed_link: kernel_checked_codegen_trace` or `kernel_checked_artifact_semantics` with anchors:
-   - `artifact_sha256`, `gate_trace_sha256`, `ast_sha256`, `generated_lean_sha256`
-   - `theorem_identifier_sha256`, `theorem_source_statement_hash`
+   - `artifact_sha256`, `gate_trace_sha256`, `lean_ast_sha256`, `ast_authority: lean_mirror`, `generated_lean_sha256`
+   - `theorem_identifier_sha256`, `theorem_elaborator_hash`, `theorem_source_statement_hash` (secondary when elaborator cache present)
 5. Passing `bridge_verify` evidence and matching Lean `BridgeMetadata` pins (manifest-sourced hashes)
 6. README claim card documents artifact hash binding and checker chain
 
@@ -121,4 +122,4 @@ Breaking schema changes require a version bump and migration notes in `docs/sche
 Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
 and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).
 
-**Current release:** tag `v0.2.2` (commit `e5ee749`); six kernel-checked codegen-trace bridges with Lean `BridgeMetadata` pins.
+**Current release:** tag `v0.2.3` (commit `49e8899`); six `artifact_bound_reference_claim` kernel bridges; six `kernel_checked_artifact_semantics` bridges with Lean parse→codegen chain and `ast_authority: lean_mirror`. CI: [validate workflow](https://github.com/fraware/QSpecBench/actions/workflows/validate.yml) on `main`.
