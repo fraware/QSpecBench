@@ -352,6 +352,11 @@
           "enum": ["required", "approved", "rejected", "pending"]
         },
         "reviewer": { "type": ["string", "null"] },
+        "review_artifact_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Optional SHA-256 of signed review artifact bundle"
+        },
         "date": { "type": ["string", "null"] },
         "notes": { "type": ["string", "null"] }
       },
