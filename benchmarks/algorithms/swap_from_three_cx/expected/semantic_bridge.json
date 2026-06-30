@@ -6,7 +6,8 @@
     "hadamard": "unnormalized_int_model",
     "cnot": "indexed_control_target_q0_lsb"
   },
-  "claimed_link": "kernel_checked_codegen_trace",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "artifact_parse_theorem": "parseQasmSource_swap_kernel_eq_generated_ops",
   "qasm_artifact": "artifacts/source.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
@@ -22,5 +23,7 @@
   "theorem_identifier_sha256": "90673f619c0d5d06700e1f07c301e4dcea53e23d27facc5b1e03d399007c4972",
   "theorem_content_sha256": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
   "package_lean_sha256": "8e9eacbceb895b9c9806cc79c6fe3ac6e0ee9618036ca0996c852d400ffbc229",
-  "theorem_source_statement_hash": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7"
+  "theorem_source_statement_hash": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
+  "theorem_elaborator_hash": "b3f11063a041dcecf8401c3626fa161bfb83096177cb1cfa773e79cc5ade8bff",
+  "lean_ast_sha256": "f56ae68da29a95751c8273e8a97849139cf683ebdf9caa1a3061f219fd3962cc"
 }
