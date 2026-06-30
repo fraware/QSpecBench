@@ -9,7 +9,10 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
+import subprocess
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +37,75 @@ GENERATED_MODULE_MAP: dict[str, str] = {
     "bell_state_preparation": "BellStatePreparation",
     "swap_from_three_cx": "SwapFromThreeCx",
     "toffoli_decomposition_equivalence": "ToffoliDecompositionEquivalence",
+    "toffoli_decomposition_equivalence_target": "ToffoliDecompositionEquivalenceTarget",
+    "circuit_identity_after_layout": "CircuitIdentityAfterLayout",
 }
+
+KERNEL_BRIDGE_IDS: frozenset[str] = frozenset(
+    {
+        "cnot_self_inverse_cancellation",
+        "hadamard_conjugates_x_to_z",
+        "single_qubit_gate_cancellation",
+        "bell_state_preparation",
+        "swap_from_three_cx",
+        "toffoli_decomposition_equivalence",
+    }
+)
+
+ARTIFACT_PARSE_THEOREM_MAP: dict[str, str] = {
+    "cnot_self_inverse_cancellation": "parseQasmSource_cnot_kernel_eq_generated_ops",
+    "hadamard_conjugates_x_to_z": "parseQasmSource_hxh_kernel_eq_generated_ops",
+    "single_qubit_gate_cancellation": "parseQasmSource_hh_kernel_eq_generated_ops",
+    "bell_state_preparation": "parseQasmSource_bell_kernel_eq_generated_ops",
+    "swap_from_three_cx": "parseQasmSource_swap_kernel_eq_generated_ops",
+    "toffoli_decomposition_equivalence": "parseQasmSource_toffoli_kernel_eq_generated_ops",
+    "circuit_identity_after_layout": "parseQasmSource_layout_kernel_eq_generated_ops",
+}
+
+KERNEL_ARTIFACT_SOURCE_DEF: dict[str, str] = {
+    "cnot_self_inverse_cancellation": "cnotKernelArtifactSource",
+    "hadamard_conjugates_x_to_z": "hxhKernelArtifactSource",
+    "single_qubit_gate_cancellation": "hhKernelArtifactSource",
+    "bell_state_preparation": "bellKernelArtifactSource",
+    "swap_from_three_cx": "swapKernelArtifactSource",
+    "toffoli_decomposition_equivalence": "toffoliKernelArtifactSource",
+    "circuit_identity_after_layout": "layoutKernelArtifactSource",
+}
+
+KERNEL_TARGET_ARTIFACT_SOURCE_DEF: dict[str, str] = {
+    "toffoli_decomposition_equivalence": "toffoliTargetKernelArtifactSource",
+}
+
+TARGET_ARTIFACT_PARSE_THEOREM_MAP: dict[str, str] = {
+    "toffoli_decomposition_equivalence": "parseQasmSource_toffoli_target_kernel_eq_generated_ops",
+}
+
+KERNEL_ARTIFACT_QASM_REL: dict[str, str] = {
+    "cnot_self_inverse_cancellation": (
+        "benchmarks/equivalence/cnot_self_inverse_cancellation/artifacts/source.qasm"
+    ),
+    "hadamard_conjugates_x_to_z": (
+        "benchmarks/equivalence/hadamard_conjugates_x_to_z/artifacts/source.qasm"
+    ),
+    "single_qubit_gate_cancellation": (
+        "benchmarks/equivalence/single_qubit_gate_cancellation/artifacts/source.qasm"
+    ),
+    "bell_state_preparation": "benchmarks/algorithms/bell_state_preparation/artifacts/circuit.qasm",
+    "swap_from_three_cx": "benchmarks/algorithms/swap_from_three_cx/artifacts/source.qasm",
+    "toffoli_decomposition_equivalence": (
+        "benchmarks/equivalence/toffoli_decomposition_equivalence/artifacts/source.qasm"
+    ),
+}
+
+KERNEL_TARGET_ARTIFACT_QASM_REL: dict[str, str] = {
+    "toffoli_decomposition_equivalence": (
+        "benchmarks/equivalence/toffoli_decomposition_equivalence/artifacts/target.qasm"
+    ),
+}
+
+LEAN_AST_SHA256_FIELD = "lean_ast_sha256"
+TARGET_LEAN_AST_SHA256_FIELD = "target_lean_ast_sha256"
+THEOREM_ELABORATOR_TYPES_CACHE = REPO_ROOT / ".cache" / "theorem_elaborator_types.json"
 
 # Deprecated fallback only when Lean source extraction fails (should not happen for kernel bridges).
 _KERNEL_THEOREM_CONTENT_DEPRECATED: dict[str, str] = {}
@@ -80,6 +151,138 @@ def build_canonical_ast(
 def ast_sha256(ast: dict[str, Any]) -> str:
     payload = json.dumps(ast, sort_keys=True, separators=(",", ":"))
     return _sha256_bytes(payload.encode("utf-8"))
+
+
+def normalize_qasm_source_lf(text: str) -> str:
+    """LF-normalize QASM source bytes for kernel artifact embedding."""
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def read_kernel_qasm_lf_normalized(qasm_path: Path) -> str:
+    return normalize_qasm_source_lf(qasm_path.read_text(encoding="utf-8"))
+
+
+def _is_skippable_qasm_line(line: str) -> bool:
+    s = line.strip()
+    if not s or s.startswith("//"):
+        return True
+    lower = s.lower()
+    return lower.startswith(
+        ("openqasm", "include", "qubit", "bit", "creg", "qreg", "barrier")
+    )
+
+
+def _parse_qubit_token(tok: str) -> int | None:
+    t = tok.strip()
+    if t.startswith("q[") and t.endswith("]"):
+        return int(t[2:-1])
+    if t.startswith("q") and t[1:].isdigit():
+        return int(t[1:])
+    return None
+
+
+def lean_mirror_parse_gate_line(line: str) -> dict[str, Any] | None:
+    """Mirror ``OpenQASM3Parser.parseGateLine`` gate subset for AST cross-check."""
+    s = line.strip().rstrip(";").strip()
+    if not s or _is_skippable_qasm_line(line):
+        return None
+    if s.startswith("h "):
+        q = _parse_qubit_token(s[2:])
+        return {"op": "h", "qubits": [q]} if q is not None else None
+    if s.startswith("x "):
+        q = _parse_qubit_token(s[2:])
+        return {"op": "x", "qubits": [q]} if q is not None else None
+    if s.startswith("t "):
+        q = _parse_qubit_token(s[2:])
+        return {"op": "t", "qubits": [q]} if q is not None else None
+    if s.startswith("tdg "):
+        q = _parse_qubit_token(s[4:])
+        return {"op": "tdg", "qubits": [q]} if q is not None else None
+    if s.startswith("cx ") or s.startswith("cnot "):
+        rest = s.split(" ", 1)[1]
+        parts = [p.strip() for p in rest.split(",")]
+        if len(parts) != 2:
+            return None
+        c, t = _parse_qubit_token(parts[0]), _parse_qubit_token(parts[1])
+        if c is None or t is None:
+            return None
+        return {"op": "cx", "qubits": [c, t]}
+    if s.startswith("ccx "):
+        rest = s.split(" ", 1)[1]
+        parts = [p.strip() for p in rest.split(",")]
+        if len(parts) != 3:
+            return None
+        c0, c1, t = (
+            _parse_qubit_token(parts[0]),
+            _parse_qubit_token(parts[1]),
+            _parse_qubit_token(parts[2]),
+        )
+        if c0 is None or c1 is None or t is None:
+            return None
+        return {"op": "ccx", "qubits": [c0, c1, t]}
+    return None
+
+
+def build_lean_mirror_canonical_ast(qasm_path: Path) -> dict[str, Any]:
+    """Build canonical AST JSON mirroring Lean ``parseQasmSource`` gate list."""
+    gates: list[dict[str, Any]] = []
+    for raw in read_kernel_qasm_lf_normalized(qasm_path).splitlines():
+        entry = lean_mirror_parse_gate_line(raw)
+        if entry is not None:
+            gates.append({"op": entry["op"], "qubits": list(entry["qubits"])})
+    max_q = max((q for g in gates for q in g["qubits"]), default=-1)
+    return {
+        "canonical_ast_version": CANONICAL_AST_VERSION,
+        "n_qubits": max_q + 1,
+        "gates": gates,
+    }
+
+
+def lean_ast_sha256_from_qasm(qasm_path: Path) -> str:
+    return ast_sha256(build_lean_mirror_canonical_ast(qasm_path))
+
+
+def lean_ast_sha256_for_benchmark(benchmark_id: str) -> str | None:
+    rel = KERNEL_ARTIFACT_QASM_REL.get(benchmark_id)
+    if not rel:
+        return None
+    return lean_ast_sha256_from_qasm(REPO_ROOT / rel)
+
+
+def target_lean_ast_sha256_for_benchmark(benchmark_id: str) -> str | None:
+    rel = KERNEL_TARGET_ARTIFACT_QASM_REL.get(benchmark_id)
+    if not rel:
+        return None
+    return lean_ast_sha256_from_qasm(REPO_ROOT / rel)
+
+
+def to_lean_string_literal(source: str) -> str:
+    escaped = (
+        source.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+    )
+    return f'  "{escaped}"'
+
+
+def update_lean_kernel_artifact_source_def(
+    def_name: str,
+    source: str,
+    *,
+    path: Path | None = None,
+) -> bool:
+    """Replace ``def {def_name} : String :=`` literal; return True if changed."""
+    lean_path = path or (REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3Parser.lean")
+    text = lean_path.read_text(encoding="utf-8")
+    pattern = rf'(def {re.escape(def_name)} : String :=\s*\n)(  "(?:[^"\\]|\\.)*")'
+    replacement = rf"\g<1>{to_lean_string_literal(source)}"
+    new_text, count = re.subn(pattern, replacement, text, count=1)
+    if count == 0:
+        raise ValueError(f"{def_name} not found in {lean_path}")
+    if new_text == text:
+        return False
+    lean_path.write_text(new_text, encoding="utf-8")
+    return True
 
 
 def _lean_single_gate(gate: str) -> str:
@@ -318,11 +521,140 @@ KERNEL_CHECKED_THEOREMS: dict[str, str] = {
     "bell_state_preparation": "QSpecBench.Quantum.OpenQASM3.bridge_bell_codegen_prep",
     "swap_from_three_cx": "QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen",
     "toffoli_decomposition_equivalence": "QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx",
+    "circuit_identity_after_layout": "QSpecBench.Quantum.OpenQASM3.bridge_circuit_identity_after_layout_codegen",
 }
+
+KERNEL_ARTIFACT_PARSE_THEOREMS = ARTIFACT_PARSE_THEOREM_MAP
+LEAN_KERNEL_ARTIFACT_SOURCE_DEFS = KERNEL_ARTIFACT_SOURCE_DEF
+
+OPENQASM3_PARSER_LEAN = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3Parser.lean"
+
+THEOREM_ELABORATOR_HASH_FIELD = "theorem_elaborator_hash"
 
 
 def kernel_checked_theorem_name(benchmark_id: str) -> str | None:
     return KERNEL_CHECKED_THEOREMS.get(benchmark_id)
+
+
+def kernel_artifact_parse_theorem(benchmark_id: str) -> str | None:
+    return ARTIFACT_PARSE_THEOREM_MAP.get(benchmark_id)
+
+
+def extract_lean_kernel_artifact_source(def_name: str, path: Path = OPENQASM3_PARSER_LEAN) -> str:
+    """Read embedded Lean ``*KernelArtifactSource`` string literal."""
+    text = path.read_text(encoding="utf-8")
+    match = re.search(
+        rf'def {re.escape(def_name)} : String :=\s*\n\s*"((?:[^"\\]|\\.)*)"',
+        text,
+    )
+    if not match:
+        raise ValueError(f"{def_name} not found in {path}")
+    return bytes(match.group(1), "utf-8").decode("unicode_escape")
+
+
+def lean_kernel_artifact_source_bytes(benchmark_id: str) -> bytes:
+    def_name = KERNEL_ARTIFACT_SOURCE_DEF.get(benchmark_id)
+    if not def_name:
+        raise KeyError(benchmark_id)
+    return extract_lean_kernel_artifact_source(def_name).encode("utf-8")
+
+
+def extract_lean_theorem_type(path: Path, theorem_name: str) -> str | None:
+    """Parse type signature from ``theorem name ... : TYPE :=`` (regex fallback)."""
+    statement = extract_lean_theorem_statement(path, theorem_name)
+    if not statement:
+        return None
+    colon_idx = statement.rfind(":")
+    if colon_idx < 0:
+        return None
+    return _normalize_theorem_statement(statement[colon_idx + 1 :])
+
+
+@lru_cache(maxsize=1)
+def _elaborator_exported_types() -> dict[str, str]:
+    """Load elaborator types from cache or ``lake exe exportTheoremTypes`` when enabled."""
+    if THEOREM_ELABORATOR_TYPES_CACHE.is_file():
+        try:
+            payload = json.loads(THEOREM_ELABORATOR_TYPES_CACHE.read_text(encoding="utf-8"))
+            if isinstance(payload, dict):
+                return {
+                    str(k): _normalize_theorem_statement(str(v))
+                    for k, v in payload.items()
+                    if v
+                }
+        except (json.JSONDecodeError, OSError, TypeError):
+            pass
+    if os.environ.get("QSPECBENCH_LEAN_ELABORATOR", "").strip() not in {"1", "true", "yes"}:
+        return {}
+    lean_dir = REPO_ROOT / "lean"
+    if not (lean_dir / "lakefile.lean").is_file():
+        return {}
+    try:
+        proc = subprocess.run(
+            ["lake", "exe", "exportTheoremTypes"],
+            cwd=lean_dir,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=120,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        return {}
+    if proc.returncode != 0:
+        return {}
+    out: dict[str, str] = {}
+    for line in proc.stdout.splitlines():
+        if "\t" not in line:
+            continue
+        bid, ty = line.split("\t", 1)
+        out[bid.strip()] = _normalize_theorem_statement(ty.strip())
+    if out:
+        THEOREM_ELABORATOR_TYPES_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        THEOREM_ELABORATOR_TYPES_CACHE.write_text(
+            json.dumps(out, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    return out
+
+
+def write_elaborator_types_cache(types: dict[str, str]) -> None:
+    THEOREM_ELABORATOR_TYPES_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    THEOREM_ELABORATOR_TYPES_CACHE.write_text(
+        json.dumps(types, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    _elaborator_exported_types.cache_clear()
+
+
+def theorem_elaborator_type(benchmark_id: str) -> str | None:
+    """Normalized theorem type from Lean elaborator export, else regex fallback."""
+    exported = _elaborator_exported_types()
+    if benchmark_id in exported:
+        return exported[benchmark_id]
+    theorem_full = kernel_checked_theorem_name(benchmark_id)
+    if not theorem_full:
+        return None
+    return extract_lean_theorem_type(OPENQASM3_LEAN, theorem_full.split(".")[-1])
+
+
+def theorem_elaborator_hash(benchmark_id: str) -> str | None:
+    """Hash normalized theorem type (elaborator export primary; regex secondary)."""
+    type_sig = theorem_elaborator_type(benchmark_id)
+    if not type_sig:
+        return None
+    kind = (
+        "theorem_elaborator_hash_v1"
+        if benchmark_id in _elaborator_exported_types()
+        else "theorem_elaborator_hash_v0"
+    )
+    payload = {
+        "benchmark_id": benchmark_id,
+        "kind": kind,
+        "theorem_type": type_sig,
+    }
+    return _sha256_bytes(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
 
 
 def codegen_output_path(claim_dir: Path, benchmark_id: str) -> Path:
@@ -390,6 +722,7 @@ def render_for_benchmark(claim_dir: Path, *, qasm_role: str = "source") -> dict[
         "gate_trace_sha256": trace_sha,
         "ast": ast,
         "ast_sha256": ast_sha256(ast),
+        "lean_ast_sha256": lean_ast_sha256_from_qasm(qasm_path),
         "witness_lean_text": witness_text,
         "package_lean_text": package_text,
         "generated_lean_path": str(codegen_output_path(claim_dir, stub_id).relative_to(claim_dir)),
@@ -462,6 +795,14 @@ def verify_manifest_codegen(entry: dict[str, Any], claim_dir: Path) -> list[str]
         errors.append(
             f"ast_sha256 drift for {benchmark_id}: manifest != regenerated canonical AST"
         )
+    if entry.get("lean_ast_sha256") and result.get("lean_ast_sha256"):
+        if entry["lean_ast_sha256"] != result["lean_ast_sha256"]:
+            errors.append(f"lean_ast_sha256 drift for {benchmark_id}")
+        if entry.get("ast_sha256") and entry["lean_ast_sha256"] != entry["ast_sha256"]:
+            errors.append(
+                f"lean_ast_sha256 != ast_sha256 for {benchmark_id} "
+                "(Python extractor vs Lean mirror parseQasmSource gate list)"
+            )
     if entry.get("generated_lean_sha256"):
         if entry["generated_lean_sha256"] != result["generated_lean_sha256"]:
             errors.append(
@@ -548,6 +889,15 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
         errors.append(f"theorem_identifier_sha256 drift for {benchmark_id}")
     expected_content = theorem_source_statement_hash(benchmark_id)
     stored_content = read_theorem_source_hash(entry)
+    expected_elab = theorem_elaborator_hash(benchmark_id)
+    stored_elab = entry.get(THEOREM_ELABORATOR_HASH_FIELD)
+    if expected_elab:
+        if not stored_elab:
+            errors.append(
+                f"{KERNEL_CHECKED_LINK} requires {THEOREM_ELABORATOR_HASH_FIELD} for {benchmark_id}"
+            )
+        elif stored_elab != expected_elab:
+            errors.append(f"{THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
     if expected_content and stored_content:
         if stored_content != expected_content:
             errors.append(f"theorem_source_statement_hash drift for {benchmark_id}")
@@ -569,6 +919,86 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
         errors.append(
             f"{KERNEL_CHECKED_LINK} requires theorem_source_statement_hash for {benchmark_id}"
         )
+    if benchmark_id in KERNEL_BRIDGE_IDS:
+        expected_lean_ast = lean_ast_sha256_for_benchmark(benchmark_id)
+        if expected_lean_ast and entry.get("lean_ast_sha256") != expected_lean_ast:
+            errors.append(f"lean_ast_sha256 manifest drift for {benchmark_id}")
+        if (
+            entry.get("lean_ast_sha256")
+            and entry.get("ast_sha256")
+            and entry["lean_ast_sha256"] != entry["ast_sha256"]
+        ):
+            errors.append(
+                f"lean_ast_sha256 != ast_sha256 in manifest for {benchmark_id}"
+            )
     if not generated_module_name(benchmark_id):
         errors.append(f"kernel bridge {benchmark_id} missing generated module mapping")
+    return errors
+
+
+def verify_kernel_artifact_semantics_bridge(bridge: dict[str, Any], benchmark_id: str) -> list[str]:
+    """Require Lean parse theorem reference for kernel_checked_artifact_semantics."""
+    errors: list[str] = []
+    if bridge.get("claimed_link") != LEGACY_KERNEL_CHECKED_LINK:
+        return errors
+    parse_thm = bridge.get("artifact_parse_theorem")
+    expected = kernel_artifact_parse_theorem(benchmark_id)
+    if not expected:
+        errors.append(f"no artifact parse theorem mapping for {benchmark_id!r}")
+        return errors
+    if not parse_thm:
+        errors.append(
+            f"artifact_parse_theorem is required for {LEGACY_KERNEL_CHECKED_LINK} ({benchmark_id})"
+        )
+    elif parse_thm != expected:
+        errors.append(
+            f"artifact_parse_theorem must be {expected!r}, got {parse_thm!r}"
+        )
+    parser_lean = OPENQASM3_PARSER_LEAN
+    openqasm3_lean = OPENQASM3_LEAN
+    if parser_lean.is_file() and parse_thm:
+        text = parser_lean.read_text(encoding="utf-8")
+        if f"theorem {parse_thm}" not in text:
+            errors.append(f"Lean parse theorem {parse_thm!r} not found in OpenQASM3Parser.lean")
+    elaborator = bridge.get(THEOREM_ELABORATOR_HASH_FIELD)
+    expected_elab = theorem_elaborator_hash(benchmark_id)
+    if expected_elab:
+        if not elaborator:
+            errors.append(
+                f"{THEOREM_ELABORATOR_HASH_FIELD} required for {LEGACY_KERNEL_CHECKED_LINK} "
+                f"({benchmark_id})"
+            )
+        elif elaborator != expected_elab:
+            errors.append(f"{THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
+    source_hash = bridge.get(THEOREM_SOURCE_HASH_FIELD) or bridge.get("theorem_content_sha256")
+    expected_source = theorem_source_statement_hash(benchmark_id)
+    if expected_source and source_hash and source_hash != expected_source:
+        errors.append(f"theorem_source_statement_hash secondary drift for {benchmark_id}")
+    if benchmark_id in KERNEL_BRIDGE_IDS:
+        lean_ast = bridge.get(LEAN_AST_SHA256_FIELD)
+        expected_lean_ast = lean_ast_sha256_for_benchmark(benchmark_id)
+        if expected_lean_ast:
+            if not lean_ast:
+                errors.append(f"{LEAN_AST_SHA256_FIELD} required for kernel bridge {benchmark_id}")
+            elif lean_ast != expected_lean_ast:
+                errors.append(f"{LEAN_AST_SHA256_FIELD} drift for {benchmark_id}")
+            ast = bridge.get("ast_sha256")
+            if ast and lean_ast and lean_ast != ast:
+                errors.append(
+                    f"{LEAN_AST_SHA256_FIELD} != ast_sha256 in semantic_bridge for {benchmark_id}"
+                )
+    wire_thm = bridge.get("wire_order_bridge_theorem")
+    if wire_thm:
+        found = False
+        for lean_path in (parser_lean, openqasm3_lean):
+            if lean_path.is_file():
+                text = lean_path.read_text(encoding="utf-8")
+                if f"theorem {wire_thm}" in text or f"lemma {wire_thm}" in text:
+                    found = True
+                    break
+        if not found:
+            errors.append(
+                f"wire_order_bridge_theorem {wire_thm!r} not found in OpenQASM3.lean "
+                "or OpenQASM3Parser.lean"
+            )
     return errors
