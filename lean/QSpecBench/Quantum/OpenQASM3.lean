@@ -12,6 +12,8 @@ import QSpecBench.Generated.SingleQubitGateCancellation
 import QSpecBench.Generated.BellStatePreparation
 import QSpecBench.Generated.SwapFromThreeCx
 import QSpecBench.Generated.ToffoliDecompositionEquivalence
+import QSpecBench.Generated.ToffoliDecompositionEquivalenceTarget
+import QSpecBench.Generated.CircuitIdentityAfterLayout
 import QSpecBench.Quantum.BridgeMetadata
 
 /-!
@@ -440,7 +442,10 @@ theorem bridge_toffoli_codegen_ccx (i j : Fin 8) :
   rw [toffoli_codegen_ops_eq_hand_trace, denotateOps3_ccx_single]
 
 /-- Layout-identity scaffold: H then CX on qubits 0,1. -/
-def layout_identity_ops : List QasmOp := [.gate .H 0, .cx 0 1]
+def layout_identity_ops : List QasmOp := Generated.CircuitIdentityAfterLayout.ops
+
+theorem layout_identity_ops_eq_codegen :
+    layout_identity_ops = Generated.CircuitIdentityAfterLayout.ops := rfl
 
 def layoutIdentityMatrix (i j : Fin 4) : Int :=
   mul4 cnot4 (kron2I hadamard2) i j
@@ -452,5 +457,14 @@ theorem denotateOps2_layout_identity (i j : Fin 4) :
 theorem bridge_circuit_identity_after_layout (i j : Fin 4) :
     denotateOps2 layout_identity_ops i j = layoutIdentityMatrix i j :=
   denotateOps2_layout_identity i j
+
+theorem bridge_circuit_identity_after_layout_codegen (i j : Fin 4) :
+    denotateOps2 Generated.CircuitIdentityAfterLayout.ops i j = layoutIdentityMatrix i j := by
+  rw [← layout_identity_ops_eq_codegen, denotateOps2_layout_identity]
+
+/-- On a 2-qubit register, CX q[0]→q[1] denotation matches legacy `cnot4` (int-scaffold and operational wire models agree). -/
+theorem cnot_wire_order_models_agree_on_two_qubits (i j : Fin 4) :
+    denotateOps2 [.cx 0 1] i j = cnot4 i j := by
+  fin_cases i <;> fin_cases j <;> rfl
 
 end QSpecBench.Quantum.OpenQASM3
