@@ -8,7 +8,7 @@
   "properties": {
     "certificate_version": {
       "type": "string",
-      "const": "0.1-stub"
+      "enum": ["0.1-stub", "0.2-external"]
     },
     "claim_kind": {
       "type": "string",
