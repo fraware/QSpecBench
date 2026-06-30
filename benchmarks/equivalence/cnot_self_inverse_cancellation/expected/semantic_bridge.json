@@ -6,7 +6,8 @@
     "cnot": "standard_01_control_target",
     "qasm_factor": "exact_permutation_matrix"
   },
-  "claimed_link": "kernel_checked_codegen_trace",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "artifact_parse_theorem": "parseQasmSource_cnot_kernel_eq_generated_ops",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "cb1e1e91496dd761ac2ec2c06b077e619452fd3804162aa646a054aa02a37354",
@@ -18,8 +19,11 @@
     "model": "legacy_kron_order",
     "checked_against": "both"
   },
+  "wire_order_bridge_theorem": "cnot_wire_order_models_agree_on_two_qubits",
   "theorem_identifier_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
   "theorem_content_sha256": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
   "package_lean_sha256": "7b04bd63e169cb1cce8e495dd0115d2e18ccdd1b4d5baecc0181e648ce1df69c",
-  "theorem_source_statement_hash": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0"
+  "theorem_source_statement_hash": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
+  "theorem_elaborator_hash": "d5eb7ecbb9f29f95f7bff4887de8997cb34815e1e3012733afc3b1e6c5242f44",
+  "lean_ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9"
 }

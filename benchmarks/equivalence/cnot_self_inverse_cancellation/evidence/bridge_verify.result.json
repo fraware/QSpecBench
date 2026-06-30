@@ -1,7 +1,7 @@
 {
   "ok": true,
   "claim": "cnot_self_inverse_cancellation",
-  "claimed_link": "kernel_checked_codegen_trace",
+  "claimed_link": "kernel_checked_artifact_semantics",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
   "lean_theorem": "bridge_cnot_codegen_self_inverse",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\cnot_self_inverse_cancellation\\artifacts\\source.qasm",
