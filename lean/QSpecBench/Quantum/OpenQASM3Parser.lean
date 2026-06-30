@@ -108,6 +108,14 @@ def parseGateLine (line : String) : Option ParsedGate :=
     match parseQubitIndex (s.drop 2) with
     | some q => some (.gate .X q)
     | none => none
+  else if s.startsWith "t " then
+    match parseQubitIndex (s.drop 2) with
+    | some q => some (.gate .T q)
+    | none => none
+  else if s.startsWith "tdg " then
+    match parseQubitIndex (s.drop 4) with
+    | some q => some (.gate .Tdg q)
+    | none => none
   else if s.startsWith "cx " then
     match parseQubitArgList (s.drop 3) with
     | some (c, t) => some (.cx c t)
@@ -173,6 +181,10 @@ def filterGateLines (lines : List String) : List String :=
 def maxQubitIndex (gates : List CanonicalGate) : Nat :=
   gates.foldl (fun acc g => g.qubits.foldl Nat.max acc) 0
 
+/-- Gate list view matching Python ``build_canonical_ast`` JSON ``gates`` field. -/
+def canonicalAstToGateList (ast : CanonicalAst) : List (String × List Nat) :=
+  ast.gates.map fun g => (g.op, g.qubits)
+
 /-- Parse gate lines from raw QASM source (headers skipped). Returns `none` when no gates parse. -/
 def parseQasmSource (source : String) : Option CanonicalAst :=
   let lines := source.splitOn "\n" |>.map (·.trimRight)
@@ -182,6 +194,10 @@ def parseQasmSource (source : String) : Option CanonicalAst :=
     none
   else
     some { version := canonicalAstVersion, nQubits := maxQubitIndex gates + 1, gates := gates }
+
+/-- Extract ``(op, qubits)`` pairs from raw QASM source (headers skipped). -/
+def parseQasmSourceToGateList (source : String) : Option (List (String × List Nat)) :=
+  parseQasmSource source |>.map canonicalAstToGateList
 
 theorem parseQasmSource_cnot_is_some :
     (parseQasmSource "cx q[0], q[1];\ncx q[0], q[1];").isSome := by native_decide
@@ -271,6 +287,11 @@ theorem parseLines_bell_eq_bell_prep_ops :
     parseLines ["h q[0];", "cx q[0], q[1];"] = Generated.BellStatePreparation.ops :=
   parseLines_bell_eq_generated_ops
 
+theorem parseLines_layout_eq_generated_ops :
+    parseLines ["h q[0];", "cx q[0], q[1];"] = Generated.CircuitIdentityAfterLayout.ops := by
+  unfold Generated.CircuitIdentityAfterLayout.ops
+  simp [parseLines, parseLineQasmOp_bell_h, parseLineQasmOp_bell_cx]
+
 theorem parseLines_cnot_eq_generated_ops :
     parseLines ["cx q[0], q[1];", "cx q[0], q[1];"] = Generated.CnotSelfInverse.ops := by
   unfold Generated.CnotSelfInverse.ops
@@ -282,7 +303,7 @@ theorem parseQasmSource_cnot_eq_parseLines_generated :
 
 /-- Exact on-disk CNOT kernel artifact (OPENQASM header, include, qubit register, two CX lines). -/
 def cnotKernelArtifactSource : String :=
-  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[0], q[1];\ncx q[0], q[1];"
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[0], q[1];\ncx q[0], q[1];\n"
 
 def gateLinesFromSource (source : String) : List String :=
   filterGateLines (source.splitOn "\n" |>.map (·.trimRight))
@@ -316,6 +337,19 @@ theorem parseQasmSource_cnot_kernel_gate_count :
     ∃ ast, parseQasmSource cnotKernelArtifactSource = some ast ∧ ast.gates.length = 2 := by
   native_decide
 
+theorem parseQasmSource_cnot_canonical_gate_list :
+    (parseQasmSource cnotKernelArtifactSource).map canonicalAstToGateList =
+      some [("cx", [0, 1]), ("cx", [0, 1])] := by native_decide
+
+/-- End-to-end: artifact parse yields codegen ops and self-inverse denotation holds. -/
+theorem bridge_cnot_artifact_parse_eq_codegen (i j : Fin 4) :
+    parseQasmSourceToOps cnotKernelArtifactSource = some Generated.CnotSelfInverse.ops ∧
+    denotateOps2 Generated.CnotSelfInverse.ops i j = id4 i j := by
+  constructor
+  · exact parseQasmSource_cnot_kernel_eq_generated_ops
+  · rw [OpenQASM3.cnot_codegen_ops_eq_hand_trace]
+    exact OpenQASM3.bridge_cnot_self_inverse i j
+
 /-- H-X-H artifact gate lines match codegen trace. -/
 theorem parseLines_hxh_eq_generated_ops :
     parseLines ["h q[0];", "x q[0];", "h q[0];"] = Generated.HadamardConjugatesXToZ.ops := by
@@ -342,7 +376,7 @@ theorem parseLines_swap_eq_swap_codegen_ops :
 
 /-- Exact on-disk Bell kernel artifact (OPENQASM header, include, qubit register, H + CX). -/
 def bellKernelArtifactSource : String :=
-  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\nh q[0];\ncx q[0], q[1];"
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\nh q[0];\ncx q[0], q[1];\n"
 
 def bellKernelGateLines : List String :=
   ["h q[0];", "cx q[0], q[1];"]
@@ -365,7 +399,7 @@ theorem parseQasmSource_bell_kernel_is_some :
 
 /-- Exact on-disk three-CX SWAP kernel artifact. -/
 def swapKernelArtifactSource : String :=
-  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[0], q[1];\ncx q[1], q[0];\ncx q[0], q[1];"
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\ncx q[0], q[1];\ncx q[1], q[0];\ncx q[0], q[1];\n"
 
 def swapKernelGateLines : List String :=
   ["cx q[0], q[1];", "cx q[1], q[0];", "cx q[0], q[1];"]
@@ -387,11 +421,181 @@ theorem parseQasmSource_swap_kernel_eq_generated_ops :
 theorem parseQasmSource_swap_kernel_is_some :
     (parseQasmSource swapKernelArtifactSource).isSome := by native_decide
 
-/-- Toffoli source artifact gate line matches codegen trace. -/
+/-- Exact on-disk H-X-H kernel artifact. -/
+def hxhKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[1] q;\nh q[0];\nx q[0];\nh q[0];\n"
+
+def hxhKernelGateLines : List String :=
+  ["h q[0];", "x q[0];", "h q[0];"]
+
+theorem hxhKernelGateLines_eq :
+    hxhKernelGateLines = ["h q[0];", "x q[0];", "h q[0];"] := rfl
+
+theorem gateLinesFromSource_hxh :
+    filterGateLines (hxhKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = hxhKernelGateLines := by
+  native_decide
+
+theorem parseQasmSource_hxh_kernel_eq_generated_ops :
+    parseQasmSourceToOps hxhKernelArtifactSource = some Generated.HadamardConjugatesXToZ.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_hxh, hxhKernelGateLines_eq, parseLines_hxh_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_hxh_kernel_is_some :
+    (parseQasmSource hxhKernelArtifactSource).isSome := by native_decide
+
+/-- Exact on-disk H-H cancellation kernel artifact. -/
+def hhKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[1] q;\nh q[0];\nh q[0];\n"
+
+def hhKernelGateLines : List String :=
+  ["h q[0];", "h q[0];"]
+
+theorem hhKernelGateLines_eq :
+    hhKernelGateLines = ["h q[0];", "h q[0];"] := rfl
+
+theorem gateLinesFromSource_hh :
+    filterGateLines (hhKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = hhKernelGateLines := by
+  native_decide
+
+theorem parseQasmSource_hh_kernel_eq_generated_ops :
+    parseQasmSourceToOps hhKernelArtifactSource = some Generated.SingleQubitGateCancellation.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_hh, hhKernelGateLines_eq, parseLines_hh_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_hh_kernel_is_some :
+    (parseQasmSource hhKernelArtifactSource).isSome := by native_decide
+
+/-- Exact on-disk Toffoli source kernel artifact (single CCX line). -/
+def toffoliKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[3] q;\nccx q[0], q[1], q[2];\n"
+
+def toffoliKernelGateLines : List String :=
+  ["ccx q[0], q[1], q[2];"]
+
+theorem toffoliKernelGateLines_eq :
+    toffoliKernelGateLines = ["ccx q[0], q[1], q[2];"] := rfl
+
 theorem parseLines_toffoli_eq_generated_ops :
     parseLines ["ccx q[0], q[1], q[2];"] = Generated.ToffoliDecompositionEquivalence.ops := by
   unfold Generated.ToffoliDecompositionEquivalence.ops
   simp [parseLines, parseLineQasmOp_toffoli_ccx]
+
+theorem gateLinesFromSource_toffoli :
+    filterGateLines (toffoliKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = toffoliKernelGateLines := by
+  native_decide
+
+theorem parseQasmSource_toffoli_kernel_eq_generated_ops :
+    parseQasmSourceToOps toffoliKernelArtifactSource = some Generated.ToffoliDecompositionEquivalence.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_toffoli, toffoliKernelGateLines_eq, parseLines_toffoli_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_toffoli_kernel_is_some :
+    (parseQasmSource toffoliKernelArtifactSource).isSome := by native_decide
+
+/-- Exact on-disk Toffoli decomposition target artifact (H/T/Tdg/CX sequence). -/
+def toffoliTargetKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[3] q;\nh q[2];\ncx q[1], q[2];\ntdg q[2];\ncx q[0], q[2];\nt q[2];\ncx q[1], q[2];\ntdg q[2];\ncx q[0], q[2];\nt q[2];\nt q[1];\nh q[2];\ncx q[0], q[1];\nt q[0];\ntdg q[1];\ncx q[0], q[1];\n"
+
+def toffoliTargetKernelGateLines : List String :=
+  ["h q[2];", "cx q[1], q[2];", "tdg q[2];", "cx q[0], q[2];", "t q[2];",
+   "cx q[1], q[2];", "tdg q[2];", "cx q[0], q[2];", "t q[2];", "t q[1];",
+   "h q[2];", "cx q[0], q[1];", "t q[0];", "tdg q[1];", "cx q[0], q[1];"]
+
+theorem gateLinesFromSource_toffoli_target :
+    filterGateLines (toffoliTargetKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) =
+      toffoliTargetKernelGateLines := by native_decide
+
+theorem parseGateLine_t : parseGateLine "t q[2];" = some (.gate .T 2) := by native_decide
+
+theorem parseGateLine_tdg : parseGateLine "tdg q[2];" = some (.gate .Tdg 2) := by native_decide
+
+theorem parseGateLine_h2 : parseGateLine "h q[2];" = some (.gate .H 2) := by native_decide
+
+theorem parseGateLine_t0 : parseGateLine "t q[0];" = some (.gate .T 0) := by native_decide
+
+theorem parseGateLine_t1 : parseGateLine "t q[1];" = some (.gate .T 1) := by native_decide
+
+theorem parseGateLine_tdg1 : parseGateLine "tdg q[1];" = some (.gate .Tdg 1) := by native_decide
+
+theorem parseGateLine_cx02 : parseGateLine "cx q[0], q[2];" = some (.cx 0 2) := by native_decide
+
+theorem parseGateLine_cx12 : parseGateLine "cx q[1], q[2];" = some (.cx 1 2) := by native_decide
+
+theorem parseLineQasmOp_h2 : parseLineQasmOp "h q[2];" = some (.gate .H 2) := by
+  simp [parseLineQasmOp, parseGateLine_h2]
+
+theorem parseLineQasmOp_cx12 : parseLineQasmOp "cx q[1], q[2];" = some (.cx 1 2) := by
+  simp [parseLineQasmOp, parseGateLine_cx12]
+
+theorem parseLineQasmOp_tdg2 : parseLineQasmOp "tdg q[2];" = some (.gate .Tdg 2) := by
+  simp [parseLineQasmOp, parseGateLine_tdg]
+
+theorem parseLineQasmOp_cx02 : parseLineQasmOp "cx q[0], q[2];" = some (.cx 0 2) := by
+  simp [parseLineQasmOp, parseGateLine_cx02]
+
+theorem parseLineQasmOp_t2 : parseLineQasmOp "t q[2];" = some (.gate .T 2) := by
+  simp [parseLineQasmOp, parseGateLine_t]
+
+theorem parseLineQasmOp_t1 : parseLineQasmOp "t q[1];" = some (.gate .T 1) := by
+  simp [parseLineQasmOp, parseGateLine_t1]
+
+theorem parseLineQasmOp_cx01 : parseLineQasmOp "cx q[0], q[1];" = some (.cx 0 1) := by
+  simp [parseLineQasmOp, parseGateLine_bell_cx]
+
+theorem parseLineQasmOp_t0 : parseLineQasmOp "t q[0];" = some (.gate .T 0) := by
+  simp [parseLineQasmOp, parseGateLine_t0]
+
+theorem parseLineQasmOp_tdg1 : parseLineQasmOp "tdg q[1];" = some (.gate .Tdg 1) := by
+  simp [parseLineQasmOp, parseGateLine_tdg1]
+
+theorem parseLines_toffoli_target_eq_generated_ops :
+    parseLines toffoliTargetKernelGateLines = Generated.ToffoliDecompositionEquivalenceTarget.ops := by
+  unfold Generated.ToffoliDecompositionEquivalenceTarget.ops toffoliTargetKernelGateLines
+  simp [parseLines, parseLineQasmOp_h2, parseLineQasmOp_cx12, parseLineQasmOp_tdg2, parseLineQasmOp_cx02,
+    parseLineQasmOp_t2, parseLineQasmOp_t1, parseLineQasmOp_cx01, parseLineQasmOp_t0, parseLineQasmOp_tdg1]
+
+theorem parseQasmSource_toffoli_target_kernel_eq_generated_ops :
+    parseQasmSourceToOps toffoliTargetKernelArtifactSource =
+      some Generated.ToffoliDecompositionEquivalenceTarget.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_toffoli_target, parseLines_toffoli_target_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_toffoli_target_kernel_is_some :
+    (parseQasmSource toffoliTargetKernelArtifactSource).isSome := by native_decide
+
+/-- Exact on-disk layout-identity source kernel artifact (H + CX on q[0], q[1]). -/
+def layoutKernelArtifactSource : String :=
+  "OPENQASM 3.0;\ninclude \"stdgates.inc\";\nqubit[2] q;\nh q[0];\ncx q[0], q[1];\n"
+
+def layoutKernelGateLines : List String :=
+  ["h q[0];", "cx q[0], q[1];"]
+
+theorem layoutKernelGateLines_eq :
+    layoutKernelGateLines = ["h q[0];", "cx q[0], q[1];"] := rfl
+
+theorem gateLinesFromSource_layout :
+    filterGateLines (layoutKernelArtifactSource.splitOn "\n" |>.map (·.trimRight)) = layoutKernelGateLines := by
+  native_decide
+
+theorem parseQasmSource_layout_kernel_eq_generated_ops :
+    parseQasmSourceToOps layoutKernelArtifactSource = some Generated.CircuitIdentityAfterLayout.ops := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromSource_layout, layoutKernelGateLines_eq, parseLines_layout_eq_generated_ops]
+  rfl
+
+theorem parseQasmSource_layout_kernel_is_some :
+    (parseQasmSource layoutKernelArtifactSource).isSome := by native_decide
+
+theorem bridge_layout_artifact_parse_eq_codegen (i j : Fin 4) :
+    parseQasmSourceToOps layoutKernelArtifactSource = some Generated.CircuitIdentityAfterLayout.ops ∧
+    denotateOps2 Generated.CircuitIdentityAfterLayout.ops i j = layoutIdentityMatrix i j := by
+  constructor
+  · exact parseQasmSource_layout_kernel_eq_generated_ops
+  · exact denotateOps2_layout_identity i j
 
 example : parseGateLine "h q[0];" = some (.gate .H 0) := by native_decide
 example : parseGateLine "cx q[0], q[1];" = some (.cx 0 1) := by native_decide
@@ -400,9 +604,17 @@ example : parseGateLine "x q[0];" = some (.gate .X 0) := by native_decide
 example : parseGateLine "ccx q[0], q[1], q[2];" = some (.ccx 0 1 2) := by native_decide
 
 #check parseQasmSource
+#check canonicalAstToGateList
+#check bridge_cnot_artifact_parse_eq_codegen
 #check parseQasmSource_bell_kernel_eq_generated_ops
 #check parseQasmSource_swap_kernel_eq_generated_ops
 #check parseQasmSource_cnot_kernel_eq_generated_ops
+#check parseQasmSource_hxh_kernel_eq_generated_ops
+#check parseQasmSource_hh_kernel_eq_generated_ops
+#check parseQasmSource_toffoli_kernel_eq_generated_ops
+#check parseQasmSource_layout_kernel_eq_generated_ops
+#check bridge_layout_artifact_parse_eq_codegen
+#check parseQasmSource_toffoli_target_kernel_eq_generated_ops
 #check parseGateLine
 #check canonicalAstFromLines
 #check parseLines_bell_eq_generated_ops
