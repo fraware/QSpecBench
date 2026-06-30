@@ -30,12 +30,12 @@ def test_claim_diff_reports_gap():
     assert "b" in report
 
 
-def test_cnot_reference_claim_validates():
+def test_cnot_artifact_bound_validates():
     claim = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation"
     results = validate_path(claim)
     assert results and results[0].ok
     spec = yaml.safe_load((claim / "spec.yaml").read_text(encoding="utf-8"))
-    assert spec["status"]["maturity"] == "reference_claim"
+    assert spec["status"]["maturity"] == "artifact_bound_reference_claim"
     assert spec["headline_claim_status"]["status"] == "checked"
 
 
