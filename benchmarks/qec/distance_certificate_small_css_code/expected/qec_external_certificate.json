@@ -1,26 +1,42 @@
-{
-  "certificate_version": "0.1-stub",
-  "claim_kind": "minimum_distance",
-  "code_ref": {
-    "benchmark_id": "distance_certificate_small_css_code",
-    "artifact_path": "artifacts/code.json",
-    "artifact_sha256": "90e22de1b076f3405ca29afa85c94a9abd6e46a7502c42f17ad444b73798161c"
-  },
-  "prover": {
-    "name": "qspecbench-stub",
-    "version": "0.1",
-    "method": "schema_only"
-  },
-  "result": {
-    "status": "unknown",
-    "computed_value": null,
-    "declared_parameter": 3
-  },
-  "trust_boundary": {
-    "checked_by": ["json_schema_only"],
-    "assumptions_not_checked": [
-      "prover_correctness",
-      "promotion_to_reference_claim"
-    ]
-  }
-}
+{
+  "certificate_version": "0.2-external",
+  "claim_kind": "minimum_distance",
+  "code_ref": {
+    "benchmark_id": "distance_certificate_small_css_code",
+    "artifact_path": "artifacts/code.json",
+    "artifact_sha256": "90e22de1b076f3405ca29afa85c94a9abd6e46a7502c42f17ad444b73798161c"
+  },
+  "prover": {
+    "name": "qspecbench-qec-verifier",
+    "version": "0.2",
+    "method": "bruteforce_weight_enumeration"
+  },
+  "result": {
+    "status": "proved",
+    "computed_value": 4,
+    "declared_parameter": 3,
+    "witness": {
+      "method": "bruteforce_weight_enumeration",
+      "complete_for": "CSS [[5,1,3]] stub; bruteforce min-weight logical operator on declared stabilizers (single code instance)",
+      "min_distance": 4,
+      "verifier_result_path": "evidence/qec_verifier_result.json",
+      "verifier_result_sha256": "6b8437bc3d89751a740d411e197679bcb79a843da56c67ecacc17823976a7ba8",
+      "proof_artifact_sha256": "6b8437bc3d89751a740d411e197679bcb79a843da56c67ecacc17823976a7ba8"
+    }
+  },
+  "trust_boundary": {
+    "checked_by": [
+      "json_schema_only",
+      "artifact_sha256_linkage",
+      "witness_fields",
+      "verifier_result_sha256",
+      "proof_artifact_sha256"
+    ],
+    "assumptions_not_checked": [
+      "prover_correctness_at_scale",
+      "promotion_to_reference_claim",
+      "true_minimum_distance_proof_beyond_declared_scope"
+    ]
+  }
+}
+
