@@ -6,7 +6,8 @@
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "kernel_checked_codegen_trace",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "artifact_parse_theorem": "parseQasmSource_bell_kernel_eq_generated_ops",
   "gate_set": "openqasm3_1q2q_clifford",
   "bridge_evidence_id": "bridge_verify",
   "qasm_artifact": "artifacts/circuit.qasm",
@@ -23,5 +24,7 @@
   "theorem_identifier_sha256": "d5b06e63a6d1a04ea12ec81b77f5a4d8697f6a97ab171a2e2923af64b6b19c40",
   "theorem_content_sha256": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
   "package_lean_sha256": "c77694903d65b978dbb4ff2f85b8465d92e47d36b454e426658343df8020fd75",
-  "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da"
+  "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
+  "theorem_elaborator_hash": "0857f84b49f7b7d5522811279ba3024dff365f34613a4e9df7f07c03c0cbf202",
+  "lean_ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635"
 }
