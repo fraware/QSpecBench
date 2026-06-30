@@ -285,6 +285,24 @@ def bridge_codegen_cmd(
     raise typer.Exit(code=1)
 
 
+@app.command("bridge-metadata")
+def bridge_metadata_cmd(
+    action: str = typer.Argument(..., help="verify"),
+) -> None:
+    """Verify Lean BridgeMetadata pins against bridge_theorem_manifest.json."""
+    from qspecbench.bridge_metadata import verify_all_kernel_bridge_metadata
+
+    if action != "verify":
+        console.print(f"[red]Unknown action {action!r}; use verify[/red]")
+        raise typer.Exit(code=1)
+    errors = verify_all_kernel_bridge_metadata()
+    if errors:
+        for err in errors:
+            console.print(f"[red]FAIL[/red] {err}")
+        raise typer.Exit(code=1)
+    console.print("[green]OK[/green] all kernel BridgeMetadata pins match manifest")
+
+
 @app.command("release-bundle")
 def release_bundle_cmd(
     target: Path = typer.Argument(..., help="Benchmarks root"),
