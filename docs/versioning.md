@@ -8,7 +8,7 @@ others. Conflating them is how an evidence format starts to overclaim.
 | Schema | `qspecbench_version` in each `spec.yaml`; `schema/qspecbench.schema.json` | `0.2` | The structure of a benchmark specification (fields, enums, validation contract). |
 | Tooling | `qspecbench` CLI (`pyproject.toml`), `tools/qspecbench/__init__.py`, Lean lib (`lean/lakefile.lean`) | `0.2.0` | The validators, dashboard generator, bridge checker, and Lean proof library. |
 | Corpus | the benchmark suite under `benchmarks/` | `0.2.0` | The collection of benchmarks and the evidence actually attached to them. |
-| Release tag | git tag | `v0.2.1` | A tagged snapshot of schema + tooling + corpus together. |
+| Release tag | git tag | `v0.2.2` | A tagged snapshot of schema + tooling + corpus together. |
 
 ## Why separate versions
 
@@ -55,12 +55,29 @@ See [versioning.md](versioning.md) for the corpus gate checklist and [status.md]
 | Criterion | Target | Status | Footnote |
 |-----------|--------|--------|----------|
 | `reference_claim` benchmarks | ≥ 8 across ≥ 3 tracks | **Met** (8 total: 6 equivalence/algorithms, 1 Hamiltonian, 1 QFT pair) | QEC bit-flip remains `reference_scaffold` with narrowed headline (decoder assumed) |
-| Manifest-checked theorem bindings | ? 5 equivalence/algorithm entries | **Met** (11 manifest bridges) | Distinct from kernel-checked codegen-trace bridges (5; see `kernel_checked_codegen_trace`) |
+| Manifest-checked theorem bindings | ≥ 5 equivalence/algorithm entries | **Met** (11 manifest bridges) | Distinct from kernel-checked codegen-trace bridges (6; see `kernel_checked_codegen_trace`) |
 | QEC correction claims checked | ≥ 1 small code with logical-preservation validator | **Met** | `three_qubit_bit_flip_code_corrects_one_x`: tables + brute-force preservation; decoder algorithm assumed |
 | Provenance wired | All file-backed artifacts in `spec.yaml` `provenance` | **Met** | Drift fails validation |
 
 **Not claimed at v0.2.0 tag:** QEC `reference_claim` with proved decoder; full OpenQASM3 / dynamic semantics.
-**Working tree (post-v0.2.1):** six kernel-checked codegen-trace bridges (`kernel_checked_codegen_trace`; codegen AST hash chain + kernel proofs); Lean `BridgeMetadata` pins for all six; CI run [28395530818](https://github.com/QSpecBench/QSpecBench/actions/runs/28395530818) on tag `v0.2.1` (commit `278119a`).
+**Working tree (post-v0.2.2):** six kernel-checked codegen-trace bridges (`kernel_checked_codegen_trace`; codegen AST hash chain + kernel proofs); Lean `BridgeMetadata` pins for all six; tag `v0.2.2` (commit `e5ee749`).
+
+## v0.2.2 release notes (2026-06-29)
+
+Tag **`v0.2.2`** (`e5ee749`) is a documentation and middle-tier engineering milestone on top of v0.2.1.
+
+**Scope (honest):**
+
+- Six **kernel-checked codegen-trace** bridges with `parseQasmSource` artifact binding pilot (CNOT byte chain)
+- `qspecbench bridge-metadata verify` CLI + CI gate
+- `theorem_source_statement_hash` remains **syntactic only** (not elaborator export); v0.3 adds `theorem_elaborator_hash`
+- CNOT `artifact_bound_reference_claim` pilot promotion path documented in GOVERNANCE.md
+
+**Not claimed at v0.2.2:**
+
+- Full `kernel_checked_artifact_semantics` label on all six bridges (Phase 2)
+- Elaborator/type hash as primary theorem authority (Phase 3 / v0.3.0)
+- QEC `reference_claim` with proved decoder
 
 ## v0.2.1 release notes (2026-06-29)
 
@@ -89,7 +106,7 @@ Suggested thresholds before bumping to `0.3.0`:
 
 | Criterion | Target |
 |-----------|--------|
-| Kernel-checked codegen-trace bridges | ? 1 with codegen AST hash chain + kernel proof | **Met in working tree** (5 bridges) |
+| Kernel-checked codegen-trace bridges | ≥ 1 with codegen AST hash chain + kernel proof | **Met in working tree** (6 bridges) |
 | QEC `reference_claim` | ≥ 1 with decoder correctness checked, not assumed |
 | Teleportation or major protocol | ≥ 1 `reference_claim` with relational semantics |
 
