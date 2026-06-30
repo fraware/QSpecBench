@@ -80,8 +80,8 @@ def test_cnot_gold_chain_artifact_to_readonly_verify():
     assert entry.get("generated_lean_sha256") == result["generated_lean_sha256"]
 
     bridge = json.loads((CNOT_DIR / "expected" / "semantic_bridge.json").read_text(encoding="utf-8"))
-    assert bridge["claimed_link"] == "kernel_checked_codegen_trace"
-    assert bridge.get("theorem_content_sha256") == content_hash
+    assert bridge["claimed_link"] == "kernel_checked_artifact_semantics"
+    assert bridge.get("artifact_parse_theorem") == "parseQasmSource_cnot_kernel_eq_generated_ops"
 
     prov = json.loads((CNOT_DIR / "expected" / "provenance.json").read_text(encoding="utf-8"))
     prov_entry = next(a for a in prov["artifacts"] if a["path"] == "artifacts/source.qasm")
@@ -135,11 +135,12 @@ def test_cnot_evidence_compiles_and_passes_checks():
     assert results["lean_cnot_proof"].ok, results["lean_cnot_proof"].errors
 
 
-def test_cnot_semantic_bridge_kernel_checked_codegen_trace():
+def test_cnot_semantic_bridge_kernel_checked_artifact_semantics():
     import json
 
     bridge = json.loads((CNOT_DIR / "expected" / "semantic_bridge.json").read_text(encoding="utf-8"))
-    assert bridge["claimed_link"] == "kernel_checked_codegen_trace"
+    assert bridge["claimed_link"] == "kernel_checked_artifact_semantics"
+    assert bridge.get("wire_order_bridge_theorem") == "cnot_wire_order_models_agree_on_two_qubits"
     assert bridge.get("wire_order", {}).get("model")
     assert bridge.get("theorem_identifier_sha256")
     assert bridge.get("theorem_content_sha256")
