@@ -7,7 +7,7 @@ evidence supports it.
 > **Current corpus (v0.2):** ten bridges use `manifest_checked_theorem_binding`
 > (manifest + theorem reference + hash anchors, **not** full artifact semantics).
 > Three bridges use `python_denotation_consistency` (Python matrix vs denotation model only).
-> Five bridges use `kernel_checked_codegen_trace` (codegen trace + kernel proof + hash chain).
+> Six bridges use `kernel_checked_codegen_trace` (codegen trace + kernel proof + hash chain).
 > The legacy label `kernel_checked_artifact_semantics` is accepted only when the Lean theorem
 > imports a generated `QSpecBench.Generated.*.ops` module.
 
@@ -64,4 +64,4 @@ The validator requires **exact** anchor field matches and an **exact** `#check` 
 - `documented_not_proved`: scaffold theorem; QCEC/SAT may narrow practical gap but do not upgrade the link.
 - `python_denotation_consistency`: Python-side matrix consistency only; set when `verify-bridge` passes.
 - `manifest_checked_theorem_binding`: manifest entry + hashes + anchor; still not full semantic proof.
-- `kernel_checked_artifact_semantics`: five bridges (`cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`, `bell_state_preparation`, `swap_from_three_cx`).
+- `kernel_checked_artifact_semantics`: six bridges (`cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`, `bell_state_preparation`, `swap_from_three_cx`, `toffoli_decomposition_equivalence`).
