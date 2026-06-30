@@ -68,8 +68,9 @@ in both review blocks before the headline claim is considered governance-complet
 - `status.reviews.formal_evidence_review.reviewer` — non-empty, not `maintainer-bootstrap`
 - `status.reviews.domain_semantics_review.reviewer` — non-empty, not `maintainer-bootstrap`
 
-`qspecbench validate` emits a **warning** (not a hard failure) when these fields are missing on
-`reference_claim` ai_formalization benchmarks. Promotions should resolve warnings before merge.
+`qspecbench validate` **hard-fails** `reference_claim` on the `ai_formalization` track when either
+review block lacks a named non-bootstrap reviewer. Enforcement effective from corpus **v0.2.2**
+(tag `e5ee749`). Optional `review_artifact_sha256` on review blocks records signed review bundles.
 
 ### Coq / Rocq / Isabelle second-assistant track
 
@@ -93,23 +94,21 @@ correction evidence** for `reference_claim`. An assumed decoder/lookup table sup
 
 ### `artifact_bound_reference_claim` (reserved tier — schema only)
 
-This maturity tier is defined in schema v0.2 but **not assigned to any benchmark** until a pilot
-promotion completes the checklist below. Do not set `status.maturity: artifact_bound_reference_claim`
-without meeting every requirement; `qspecbench validate` fails closed.
+This maturity tier is defined in schema v0.2. The pilot benchmark
+`cnot_self_inverse_cancellation` is promoted when the checklist below is satisfied.
+Do not set `status.maturity: artifact_bound_reference_claim` without meeting every requirement;
+`qspecbench validate` fails closed (including `qspecbench bridge-metadata verify` for BridgeMetadata pins).
 
 **Promotion checklist (all required):**
 
 1. Dual review — both `formal_evidence_review` and `domain_semantics_review` at `approved` with named non-bootstrap reviewers
 2. `headline_claim_status.status: checked` with honest `checked_under` / `not_checked_under`
 3. `proved_scope.unproved_obligations` empty
-4. `semantic_bridge.claimed_link: kernel_checked_codegen_trace` with anchors:
+4. `semantic_bridge.claimed_link: kernel_checked_codegen_trace` or `kernel_checked_artifact_semantics` with anchors:
    - `artifact_sha256`, `gate_trace_sha256`, `ast_sha256`, `generated_lean_sha256`
    - `theorem_identifier_sha256`, `theorem_source_statement_hash`
 5. Passing `bridge_verify` evidence and matching Lean `BridgeMetadata` pins (manifest-sourced hashes)
 6. README claim card documents artifact hash binding and checker chain
-
-Pilot candidate: `cnot_self_inverse_cancellation` (comment block in `spec.yaml`; not promoted yet).
-
 
 ## Schema changes
 
@@ -122,4 +121,4 @@ Breaking schema changes require a version bump and migration notes in `docs/sche
 Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
 and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).
 
-**Current release:** tag `v0.2.1` (commit `278119a`); CI gate [run 28395530818](https://github.com/QSpecBench/QSpecBench/actions/runs/28395530818).
+**Current release:** tag `v0.2.2` (commit `e5ee749`); six kernel-checked codegen-trace bridges with Lean `BridgeMetadata` pins.
