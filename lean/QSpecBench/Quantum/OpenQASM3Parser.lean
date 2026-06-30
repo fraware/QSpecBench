@@ -615,6 +615,15 @@ example : parseGateLine "ccx q[0], q[1], q[2];" = some (.ccx 0 1 2) := by native
 #check parseQasmSource_layout_kernel_eq_generated_ops
 #check bridge_layout_artifact_parse_eq_codegen
 #check parseQasmSource_toffoli_target_kernel_eq_generated_ops
+
+/-- C2 scoped pair bridge: source CCX denotation + target decomposition trace kernel-pinned. -/
+theorem bridge_toffoli_ccx_eq_target_decomposition :
+    (∀ i j : Fin 8, denotateOps3 Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j) ∧
+      parseQasmSourceToOps toffoliTargetKernelArtifactSource =
+        some Generated.ToffoliDecompositionEquivalenceTarget.ops := by
+  refine ⟨fun i j => bridge_toffoli_codegen_ccx i j, parseQasmSource_toffoli_target_kernel_eq_generated_ops⟩
+
+#check bridge_toffoli_ccx_eq_target_decomposition
 #check parseGateLine
 #check canonicalAstFromLines
 #check parseLines_bell_eq_generated_ops
