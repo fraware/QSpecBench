@@ -316,10 +316,17 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
     from qspecbench.bridge_codegen import (
         GENERATED_MODULE_MAP,
         KERNEL_CHECKED_LINK,
+        KERNEL_BRIDGE_IDS,
+        LEAN_AST_SHA256_FIELD,
         LEGACY_KERNEL_CHECKED_LINK,
+        THEOREM_ELABORATOR_HASH_FIELD,
+        THEOREM_SOURCE_HASH_FIELD,
         kernel_checked_theorem_name,
+        lean_ast_sha256_for_benchmark,
         read_theorem_source_hash,
+        theorem_elaborator_hash,
         theorem_source_statement_hash,
+        verify_kernel_artifact_semantics_bridge,
         verify_kernel_checked_entry,
     )
 
@@ -365,15 +372,41 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
     elif content_hash and not bridge_hash:
         errors.append("semantic_bridge missing theorem_source_statement_hash for kernel-checked bridge")
 
+    expected_elab = theorem_elaborator_hash(benchmark_id)
+    bridge_elab = bridge.get(THEOREM_ELABORATOR_HASH_FIELD)
+    if expected_elab:
+        if not bridge_elab:
+            errors.append(
+                f"semantic_bridge missing {THEOREM_ELABORATOR_HASH_FIELD} for kernel-checked bridge"
+            )
+        elif bridge_elab != expected_elab:
+            errors.append(f"semantic_bridge {THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
+
+    if benchmark_id in KERNEL_BRIDGE_IDS:
+        expected_lean_ast = lean_ast_sha256_for_benchmark(benchmark_id)
+        bridge_lean_ast = bridge.get(LEAN_AST_SHA256_FIELD)
+        if expected_lean_ast:
+            if not bridge_lean_ast:
+                errors.append(f"semantic_bridge missing {LEAN_AST_SHA256_FIELD} for {benchmark_id}")
+            elif bridge_lean_ast != expected_lean_ast:
+                errors.append(f"semantic_bridge {LEAN_AST_SHA256_FIELD} drift for {benchmark_id}")
+            bridge_ast = bridge.get("ast_sha256")
+            if bridge_ast and bridge_lean_ast and bridge_lean_ast != bridge_ast:
+                errors.append(
+                    f"semantic_bridge {LEAN_AST_SHA256_FIELD} != ast_sha256 for {benchmark_id}"
+                )
+
     claimed = bridge.get("claimed_link")
     module_name = GENERATED_MODULE_MAP.get(benchmark_id)
     if claimed == LEGACY_KERNEL_CHECKED_LINK:
+        parser_lean = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3Parser.lean"
         if not module_name:
             errors.append(
                 f"{LEGACY_KERNEL_CHECKED_LINK} requires generated module for {benchmark_id!r}"
             )
         else:
             openqasm3 = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3.lean"
+            parser_lean = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3Parser.lean"
             if openqasm3.is_file():
                 text = openqasm3.read_text(encoding="utf-8")
                 import_line = f"import QSpecBench.Generated.{module_name}"
@@ -383,6 +416,28 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
                         f"{LEGACY_KERNEL_CHECKED_LINK} requires OpenQASM3 theorem to import "
                         f"and use QSpecBench.Generated.{module_name}.ops"
                     )
+        from qspecbench.bridge_codegen import ARTIFACT_PARSE_THEOREM_MAP
+
+        expected_parse = ARTIFACT_PARSE_THEOREM_MAP.get(benchmark_id)
+        bridge_parse = bridge.get("artifact_parse_theorem")
+        if not expected_parse:
+            errors.append(
+                f"{LEGACY_KERNEL_CHECKED_LINK} benchmark {benchmark_id!r} missing parse theorem map"
+            )
+        elif not bridge_parse:
+            errors.append(
+                f"artifact_parse_theorem is required for {LEGACY_KERNEL_CHECKED_LINK} ({benchmark_id})"
+            )
+        elif bridge_parse != expected_parse:
+            errors.append(
+                f"artifact_parse_theorem must be {expected_parse!r}, got {bridge_parse!r}"
+            )
+        elif parser_lean.is_file():
+            parser_text = parser_lean.read_text(encoding="utf-8")
+            if f"theorem {expected_parse}" not in parser_text:
+                errors.append(
+                    f"artifact parse theorem {expected_parse!r} not found in OpenQASM3Parser.lean"
+                )
     if claimed == KERNEL_CHECKED_LINK and module_name is None:
         errors.append(f"{KERNEL_CHECKED_LINK} benchmark {benchmark_id!r} missing generated module map")
 
