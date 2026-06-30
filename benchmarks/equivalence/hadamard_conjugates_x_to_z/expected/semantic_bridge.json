@@ -6,7 +6,8 @@
     "hadamard": "unnormalized_int_model",
     "qasm_factor": "1/sqrt(2) per gate"
   },
-  "claimed_link": "kernel_checked_codegen_trace",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "artifact_parse_theorem": "parseQasmSource_hxh_kernel_eq_generated_ops",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
   "qasm_artifact": "artifacts/source.qasm",
   "artifact_sha256": "1acd5d4a1200d4ab90a0f886c784c64d313cf4e3e9bb3304ca9f32349ed9ae78",
@@ -21,5 +22,7 @@
   "theorem_identifier_sha256": "cb0ae0d2ef85d9df73c5005dad812d9466e47addbf96dde3f4901ecf8f98377c",
   "theorem_content_sha256": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
   "package_lean_sha256": "28ef8142b64fb8228df08717469ef12cbe0bbeb31a745bdeb58f0a5c34d97729",
-  "theorem_source_statement_hash": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae"
+  "theorem_source_statement_hash": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
+  "theorem_elaborator_hash": "d19b731099df836f7b6e3387306fa0d82a85a57658dbb7e2fe50dd4fbfda1e30",
+  "lean_ast_sha256": "20ba11fb108eb7d9fd66258197818165202009cf9a8ddaf1534b7627320c131f"
 }
