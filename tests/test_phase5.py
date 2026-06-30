@@ -2,14 +2,28 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from fractions import Fraction
 from pathlib import Path
 
-import hashlib
+import pytest
 import yaml
 
-from qspecbench.bridge_codegen import ast_sha256, build_canonical_ast
+from qspecbench import RELEASE_TAG
+from qspecbench.bridge_codegen import (
+    ARTIFACT_PARSE_THEOREM_MAP,
+    KERNEL_ARTIFACT_SOURCE_DEF,
+    KERNEL_BRIDGE_IDS,
+    LEAN_AST_SHA256_FIELD,
+    ast_sha256,
+    build_canonical_ast,
+    build_lean_mirror_canonical_ast,
+    extract_lean_kernel_artifact_source,
+    lean_ast_sha256_for_benchmark,
+    lean_kernel_artifact_source_bytes,
+    lean_mirror_parse_gate_line,
+)
 from qspecbench.dynamic_simulation_evidence import (
     attach_fingerprint,
     regenerate_dynamic_simulation_report,
@@ -183,46 +197,8 @@ def test_lean_parser_stub_file_exists():
 
 
 def _lean_mirror_parse_gate_line(line: str) -> dict[str, object] | None:
-    """Mirror Lean ``OpenQASM3Parser.parseGateLine`` for cross-check tests."""
-    s = line.strip().rstrip(";").strip()
-    if not s or s.startswith("//") or s.lower().startswith("openqasm"):
-        return None
-    if s.lower().startswith("include"):
-        return None
-
-    def _qubit(tok: str) -> int | None:
-        t = tok.strip()
-        if t.startswith("q[") and t.endswith("]"):
-            return int(t[2:-1])
-        if t.startswith("q") and t[1:].isdigit():
-            return int(t[1:])
-        return None
-
-    if s.startswith("h "):
-        q = _qubit(s[2:])
-        return {"op": "h", "qubits": [q]} if q is not None else None
-    if s.startswith("x "):
-        q = _qubit(s[2:])
-        return {"op": "x", "qubits": [q]} if q is not None else None
-    if s.startswith("cx ") or s.startswith("cnot "):
-        rest = s.split(" ", 1)[1]
-        parts = [p.strip() for p in rest.split(",")]
-        if len(parts) != 2:
-            return None
-        c, t = _qubit(parts[0]), _qubit(parts[1])
-        if c is None or t is None:
-            return None
-        return {"op": "cx", "qubits": [c, t]}
-    if s.startswith("ccx "):
-        rest = s.split(" ", 1)[1]
-        parts = [p.strip() for p in rest.split(",")]
-        if len(parts) != 3:
-            return None
-        c0, c1, t = _qubit(parts[0]), _qubit(parts[1]), _qubit(parts[2])
-        if c0 is None or c1 is None or t is None:
-            return None
-        return {"op": "ccx", "qubits": [c0, c1, t]}
-    return None
+    """Delegate to shared Lean mirror parser in bridge_codegen."""
+    return lean_mirror_parse_gate_line(line)
 
 
 KERNEL_CHECKED_QASM = [
@@ -233,6 +209,47 @@ KERNEL_CHECKED_QASM = [
     REPO / "benchmarks" / "algorithms" / "swap_from_three_cx" / "artifacts" / "source.qasm",
     REPO / "benchmarks" / "equivalence" / "toffoli_decomposition_equivalence" / "artifacts" / "source.qasm",
 ]
+
+BENCHMARK_ID_BY_QASM = {
+    "cnot_self_inverse_cancellation": REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation",
+    "hadamard_conjugates_x_to_z": REPO / "benchmarks/equivalence/hadamard_conjugates_x_to_z",
+    "single_qubit_gate_cancellation": REPO / "benchmarks/equivalence/single_qubit_gate_cancellation",
+    "bell_state_preparation": REPO / "benchmarks/algorithms/bell_state_preparation",
+    "swap_from_three_cx": REPO / "benchmarks/algorithms/swap_from_three_cx",
+    "toffoli_decomposition_equivalence": REPO / "benchmarks/equivalence/toffoli_decomposition_equivalence",
+}
+
+
+def test_release_tag_v022():
+    assert RELEASE_TAG == "v0.2.2"
+
+
+def test_cnot_kernel_artifact_source_matches_disk_and_manifest():
+    """sha256(disk) == manifest artifact_sha256 == sha256(cnotKernelArtifactSource)."""
+    claim = BENCHMARK_ID_BY_QASM["cnot_self_inverse_cancellation"]
+    qasm = claim / "artifacts" / "source.qasm"
+    disk = qasm.read_bytes()
+    disk_hash = hashlib.sha256(disk).hexdigest()
+    bridge = json.loads((claim / "expected" / "semantic_bridge.json").read_text(encoding="utf-8"))
+    lean_bytes = lean_kernel_artifact_source_bytes("cnot_self_inverse_cancellation")
+    assert disk_hash == bridge["artifact_sha256"]
+    assert disk_hash == hashlib.sha256(lean_bytes).hexdigest()
+    assert disk == lean_bytes
+
+
+def test_kernel_artifact_byte_chain_all_bridges():
+    """Each kernel bridge: disk bytes match manifest and Lean embedded source."""
+    for benchmark_id, claim in BENCHMARK_ID_BY_QASM.items():
+        bridge = json.loads((claim / "expected" / "semantic_bridge.json").read_text(encoding="utf-8"))
+        qasm_rel = bridge.get("qasm_artifact") or "artifacts/source.qasm"
+        if benchmark_id == "bell_state_preparation":
+            qasm_rel = "artifacts/circuit.qasm"
+        disk = (claim / qasm_rel).read_bytes()
+        disk_hash = hashlib.sha256(disk).hexdigest()
+        lean_bytes = lean_kernel_artifact_source_bytes(benchmark_id)
+        assert disk_hash == bridge["artifact_sha256"], benchmark_id
+        assert disk == lean_bytes, benchmark_id
+        assert bridge.get("artifact_parse_theorem") == ARTIFACT_PARSE_THEOREM_MAP[benchmark_id]
 
 
 def test_lean_parser_gate_lines_match_canonical_ast():
@@ -271,12 +288,20 @@ def test_cnot_kernel_source_matches_artifact_and_codegen_ops():
     assert "qubit[2] q;" in source
     ast = build_canonical_ast(qasm)
     assert ast["gates"] == [{"op": "cx", "qubits": [0, 1]}, {"op": "cx", "qubits": [0, 1]}]
+    lean_source = extract_lean_kernel_artifact_source(KERNEL_ARTIFACT_SOURCE_DEF["cnot_self_inverse_cancellation"])
+    assert lean_source == source
     gate_lines = [
         line
         for line in source.splitlines()
         if line.strip() and not line.strip().startswith(("OPENQASM", "include", "qubit"))
     ]
     assert gate_lines == ["cx q[0], q[1];", "cx q[0], q[1];"]
+    mirror_ops: list[str] = []
+    for raw in source.splitlines():
+        entry = _lean_mirror_parse_gate_line(raw)
+        if entry is not None:
+            mirror_ops.append(str(entry["op"]))
+    assert mirror_ops == [g["op"] for g in ast["gates"]]
 
 
 def test_bell_kernel_source_matches_artifact_and_codegen_ops():
@@ -362,3 +387,38 @@ def test_teleportation_feedforward_artifact_basis_check():
     )
     assert report["artifact_role"] == "supplementary_feedforward"
     assert report["all_ok"] is True
+
+
+@pytest.mark.parametrize(
+    "benchmark_id,qasm_rel,lean_def",
+    [
+        ("cnot_self_inverse_cancellation", "benchmarks/equivalence/cnot_self_inverse_cancellation/artifacts/source.qasm", "cnotKernelArtifactSource"),
+        ("bell_state_preparation", "benchmarks/algorithms/bell_state_preparation/artifacts/circuit.qasm", "bellKernelArtifactSource"),
+        ("swap_from_three_cx", "benchmarks/algorithms/swap_from_three_cx/artifacts/source.qasm", "swapKernelArtifactSource"),
+        ("hadamard_conjugates_x_to_z", "benchmarks/equivalence/hadamard_conjugates_x_to_z/artifacts/source.qasm", "hxhKernelArtifactSource"),
+        ("single_qubit_gate_cancellation", "benchmarks/equivalence/single_qubit_gate_cancellation/artifacts/source.qasm", "hhKernelArtifactSource"),
+        ("toffoli_decomposition_equivalence", "benchmarks/equivalence/toffoli_decomposition_equivalence/artifacts/source.qasm", "toffoliKernelArtifactSource"),
+    ],
+)
+def test_kernel_artifact_byte_sha256_chain(benchmark_id, qasm_rel, lean_def):
+    from qspecbench.bridge_codegen import extract_lean_kernel_artifact_source
+    from qspecbench.bridge_manifest import load_manifest
+
+    qasm = REPO / qasm_rel
+    disk_hash = hashlib.sha256(qasm.read_bytes()).hexdigest()
+    lean_src = extract_lean_kernel_artifact_source(lean_def)
+    lean_hash = hashlib.sha256(lean_src.encode("utf-8")).hexdigest()
+    assert disk_hash == lean_hash, benchmark_id
+    entry = next(e for e in load_manifest()["entries"] if e["benchmark_id"] == benchmark_id)
+    assert entry["artifact_sha256"] == disk_hash
+
+
+@pytest.mark.parametrize("benchmark_id", sorted(KERNEL_BRIDGE_IDS))
+def test_kernel_lean_ast_sha256_matches_python_ast(benchmark_id):
+    from qspecbench.bridge_codegen import KERNEL_ARTIFACT_QASM_REL
+
+    qasm = REPO / KERNEL_ARTIFACT_QASM_REL[benchmark_id]
+    py_ast = build_canonical_ast(qasm)
+    lean_ast = build_lean_mirror_canonical_ast(qasm)
+    assert ast_sha256(py_ast) == ast_sha256(lean_ast), benchmark_id
+    assert lean_ast_sha256_for_benchmark(benchmark_id) == ast_sha256(py_ast)
