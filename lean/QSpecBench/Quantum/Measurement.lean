@@ -142,6 +142,10 @@ theorem measureZ2_state0_post_zero :
   funext i
   fin_cases i <;> simp [measureZ2, postMeasureQ0_2, state0, stateAt2]
 
+/-- Alias: `measureZ2` on computational basis index (Fin 2 scaffold). -/
+def measureZ2_stateAt (k : Fin 2) : MeasureZResult StateVec2 :=
+  measureZ2 (stateAt2 k)
+
 theorem measureZ2_state1_post_one :
     (measureZ2 state1).postOne = state1 := by
   funext i
@@ -221,6 +225,10 @@ theorem measureZ4_state01_branch_weights :
 theorem measureZ4_state00_post_zero :
     (measureZ4 state00 0).postZero = state00 := by
   native_decide
+
+/-- Alias: `measureZ4` on computational basis index at qubit `q`. -/
+def measureZ4_stateAt (k : Fin 4) (q : Nat) : MeasureZResult StateVec4 :=
+  measureZ4 (stateAt k) q
 
 def jointZOutcomeOfIndex (idx : Fin 4) : TwoQubitZOutcome :=
   match idx.val with
@@ -442,6 +450,21 @@ theorem pauli_correction8_I_state000 :
 theorem pauli_correction8_X_syndrome01 :
     applyPauliCorrection8 .zero .one state001 = state101 := by native_decide
 
+theorem pauli_correction8_ZX_syndrome11_sign :
+    applyPauliCorrection8 .one .one state001 ⟨5, by decide⟩ = -1 := by native_decide
+
+def pauliCorrection4Table : List (ZOutcome × ZOutcome × String) :=
+  [(.zero, .zero, "I"), (.zero, .one, "X"), (.one, .zero, "Z"), (.one, .one, "ZX")]
+
+def pauliCorrection8Table : List (ZOutcome × ZOutcome × String) :=
+  pauliCorrection4Table
+
+def teleport_pauli_correction4_table : List (ZOutcome × ZOutcome × String) :=
+  pauliCorrection4Table
+
+def teleport_pauli_correction8_table : List (ZOutcome × ZOutcome × String) :=
+  pauliCorrection8Table
+
 def teleport_pauli_correction_anchor_note : String :=
   "Fin 4/8 basis-state Pauli X/Z on receiver qubit after projective Z measurement; " ++
   "syndrome 01→X, 10→Z anchors teleportation_preserves_state_up_to_pauli_correction evidence."
@@ -499,6 +522,10 @@ theorem measureZ8_state000_post_zero :
     (measureZ8 state000 0).postZero = state000 := by
   native_decide
 
+/-- Alias: `measureZ8` on computational basis index at qubit 0. -/
+def measureZ8_stateAt_q0 (k : Fin 8) : MeasureZResult StateVec8 :=
+  measureZ8 (stateAt8 k) 0
+
 def measureZOutcomeQ (st : StateAmp8) (q : Nat) : ZOutcome :=
   if q = 0 then measureZOutcomeQ0_8 st else .zero
 
@@ -521,6 +548,22 @@ theorem teleport_basis001_lemma_chain :
 theorem measure_state010_q1_one : measureZOutcomeQ state010 1 = .zero := by native_decide
 
 theorem measure_state100_q2_one : measureZOutcomeQ state100 2 = .zero := by native_decide
+
+/-- Fin 4 basis-state D4 chain: |00⟩ measure→0, post-measure→0, identity correction. -/
+theorem teleport_basis_input_transfer_fin4 :
+    measureZOutcomeQ0 state00 = .zero ∧
+      measureZOutcomeQ0 (postMeasureQ0 state00 .zero) = .zero ∧
+      applyPauliCorrection4 .zero .zero state00 = state00 := by
+  exact teleport_basis00_lemma_chain
+
+/-- Fin 2 single-qubit anchor (n=1): basis |0⟩ Z-measure → 0, post-measure preserved. -/
+theorem teleport_basis_input_transfer_fin2 :
+    measureZOutcomeQ0_2 state0 = .zero ∧ postMeasureQ0_2 state0 .zero = state0 := by
+  exact single_qubit_basis0_lemma_chain
+
+def teleportArbitraryStateTransferBlocker : String :=
+  "D5 blocked: relational ∀ψ transfer requires general amplitude normalization lemmas; " ++
+  "only basis-state Fin 2/4/8 chains are kernel-checked."
 
 /-- Grover / teleportation cross-ref: basis-state Z outcomes on `Fin 8` are computable; amplitude lift blocked. -/
 def groverMeasurementCrossRefNote : String :=
