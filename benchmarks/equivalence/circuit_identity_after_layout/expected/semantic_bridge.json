@@ -1,17 +1,25 @@
 {
   "artifact_gate_model": "openqasm3_complex_unitary",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_circuit_identity_after_layout",
+  "lean_theorem": "bridge_circuit_identity_after_layout_codegen",
+  "artifact_parse_theorem": "parseQasmSource_layout_kernel_eq_generated_ops",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "layout": "register_rename_preserves_matrix"
   },
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_codegen_trace",
   "qasm_artifact": "artifacts/source.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
   "artifact_sha256": "ce49d4e871f80cc36e550cadd5559c84fb63af50a0cf3bf29a297d769ce723fa",
   "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f",
+  "ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
+  "generated_lean_sha256": "9e1f89d12c9089d00f55b74ddf9d91d605bf86a79a602dd2c198177b0a3fe558",
+  "package_lean_sha256": "af72b70ffc4333d32279b0239b5e4aee1d0b3d7b605c1ff1f1f3df1b0ace8e4e",
+  "theorem_identifier_sha256": "b51cdf0faa812343f0be7a0f152af4d1deded8dfb2d0be04a51c003075313ead",
+  "theorem_source_statement_hash": "def5cdc47197ab5f3bc0295b7f7f82d7e8f3e88acf9c1dd974eca7fdcffb703f",
+  "theorem_content_sha256": "def5cdc47197ab5f3bc0295b7f7f82d7e8f3e88acf9c1dd974eca7fdcffb703f",
+  "theorem_elaborator_hash": "71e440a21f94f02121ffd080548ea1530a259f8f2f6d4096314e026054a8ac63",
   "wire_order": {
     "model": "legacy_kron_order",
     "checked_against": "both"
