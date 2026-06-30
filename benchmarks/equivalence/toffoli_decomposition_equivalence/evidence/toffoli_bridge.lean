@@ -9,3 +9,4 @@ gate_trace_sha256 = "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d
 -/
 
 #check QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx
+#check QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccxC
