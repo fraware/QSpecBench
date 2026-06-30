@@ -7,8 +7,8 @@ claim_type: error_correction
 difficulty: intermediate
 informal_claim:
   statement: Under the declared single-X Pauli bit-flip error model, the standard lookup-table
-    decoder corrects each single X error with logical preservation verified by brute-force
-    validation (decoder algorithm assumed, not generally proved).
+    decoder corrects each single X error with logical preservation verified by Lean 4 kernel
+    proof and brute-force validation.
   source: null
   reference_key: null
 semantic_level:
@@ -43,7 +43,7 @@ specification:
   - 'code type: stabilizer CSS-style bit-flip code, n=3, k=1'
   - 'error model: Pauli-only, single X error, uncorrelated'
   - 'non-Pauli errors, leakage, correlated errors, measurement errors: out of scope'
-  - 'decoder correctness: assumed (lookup table), not proved'
+  - 'decoder correctness: kernel-checked lookup table (Lean); syndrome extraction circuits out of scope'
   postconditions:
   - logical state preserved up to Pauli frame after correction
   invariants:
@@ -69,8 +69,7 @@ assumptions:
   tool: []
   artifact:
   - syndrome/correction tables match standard bit-flip lookup
-  unverified:
-  - decoder implementation correctness
+  unverified: []
 acceptable_evidence:
 - type: qec_verifier_result
   checker: qec json validator
@@ -102,6 +101,12 @@ evidence:
   checker: Lean 4 kernel
   status: passing
   notes: Kernel-checked bit-flip stabilizer commutation via QSpecBench.Stabilizer.
+- id: lean_bit_flip_decoder
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Kernel-checked lookup-table decoder; single-X errors map to stabilizer-group residuals.
 - id: error_model_json
   type: qec_verifier_result
   path: artifacts/error_model.json
@@ -113,6 +118,7 @@ trust_boundary:
   checked_by:
   - stabilizer code JSON schema validation with commutation checks
   - Lean 4 kernel proof of stabilizer commutation
+  - Lean 4 kernel proof of lookup-table decoder correctness (single-X model)
   - QEC validator syndrome/correction table alignment and logical-preservation brute
     force
   trusted_kernels:
@@ -121,7 +127,7 @@ trust_boundary:
   untrusted_components:
   - syndrome extraction circuit semantics (out of scope)
   assumptions_not_checked:
-  - decoder algorithm beyond declared lookup tables
+  - syndrome extraction circuit semantics
   - repeated-round fault tolerance
 status:
   informal_claim: complete
@@ -135,7 +141,7 @@ status:
       status: approved
       reviewer: maintainer-bootstrap
       date: '2026-06-27'
-      notes: Lookup-table decoder scope honestly labeled; brute-force preservation checked.
+      notes: Lookup-table decoder kernel-checked in Lean; brute-force preservation checked.
     domain_semantics_review:
       status: approved
       reviewer: maintainer-bootstrap
@@ -146,7 +152,7 @@ qec_status:
   stabilizer_commutation: complete
   distance_claim: assumed
   syndrome_extraction: draft
-  decoder_claim: assumed
+  decoder_claim: checked
   correction_claim: draft
   repeated_round_claim: out_of_scope
 references: []
@@ -155,39 +161,40 @@ proof_obligations:
   status: passing
   notes: Bit-flip stabilizer commutation
 - id: decoder_correctness
-  status: not_applicable
-  notes: Decoder assumed per trust boundary
+  status: passing
+  notes: Lean bit_flip_lookup_decoder_correct for declared single-X lookup table
 - id: lookup_table_decoder
   status: passing
   notes: Declared syndrome/correction lookup tables aligned and exercised by brute-force validator
 claim_scope:
   headline_claim_id: three_qubit_bit_flip_code_corrects_one_x_headline
   headline_claim_text: The three-qubit bit-flip code corrects every declared single-X
-    Pauli error via the standard lookup-table decoder, with logical preservation checked
-    by brute force (general decoder proof not claimed).
+    Pauli error via the standard lookup-table decoder, with decoder correctness kernel-checked
+    in Lean and logical preservation checked by brute force.
   required_obligations:
   - stabilizer_commutation
   - lookup_table_decoder
+  - decoder_correctness
   - correction_restores_logical_state
 proved_scope:
   checked_obligations:
   - stabilizer_commutation
   - lookup_table_decoder
+  - decoder_correctness
   - correction_restores_logical_state
   unproved_obligations:
   - syndrome_extraction_circuit_semantics
-  - decoder_algorithm_beyond_lookup_tables
   - repeated_round_fault_tolerance
 headline_claim_status:
   status: checked
-  notes: All required obligations checked under declared lookup-table decoder and single-X
+  notes: Decoder kernel-checked in Lean plus brute-force logical preservation under single-X
     error model.
   checked_under:
   - stabilizer_tableau
   - lookup_table_decoder
+  - lean_kernel_decoder_proof
   - single_x_pauli_error_model
   not_checked_under:
-  - general_decoder_correctness
   - syndrome_extraction_circuits
   - repeated_round_fault_tolerance
 formal_claims:
@@ -204,6 +211,19 @@ formal_claims:
   - correction_restores_logical_state_for_all_single
   - syndrome_extraction_circuit_semantics
   - decoder_correctness_assumed
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+- id: formal_lean_bit_flip_decoder
+  evidence_id: lean_bit_flip_decoder
+  formal_system: lean
+  module: QSpecBench.QEC.BitFlip
+  theorem: QSpecBench.QEC.BitFlip.bit_flip_lookup_decoder_correct
+  supports:
+  - lookup_table_decoder
+  - decoder_correctness
+  - correction_restores_logical_state
+  does_not_support:
+  - syndrome_extraction_circuit_semantics
+  - repeated_round_fault_tolerance
   benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
 qec_claim_scope:
   stabilizer_commutation: checked

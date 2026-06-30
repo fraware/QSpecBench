@@ -22,15 +22,17 @@ Algebraic/circuit-level QEC claim with explicit error model.
 
 ## Trust boundary
 
-Decoder lookup tables checked by brute-force validator; general decoder algorithm not kernel-checked.
+Lookup-table decoder kernel-checked in Lean (`bit_flip_lookup_decoder_correct`); brute-force
+validator checks logical preservation. General decoder algorithm and syndrome-extraction circuits
+not claimed.
 
 ## Status
 
-Current maturity: **reference_claim**.
+Current maturity: **reference_claim** (lookup-table scope under single-X model).
 
 ## Known gaps
 
-Syndrome extraction circuit; decoder proof.
+Syndrome extraction circuit semantics; general decoder beyond declared lookup tables.
 
 ## References
 
