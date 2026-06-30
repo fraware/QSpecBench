@@ -11,3 +11,4 @@ venv/
 *.egg
 lean/.lake/
 pytest_last.txt
+.cache/

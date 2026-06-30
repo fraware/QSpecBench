@@ -77,9 +77,13 @@ def test_release_manifest_includes_git_commit():
 def test_release_manifest_includes_sbom_summary():
     manifest = collect_release_manifest(REPO / "benchmarks")
     sbom = manifest.get("sbom_summary") or {}
-    assert sbom.get("format") == "qspecbench-sbom-lite-v0.1"
+    assert sbom.get("format") == "qspecbench-sbom-lite-v0.2"
     assert sbom.get("python_dependencies")
     assert sbom.get("lean_requires")
+    assert sbom.get("lock_file_hashes", {}).get("uv_lock_sha256")
+    pinned = (sbom.get("external_tools") or {}).get("pinned") or {}
+    assert pinned.get("lean_toolchain")
+    assert pinned.get("qcec_pinned")
 
 
 def test_verify_release_bundle_integration_sample(tmp_path):
