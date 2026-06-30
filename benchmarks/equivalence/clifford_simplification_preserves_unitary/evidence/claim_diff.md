@@ -1,6 +1,6 @@
 # Claim diff: clifford_simplification_preserves_unitary
 
-<!-- scope_fingerprint: 85722ac9731dee4a4859978212374a95472503103416f39732924657f06cc948 -->
+<!-- scope_fingerprint: eb41a2de27136e54bc3a8e79efc4aa26da6ae1e36c64e624cca951b35194c931 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
