@@ -27,7 +27,7 @@ results** (full protocol proofs). The dashboard counts each honestly.
 - [x] First kernel-checked codegen-trace bridge — **P2 done** (`cnot_self_inverse_cancellation`; `kernel_checked_codegen_trace` + `bridge_cnot_codegen_self_inverse`)
 - [x] Second and third kernel-checked codegen-trace bridges — **P2 done** (`hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`; codegen trace + kernel proofs)
 - [x] Fourth kernel-checked codegen-trace bridge — **P4 done** (`bell_state_preparation`; codegen trace + `bridge_bell_codegen_prep`)
-- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress** (5 benchmarks with AST/codegen hashes; RX manifest-bound; Lean parser stub designed)
+- [ ] Full OpenQASM-to-Lean codegen pipeline — **P2 in progress** (6 benchmarks with AST/codegen hashes; RX manifest-bound; Lean parser stub designed)
 - [x] `full_dynamic_semantics` QASM mode — **P3 partial** (projective POVM stub + `dynamic_circuit` semantics_base; teleportation pilot; classical-control metadata)
 - [x] Compiler dual-manifest target hashes — **P3 partial** (`clifford_simplification_preserves_unitary` target-side codegen)
 - [x] External QEC certificate semantic validation — **P3 partial** (`qec_external.py` + provenance linkage)
@@ -36,10 +36,10 @@ results** (full protocol proofs). The dashboard counts each honestly.
 ### Manifest bridge status (2026-06-27)
 
 Eleven `manifest_checked_theorem_binding` bridges (integer + complex scaffolds). Three
-`python_denotation_consistency` bridges. Five **kernel-checked codegen-trace** bridges
+`python_denotation_consistency` bridges. Six **kernel-checked codegen-trace** bridges
 (`kernel_checked_codegen_trace`; legacy enum `kernel_checked_artifact_semantics` where still emitted):
 `cnot_self_inverse_cancellation`, `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`,
-`bell_state_preparation`, `swap_from_three_cx`.
+`bell_state_preparation`, `swap_from_three_cx`, `toffoli_decomposition_equivalence`.
 RX manifest-bound at complex denotation (global phase vs H not claimed; Lean lemma documents gap).
 
 **Blocked from manifest binding:**
@@ -65,7 +65,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Goal | Status |
 |------|--------|
-| Kernel-checked codegen-trace expansion (H-X-H, H-H, Bell, swap) | **Done** — 5 codegen-trace bridges |
+| Kernel-checked codegen-trace expansion (H-X-H, H-H, Bell, swap, Toffoli) | **Done** — 6 codegen-trace bridges |
 | Bell state codegen-trace bridge | **Done** — 4th codegen-trace bridge (`bell_state_preparation`) |
 | Python→AST trust boundary docs | **Done** — `bridge_codegen_design.md` |
 | `full_dynamic_semantics` foundation | **Partial** — projective stub + classical metadata + validate rules |
@@ -106,7 +106,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 | Teleportation basis check root-cause | **Done** — legacy Kronecker vs OpenQASM wire mismatch in dynamic sim; operational model fixed |
 | Teleportation `all_ok` (operational) | **Done** — documented Z-then-X correction table passes branch enumeration |
 | Feed-forward supplementary artifact | **Done** — `teleportation_with_feedforward.qasm` |
-| Lean parser line stub | **Done** — five kernel bridges + `parseLines_*_eq_generated_ops` + Python cross-test |
+| Lean parser line stub | **Done** — six kernel bridges + `parseLines_*_eq_generated_ops` + Python cross-test |
 | Lean measurement scaffold | **Done** — Fin 4 Z / Z⊗Z projective checks in `Measurement.lean` |
 | CI dynamic simulation | **Done** — `test_phase5.py` + `dynamic-simulate --teleport-basis-check` in validate workflow |
 | Fifth kernel bridge | **Skipped** — swap/toffoli proof chains not low-risk for this pass |
@@ -125,7 +125,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Goal | Status |
 |------|--------|
-| Lean parser parse→toQasmOp theorems | **Done** — all five kernel bridge parseLines theorems + Python cross-test |
+| Lean parser parse→toQasmOp theorems | **Done** — all six kernel bridge parseLines theorems + Python cross-test |
 | Measurement scaffold | **Done** — Fin 4 statevector Z / Z⊗Z checks; teleportation evidence anchor |
 | Int-scaffold vs operational gap | **Documented** — Kronecker table + diagnostic test in `test_phase5.py` |
 | Feed-forward supplementary artifact | **Done** — spec object + `--feedforward` CLI path |
@@ -153,7 +153,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 | Item | Notes |
 |------|-------|
-| Kernel-checked codegen-trace bridges | **Done** — 5 bridges (CNOT, H-X-H, H-H, Bell prep, swap) |
+| Kernel-checked codegen-trace bridges | **Done** — 6 bridges (CNOT, H-X-H, H-H, Bell prep, swap, Toffoli) |
 | Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics |
 | QEC correction `reference_claim` | **Done (narrow)** — `three_qubit_bit_flip_code_corrects_one_x` lookup-table scope |
 | Distance proofs | **Partial** — bruteforce `distance_result` wired for `distance_certificate_small_css_code` |
