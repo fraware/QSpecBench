@@ -96,12 +96,29 @@ def test_coq_ci_flag_documented():
     assert os.environ.get("QSPECBENCH_COQ", "0") in {"0", "1", ""}
 
 
-def test_cnot_coq_smoke_stub_present():
+def test_cnot_coq_smoke_independent_proof_present():
     smoke = (
         REPO
         / "benchmarks/equivalence/cnot_self_inverse_cancellation/evidence/cnot_coq_smoke.v"
     )
-    assert smoke.is_file()
     text = smoke.read_text(encoding="utf-8")
-    assert "cnot_coq_smoke" in text
-    assert "cnot_coq_smoke_statement" in text
+    assert "cnot_self_inverse_bool" in text
+    assert "Axiom" not in text
+
+
+def test_cnot_coq_smoke_compiles_when_coqc_available():
+    import shutil
+    import subprocess
+
+    if shutil.which("coqc") is None:
+        return
+    smoke = (
+        REPO
+        / "benchmarks/equivalence/cnot_self_inverse_cancellation/evidence/cnot_coq_smoke.v"
+    )
+    subprocess.run(
+        ["coqc", str(smoke)],
+        check=True,
+        cwd=smoke.parent,
+        capture_output=True,
+    )
