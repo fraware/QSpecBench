@@ -36,7 +36,9 @@
       "package_lean_sha256": "7b04bd63e169cb1cce8e495dd0115d2e18ccdd1b4d5baecc0181e648ce1df69c",
       "theorem_identifier_sha256": "bc6c3f03aa3d48231df1690a92c692ea67c821d9f7c898185047fe53074f5b07",
       "theorem_content_sha256": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
-      "theorem_source_statement_hash": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0"
+      "theorem_source_statement_hash": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
+      "lean_ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9",
+      "theorem_elaborator_hash": "d5eb7ecbb9f29f95f7bff4887de8997cb34815e1e3012733afc3b1e6c5242f44"
     },
     {
       "benchmark_id": "hadamard_conjugates_x_to_z",
@@ -76,7 +78,9 @@
       "package_lean_sha256": "28ef8142b64fb8228df08717469ef12cbe0bbeb31a745bdeb58f0a5c34d97729",
       "theorem_identifier_sha256": "cb0ae0d2ef85d9df73c5005dad812d9466e47addbf96dde3f4901ecf8f98377c",
       "theorem_content_sha256": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
-      "theorem_source_statement_hash": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae"
+      "theorem_source_statement_hash": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
+      "lean_ast_sha256": "20ba11fb108eb7d9fd66258197818165202009cf9a8ddaf1534b7627320c131f",
+      "theorem_elaborator_hash": "d19b731099df836f7b6e3387306fa0d82a85a57658dbb7e2fe50dd4fbfda1e30"
     },
     {
       "benchmark_id": "single_qubit_gate_cancellation",
@@ -110,7 +114,9 @@
       "package_lean_sha256": "9f15ec7c4ee8db125efccbed4619b9f596e24122d92177f18e6c02268c72e452",
       "theorem_identifier_sha256": "444609491c695c04095883ccbfb9bf1d5565ef4de94ab4111be3ed1f939750cc",
       "theorem_content_sha256": "1a1e5daae2c6f128938cdfd74d1a76920e82681b6cc347f93ce1b806cc8267a0",
-      "theorem_source_statement_hash": "1a1e5daae2c6f128938cdfd74d1a76920e82681b6cc347f93ce1b806cc8267a0"
+      "theorem_source_statement_hash": "1a1e5daae2c6f128938cdfd74d1a76920e82681b6cc347f93ce1b806cc8267a0",
+      "lean_ast_sha256": "f731f909a694e3cc30b96260cc4f25a88888e093ef952d7bc9e0cbeb9973d4d9",
+      "theorem_elaborator_hash": "7baa6f6317bee71629f295e1f602e0e5ed06224ae38cae50b48c08855164f720"
     },
     {
       "benchmark_id": "qft_inverse_qft_small_instance",
@@ -186,7 +192,9 @@
       "package_lean_sha256": "8e9eacbceb895b9c9806cc79c6fe3ac6e0ee9618036ca0996c852d400ffbc229",
       "theorem_identifier_sha256": "90673f619c0d5d06700e1f07c301e4dcea53e23d27facc5b1e03d399007c4972",
       "theorem_content_sha256": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
-      "theorem_source_statement_hash": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7"
+      "theorem_source_statement_hash": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
+      "lean_ast_sha256": "f56ae68da29a95751c8273e8a97849139cf683ebdf9caa1a3061f219fd3962cc",
+      "theorem_elaborator_hash": "b3f11063a041dcecf8401c3626fa161bfb83096177cb1cfa773e79cc5ade8bff"
     },
     {
       "benchmark_id": "toffoli_decomposition_equivalence",
@@ -216,7 +224,113 @@
       "theorem_identifier_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
       "theorem_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
       "theorem_content_sha256": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a",
-      "theorem_source_statement_hash": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a"
+      "theorem_source_statement_hash": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a",
+      "target_qasm_artifact": "artifacts/target.qasm",
+      "target_artifact_sha256": "6a3c0d66d83bbe92e0ca8832ceba358aa09f4be4e7d3fc068d80076a11e7a07c",
+      "target_gate_trace": [
+        [
+          "h",
+          [
+            2
+          ]
+        ],
+        [
+          "cx",
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "tdg",
+          [
+            2
+          ]
+        ],
+        [
+          "cx",
+          [
+            0,
+            2
+          ]
+        ],
+        [
+          "t",
+          [
+            2
+          ]
+        ],
+        [
+          "cx",
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "tdg",
+          [
+            2
+          ]
+        ],
+        [
+          "cx",
+          [
+            0,
+            2
+          ]
+        ],
+        [
+          "t",
+          [
+            2
+          ]
+        ],
+        [
+          "t",
+          [
+            1
+          ]
+        ],
+        [
+          "h",
+          [
+            2
+          ]
+        ],
+        [
+          "cx",
+          [
+            0,
+            1
+          ]
+        ],
+        [
+          "t",
+          [
+            0
+          ]
+        ],
+        [
+          "tdg",
+          [
+            1
+          ]
+        ],
+        [
+          "cx",
+          [
+            0,
+            1
+          ]
+        ]
+      ],
+      "target_gate_trace_sha256": "95563403d76b28a1c0798ec45e8a1cf0e7c33a288f266f67eefaae9d989f0944",
+      "target_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
+      "target_generated_lean_sha256": "b66a39fa3ef69933d39cb41727e3d6098cef250d59e8be01c40e8702fea1da5b",
+      "lean_ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
+      "target_lean_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
+      "theorem_elaborator_hash": "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6"
     },
     {
       "benchmark_id": "circuit_identity_after_layout",
@@ -239,13 +353,21 @@
       ],
       "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f",
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
-      "lean_theorem": "bridge_circuit_identity_after_layout",
+      "lean_theorem": "bridge_circuit_identity_after_layout_codegen",
+      "kernel_checked_theorem": "bridge_circuit_identity_after_layout_codegen",
+      "artifact_parse_theorem": "parseQasmSource_layout_kernel_eq_generated_ops",
       "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
       "ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
-      "generated_lean_sha256": "47d3ef480716c30802245d438dab96771af89b398011a227ec218fb5b2dd6c05",
+      "generated_lean_sha256": "9e1f89d12c9089d00f55b74ddf9d91d605bf86a79a602dd2c198177b0a3fe558",
+      "package_lean_sha256": "af72b70ffc4333d32279b0239b5e4aee1d0b3d7b605c1ff1f1f3df1b0ace8e4e",
       "obligation_ids": [
         "semantic_bridge"
-      ]
+      ],
+      "theorem_identifier_sha256": "b51cdf0faa812343f0be7a0f152af4d1deded8dfb2d0be04a51c003075313ead",
+      "theorem_sha256": "b51cdf0faa812343f0be7a0f152af4d1deded8dfb2d0be04a51c003075313ead",
+      "theorem_source_statement_hash": "def5cdc47197ab5f3bc0295b7f7f82d7e8f3e88acf9c1dd974eca7fdcffb703f",
+      "theorem_content_sha256": "def5cdc47197ab5f3bc0295b7f7f82d7e8f3e88acf9c1dd974eca7fdcffb703f",
+      "theorem_elaborator_hash": "71e440a21f94f02121ffd080548ea1530a259f8f2f6d4096314e026054a8ac63"
     },
     {
       "benchmark_id": "source_optimized_qasm_equivalence_small_instance",
@@ -312,7 +434,9 @@
       "package_lean_sha256": "c77694903d65b978dbb4ff2f85b8465d92e47d36b454e426658343df8020fd75",
       "theorem_identifier_sha256": "d5b06e63a6d1a04ea12ec81b77f5a4d8697f6a97ab171a2e2923af64b6b19c40",
       "theorem_content_sha256": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
-      "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da"
+      "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
+      "lean_ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
+      "theorem_elaborator_hash": "0857f84b49f7b7d5522811279ba3024dff365f34613a4e9df7f07c03c0cbf202"
     },
     {
       "benchmark_id": "clifford_simplification_preserves_unitary",
