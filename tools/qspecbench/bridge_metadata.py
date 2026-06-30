@@ -31,6 +31,7 @@ _FIELD_RES: dict[str, re.Pattern[str]] = {
     "theoremSourceStatementHash": re.compile(
         r'theoremSourceStatementHash\s*:=\s*"([a-f0-9]{64})"'
     ),
+    "theoremElaboratorHash": re.compile(r'theoremElaboratorHash\s*:=\s*"([a-f0-9]{64})"'),
     "packageLeanSha256": re.compile(r'packageLeanSha256\s*:=\s*"([a-f0-9]{64})"'),
 }
 
@@ -41,6 +42,7 @@ _LEAN_TO_MANIFEST: dict[str, str] = {
     "generatedLeanSha256": "generated_lean_sha256",
     "theoremIdentifierSha256": "theorem_identifier_sha256",
     "theoremSourceStatementHash": "theorem_source_statement_hash",
+    "theoremElaboratorHash": "theorem_elaborator_hash",
     "packageLeanSha256": "package_lean_sha256",
 }
 
@@ -74,8 +76,14 @@ def verify_bridge_metadata_against_manifest(
 ) -> list[str]:
     errors: list[str] = []
     lean_meta = extract_bridge_metadata(def_name)
-    if lean_meta.get("claimedLink") != "kernel_checked_codegen_trace":
-        errors.append(f"{def_name}.claimedLink must be kernel_checked_codegen_trace")
+    if lean_meta.get("claimedLink") not in {
+        "kernel_checked_codegen_trace",
+        "kernel_checked_artifact_semantics",
+    }:
+        errors.append(
+            f"{def_name}.claimedLink must be kernel_checked_codegen_trace "
+            "or kernel_checked_artifact_semantics"
+        )
     entries = manifest_entries if manifest_entries is not None else load_manifest()["entries"]
     entry = next(
         (e for e in entries if e.get("benchmark_id") == lean_meta.get("benchmarkId")),
