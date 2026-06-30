@@ -7,7 +7,8 @@
     "phase_gates": "complex_diagonal",
     "target_circuit": "QCEC_equivalence_external"
   },
-  "claimed_link": "kernel_checked_codegen_trace",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "artifact_parse_theorem": "parseQasmSource_toffoli_kernel_eq_generated_ops",
   "qasm_artifact": "artifacts/source.qasm",
   "bridge_evidence_id": "bridge_verify",
   "gate_model": "qspecbench.openqasm3.complex_unitary.v1",
@@ -24,5 +25,14 @@
     "checked_against": "both"
   },
   "wire_order_bridge_theorem": null,
-  "theorem_source_statement_hash": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a"
+  "theorem_source_statement_hash": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a",
+  "theorem_elaborator_hash": "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6",
+  "lean_ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
+  "target_qasm_artifact": "artifacts/target.qasm",
+  "target_artifact_sha256": "6a3c0d66d83bbe92e0ca8832ceba358aa09f4be4e7d3fc068d80076a11e7a07c",
+  "target_gate_trace_sha256": "95563403d76b28a1c0798ec45e8a1cf0e7c33a288f266f67eefaae9d989f0944",
+  "target_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
+  "target_generated_lean_sha256": "b66a39fa3ef69933d39cb41727e3d6098cef250d59e8be01c40e8702fea1da5b",
+  "target_lean_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
+  "target_artifact_parse_theorem": "parseQasmSource_toffoli_target_kernel_eq_generated_ops"
 }
