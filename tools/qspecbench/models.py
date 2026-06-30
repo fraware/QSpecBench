@@ -22,6 +22,7 @@ Maturity = Literal[
     "reference_contract",
     "reference_artifact",
     "reference_claim",
+    "artifact_bound_reference_claim",
     "deprecated",
 ]
 
@@ -29,7 +30,11 @@ REFERENCE_SCAFFOLD_LEVELS: frozenset[str] = frozenset(
     {"reference_scaffold", "reference_contract", "reference_artifact"}
 )
 REFERENCE_CLAIM_LEVEL = "reference_claim"
-ALL_REFERENCE_LEVELS: frozenset[str] = REFERENCE_SCAFFOLD_LEVELS | {REFERENCE_CLAIM_LEVEL}
+ARTIFACT_BOUND_LEVEL = "artifact_bound_reference_claim"
+ALL_REFERENCE_LEVELS: frozenset[str] = REFERENCE_SCAFFOLD_LEVELS | {
+    REFERENCE_CLAIM_LEVEL,
+    ARTIFACT_BOUND_LEVEL,
+}
 
 
 class TrustBoundary(BaseModel):
