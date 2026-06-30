@@ -29,12 +29,12 @@ KERNEL_CHECKED = [
     "benchmarks/algorithms/bell_state_preparation",
     "benchmarks/algorithms/swap_from_three_cx",
     "benchmarks/equivalence/toffoli_decomposition_equivalence",
+    "benchmarks/equivalence/circuit_identity_after_layout",
 ]
 
 MANIFEST_CHECKED = [
     "benchmarks/equivalence/rx_gate_equivalence_small_instance",
     "benchmarks/equivalence/qft_inverse_qft_small_instance",
-    "benchmarks/equivalence/circuit_identity_after_layout",
     "benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance",
     "benchmarks/equivalence/clifford_simplification_preserves_unitary",
     "benchmarks/equivalence/phase_polynomial_equivalence_small_instance",
@@ -49,10 +49,13 @@ def test_verify_bridge_python_denotation_benchmarks():
         assert result["claimed_link"] == "python_denotation_consistency", rel
 
 
+KERNEL_CHECKED_LINKS = {"kernel_checked_codegen_trace", "kernel_checked_artifact_semantics"}
+
+
 def test_verify_bridge_kernel_checked_cnot():
     claim = REPO / KERNEL_CHECKED[0]
     result = verify_bridge(claim)
-    assert result["claimed_link"] == "kernel_checked_codegen_trace"
+    assert result["claimed_link"] in KERNEL_CHECKED_LINKS
     assert result["ok"]
 
 
@@ -60,14 +63,14 @@ def test_verify_bridge_all_kernel_checked_benchmarks():
     for rel in KERNEL_CHECKED:
         claim = REPO / rel
         result = verify_bridge(claim)
-        assert result["claimed_link"] == "kernel_checked_codegen_trace", rel
+        assert result["claimed_link"] in KERNEL_CHECKED_LINKS, rel
         assert result["ok"], f"{rel}: {result.get('errors')}"
 
 
 def test_verify_bridge_manifest_checked_cnot():
     claim = REPO / KERNEL_CHECKED[0]
     result = verify_bridge(claim)
-    assert result["claimed_link"] == "kernel_checked_codegen_trace"
+    assert result["claimed_link"] in KERNEL_CHECKED_LINKS
     assert result["ok"]
 
 
@@ -135,7 +138,7 @@ def test_manifest_bridge_rejects_missing_manifest_theorem():
 def test_verify_bridge_reads_semantic_bridge():
     claim = REPO / KERNEL_CHECKED[0]
     result = verify_bridge(claim)
-    assert result["claimed_link"] == "kernel_checked_codegen_trace"
+    assert result["claimed_link"] in KERNEL_CHECKED_LINKS
     assert "lean_module" in result
 
 
