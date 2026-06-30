@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
+from qspecbench.schema import REPO_ROOT
 from qspecbench.validate import load_spec
+
+MEASUREMENT_LEAN = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "Measurement.lean"
+_THEOREM_NAME_RE = re.compile(r"\b(?:theorem|lemma|def)\s+([A-Za-z0-9_']+)")
 
 
 def _sha256_payload(payload: dict[str, Any]) -> str:
@@ -48,8 +53,55 @@ _LEAN_MEASUREMENT_THEOREM_REFS = (
     "QSpecBench.Quantum.Measurement.pauli_z4_flips_sign_on_state11_at_basis",
     "QSpecBench.Quantum.Measurement.pauli_x8_corrects_state001_at_receiver",
     "QSpecBench.Quantum.Measurement.pauli_z8_flips_sign_on_state101_at_basis",
+    "QSpecBench.Quantum.Measurement.teleport_basis001_lemma_chain",
     "QSpecBench.Quantum.Measurement.teleport_pauli_correction_anchor_note",
 )
+
+
+def _theorem_short_name(ref: str) -> str:
+    return ref.rsplit(".", 1)[-1]
+
+
+def _lean_symbol_names(path: Path) -> set[str]:
+    if not path.is_file():
+        return set()
+    return set(_THEOREM_NAME_RE.findall(path.read_text(encoding="utf-8")))
+
+
+def _measurement_evidence_lean_paths(claim_dir: Path, spec: dict[str, Any]) -> list[Path]:
+    paths: list[Path] = []
+    for ev in spec.get("evidence", []):
+        if ev.get("type") != "lean_proof":
+            continue
+        rel = ev.get("path")
+        if rel and str(rel).endswith(".lean"):
+            paths.append(claim_dir / rel)
+    return paths
+
+
+def validate_lean_theorem_refs(
+    refs: list[str],
+    *,
+    claim_dir: Path | None = None,
+    spec: dict[str, Any] | None = None,
+) -> list[str]:
+    """Fail closed when cross-ref names are absent from Measurement.lean or evidence Lean files."""
+    errors: list[str] = []
+    allowed = _lean_symbol_names(MEASUREMENT_LEAN)
+    if claim_dir is not None and spec is not None:
+        for path in _measurement_evidence_lean_paths(claim_dir, spec):
+            allowed |= _lean_symbol_names(path)
+    if not allowed:
+        errors.append("lean cross-ref validation failed: Measurement.lean symbols unavailable")
+        return errors
+    for ref in refs:
+        short = _theorem_short_name(ref)
+        if short not in allowed:
+            errors.append(
+                f"lean_cross_ref.lean_theorem_refs missing symbol {ref!r} "
+                f"(expected theorem/def in Measurement.lean or evidence lean files)"
+            )
+    return errors
 
 
 def lean_measurement_cross_refs() -> dict[str, Any]:
@@ -107,6 +159,12 @@ def validate_dynamic_simulation_evidence(claim_dir: Path, spec: dict[str, Any] |
         stored_fp = stored.get("report_fingerprint")
         expected_fp = expected["report_fingerprint"]
         if stored_fp == expected_fp:
+            cross_errors = validate_lean_theorem_refs(
+                stored.get("lean_cross_ref", {}).get("lean_theorem_refs") or [],
+                claim_dir=claim_dir,
+                spec=spec,
+            )
+            errors.extend(f"{path}: {e}" for e in cross_errors)
             continue
         if stored == {k: v for k, v in expected.items() if k != "report_fingerprint"}:
             errors.append(
