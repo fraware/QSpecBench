@@ -12,7 +12,7 @@ import jsonschema
 import yaml
 
 from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
-from qspecbench.schema import validate_spec_schema
+from qspecbench.schema import REPO_ROOT, validate_spec_schema
 from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL, validate_spec_trust_slice
 from qspecbench.trust import validate_trust_rules
 from qspecbench.artifact_schemas import validate_claim_artifacts
@@ -21,6 +21,7 @@ from qspecbench.bridge_codegen import (
     KERNEL_CHECKED_LINK,
     LEGACY_KERNEL_CHECKED_LINK,
     is_kernel_checked_link,
+    verify_kernel_artifact_semantics_bridge,
 )
 from qspecbench.provenance import validate_provenance
 from qspecbench.verify_bridge import verify_bridge
@@ -136,9 +137,8 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> lis
         if is_kernel_checked_link(claimed_link):
             errors.extend(validate_kernel_checked_bridge(claim_dir, bridge, spec))
             if claimed_link == LEGACY_KERNEL_CHECKED_LINK:
-                errors.append(
-                    f"claimed_link {LEGACY_KERNEL_CHECKED_LINK!r} is deprecated; "
-                    f"use {KERNEL_CHECKED_LINK!r} until artifact semantics is kernel-proved"
+                errors.extend(
+                    verify_kernel_artifact_semantics_bridge(bridge, spec.get("id", claim_dir.name))
                 )
     errors.extend(_validate_wire_order(spec, bridge))
     errors.extend(_validate_reference_claim_bridge(spec, bridge))
@@ -186,17 +186,20 @@ def _validate_artifact_bound_reference_claim(
         )
         return errors
 
-    if bridge.get("claimed_link") != KERNEL_CHECKED_LINK:
+    if bridge.get("claimed_link") != KERNEL_CHECKED_LINK and bridge.get("claimed_link") != LEGACY_KERNEL_CHECKED_LINK:
         errors.append(
-            f"{ARTIFACT_BOUND_LEVEL} requires claimed_link {KERNEL_CHECKED_LINK!r}"
+            f"{ARTIFACT_BOUND_LEVEL} requires claimed_link {KERNEL_CHECKED_LINK!r} "
+            f"or {LEGACY_KERNEL_CHECKED_LINK!r}"
         )
 
     for anchor in (
         "artifact_sha256",
         "gate_trace_sha256",
         "ast_sha256",
+        "lean_ast_sha256",
         "generated_lean_sha256",
         "theorem_identifier_sha256",
+        "theorem_elaborator_hash",
         "theorem_source_statement_hash",
     ):
         if not bridge.get(anchor):
@@ -215,32 +218,46 @@ def _validate_artifact_bound_reference_claim(
             f"{ARTIFACT_BOUND_LEVEL} requires passing bridge verify evidence"
         )
 
+    benchmark_id = spec.get("id", "")
+    from qspecbench.bridge_metadata import KERNEL_BRIDGE_METADATA, verify_bridge_metadata_against_manifest
+
+    metadata_def = next(
+        (def_name for def_name, mapped_id in KERNEL_BRIDGE_METADATA.items() if mapped_id == benchmark_id),
+        None,
+    )
+    if metadata_def is None:
+        errors.append(
+            f"{ARTIFACT_BOUND_LEVEL} requires Lean BridgeMetadata pin for {benchmark_id!r}"
+        )
+    else:
+        errors.extend(verify_bridge_metadata_against_manifest(metadata_def))
+
     return errors
 
 
 def _validate_ai_formalization_reviewer(spec: dict[str, Any]) -> list[str]:
-    """Warn when ai_formalization reference_claim lacks named reviewer identity."""
-    warnings: list[str] = []
+    """Hard-fail ai_formalization reference_claim without named reviewer identity."""
+    errors: list[str] = []
     if spec.get("track") != "ai_formalization":
-        return warnings
+        return errors
     maturity = spec.get("status", {}).get("maturity")
     if maturity != REFERENCE_CLAIM_LEVEL:
-        return warnings
+        return errors
     reviews = (spec.get("status") or {}).get("reviews") or {}
     for review_key in REQUIRED_ARTIFACT_BOUND_REVIEWS:
         block = reviews.get(review_key) or {}
         reviewer = (block.get("reviewer") or "").strip()
         if not reviewer:
-            warnings.append(
-                f"ai_formalization {REFERENCE_CLAIM_LEVEL} should declare "
-                f"status.reviews.{review_key}.reviewer before promotion"
+            errors.append(
+                f"ai_formalization {REFERENCE_CLAIM_LEVEL} requires "
+                f"status.reviews.{review_key}.reviewer (named identity)"
             )
         elif reviewer == "maintainer-bootstrap":
-            warnings.append(
-                f"ai_formalization {REFERENCE_CLAIM_LEVEL} should replace "
-                f"status.reviews.{review_key}.reviewer maintainer-bootstrap with a named reviewer"
+            errors.append(
+                f"ai_formalization {REFERENCE_CLAIM_LEVEL} requires "
+                f"status.reviews.{review_key}.reviewer to be non-bootstrap"
             )
-    return warnings
+    return errors
 
 
 def _validate_wire_order(spec: dict[str, Any], bridge: dict[str, Any] | None) -> list[str]:
@@ -262,6 +279,22 @@ def _validate_wire_order(spec: dict[str, Any], bridge: dict[str, Any] | None) ->
         errors.append(
             f"kernel-checked bridge requires wire_order.checked_against in {{lean, both}}, got {checked!r}"
         )
+    wire_thm = bridge.get("wire_order_bridge_theorem")
+    if wire_thm:
+        parser_lean = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3Parser.lean"
+        openqasm3 = REPO_ROOT / "lean" / "QSpecBench" / "Quantum" / "OpenQASM3.lean"
+        found = False
+        for lean_path in (openqasm3, parser_lean):
+            if lean_path.is_file():
+                text = lean_path.read_text(encoding="utf-8")
+                if f"theorem {wire_thm}" in text or f"lemma {wire_thm}" in text:
+                    found = True
+                    break
+        if not found:
+            errors.append(
+                f"wire_order_bridge_theorem {wire_thm!r} not found in OpenQASM3.lean "
+                "or OpenQASM3Parser.lean"
+            )
     return errors
 
 
@@ -286,7 +319,29 @@ def _validate_reference_claim_bridge(spec: dict[str, Any], bridge: dict[str, Any
     return errors
 
 
-def _validate_qec_witness_file(claim_dir: Path) -> list[str]:
+def _infer_qec_witness_claim_kind(spec: dict[str, Any]) -> str | None:
+    """Map qec_claim_scope fields to witness claim_kind for semantic validation."""
+    claim_id = spec.get("id", "")
+    obligations = set(spec.get("proved_scope", {}).get("checked_obligations") or [])
+    obligations.update(spec.get("claim_scope", {}).get("required_obligations") or [])
+    scope = spec.get("qec_claim_scope") or {}
+
+    if "syndrome_extraction" in claim_id or "syndrome_extraction" in obligations:
+        return "syndrome_extraction"
+    if scope.get("distance", {}).get("status") in {"checked", "complete"}:
+        return "minimum_distance"
+    if scope.get("syndrome_table") in {"checked", "complete"}:
+        return "syndrome_extraction"
+    if scope.get("stabilizer_commutation") in {"checked", "complete"}:
+        return "stabilizer_commutation"
+    if scope.get("correction_table") in {"checked", "complete"}:
+        return "decoder_correctness"
+    if scope.get("logical_preservation_small_code") in {"checked", "complete", "assumed"}:
+        return "logical_preservation"
+    return "logical_preservation"
+
+
+def _validate_qec_witness_file(claim_dir: Path, spec: dict[str, Any] | None = None) -> list[str]:
     witness_path = claim_dir / "expected" / "qec_witness.json"
     if not witness_path.is_file():
         return []
@@ -296,7 +351,10 @@ def _validate_qec_witness_file(claim_dir: Path) -> list[str]:
         return [f"expected/qec_witness.json invalid JSON: {exc}"]
     from qspecbench.qec_witness import validate_qec_witness
 
-    return validate_qec_witness(witness, claim_dir)
+    claim_kind: str | None = None
+    if spec is not None:
+        claim_kind = _infer_qec_witness_claim_kind(spec)
+    return validate_qec_witness(witness, claim_dir, claim_kind=claim_kind)
 
 
 def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str]:
@@ -433,10 +491,10 @@ def validate_spec_dict(
     errors.extend(validate_dynamic_simulation_evidence(claim_dir, spec))
     warnings.extend(_validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
-    errors.extend(_validate_qec_witness_file(claim_dir))
+    errors.extend(_validate_qec_witness_file(claim_dir, spec))
     errors.extend(validate_semantic_bridge_rules(spec, claim_dir))
     errors.extend(_validate_qasm_extraction(spec))
-    warnings.extend(_validate_ai_formalization_reviewer(spec))
+    errors.extend(_validate_ai_formalization_reviewer(spec))
     return errors, warnings
 
 
@@ -459,7 +517,11 @@ def _validate_dynamic_circuit_qubit_limit(claim_dir: Path, spec: dict[str, Any])
 
 
 def _validate_qasm_extraction(spec: dict[str, Any]) -> list[str]:
-    """Fail closed on unimplemented extraction modes (schema enum stub only)."""
+    """Fail closed on unimplemented extraction modes.
+
+    ``full_dynamic_semantics`` is accepted only as a legacy alias for
+    ``dynamic_fragment_recording`` when ``semantics_base=dynamic_circuit``.
+    """
     extraction = spec.get("qasm_extraction")
     if not extraction:
         return []
