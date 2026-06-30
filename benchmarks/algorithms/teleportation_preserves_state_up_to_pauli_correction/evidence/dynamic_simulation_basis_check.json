@@ -125,9 +125,10 @@
       "QSpecBench.Quantum.Measurement.pauli_z4_flips_sign_on_state11_at_basis",
       "QSpecBench.Quantum.Measurement.pauli_x8_corrects_state001_at_receiver",
       "QSpecBench.Quantum.Measurement.pauli_z8_flips_sign_on_state101_at_basis",
+      "QSpecBench.Quantum.Measurement.teleport_basis001_lemma_chain",
       "QSpecBench.Quantum.Measurement.teleport_pauli_correction_anchor_note"
     ],
     "trust_boundary": "Basis-state scaffold only; arbitrary superposition update not kernel-checked."
   },
-  "report_fingerprint": "0db8059e84a05f1c7dfca3aaa45eff13e47c22382cc3e513d1fb912b0fcda9fb"
+  "report_fingerprint": "2f5328906c781effbfc5c7481dc07766c22ffd0cdce8967a33b4a35e9091d058"
 }
