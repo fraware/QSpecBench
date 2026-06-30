@@ -4,16 +4,13 @@ Full **kernel_checked_artifact_semantics** requires Lean proofs that the OpenQAS
 denotes the same operator as the formal gate semantics — not merely a manifest-listed theorem
 on a fixed gate trace.
 
-## Current state (2026-06-29, v0.2.2)
+## Current state (2026-06-29, v0.2.3)
 
 - **manifest_checked_theorem_binding**: allowlisted gate trace + Lean theorem name + SHA256 hashes
 - **python_denotation_consistency**: Python matrix extractor matches Lean `denotateOps*` on trace
-- **kernel_checked_codegen_trace**: six bridges — `cnot_self_inverse_cancellation`,
-  `hadamard_conjugates_x_to_z`, `single_qubit_gate_cancellation`, `bell_state_preparation`,
-  `swap_from_three_cx`, `toffoli_decomposition_equivalence` — each with AST + `generated_lean_sha256`,
-  `theorem_sha256`, and kernel proof on the codegen `QasmOp` trace
-- **kernel_checked_artifact_semantics**: promoted label when Lean `parseQasmSourceToOps` on the
-  embedded `*KernelArtifactSource` equals codegen ops (see Phase 2 migration)
+- **kernel_checked_codegen_trace**: legacy label; six bridges promoted to **`kernel_checked_artifact_semantics`**
+- **kernel_checked_artifact_semantics**: Lean `parseQasmSourceToOps` on embedded `*KernelArtifactSource`
+  equals codegen ops; six bridges with `ast_authority: lean_mirror` and `lean_ast_sha256` as sole AST authority in verify
 - **Codegen pilot**: canonical AST + hash pipeline wired for 6 kernel QASM benchmarks
 - **Lean parser (Phase 1A+)**: `parseQasmSource`, `parseQasmSourceToOps`, file-shaped
   `*KernelArtifactSource` for all six kernel artifacts; `canonicalAstToGateList` mirrors Python JSON
@@ -44,12 +41,14 @@ The sync script LF-normalizes (`\r\n` → `\n`) before embedding. Never hand-edi
 
 Python `build_canonical_ast` derives the gate list from `extract_matrix`. Lean
 `parseQasmSource` / `canonicalAstToGateList` on the same bytes must yield the same JSON gate
-objects during the Python→AST trust-boundary transition.
+objects. For kernel bridges, **`ast_authority: lean_mirror`** marks Lean-mirror parse as the sole
+AST authority in `bridge-codegen verify`; Python `ast_sha256` remains a secondary cross-check.
 
 | Field | Authority | Drift control |
 |-------|-----------|---------------|
-| `ast_sha256` | Python `build_canonical_ast` | manifest + semantic_bridge |
-| `lean_ast_sha256` | Lean-mirror JSON from `parseQasmSource` gate list | must equal `ast_sha256` for all six kernel bridges |
+| `ast_sha256` | Python `build_canonical_ast` | secondary cross-check when `ast_authority: lean_mirror` |
+| `lean_ast_sha256` | Lean-mirror JSON from `parseQasmSource` gate list | **primary** for kernel bridges |
+| `ast_authority` | `lean_mirror` on all six kernel bridges | required in manifest + semantic_bridge |
 
 CI: `test_kernel_lean_ast_sha256_matches_python_ast` plus manifest/bridge validators.
 
@@ -73,19 +72,20 @@ flowchart LR
 Read-only rule: `bridge-codegen verify` and `render_for_benchmark` must not write
 `lean/QSpecBench/Generated/*.lean` or evidence witness copies; only `generate` mutates files.
 
-## Python → AST trust boundary
+## Python → AST trust boundary (closed for kernel bridges)
 
 The codegen pipeline builds the canonical AST from **Python** `extract_matrix` gate
-traces. Lean `parseQasmSource` on embedded artifact sources closes the bytes→gate-list
-boundary for kernel-checked bridges; Python `build_canonical_ast` remains the CI cross-check
-during transition.
+traces for non-kernel paths. Kernel-checked bridges set **`ast_authority: lean_mirror`**:
+`bridge-codegen verify` pins `lean_ast_sha256` from Lean-mirror parse; Python `ast_sha256`
+is a secondary cross-check (warn-only drift when elaborator cache present).
 
 | Stage | Trust level | Drift control |
 |-------|-------------|---------------|
 | QASM bytes | `artifact_sha256` in manifest + provenance | CI byte-hash test ↔ Lean source |
 | Python parse → gate trace | Same extractor as verify-bridge | `gate_trace_sha256` |
-| Lean parse → gate list | `parseQasmSourceToOps *KernelArtifactSource` | `artifact_parse_theorem` in bridge |
-| Canonical AST JSON | Derived from Python trace | `ast_sha256` in manifest |
+| Lean parse → gate list | `parseQasmSourceToOps *KernelArtifactSource` | `artifact_parse_theorem` + **`lean_ast_sha256`** |
+| Canonical AST JSON | Lean-mirror for kernel bridges | `ast_authority: lean_mirror` |
+| Python AST JSON | Secondary cross-check | `ast_sha256` (must match lean mirror in CI) |
 | Lean codegen stub | Emitted from AST | `generated_lean_sha256` |
 | Kernel proof | On `QasmOp` list in `OpenQASM3.lean` | `theorem_sha256` + lake build |
 
@@ -105,8 +105,8 @@ Module in lake graph:
 
 | Field | Authority | Notes |
 |-------|-----------|-------|
-| `theorem_elaborator_hash` | **Lean elaborator export** (`lake exe exportTheoremTypes`) | Primary at v0.3; cached in `.cache/theorem_elaborator_types.json` |
-| `theorem_source_statement_hash` | Syntactic Lean source extraction (regex) | Secondary cross-check |
+| `theorem_elaborator_hash` | **Lean elaborator export** (`ExportTheoremTypesCheck.lean` via `lake env lean`; `scripts/export_theorem_types.py`) | **Primary at v0.3**; cached in `.cache/theorem_elaborator_types.json` |
+| `theorem_source_statement_hash` | Syntactic Lean source extraction (regex) | Secondary cross-check; warning-only when elaborator cache present |
 | `theorem_identifier_sha256` | Stable JSON of module + theorem name | Identifier pin, not statement content |
 
 `theorem_source_statement_hash` is **not** an elaborator or kernel export. Do not describe it
@@ -125,20 +125,22 @@ flowchart LR
   Proof --> Bridge["semantic_bridge.claimed_link = kernel_checked_artifact_semantics"]
 ```
 
-## v0.3 theorem hashing ADR (Phase 3)
+## v0.3 theorem hashing ADR (Phase 3 — adopted)
 
-**Decision:** Add `theorem_elaborator_hash` computed from the normalized type of each kernel bridge
-theorem, exported by `lake exe exportTheoremTypes` (see `scripts/export_theorem_types.py`) and
-pinned in `BridgeMetadata.lean`.
+**Decision:** `theorem_elaborator_hash` is computed from the normalized type of each kernel bridge
+theorem, exported by **`ExportTheoremTypesCheck.lean`** (`lake env lean` after `lake build`) and
+`scripts/export_theorem_types.py`. Pins live in `BridgeMetadata.lean` and semantic_bridge manifests.
 
-**Rationale:** Syntactic regex extraction drifts on whitespace and binder formatting; elaborator
+**Rationale:** Syntactic regex extraction drifts on whitespace and binder formatting; Lean `#check`
 type export is stable under proof-body edits and aligns with maintainer intent for "what is claimed."
+`lake exe exportTheoremTypes` remains documented as an alternate path when the check-file export fails.
 
-**Migration:** v0.3 requires both hashes during transition; elaborator hash is primary authority
-when export cache is present. Regex hash retained as secondary cross-check.
+**Migration:** Schema **0.3** makes elaborator hash the primary authority when the export cache is
+present. Regex `theorem_source_statement_hash` is retained as secondary cross-check (validate warns,
+does not fail, when elaborator cache covers the benchmark).
 
-**CI:** After `lake build`, run `python scripts/export_theorem_types.py` to populate
-`.cache/theorem_elaborator_types.json` before `bridge-metadata verify`.
+**CI:** After `lake build`, run `python scripts/export_theorem_types.py` before
+`qspecbench bridge-metadata verify` (see `.github/workflows/validate.yml`).
 
 ## Planned steps
 
