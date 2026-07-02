@@ -7,11 +7,13 @@ import os
 import shutil
 import subprocess
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LEAN_ROOT = REPO_ROOT / "lean"
 PACKAGE_LEAN_ROOT = LEAN_ROOT / "QSpecBench"
+LEAN_COMPILE_TIMEOUT = 300
 
 
 def _lake_exe() -> str | None:
@@ -42,16 +44,30 @@ def _evidence_has_sorry(evidence_text: str) -> bool:
     return _lean_source_has_sorry(evidence_text)
 
 
+def _package_sorry_scan_mtime(root: Path) -> float:
+    if not root.is_dir():
+        return 0.0
+    mtimes = [path.stat().st_mtime for path in root.rglob("*.lean")]
+    return max(mtimes) if mtimes else 0.0
+
+
+@lru_cache(maxsize=4)
+def _cached_package_sorry_paths(scan_root: str, mtime_key: float) -> tuple[str, ...]:
+    root = Path(scan_root)
+    if not root.is_dir():
+        return ()
+    hits: list[str] = []
+    for path in sorted(root.rglob("*.lean")):
+        if _lean_source_has_sorry(path.read_text(encoding="utf-8")):
+            hits.append(str(path.relative_to(LEAN_ROOT)))
+    return tuple(hits)
+
+
 def scan_lean_package_for_sorry(root: Path | None = None) -> list[str]:
     """Return relative paths under lean/QSpecBench that contain sorry (non-comment)."""
     scan_root = root or PACKAGE_LEAN_ROOT
-    if not scan_root.is_dir():
-        return []
-    hits: list[str] = []
-    for path in sorted(scan_root.rglob("*.lean")):
-        if _lean_source_has_sorry(path.read_text(encoding="utf-8")):
-            hits.append(str(path.relative_to(LEAN_ROOT)))
-    return hits
+    mtime_key = _package_sorry_scan_mtime(scan_root)
+    return list(_cached_package_sorry_paths(str(scan_root.resolve()), mtime_key))
 
 
 def _required_import_present(evidence_text: str) -> bool:
@@ -67,6 +83,29 @@ def _required_import_present(evidence_text: str) -> bool:
         if f"import {module}" not in evidence_text:
             return False
     return True
+
+
+def _ensure_elan_toolchain(toolchain: str, env: dict[str, str]) -> None:
+    list_proc = subprocess.run(
+        ["elan", "toolchain", "list"],
+        cwd=str(LEAN_ROOT),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=env,
+    )
+    if list_proc.returncode == 0 and toolchain in list_proc.stdout:
+        return
+    subprocess.run(
+        ["elan", "toolchain", "install", toolchain],
+        cwd=str(LEAN_ROOT),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=env,
+    )
 
 
 def check(evidence_file: Path) -> dict:
@@ -109,26 +148,30 @@ def check(evidence_file: Path) -> dict:
 
     toolchain_file = LEAN_ROOT / "lean-toolchain"
     if toolchain_file.is_file():
-        subprocess.run(
-            ["elan", "toolchain", "install", toolchain_file.read_text(encoding="utf-8").strip()],
+        _ensure_elan_toolchain(toolchain_file.read_text(encoding="utf-8").strip(), env)
+
+    rel_evidence = _evidence_relative_to_lean(evidence_file)
+    try:
+        proc = subprocess.run(
+            [lake, "env", "lean", rel_evidence],
             cwd=str(LEAN_ROOT),
             capture_output=True,
             text=True,
             encoding="utf-8",
             errors="replace",
             env=env,
+            timeout=LEAN_COMPILE_TIMEOUT,
         )
-
-    rel_evidence = _evidence_relative_to_lean(evidence_file)
-    proc = subprocess.run(
-        [lake, "env", "lean", rel_evidence],
-        cwd=str(LEAN_ROOT),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=env,
-    )
+    except subprocess.TimeoutExpired:
+        return {
+            "ok": False,
+            "adapter": "lean_proof",
+            "path": str(evidence_file),
+            "trust_level": "checked",
+            "checker": "Lean 4 kernel",
+            "command": f"lake env lean {rel_evidence}",
+            "errors": [f"lake env lean timed out after {LEAN_COMPILE_TIMEOUT}s for {rel_evidence}"],
+        }
     if proc.returncode != 0:
         errors.append(f"lake env lean failed for {rel_evidence}")
         if proc.stderr:

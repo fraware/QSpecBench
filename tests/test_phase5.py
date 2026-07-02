@@ -15,7 +15,6 @@ from qspecbench.bridge_codegen import (
     ARTIFACT_PARSE_THEOREM_MAP,
     KERNEL_ARTIFACT_SOURCE_DEF,
     KERNEL_BRIDGE_IDS,
-    LEAN_AST_SHA256_FIELD,
     ast_sha256,
     build_canonical_ast,
     build_lean_mirror_canonical_ast,

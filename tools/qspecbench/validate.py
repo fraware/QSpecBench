@@ -11,7 +11,14 @@ from typing import Any
 import jsonschema
 import yaml
 
-from qspecbench.artifacts import check_layout, claim_dir_for_spec, find_spec_files, resolve_claim_path, track_for_claim
+from qspecbench.artifacts import (
+    check_layout,
+    claim_dir_for_spec,
+    claim_path_escape_error,
+    find_spec_files,
+    resolve_claim_path,
+    track_for_claim,
+)
 from qspecbench.schema import REPO_ROOT, validate_spec_schema
 from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL, validate_spec_trust_slice
 from qspecbench.trust import validate_trust_rules
@@ -63,7 +70,10 @@ class ValidationResult:
 
 def load_spec(spec_path: Path) -> dict[str, Any]:
     with spec_path.open(encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        data = yaml.safe_load(f)
+    if data is None:
+        raise ValueError(f"Empty or invalid YAML in {spec_path}")
+    return data
 
 
 def _load_semantic_bridge(spec: dict[str, Any], claim_dir: Path) -> dict[str, Any] | None:
@@ -517,12 +527,22 @@ def validate_spec_dict(
 
     for obj in spec.get("objects", []):
         path = obj.get("path")
-        if path and not resolve_claim_path(claim_dir, path).is_file():
+        if not path:
+            continue
+        escape_err = claim_path_escape_error(claim_dir, path)
+        if escape_err:
+            errors.append(escape_err)
+        elif not resolve_claim_path(claim_dir, path).is_file():
             errors.append(f"missing object file: {path}")
 
     for ev in spec.get("evidence", []):
         path = ev.get("path")
-        if path and not resolve_claim_path(claim_dir, path).is_file():
+        if not path:
+            continue
+        escape_err = claim_path_escape_error(claim_dir, path)
+        if escape_err:
+            errors.append(escape_err)
+        elif not resolve_claim_path(claim_dir, path).is_file():
             errors.append(f"missing evidence file: {path}")
 
     if spec.get("status", {}).get("maturity") == "deprecated":

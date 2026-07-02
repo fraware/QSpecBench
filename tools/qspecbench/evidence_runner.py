@@ -129,6 +129,13 @@ def _resolve_secondary_path(entry: dict, claim_dir: Path) -> Path | None:
     return (claim_dir / rel).resolve()
 
 
+def _evidence_timeout(evidence_type: str, cmd: list[str]) -> int:
+    cmd_text = " ".join(cmd)
+    if evidence_type == "lean_proof" or "adapters/lean" in cmd_text or "adapters\\lean" in cmd_text:
+        return 600
+    return 120
+
+
 def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[EvidenceRunResult]:
     claim_dir = claim_dir.resolve()
     spec = load_spec(claim_dir / "spec.yaml")
@@ -205,6 +212,7 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
             continue
 
         try:
+            timeout = _evidence_timeout(etype, cmd)
             proc = subprocess.run(
                 cmd,
                 cwd=str(REPO_ROOT),
@@ -213,6 +221,7 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
                 encoding="utf-8",
                 errors="replace",
                 shell=(sys.platform == "win32" and cmd[0].endswith(".sh")),
+                timeout=timeout,
             )
             result = EvidenceRunResult(
                 evidence_id=eid,
@@ -241,6 +250,17 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
                 except json.JSONDecodeError:
                     pass
             results.append(result)
+        except subprocess.TimeoutExpired:
+            timeout = _evidence_timeout(etype, cmd)
+            results.append(
+                EvidenceRunResult(
+                    evidence_id=eid,
+                    path=rel_path,
+                    command=" ".join(cmd),
+                    exit_code=1,
+                    errors=[f"command timed out after {timeout}s"],
+                )
+            )
         except OSError as exc:
             results.append(
                 EvidenceRunResult(
