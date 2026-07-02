@@ -18,8 +18,8 @@ Lean 4 proofs, human review, QASM parse (syntax), simulation (heuristic only).
 
 ## Good first claims
 
-- `teleportation_preserves_state_up_to_pauli_correction` (introductory, reference)
-- `no_cloning_negative_claim` (introductory, reference)
+- `teleportation_preserves_state_up_to_pauli_correction` (introductory, reference_scaffold)
+- `bell_state_preparation` (introductory, artifact_bound_reference_claim)
 
 ## Examples
 

@@ -14,8 +14,8 @@ Python heuristic checks, SMT, proof assistants. Simulation is heuristic, not pro
 
 ## Good first claims
 
-- `small_fermionic_hamiltonian_is_hermitian` (introductory, reference)
-- `single_trotter_step_declares_error_contract` (intermediate, usable)
+- `small_fermionic_hamiltonian_is_hermitian` (introductory, reference_claim)
+- `single_trotter_step_declares_error_contract` (intermediate, reference_contract)
 
 ## Examples
 

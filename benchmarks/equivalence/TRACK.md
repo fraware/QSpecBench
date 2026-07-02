@@ -18,8 +18,8 @@ QASM parse (syntax only), QCEC results, SAT-style certificates, kernel-checked s
 
 ## Good first claims
 
-- `cnot_self_inverse_cancellation` (introductory, **reference** with checkable certificate)
-- `rx_gate_equivalence_small_instance` (introductory, usable)
+- `cnot_self_inverse_cancellation` (introductory, **artifact_bound_reference_claim** with checkable certificate)
+- `rx_gate_equivalence_small_instance` (introductory, reference_scaffold)
 
 ## Examples
 
