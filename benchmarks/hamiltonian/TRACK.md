@@ -22,13 +22,13 @@ Python heuristic checks, SMT, proof assistants. Simulation is heuristic, not pro
 | ID | Difficulty | Maturity | Notes |
 |----|------------|----------|-------|
 | bravyi_kitaev_small_instance | intermediate | usable | Auto-synced from spec.yaml |
-| heisenberg_model_hermiticity_small_instance | introductory | reference | Auto-synced from spec.yaml |
-| jordan_wigner_preserves_anticommutation_small_instance | intermediate | reference | Auto-synced from spec.yaml |
-| pauli_decomposition_matches_source_hamiltonian_small_instance | advanced | reference | Auto-synced from spec.yaml |
-| resource_contract_for_small_hamiltonian_simulation | intermediate | reference | Auto-synced from spec.yaml |
-| single_trotter_step_declares_error_contract | intermediate | usable | Auto-synced from spec.yaml |
-| small_fermionic_hamiltonian_is_hermitian | introductory | reference | Auto-synced from spec.yaml |
-| trotter_second_order_bound_contract | intermediate | usable | Auto-synced from spec.yaml |
+| heisenberg_model_hermiticity_small_instance | introductory | reference_scaffold | Auto-synced from spec.yaml |
+| jordan_wigner_preserves_anticommutation_small_instance | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| pauli_decomposition_matches_source_hamiltonian_small_instance | advanced | reference_scaffold | Auto-synced from spec.yaml |
+| resource_contract_for_small_hamiltonian_simulation | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| single_trotter_step_declares_error_contract | intermediate | reference_contract | Auto-synced from spec.yaml |
+| small_fermionic_hamiltonian_is_hermitian | introductory | reference_claim | Auto-synced from spec.yaml |
+| trotter_second_order_bound_contract | intermediate | reference_contract | Auto-synced from spec.yaml |
 
 ## Known limitations
 

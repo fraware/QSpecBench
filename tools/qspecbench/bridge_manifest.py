@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -66,6 +67,7 @@ def _gate_trace_sha256(trace: list[list[Any]]) -> str:
     return _sha256_bytes(payload.encode("utf-8"))
 
 
+@lru_cache(maxsize=1)
 def load_manifest() -> dict[str, Any]:
     if not MANIFEST_PATH.is_file():
         return {"entries": []}
@@ -322,14 +324,12 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
         LEAN_AST_SHA256_FIELD,
         LEGACY_KERNEL_CHECKED_LINK,
         THEOREM_ELABORATOR_HASH_FIELD,
-        THEOREM_SOURCE_HASH_FIELD,
         _elaborator_exported_types,
         kernel_checked_theorem_name,
         lean_ast_sha256_for_benchmark,
         read_theorem_source_hash,
         theorem_elaborator_hash,
         theorem_source_statement_hash,
-        verify_kernel_artifact_semantics_bridge,
         verify_kernel_checked_entry,
     )
 

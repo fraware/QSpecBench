@@ -27,17 +27,17 @@ QEC JSON validator, formal proofs, simulation (heuristic), external QEC verifier
 |----|------------|----------|-------|
 | bb84_sifted_key_partial_claim | intermediate | usable | Auto-synced from spec.yaml |
 | detector_model_sanity_check | introductory | usable | Auto-synced from spec.yaml |
-| distance_certificate_small_css_code | intermediate | reference | Auto-synced from spec.yaml |
-| logical_state_preserved_up_to_pauli_frame | advanced | reference | Auto-synced from spec.yaml |
-| repeated_round_qec_temporal_specification | intermediate | reference | Auto-synced from spec.yaml |
-| repetition_code_three_one_three | introductory | reference | Auto-synced from spec.yaml |
-| shor_code_stabilizer_commutation | intermediate | reference | Auto-synced from spec.yaml |
-| steane_code_stabilizer_commutation | intermediate | reference | Auto-synced from spec.yaml |
-| surface_code_distance_three_stabilizer_sanity | intermediate | reference | Auto-synced from spec.yaml |
-| surface_code_single_pauli_error_correction | intermediate | reference | Auto-synced from spec.yaml |
-| surface_code_single_round_syndrome_extraction | intermediate | reference | Auto-synced from spec.yaml |
-| three_qubit_bit_flip_code_corrects_one_x | intermediate | reference | Auto-synced from spec.yaml |
-| three_qubit_phase_flip_code_corrects_one_z | intermediate | reference | Auto-synced from spec.yaml |
+| distance_certificate_small_css_code | intermediate | usable | Auto-synced from spec.yaml |
+| logical_state_preserved_up_to_pauli_frame | advanced | reference_scaffold | Auto-synced from spec.yaml |
+| repeated_round_qec_temporal_specification | intermediate | seed | Auto-synced from spec.yaml |
+| repetition_code_three_one_three | introductory | reference_scaffold | Auto-synced from spec.yaml |
+| shor_code_stabilizer_commutation | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| steane_code_stabilizer_commutation | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| surface_code_distance_three_stabilizer_sanity | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| surface_code_single_pauli_error_correction | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| surface_code_single_round_syndrome_extraction | intermediate | reference_scaffold | Auto-synced from spec.yaml |
+| three_qubit_bit_flip_code_corrects_one_x | intermediate | reference_claim | Auto-synced from spec.yaml |
+| three_qubit_phase_flip_code_corrects_one_z | intermediate | reference_scaffold | Auto-synced from spec.yaml |
 
 ## Known limitations
 

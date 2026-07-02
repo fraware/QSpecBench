@@ -7,14 +7,29 @@ import subprocess
 import sys
 from pathlib import Path
 
+PYTHON_SCRIPT_TIMEOUT = 120
+
 
 def check(path: Path) -> dict:
-    proc = subprocess.run(
-        [sys.executable, str(path)],
-        capture_output=True,
-        text=True,
-        cwd=str(path.parent),
-    )
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(path)],
+            capture_output=True,
+            text=True,
+            cwd=str(path.parent),
+            timeout=PYTHON_SCRIPT_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "ok": False,
+            "adapter": "python_simulation",
+            "path": str(path),
+            "trust_level": "heuristic",
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "",
+            "error": f"script timed out after {PYTHON_SCRIPT_TIMEOUT}s",
+        }
     return {
         "ok": proc.returncode == 0,
         "adapter": "python_simulation",

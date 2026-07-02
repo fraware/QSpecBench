@@ -16,11 +16,11 @@ Source text, target formal system, expected statement shape, rubric, trust bound
 
 | ID | Maturity | Notes |
 |----|----------|-------|
-| formalize_no_cloning_statement | reference | Rubric + Lean anchor |
-| formalize_small_hamiltonian_hermiticity_statement | reference | Hermiticity formalization |
-| formalize_stabilizer_commutation_statement | reference | Stabilizer commutation |
-| formalize_bit_flip_code_corrects_one_x | reference | QEC code formalization |
-| extract_teleportation_correctness_statement | reference | Rubric 4 + unitary-fragment anchor |
+| formalize_no_cloning_statement | reference_scaffold | Rubric + Lean anchor |
+| formalize_small_hamiltonian_hermiticity_statement | reference_scaffold | Hermiticity formalization |
+| formalize_stabilizer_commutation_statement | reference_scaffold | Stabilizer commutation |
+| formalize_bit_flip_code_corrects_one_x | reference_scaffold | QEC code formalization |
+| extract_teleportation_correctness_statement | reference_scaffold | Rubric 4 + unitary-fragment anchor |
 | formalize_qec_distance_claim_statement | usable | Distance claim draft |
 | formalize_teleportation_spec_statement | usable | Teleportation spec draft |
 

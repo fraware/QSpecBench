@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from qspecbench import CORPUS_VERSION, RELEASE_TAG, SCHEMA_VERSION, TOOLING_VERSION
-from qspecbench.models import ALL_REFERENCE_LEVELS, REFERENCE_CLAIM_LEVEL
+from qspecbench.models import ALL_REFERENCE_LEVELS, ARTIFACT_BOUND_LEVEL, REFERENCE_CLAIM_LEVEL
 from qspecbench.status import collect_statuses
 from qspecbench.trust import CHECKED_EVIDENCE_TYPES
 
@@ -173,6 +173,7 @@ def collect_summary_metrics(root: Path) -> dict[str, int]:
         "total_benchmarks": len(rows),
         "reference_scaffolds_any_level": ref_levels,
         "reference_claim": by_maturity.get(REFERENCE_CLAIM_LEVEL, 0),
+        "artifact_bound_reference_claim": by_maturity.get(ARTIFACT_BOUND_LEVEL, 0),
         "headline_checked": sum(1 for s in specs if _headline_checked(s)),
         "with_checked_evidence": sum(1 for s in specs if _has_checked_evidence(s)),
         "manifest_checked_theorem_binding": bridge_links.get("manifest_checked_theorem_binding", 0),

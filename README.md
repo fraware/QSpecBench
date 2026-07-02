@@ -179,29 +179,31 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 
 | Component | Version |
 |---|---|
-| **Schema** (`qspecbench_version`) | 0.2 |
+| **Schema** (`qspecbench_version`) | 0.3 |
 | **Tooling** (`qspecbench` CLI / Lean lib) | 0.2.0 |
 | **Corpus** (benchmark suite) | 0.2.0 |
-| **Release tag** | v0.2.2 |
+| **Release tag** | v0.2.3 |
 
-**Release honesty (v0.2.2):** tag `v0.2.2` (`e5ee749`) delivers six kernel-checked codegen-trace bridges,
-Lean `BridgeMetadata` manifest pins, and `parseQasmSource` artifact binding on the v0.2 schema.
-Most benchmarks remain **reference scaffolds**; only `reference_claim` entries assert a checked headline.
+**Release honesty (v0.2.3):** tag `v0.2.3` (`49e8899`) delivers six `artifact_bound_reference_claim` kernel bridges
+with dual named reviews and hash anchor chain, schema **0.3** (elaborator/AST authority fields), and
+`ast_authority: lean_mirror` on kernel-checked codegen-trace bridges. Most benchmarks remain **reference scaffolds**;
+only `reference_claim` and `artifact_bound_reference_claim` entries assert a checked headline under declared scope.
 See [versioning.md](docs/versioning.md) for honest scope.
 
 <!-- qspecbench-status-begin -->
-Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **8**
-benchmarks are `reference_claim` and **1** is `artifact_bound_reference_claim` under declared scope.
+Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **4**
+benchmarks are `reference_claim` and **6**
+are `artifact_bound_reference_claim` under declared scope.
 
 | | |
 |---|---|
 | **Benchmarks** | 48 across 5 tracks |
 | **Reference scaffolds** (any scoped reference level) | 40 |
-| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | 9 |
+| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | 10 |
 | **With any checked evidence** | 44 |
-| **Manifest-checked theorem bindings** | 6 |
+| **Manifest-checked theorem bindings** | 5 |
 | **Python denotation consistency checks** | 2 |
-| **Kernel-checked artifact-semantics bridges** | 6 |
+| **Kernel-checked codegen-trace bridges** | 1 |
 | **Coq/Rocq/Isabelle (optional CI)** | excluded from default maturity counts |
 | **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, bridge-metadata verify, circuit equivalence (QCEC) |
 

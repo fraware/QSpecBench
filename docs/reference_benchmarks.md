@@ -12,9 +12,9 @@ headline claim is still unproved. The headline claim is only considered proved a
 | `reference_contract` | Same, where the checked evidence is a declared contract (resource/error bound) rather than a proof of the bound. |
 | `reference_artifact` | Same, where the checked evidence is artifact-structural (e.g. stabilizer commutation). |
 | `reference_claim` | Headline claim fully proved (see requirements below). |
-| `artifact_bound_reference_claim` | **Reserved (schema v0.2):** headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Documented for future promotion; not assigned to any benchmark yet. See promotion checklist below. |
+| `artifact_bound_reference_claim` | Headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Six kernel-bridge pilots are assigned (see list below). |
 
-### `artifact_bound_reference_claim` promotion checklist (not assigned yet)
+### `artifact_bound_reference_claim` promotion checklist
 
 All items required before setting `status.maturity: artifact_bound_reference_claim`:
 
@@ -29,7 +29,16 @@ All items required before setting `status.maturity: artifact_bound_reference_cla
 | Lean `BridgeMetadata` literals match manifest (Python cross-check) | CI test |
 | README documents artifact binding scope | Maintainer review |
 
-Pilot (not promoted): `cnot_self_inverse_cancellation` — future obligations noted in `spec.yaml`.
+**Assigned benchmarks (6):**
+
+| Benchmark ID | Track |
+|---|---|
+| `cnot_self_inverse_cancellation` | equivalence |
+| `hadamard_conjugates_x_to_z` | equivalence |
+| `single_qubit_gate_cancellation` | equivalence |
+| `toffoli_decomposition_equivalence` | equivalence |
+| `bell_state_preparation` | algorithms |
+| `swap_from_three_cx` | algorithms |
 
 ## Universal requirements (any scoped reference level)
 
@@ -98,7 +107,8 @@ assumed lookup table); stabilizer commutation alone supports at most `reference_
 
 ## Current corpus (declared internal scope)
 
-- **`reference_claim`:** 9 benchmarks (see dashboard)
+- **`reference_claim`:** 4 benchmarks (see dashboard)
+- **`artifact_bound_reference_claim`:** 6 benchmarks (kernel-bridge pilots listed above)
 - **`manifest_checked_theorem_binding` bridges:** 11
 - **`python_denotation_consistency` bridges:** 2
 - **`kernel_checked_artifact_semantics`:** 6
