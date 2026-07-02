@@ -74,10 +74,11 @@ review block lacks a named non-bootstrap reviewer. Enforcement effective from co
 
 ### Coq / Rocq / Isabelle second-assistant track
 
-Coq (and Rocq/Isabelle stub adapters) are **excluded from default maturity and dashboard counts**
-until an optional CI job runs with `QSPECBENCH_COQ=1` and a working `coqc` on `PATH`. Lean 4 remains
-the only kernel-checked proof assistant in the default CI gate. Coq smoke files (for example
-`cnot_coq_smoke.v`) document the intended second-assistant path but do not affect maturity tiers.
+Coq (and Rocq/Isabelle stub adapters) are **excluded from default maturity and dashboard counts**.
+Lean 4 remains the only kernel-checked proof assistant in the default CI gate (`.github/workflows/validate.yml`
+does not install or invoke `coqc`). Optional local or custom-job checks use `QSPECBENCH_COQ=1` with
+`coqc` on `PATH` (see `adapters/coq/README.md`). Coq smoke files (for example `cnot_coq_smoke.v`)
+document the intended second-assistant path but do not run in default CI and do not affect maturity tiers.
 
 
 ## Reference-claim promotion
