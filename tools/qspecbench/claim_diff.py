@@ -16,6 +16,8 @@ def claim_diff_scope_payload(spec: dict[str, Any]) -> dict[str, Any]:
         "claim_scope": spec.get("claim_scope") or {},
         "proved_scope": spec.get("proved_scope") or {},
         "headline_claim_status": spec.get("headline_claim_status") or {},
+        "informal_claim": spec.get("informal_claim") or {},
+        "maturity": (spec.get("status") or {}).get("maturity"),
     }
 
 
@@ -85,6 +87,18 @@ def print_claim_diff(claim_dir: Path) -> str:
     return claim_diff_report(spec)
 
 
+def _strip_fingerprint_comment(text: str) -> str:
+    lines = [
+        line
+        for line in text.splitlines()
+        if not line.strip().startswith("<!-- scope_fingerprint:")
+    ]
+    body = "\n".join(lines)
+    if text.endswith("\n"):
+        body += "\n"
+    return body
+
+
 def validate_claim_diff(claim_dir: Path) -> list[str]:
     """Fail if evidence/claim_diff.md exists but is stale vs spec scope blocks."""
     spec_path = claim_dir / "spec.yaml"
@@ -100,14 +114,17 @@ def validate_claim_diff(claim_dir: Path) -> list[str]:
     if actual == expected:
         return []
 
+    if _strip_fingerprint_comment(actual) == _strip_fingerprint_comment(expected):
+        return []
+
     fingerprint = claim_diff_fingerprint(spec)
     if f"scope_fingerprint: {fingerprint}" in actual:
         return [
-            "evidence/claim_diff.md body stale vs spec claim_scope/proved_scope "
+            "evidence/claim_diff.md body stale vs spec scope/informal_claim/maturity "
             f"(fingerprint {fingerprint[:12]}…)"
         ]
 
     return [
-        "evidence/claim_diff.md stale vs spec claim_scope/proved_scope "
+        "evidence/claim_diff.md stale vs spec scope/informal_claim/maturity "
         "(regenerate with `qspecbench claim-diff` or scripts/run_claim_diff_all.py --write-evidence)"
     ]
