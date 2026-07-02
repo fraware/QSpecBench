@@ -29,7 +29,6 @@ PROMOTIONS = {
 
 def main() -> int:
     for rel, obligations in PROMOTIONS.items():
-        spec_path = REPO / "benchmarks" / rel.split("_")[0] / rel / "spec.yaml"
         # find by id
         found = None
         for p in (REPO / "benchmarks").rglob("spec.yaml"):
