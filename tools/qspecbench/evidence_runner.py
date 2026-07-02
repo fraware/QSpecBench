@@ -133,6 +133,18 @@ def _evidence_timeout(evidence_type: str, cmd: list[str]) -> int:
     cmd_text = " ".join(cmd)
     if evidence_type == "lean_proof" or "adapters/lean" in cmd_text or "adapters\\lean" in cmd_text:
         return 600
+    if evidence_type == "coq_proof" or "adapters/coq" in cmd_text or "adapters\\coq" in cmd_text:
+        return 300
+    if evidence_type == "qcec_result" or "adapters/qcec" in cmd_text or "adapters\\qcec" in cmd_text:
+        return 300
+    if (
+        evidence_type in {"smt_certificate", "sat_certificate"}
+        or "adapters/smt" in cmd_text
+        or "adapters\\smt" in cmd_text
+        or "adapters/sat_certificate" in cmd_text
+        or "adapters\\sat_certificate" in cmd_text
+    ):
+        return 120
     return 120
 
 
@@ -247,8 +259,9 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
                         else:
                             result.errors.append(payload.get("error", "adapter reported ok=false"))
                         result.exit_code = 1
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as exc:
+                    result.errors.append(f"adapter stdout is not valid JSON: {exc}")
+                    result.exit_code = 1
             results.append(result)
         except subprocess.TimeoutExpired:
             timeout = _evidence_timeout(etype, cmd)
