@@ -33,7 +33,7 @@ Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpec
 - **Kernel-checked codegen-trace bridges:** 1
 - **Kernel-checked artifact-semantics bridges (legacy label):** 6
 - **Documented (not proved) bridges:** 4
-- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`). `coq_smoke` compiles `cnot_coq_smoke.v` on every push when `coqc` is installed.
+- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity counts. Default CI does not install or invoke `coqc`. Optional local or custom-job checks use `QSPECBENCH_COQ=1` (see `adapters/coq/README.md`). Smoke file `cnot_coq_smoke.v` is documented but not compiled in default CI.
 
 ### Passing evidence by trust level
 
