@@ -10,6 +10,9 @@ import sys
 from pathlib import Path
 
 
+COQ_COMPILE_TIMEOUT = 300
+
+
 def _coq_available() -> bool:
     return shutil.which("coqc") is not None
 
@@ -57,6 +60,7 @@ def check(evidence_file: Path) -> dict:
             capture_output=True,
             text=True,
             cwd=evidence_file.parent,
+            timeout=COQ_COMPILE_TIMEOUT,
         )
         return {
             "ok": True,
@@ -65,6 +69,15 @@ def check(evidence_file: Path) -> dict:
             "trust_level": "kernel_checked",
             "skipped": False,
             "errors": [],
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "ok": False,
+            "adapter": "coq_proof",
+            "path": str(evidence_file),
+            "trust_level": "not_checked",
+            "skipped": False,
+            "errors": [f"coqc timed out after {COQ_COMPILE_TIMEOUT}s"],
         }
     except subprocess.CalledProcessError as exc:
         stderr = (exc.stderr or exc.stdout or "").strip()

@@ -10,6 +10,9 @@ import sys
 from pathlib import Path
 
 
+SMT_SOLVER_TIMEOUT = 120
+
+
 def _load_certificate(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -27,6 +30,7 @@ def _run_solver(solver: str, smt_path: Path, expected: str) -> tuple[bool, str]:
         [solver, str(smt_path)],
         capture_output=True,
         text=True,
+        timeout=SMT_SOLVER_TIMEOUT,
     )
     output = (proc.stdout or "") + (proc.stderr or "")
     verdict = output.strip().splitlines()[-1].lower() if output.strip() else ""
