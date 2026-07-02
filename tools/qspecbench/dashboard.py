@@ -23,9 +23,11 @@ COQ_SMOKE_V = (
 
 
 def _coq_smoke_status() -> str:
-    """Return passing | failed | unknown for default-CI Coq smoke compile."""
+    """Return passing | failed | unknown for optional Coq smoke compile (not default CI)."""
     if os.environ.get("QSPECBENCH_COQ_SMOKE_CI", "").lower() in {"1", "true", "pass", "passed"}:
         return "passing"
+    if os.environ.get("QSPECBENCH_COQ", "0") != "1":
+        return "unknown"
     coqc = shutil.which("coqc")
     if not coqc or not COQ_SMOKE_V.is_file():
         return "unknown"
@@ -42,16 +44,18 @@ def _coq_smoke_status() -> str:
 
 
 def _coq_dashboard_lines() -> list[str]:
-    if _coq_smoke_status() == "passing":
+    smoke = _coq_smoke_status()
+    if smoke == "passing":
         return [
-            "- **Coq smoke (`cnot_coq_smoke.v`):** 1 (passing in default CI)",
-            "- **Coq/Rocq/Isabelle full adapter:** optional job only "
-            "(`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`)",
+            "- **Coq smoke (`cnot_coq_smoke.v`):** 1 (passing with `QSPECBENCH_COQ=1` and `coqc` on PATH)",
+            "- **Coq/Rocq/Isabelle full adapter:** optional only; not in default CI "
+            "(see `adapters/coq/README.md`)",
         ]
     return [
-        "- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity "
-        "counts until optional CI job passes (`QSPECBENCH_COQ=1`; see `adapters/coq/README.md`). "
-        "`coq_smoke` compiles `cnot_coq_smoke.v` on every push when `coqc` is installed.",
+        "- **Coq/Rocq/Isabelle second-assistant evidence:** excluded from default maturity counts. "
+        "Default CI does not install or invoke `coqc`. Optional local or custom-job checks use "
+        "`QSPECBENCH_COQ=1` (see `adapters/coq/README.md`). "
+        "Smoke file `cnot_coq_smoke.v` is documented but not compiled in default CI.",
     ]
 
 
