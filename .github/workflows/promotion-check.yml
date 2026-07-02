@@ -6,6 +6,10 @@ on:
       - "benchmarks/**"
       - "schema/**"
       - "tools/qspecbench/**"
+      - "lean/**"
+      - "adapters/**"
+      - "scripts/**"
+      - "tests/**"
 
 jobs:
   promotion-check:
@@ -19,7 +23,7 @@ jobs:
           python-version: "3.11"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --extra dev
       - run: uv run qspecbench validate benchmarks/
       - run: git fetch origin "${{ github.base_ref }}"
       - run: uv run pytest tests/test_infrastructure_b.py tests/test_claim_diff.py tests/test_lean_evidence.py -q

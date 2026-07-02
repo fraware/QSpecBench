@@ -15,5 +15,5 @@ jobs:
           python-version: "3.11"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --dev
-      - run: uv run ruff check tools tests
+      - run: uv sync --frozen --extra dev
+      - run: uv run ruff check tools tests adapters scripts
