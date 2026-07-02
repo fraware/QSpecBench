@@ -18,12 +18,35 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+      - name: Fetch Mathlib cache
+        run: |
+          cd lean
+          lake exe cache get || true
+      - name: Build Lean proofs
+        run: |
+          cd lean
+          lake build
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen --extra dev
+      - name: Export theorem elaborator types
+        run: uv run python scripts/export_theorem_types.py > /dev/null
       - run: uv run qspecbench validate benchmarks/
       - run: git fetch origin "${{ github.base_ref }}"
       - run: uv run pytest tests/test_infrastructure_b.py tests/test_claim_diff.py tests/test_lean_evidence.py -q
