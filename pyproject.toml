@@ -20,6 +20,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "ruff>=0.1", "mqt.qcec==3.6.0"]
 
+[dependency-groups]
+dev = ["pytest>=7.0", "ruff>=0.1", "mqt.qcec==3.6.0"]
+
 [project.scripts]
 qspecbench = "qspecbench.cli:main"
 
@@ -32,6 +35,7 @@ packages = ["tools/qspecbench"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["tools", "."]
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 100

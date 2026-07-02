@@ -21,8 +21,29 @@ def _sha256_payload(payload: dict[str, Any]) -> str:
 
 
 def dynamic_simulation_fingerprint(report: dict[str, Any]) -> str:
-    """Stable hash of a simulation report (excludes embedded fingerprint field)."""
-    payload = {k: v for k, v in report.items() if k != "report_fingerprint"}
+    """Stable hash of a simulation report (excludes embedded fingerprint fields)."""
+    payload = {
+        k: v
+        for k, v in report.items()
+        if k not in ("report_fingerprint", "input_fingerprint")
+    }
+    return _sha256_payload(payload)
+
+
+def dynamic_simulation_input_fingerprint(claim_dir: Path, spec: dict[str, Any]) -> str | None:
+    """Hash of simulation inputs (QASM bytes + extraction config + benchmark id)."""
+    qasm_path = None
+    for obj in spec.get("objects", []):
+        if obj.get("format") == "qasm3" and obj.get("path"):
+            qasm_path = claim_dir / obj["path"]
+            break
+    if qasm_path is None or not qasm_path.is_file():
+        return None
+    payload = {
+        "benchmark_id": spec.get("id", claim_dir.name),
+        "qasm_sha256": hashlib.sha256(qasm_path.read_bytes()).hexdigest(),
+        "qasm_extraction": spec.get("qasm_extraction") or {},
+    }
     return _sha256_payload(payload)
 
 
@@ -123,8 +144,14 @@ def attach_lean_cross_refs(report: dict[str, Any], spec: dict[str, Any]) -> dict
     return report
 
 
-def attach_fingerprint(report: dict[str, Any]) -> dict[str, Any]:
+def attach_fingerprint(
+    report: dict[str, Any],
+    *,
+    input_fingerprint: str | None = None,
+) -> dict[str, Any]:
     out = dict(report)
+    if input_fingerprint is not None:
+        out["input_fingerprint"] = input_fingerprint
     out["report_fingerprint"] = dynamic_simulation_fingerprint(report)
     return out
 
@@ -152,10 +179,31 @@ def validate_dynamic_simulation_evidence(claim_dir: Path, spec: dict[str, Any] |
         except json.JSONDecodeError:
             errors.append(f"{path}: invalid JSON")
             continue
+
+        current_input_fp = dynamic_simulation_input_fingerprint(claim_dir, spec)
+        stored_fp = stored.get("report_fingerprint")
+        stored_input_fp = stored.get("input_fingerprint")
+        if (
+            current_input_fp
+            and stored_input_fp == current_input_fp
+            and stored_fp
+            and stored_fp == dynamic_simulation_fingerprint(stored)
+        ):
+            cross_errors = validate_lean_theorem_refs(
+                stored.get("lean_cross_ref", {}).get("lean_theorem_refs") or [],
+                claim_dir=claim_dir,
+                spec=spec,
+            )
+            errors.extend(f"{path}: {e}" for e in cross_errors)
+            continue
+
         regenerated = regenerate_dynamic_simulation_report(claim_dir, spec)
         if regenerated is None:
             continue
-        expected = attach_fingerprint(regenerated)
+        expected = attach_fingerprint(
+            regenerated,
+            input_fingerprint=current_input_fp,
+        )
         stored_fp = stored.get("report_fingerprint")
         expected_fp = expected["report_fingerprint"]
         if stored_fp == expected_fp:

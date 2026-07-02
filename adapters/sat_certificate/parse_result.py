@@ -8,6 +8,9 @@ import sys
 from pathlib import Path
 
 
+SAT_GENERATOR_TIMEOUT = 120
+
+
 def verify(cert_path: Path) -> dict:
     errors: list[str] = []
     if not cert_path.is_file():
@@ -20,12 +23,22 @@ def verify(cert_path: Path) -> dict:
     else:
         generator = claim_dir / "evidence" / "verify_unitary_equality.py"
     if generator.is_file():
-        proc = subprocess.run([sys.executable, str(generator)], capture_output=True, text=True)
-        if proc.returncode != 0:
-            errors.append("generator failed")
-        fresh = json.loads(cert_path.read_text(encoding="utf-8"))
-        if not fresh.get("equal"):
-            errors.append("certificate reports equal=false")
+        try:
+            proc = subprocess.run(
+                [sys.executable, str(generator)],
+                capture_output=True,
+                text=True,
+                timeout=SAT_GENERATOR_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            errors.append(f"generator timed out after {SAT_GENERATOR_TIMEOUT}s")
+            proc = None
+        if proc is not None:
+            if proc.returncode != 0:
+                errors.append("generator failed")
+            fresh = json.loads(cert_path.read_text(encoding="utf-8"))
+            if not fresh.get("equal"):
+                errors.append("certificate reports equal=false")
     else:
         if not cert.get("equal"):
             errors.append("certificate equal flag false")

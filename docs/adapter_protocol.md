@@ -17,7 +17,8 @@ Adapters connect external tools to QSpecBench evidence checks.
 | `human_review/` | `human_review` | externally_trusted |
 | `ai_formalization/` | `ai_draft` rubric | untrusted |
 
-Coq/Rocq adapters are **not** used in this repository (see [Declined adapters](#declined-adapters)).
+Coq/Rocq/Isabelle stub adapters exist for optional second-assistant evidence but are **not** in default
+CI (see [Optional second-assistant adapters](#optional-second-assistant-adapters)).
 
 ## Directory layout
 
@@ -37,11 +38,15 @@ adapters/<adapter_name>/
 - Do not upgrade trust level beyond checker capability
 - Callable from CI or documented as manual
 
-## Declined adapters
+## Optional second-assistant adapters
 
-The original mission mentioned Coq/Rocq file-existence stubs. This repository **declines** them in favor of a Lean-only proof-assistant policy:
+Lean 4 is the only kernel-checked proof assistant in **default CI**. Coq, Rocq, and Isabelle stub
+adapters live under `adapters/coq/`, `adapters/rocq/`, and `adapters/isabelle/` (required by
+`tests/test_repo_policy.py`) for optional evidence when `QSPECBENCH_COQ=1` and `coqc` are available
+locally or in a custom CI job. They are not invoked by `.github/workflows/validate.yml` or `lint.yml`.
 
-- No `adapters/coq/` or `adapters/rocq/` directories (enforced by `tests/test_repo_policy.py`)
-- Evidence types `qbricks_result` and `zx_certificate` remain schema placeholders until a driving benchmark needs a dedicated adapter
+- Coq adapter: real `coqc` checks when enabled; see `adapters/coq/README.md`
+- Rocq/Isabelle: fail-closed stubs (`skipped: true`) until a driving benchmark needs them
+- Evidence types `qbricks_result` and `zx_certificate` remain schema placeholders until a dedicated adapter is needed
 
 See [Lean setup](lean_setup.md) for proof assistant installation.

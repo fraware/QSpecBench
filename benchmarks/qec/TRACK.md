@@ -18,8 +18,8 @@ QEC JSON validator, formal proofs, simulation (heuristic), external QEC verifier
 
 ## Good first claims
 
-- `three_qubit_bit_flip_code_corrects_one_x` (intermediate, reference)
-- `shor_code_stabilizer_commutation` (intermediate, usable)
+- `three_qubit_bit_flip_code_corrects_one_x` (intermediate, reference_claim)
+- `shor_code_stabilizer_commutation` (intermediate, reference_scaffold)
 
 ## Examples
 

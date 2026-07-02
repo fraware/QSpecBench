@@ -9,6 +9,9 @@ import sys
 from pathlib import Path
 
 
+QCEC_CLI_TIMEOUT = 300
+
+
 def _parse_equivalence_verdict(text: str) -> str:
     lowered = text.lower()
     if "not equivalent" in lowered or "non-equivalent" in lowered or "non_equivalent" in lowered:
@@ -44,6 +47,7 @@ def _check_with_cli(source: Path, target: Path) -> dict:
         [qcec_bin, str(source), str(target)],
         capture_output=True,
         text=True,
+        timeout=QCEC_CLI_TIMEOUT,
     )
     combined = (proc.stdout or "") + (proc.stderr or "")
     verdict = _parse_equivalence_verdict(combined)

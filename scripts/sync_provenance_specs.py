@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parents[1]
 if str(REPO / "tools") not in sys.path:
     sys.path.insert(0, str(REPO / "tools"))
 
-from qspecbench.provenance import compute_provenance, write_provenance  # noqa: E402
+from qspecbench.provenance import write_provenance  # noqa: E402
 
 
 def _provenance_for_spec(claim_dir: Path) -> dict:

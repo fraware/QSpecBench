@@ -18,6 +18,16 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
 
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
       - name: Fetch Mathlib cache
         run: |
           cd lean
@@ -28,9 +38,6 @@ jobs:
           cd lean
           lake build
 
-      - name: Export theorem elaborator types
-        run: python scripts/export_theorem_types.py > /dev/null
-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -38,16 +45,23 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --extra dev
+
+      - name: Export theorem elaborator types
+        run: uv run python scripts/export_theorem_types.py > /dev/null
       - run: uv run qspecbench validate benchmarks/
       - run: uv run qspecbench bridge-metadata verify
       - run: uv run qspecbench bridge-codegen verify benchmarks/
-      - run: uv run pytest tests/test_infrastructure_b.py tests/test_claim_diff.py tests/test_release_bundle.py tests/test_phase5.py tests/test_lean_evidence.py -q
       - run: uv run qspecbench dynamic-simulate benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction --teleport-basis-check
-      - run: uv run qspecbench check-evidence benchmarks/equivalence/cnot_self_inverse_cancellation
       - run: uv run qspecbench check-evidence benchmarks/
       - run: uv run qspecbench dashboard benchmarks/ --out docs/status.md
+      - name: Check dashboard drift
+        run: git diff --exit-code docs/status.md
       - run: uv run pytest
+      - name: Release bundle smoke
+        run: |
+          uv run qspecbench release-bundle benchmarks/equivalence/cnot_self_inverse_cancellation --out /tmp/qspecbench-smoke.tar.gz
+          uv run qspecbench verify-release-bundle /tmp/qspecbench-smoke.tar.gz
 
   bridge:
     runs-on: ubuntu-latest
@@ -59,7 +73,7 @@ jobs:
           python-version: "3.11"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --extra dev
       - run: uv run qspecbench verify-bridge benchmarks/equivalence/cnot_self_inverse_cancellation
       - run: uv run qspecbench verify-bridge benchmarks/equivalence/hadamard_conjugates_x_to_z
       - run: uv run qspecbench verify-bridge benchmarks/equivalence/single_qubit_gate_cancellation
@@ -86,6 +100,16 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
 
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
       - name: Build Lean proofs
         run: |
           cd lean
@@ -97,7 +121,7 @@ jobs:
           python-version: "3.11"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --extra dev
       - run: uv run qspecbench check-evidence benchmarks/ai_formalization/
 
   qcec:
@@ -111,6 +135,16 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
 
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
       - name: Build Lean proofs
         run: |
           cd lean
@@ -122,7 +156,7 @@ jobs:
           python-version: "3.11"
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --extra dev
       - run: uv run qspecbench check-evidence benchmarks/equivalence/
 
   smt:
@@ -137,5 +171,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y z3
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --extra dev
       - run: uv run qspecbench check-evidence benchmarks/qec/distance_certificate_small_css_code/

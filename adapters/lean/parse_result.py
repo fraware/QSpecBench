@@ -40,8 +40,14 @@ def _lean_source_has_sorry(text: str) -> bool:
     return False
 
 
-def _evidence_has_sorry(evidence_text: str) -> bool:
-    return _lean_source_has_sorry(evidence_text)
+@lru_cache(maxsize=64)
+def _cached_evidence_has_sorry(path_str: str, mtime_key: float) -> bool:
+    return _lean_source_has_sorry(Path(path_str).read_text(encoding="utf-8"))
+
+
+def _evidence_has_sorry(evidence_file: Path) -> bool:
+    mtime_key = evidence_file.stat().st_mtime if evidence_file.is_file() else 0.0
+    return _cached_evidence_has_sorry(str(evidence_file.resolve()), mtime_key)
 
 
 def _package_sorry_scan_mtime(root: Path) -> float:
@@ -114,7 +120,7 @@ def check(evidence_file: Path) -> dict:
         return {"ok": False, "adapter": "lean_proof", "errors": ["evidence file missing"]}
 
     evidence_text = evidence_file.read_text(encoding="utf-8")
-    if _evidence_has_sorry(evidence_text):
+    if _evidence_has_sorry(evidence_file):
         errors.append(f"sorry found in evidence file: {evidence_file}")
 
     package_sorry = scan_lean_package_for_sorry()

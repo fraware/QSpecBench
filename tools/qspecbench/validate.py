@@ -84,8 +84,8 @@ def _load_semantic_bridge(spec: dict[str, Any], claim_dir: Path) -> dict[str, An
     if bridge_path.is_file():
         try:
             return json.loads(bridge_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return None
+        except json.JSONDecodeError as exc:
+            return {"__parse_error__": f"invalid JSON in expected/semantic_bridge.json: {exc}"}
     return None
 
 
@@ -158,6 +158,9 @@ def validate_semantic_bridge_rules(spec: dict[str, Any], claim_dir: Path) -> tup
     warnings: list[str] = []
     maturity = spec.get("status", {}).get("maturity")
     bridge = _load_semantic_bridge(spec, claim_dir)
+    if isinstance(bridge, dict) and "__parse_error__" in bridge:
+        errors.append(bridge["__parse_error__"])
+        return errors, warnings
     if (
         maturity in ALL_REFERENCE_LEVELS
         and _has_qasm_objects(spec)
@@ -451,8 +454,8 @@ def _validate_qec_claim_scope(spec: dict[str, Any], claim_dir: Path) -> list[str
                     payload = json.loads(path.read_text(encoding="utf-8"))
                     if payload.get("distance_result"):
                         has_distance_evidence = True
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as exc:
+                    errors.append(f"invalid JSON in qec evidence {ev.get('path')}: {exc}")
         if not has_distance_evidence:
             errors.append(
                 "qec_claim_scope.distance.status checked requires distance_result evidence "

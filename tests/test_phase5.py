@@ -25,6 +25,7 @@ from qspecbench.bridge_codegen import (
 )
 from qspecbench.dynamic_simulation_evidence import (
     attach_fingerprint,
+    dynamic_simulation_input_fingerprint,
     regenerate_dynamic_simulation_report,
     validate_dynamic_simulation_evidence,
 )
@@ -65,8 +66,34 @@ def test_dynamic_simulation_evidence_freshness_passes():
     report = regenerate_dynamic_simulation_report(TELEPORT, spec)
     assert report is not None
     assert report.get("lean_cross_ref", {}).get("lean_theorem_refs")
+    input_fp = dynamic_simulation_input_fingerprint(TELEPORT, spec)
     path = TELEPORT / "evidence" / "dynamic_simulation_basis_check.json"
-    path.write_text(json.dumps(attach_fingerprint(report), indent=2) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(attach_fingerprint(report, input_fingerprint=input_fp), indent=2) + "\n",
+        encoding="utf-8",
+    )
+    errors = validate_dynamic_simulation_evidence(TELEPORT, spec)
+    assert errors == [], errors
+
+
+def test_dynamic_simulation_evidence_skips_regeneration_when_inputs_unchanged(monkeypatch):
+    spec = yaml.safe_load((TELEPORT / "spec.yaml").read_text(encoding="utf-8"))
+    report = regenerate_dynamic_simulation_report(TELEPORT, spec)
+    assert report is not None
+    input_fp = dynamic_simulation_input_fingerprint(TELEPORT, spec)
+    path = TELEPORT / "evidence" / "dynamic_simulation_basis_check.json"
+    path.write_text(
+        json.dumps(attach_fingerprint(report, input_fingerprint=input_fp), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    def _fail_if_called(*_args, **_kwargs):
+        raise AssertionError("regenerate_dynamic_simulation_report should not run")
+
+    monkeypatch.setattr(
+        "qspecbench.dynamic_simulation_evidence.regenerate_dynamic_simulation_report",
+        _fail_if_called,
+    )
     errors = validate_dynamic_simulation_evidence(TELEPORT, spec)
     assert errors == [], errors
 
@@ -79,7 +106,11 @@ def test_dynamic_simulation_evidence_stale_fails():
     errors = validate_dynamic_simulation_evidence(TELEPORT, spec)
     assert errors
     report = regenerate_dynamic_simulation_report(TELEPORT, spec)
-    path.write_text(json.dumps(attach_fingerprint(report), indent=2) + "\n", encoding="utf-8")
+    input_fp = dynamic_simulation_input_fingerprint(TELEPORT, spec)
+    path.write_text(
+        json.dumps(attach_fingerprint(report, input_fingerprint=input_fp), indent=2) + "\n",
+        encoding="utf-8",
+    )
 
 
 def test_normalized_prefix_differs_from_int_scaffold():

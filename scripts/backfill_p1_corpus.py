@@ -171,7 +171,6 @@ def _qec_claim_scope(spec: dict) -> dict | None:
     if spec.get("track") != "qec":
         return None
     qs = spec.get("qec_status") or {}
-    params = {}
     for key in (
         "code_definition", "stabilizer_commutation", "syndrome_extraction",
         "decoder_claim", "correction_claim", "repeated_round_claim",

@@ -278,7 +278,7 @@ def validate_min_weight_distance(
                 continue
             if not all(_pauli_commute(p, s) for s in stabilizers):
                 continue
-            if any(not _pauli_commute(p, l) for l in logicals):
+            if any(not _pauli_commute(p, logical) for logical in logicals):
                 min_d = w
                 break
         if min_d is not None:

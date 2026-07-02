@@ -33,15 +33,19 @@ def track_for_claim(claim_dir: Path, benchmarks_root: Path | None = None) -> str
 
 
 def resolve_claim_path(claim_dir: Path, rel_path: str) -> Path:
-    return (claim_dir / rel_path).resolve()
+    resolved = (claim_dir / rel_path).resolve()
+    claim_root = claim_dir.resolve()
+    if not resolved.is_relative_to(claim_root):
+        raise ValueError(f"path escapes claim directory: {rel_path!r} -> {resolved}")
+    return resolved
 
 
 def claim_path_escape_error(claim_dir: Path, rel_path: str) -> str | None:
     """Return an error message if rel_path resolves outside claim_dir."""
-    resolved = resolve_claim_path(claim_dir, rel_path)
-    claim_root = claim_dir.resolve()
-    if not resolved.is_relative_to(claim_root):
-        return f"path escapes claim directory: {rel_path!r} -> {resolved}"
+    try:
+        resolve_claim_path(claim_dir, rel_path)
+    except ValueError as exc:
+        return str(exc)
     return None
 
 

@@ -252,7 +252,6 @@ def _patch_lean_anchor(bid: str) -> bool:
         or (ln.startswith("/-!") and "Evidence" in ln)
         or (ln.startswith("--") and "Evidence" in ln)
     ]
-    body = [ln for ln in lines if not ln.startswith("import ") and not ln.startswith("#check")]
     if not imports:
         imports = [ln for ln in lines if ln.startswith("import ")]
     new_text = "\n".join(imports + [""] + [anchor, ""] + [check_line] + [""])
