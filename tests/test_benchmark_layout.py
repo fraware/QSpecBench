@@ -2,9 +2,10 @@
 
 from pathlib import Path
 
+import pytest
 import yaml
 
-from qspecbench.artifacts import check_layout, find_spec_files, track_for_claim
+from qspecbench.artifacts import claim_path_escape_error, check_layout, find_spec_files, resolve_claim_path, track_for_claim
 from qspecbench.models import ALL_REFERENCE_LEVELS
 from qspecbench.validate import validate_spec_dict
 
@@ -17,6 +18,14 @@ TRACK_MAP = {
     "hamiltonian": "hamiltonian",
     "ai_formalization": "ai_formalization",
 }
+
+
+def test_resolve_claim_path_rejects_escape():
+    claim_dir = REPO / "benchmarks/algorithms/bell_state_preparation"
+    with pytest.raises(ValueError, match="path escapes claim directory"):
+        resolve_claim_path(claim_dir, "../../README.md")
+    assert claim_path_escape_error(claim_dir, "../../README.md") is not None
+    assert resolve_claim_path(claim_dir, "spec.yaml").is_file()
 
 
 def test_all_benchmarks_have_required_dirs():
