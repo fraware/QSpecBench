@@ -130,5 +130,6 @@
     ],
     "trust_boundary": "Basis-state scaffold only; arbitrary superposition update not kernel-checked."
   },
+  "input_fingerprint": "6b5f7cc955cd569174ff010c4bd48916e88937ac7477527bcb39efbcbc88bdf0",
   "report_fingerprint": "2f5328906c781effbfc5c7481dc07766c22ffd0cdce8967a33b4a35e9091d058"
 }
