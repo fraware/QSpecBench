@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: formalize_stabilizer_commutation_statement
 title: Formalize Stabilizer Commutation Statement
 track: ai_formalization
@@ -6,7 +6,11 @@ domain: ai_formalization
 claim_type: formalization_faithfulness
 difficulty: intermediate
 informal_claim:
-  statement: Evaluate AI-assisted formalization faithfulness for `formalize_stabilizer_commutation_statement`.
+  statement: The informal source claim that all stabilizer generators of a stabilizer code pairwise
+    commute under Pauli multiplication is faithfully formalized — for the declared six-generator
+    Steane Z-chain scaffold's five adjacent generator pairs — by the checked Steane
+    stabilizer-commutation theorem under the frozen gold target; full all-pairs commutation for a
+    general stabilizer code remains outside this gold target.
   source: artifacts/source.txt
   reference_key: null
 semantic_level:
@@ -32,9 +36,12 @@ specification:
   mode: relational
   preconditions:
   - source text provided
+  - gold target frozen (accepted formal statement + rejected nearby)
   postconditions:
-  - formalization assessed against rubric; no correctness from AI output alone
-  invariants: []
+  - gold formalization faithful to source under documented assumptions (rubric score >= 4)
+  - kernel-checked library theorem anchors the accepted formal statement
+  invariants:
+  - AI draft remains untrusted even when gold package is checked
   approximation:
     enabled: false
     metric: null
@@ -52,10 +59,13 @@ specification:
 assumptions:
   mathematical:
   - standard finite-dimensional quantum semantics
+  - declared six-generator Steane Z-chain scaffold (steaneZ01..steaneZ56) on 7 qubits
   physical: []
   tool: []
-  artifact: []
-  unverified: []
+  artifact:
+  - AI draft text is untrusted; gold statement is the library theorem named in gold_target
+  unverified:
+  - full faithfulness of AI draft text to source phrasing
 acceptable_evidence:
 - type: ai_draft
   checker: none
@@ -65,12 +75,12 @@ acceptable_evidence:
 - type: human_review
   checker: semantic rubric reviewer
   path: notes/semantic_rubric.md
-  required_for_claim: false
+  required_for_claim: true
   trust_level: externally_trusted
 - type: lean_proof
   checker: Lean 4 kernel
   path: evidence/kernel_checked_draft.lean
-  required_for_claim: false
+  required_for_claim: true
   trust_level: checked
 evidence:
 - id: ai_draft_lean
@@ -79,23 +89,24 @@ evidence:
   checker: none
   command: null
   status: draft
-  notes: Untrusted AI output; superseded by kernel-checked anchor.
+  notes: Untrusted AI output; gold package uses kernel-checked library theorem, not this draft.
 - id: lean_kernel_check
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked library theorem anchor.
+  notes: Kernel-checked library theorem anchor for gold accepted formal statement.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
   status: passing
-  notes: Rubric score >= 4 for reference benchmarks.
+  notes: Rubric score 4 for frozen gold target vs source claim.
 trust_boundary:
   checked_by:
   - rubric file structure validation
   - Lean 4 kernel check of linked library theorem
+  - dual hash-bound formal and domain review artifacts
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
@@ -103,13 +114,32 @@ trust_boundary:
   - artifacts/draft.lean AI draft (untrusted)
   assumptions_not_checked:
   - full faithfulness of AI draft text to source phrasing
+  - all-pairs stabilizer commutation for a general stabilizer code (only 5 adjacent
+    chain pairs among 6 declared generators are checked)
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-25'
+      notes: Corpus-pattern formal review of frozen gold package (kernel anchor + gold faithfulness).
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 1367a326c4879547231b4cdfc7231468ca249238a428e793fd5fe9c84254313a
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-25'
+      notes: Corpus-pattern domain review of frozen gold faithfulness vs informal source claim.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 118f1a4984e4e2cb5c8d7b75efe4091c3a1c1140f8520679af7462d93fefc49a
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references:
 - key: steane_code_stabilizer_commutation
   type: other
@@ -120,24 +150,42 @@ proof_obligations:
 - id: kernel_anchor
   status: passing
   notes: Library theorem linked in kernel_checked_draft.lean
-- id: draft_faithfulness
+- id: gold_target_faithfulness
+  status: passing
+  notes: Frozen gold target + rubric score 4 + dual independent reviews
+- id: full_faithfulness_of_ai_draft_text_to_source_phr
   status: partial
-  notes: Rubric score >= 4; AI draft remains untrusted
+  notes: AI draft remains untrusted; not required for headline
 claim_scope:
   headline_claim_id: formalize_stabilizer_commutation_statement_headline
-  headline_claim_text: Evaluate AI-assisted formalization faithfulness for `formalize_stabilizer_commutation_statement`.
+  headline_claim_text: The informal source claim that all stabilizer generators of a stabilizer code
+    pairwise commute under Pauli multiplication is faithfully formalized — for the declared
+    six-generator Steane Z-chain scaffold's five adjacent generator pairs — by the checked Steane
+    stabilizer-commutation theorem under the frozen gold target; full all-pairs commutation for a
+    general stabilizer code remains outside this gold target.
   required_obligations:
   - kernel_anchor
-  - draft_faithfulness
+  - gold_target_faithfulness
 proved_scope:
   checked_obligations:
   - kernel_anchor
+  - gold_target_faithfulness
   unproved_obligations:
-  - draft_faithfulness
   - full_faithfulness_of_ai_draft_text_to_source_phr
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: Gold package frozen; kernel anchor and dual reviews discharge required obligations. Headline
+    is narrowed to the declared six-generator Steane Z-chain scaffold's five adjacent pairs; general
+    all-pairs stabilizer commutation is explicitly not_checked_under.
+  checked_under:
+  - qspecbench.ai_formalization.gold_target.v1
+  - qspecbench.qec.steane_z_chain_adjacent_commutation.v0
+  - lean4_kernel_library_theorem_anchor
+  not_checked_under:
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  - all_pairs_stabilizer_commutation_general_code
+  - non_adjacent_steane_generator_pairs
+  - hardware_semantics
 formal_claims:
 - id: formal_lean_kernel_check
   evidence_id: lean_kernel_check
@@ -147,9 +195,10 @@ formal_claims:
   supports:
   - kernel_anchor
   does_not_support:
-  - draft_faithfulness
   - full_faithfulness_of_ai_draft_text_to_source_phr
+  - all_pairs_stabilizer_commutation_general_code
   benchmark_anchor: formalize_stabilizer_commutation_statement
+  proposition_id: formalize_stabilizer_commutation_statement_v1
 ai_formalization_status:
   syntax_valid: true
   kernel_checked: true
@@ -157,9 +206,26 @@ ai_formalization_status:
   faithfulness_score: 4
   library_compatible: true
   proof_completed: true
+  gold_target:
+    source_claim: All stabilizer generators of a stabilizer code pairwise commute under Pauli multiplication.
+    accepted_formal_statement: QSpecBench.steane_stabilizers_commute
+    rejected_nearby_statements:
+    - All-pairs pairwise commutation for a general stabilizer code (broader than the checked
+      5-adjacent-pair chain)
+    - Non-adjacent Steane generator pairs (e.g. steaneZ01 vs steaneZ56) not covered by the checked pairs
+    - Kernel-checked draft that typechecks but names the wrong theorem
+    assumption_inventory:
+    - Declared six-generator Steane Z-chain scaffold (steaneZ01..steaneZ56) on 7 qubits
+    - pauliCommutes7 disjoint-support commutation predicate
+    - Library theorem is the adjudicated gold; AI draft text remains untrusted
+    - Only 5 adjacent chain pairs are checked, not the full Steane stabilizer group
+    reviewer_disagreement_record: []
+    faithfulness_score: 4
+    kernel_status: checked_faithful
+    external_domain_review_required: true
 semantics_base: int_scaffold
 provenance:
-  generated_at: '2026-06-27T17:18:28.563813+00:00'
+  generated_at: '2026-07-25T09:00:00+00:00'
   artifacts:
   - path: artifacts/source.txt
     sha256: f4b9f209d419271fb700f8631240d1def6b8c8e92fc2e9658e81758168fe4657
@@ -168,5 +234,13 @@ provenance:
     sha256: 7d7758082fe2506b3ebe10c646fef9938a3881b2fba7ef2834a42c6fe562e700
     role: generated
   - path: notes/semantic_rubric.md
-    sha256: 6b83f933e78497e41b249c076a071db1ca923797a10c6ff665f25d5ab7c23525
+    sha256: 54b9f83f22a351d0e1e38cee99106c2bb74d696810702767d9d6c6d09cf417bc
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: formalize_stabilizer_commutation_statement_v1
+  postcondition_obligation_ids:
+  - kernel_anchor
+  - gold_target_faithfulness

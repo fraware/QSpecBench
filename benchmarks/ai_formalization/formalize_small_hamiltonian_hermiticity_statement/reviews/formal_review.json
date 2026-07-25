@@ -1,0 +1,32 @@
+{
+  "benchmark_id": "formalize_small_hamiltonian_hermiticity_statement",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "rkothari-formal",
+  "reviewer_role": "formal_evidence",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "artifacts/source.txt",
+    "evidence/kernel_checked_draft.lean",
+    "notes/semantic_rubric.md"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "kernel_anchor",
+    "gold_target_faithfulness"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_faithfulness_of_ai_draft_text_to_source_phr",
+    "general_size_hamiltonian_hermiticity_beyond_declared_instance"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Corpus-pattern formal review attesting frozen gold package: source claim maps to QSpecBench.small_fermionic_hamiltonian_is_hermitian; AI draft remains untrusted."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-rkothari-formal",
+  "proposition_id": "formalize_small_hamiltonian_hermiticity_statement_v1"
+}

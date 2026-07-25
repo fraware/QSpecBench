@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: formalize_teleportation_spec_statement
 title: Formalize teleportation spec statement
 track: ai_formalization
@@ -6,8 +6,8 @@ domain: ai_formalization
 claim_type: formalization
 difficulty: intermediate
 informal_claim:
-  statement: Quantum teleportation transfers an unknown qubit state with classical
-    communication and Pauli corrections.
+  statement: Quantum teleportation transfers an unknown qubit state with classical communication and Pauli
+    corrections.
   source: artifacts/source.txt
   reference_key: null
 semantic_level:
@@ -119,8 +119,8 @@ references:
   notes: Domain reference
 claim_scope:
   headline_claim_id: formalize_teleportation_spec_statement_headline
-  headline_claim_text: Quantum teleportation transfers an unknown qubit state with
-    classical communication and Pauli corrections.
+  headline_claim_text: Quantum teleportation transfers an unknown qubit state with classical communication
+    and Pauli corrections.
   required_obligations:
   - lean_kernel_proof
 proved_scope:
@@ -162,3 +162,6 @@ provenance:
   - path: notes/semantic_rubric.md
     sha256: b9c442c34aa47e8f6c6f4556fbf599fd9bcd94877239eb1a5d7e27f46394c2da
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

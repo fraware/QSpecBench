@@ -1,29 +1,26 @@
 # Claim diff: formalize_stabilizer_commutation_statement
 
-<!-- scope_fingerprint: ac6591404032847d3661f662929ea86ef32953d7abe3d086c3be0239c0b09eb6 -->
+<!-- scope_fingerprint: 0beb4d764f7ceb722548093e63ad7d1694b49a81827fb56798631d8be832b378 -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
-Evaluate AI-assisted formalization faithfulness for `formalize_stabilizer_commutation_statement`.
+The informal source claim that all stabilizer generators of a stabilizer code pairwise commute under Pauli multiplication is faithfully formalized — for the declared six-generator Steane Z-chain scaffold's five adjacent generator pairs — by the checked Steane stabilizer-commutation theorem under the frozen gold target; full all-pairs commutation for a general stabilizer code remains outside this gold target.
 
 ## Declared headline (claim_scope)
-Evaluate AI-assisted formalization faithfulness for `formalize_stabilizer_commutation_statement`.
+The informal source claim that all stabilizer generators of a stabilizer code pairwise commute under Pauli multiplication is faithfully formalized — for the declared six-generator Steane Z-chain scaffold's five adjacent generator pairs — by the checked Steane stabilizer-commutation theorem under the frozen gold target; full all-pairs commutation for a general stabilizer code remains outside this gold target.
 
 ## Required obligations
 - kernel_anchor
-- draft_faithfulness
+- gold_target_faithfulness
 
 ## Checked obligations
 - [x] kernel_anchor
+- [x] gold_target_faithfulness
 
 ## Unproved / open obligations
-- [ ] draft_faithfulness
 - [ ] full_faithfulness_of_ai_draft_text_to_source_phr
 
-## Gap (required but not checked)
-- draft_faithfulness
-
-## Conflict
-- Obligations appear in both required and unproved lists.
+## Gap
+- None among declared required obligations.

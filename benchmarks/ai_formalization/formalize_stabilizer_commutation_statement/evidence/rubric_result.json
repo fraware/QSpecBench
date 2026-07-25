@@ -2,19 +2,20 @@
   "score": 4,
   "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
   "assumptions": [
-    "Pauli stabilizer generators act on disjoint support or commute by construction",
-    "Steane [[7,1,3]] generator pairing matches source text",
+    "Declared six-generator Steane Z-chain scaffold (steaneZ01..steaneZ56) on 7 qubits",
+    "Pauli stabilizer generators commute via the pauliCommutes7 disjoint-support predicate",
+    "Only 5 adjacent chain pairs are checked, not the full Steane stabilizer group",
+    "Library theorem is the adjudicated gold; AI draft text remains untrusted",
     "[x] Source claim identified correctly",
     "[x] Stabilizer commutation predicate stated",
-    "[x] Generator set matches Steane scaffold",
+    "[x] Generator set matches Steane Z-chain scaffold",
     "[x] Statement matches source under documented conventions",
-    "[x] Library-compatible statement shape"
+    "[x] Library-compatible statement shape",
+    "[x] Nearby broader statements (all-pairs / non-adjacent) rejected"
   ],
   "source_rubric": "notes\\semantic_rubric.md",
   "draft_lean": "artifacts\\draft.lean",
-  "syntactically_valid": null,
-  "lean_check": "skipped",
-  "lean_errors": [
-    "lean not in PATH"
-  ]
+  "syntactically_valid": true,
+  "lean_check": "parse_only",
+  "lean_errors": []
 }

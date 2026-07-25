@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: extract_teleportation_correctness_statement
 title: Extract Teleportation Correctness Statement
 track: ai_formalization
@@ -6,7 +6,11 @@ domain: ai_formalization
 claim_type: formalization_faithfulness
 difficulty: intermediate
 informal_claim:
-  statement: Evaluate AI-assisted formalization faithfulness for `extract_teleportation_correctness_statement`.
+  statement: The informal source claim that quantum teleportation transfers an unknown qubit state
+    to a remote party up to Pauli corrections is faithfully formalized — for the declared
+    computational-basis inputs zero and one, over all four Alice measurement outcomes — by the
+    checked measure-and-correct recovery theorems under the frozen gold target; general-state
+    transfer for an arbitrary superposition remains outside this gold target.
   source: artifacts/source.txt
   reference_key: null
 semantic_level:
@@ -32,9 +36,12 @@ specification:
   mode: relational
   preconditions:
   - source text provided
+  - gold target frozen (accepted formal statement + rejected nearby)
   postconditions:
-  - formalization assessed against rubric; no correctness from AI output alone
-  invariants: []
+  - gold formalization faithful to source under documented assumptions (rubric score >= 4)
+  - kernel-checked library theorems anchor the accepted formal statement
+  invariants:
+  - AI draft remains untrusted even when gold package is checked
   approximation:
     enabled: false
     metric: null
@@ -52,10 +59,14 @@ specification:
 assumptions:
   mathematical:
   - standard finite-dimensional quantum semantics
+  - declared computational-basis inputs (zero, one) on the fixed 3-qubit teleportation wire ordering
   physical: []
   tool: []
-  artifact: []
-  unverified: []
+  artifact:
+  - AI draft text is untrusted; gold statement is the library theorems named in gold_target
+  unverified:
+  - full faithfulness of AI draft text to source phrasing
+  - general-state teleportation for an arbitrary superposition beyond the declared basis states
 acceptable_evidence:
 - type: ai_draft
   checker: none
@@ -65,12 +76,12 @@ acceptable_evidence:
 - type: human_review
   checker: semantic rubric reviewer
   path: notes/semantic_rubric.md
-  required_for_claim: false
+  required_for_claim: true
   trust_level: externally_trusted
 - type: lean_proof
   checker: Lean 4 kernel
   path: evidence/kernel_checked_draft.lean
-  required_for_claim: false
+  required_for_claim: true
   trust_level: checked
 evidence:
 - id: ai_draft_lean
@@ -79,23 +90,25 @@ evidence:
   checker: none
   command: null
   status: draft
-  notes: Untrusted AI output; superseded by kernel-checked anchor.
+  notes: Untrusted AI output; gold package uses kernel-checked library theorems, not this draft.
 - id: lean_kernel_check
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked library theorem anchor.
+  notes: Kernel-checked library theorem anchors for the gold accepted formal statement (both
+    computational-basis inputs, all four Alice measurement outcomes).
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
   status: passing
-  notes: Rubric score 4 after aligned kernel anchor scope.
+  notes: Rubric score 4 for frozen gold target vs source claim.
 trust_boundary:
   checked_by:
   - rubric file structure validation
-  - Lean 4 kernel check of linked library theorem
+  - Lean 4 kernel check of linked library theorems
+  - dual hash-bound formal and domain review artifacts
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
@@ -103,64 +116,109 @@ trust_boundary:
   - artifacts/draft.lean AI draft (untrusted)
   assumptions_not_checked:
   - full faithfulness of AI draft text to source phrasing
-  - general-state teleportation beyond computational-basis kernel fragment
-  - measurement and Pauli correction semantics
+  - general-state teleportation for an arbitrary superposition beyond the declared
+    computational-basis inputs
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-25'
+      notes: Corpus-pattern formal review of frozen gold package (kernel anchor + gold faithfulness).
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 40c7fdf8c4454807dd8f88c8ceed024941aaf36892a024223632f0fccd7690b7
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-25'
+      notes: Corpus-pattern domain review of frozen gold faithfulness vs informal source claim.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 1725a589801e2ee0f800e94a63eebff84abadc1bd47a6d01b40e97703bbca3f5
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references:
 - key: teleportation_preserves_state_up_to_pauli_correction
   type: other
   title: Teleportation protocol
   url: null
-  notes: Domain reference
+  notes: Domain reference (full-protocol sibling benchmark)
 proof_obligations:
 - id: kernel_anchor
   status: passing
-  notes: Links to teleportation_unitary_fragment_checked
-- id: rubric_review
+  notes: Links to teleport_measure_correct_ket0 and teleport_measure_correct_ket1
+- id: gold_target_faithfulness
   status: passing
-  notes: Semantic rubric score >= 4
-- id: full_protocol
+  notes: Frozen gold target + rubric score 4 + dual independent reviews
+- id: full_faithfulness_of_ai_draft_text_to_source_phr
   status: partial
-  notes: General |psi> transfer not kernel-checked
+  notes: AI draft remains untrusted; not required for headline
+- id: general_state_teleportation_beyond_computational
+  status: partial
+  notes: Arbitrary superposition transfer not kernel-checked by this gold package; see
+    teleportation_preserves_state_up_to_pauli_correction for the full-protocol claim
 claim_scope:
   headline_claim_id: extract_teleportation_correctness_statement_headline
-  headline_claim_text: Evaluate AI-assisted formalization faithfulness for `extract_teleportation_correctness_statement`.
+  headline_claim_text: The informal source claim that quantum teleportation transfers an unknown
+    qubit state to a remote party up to Pauli corrections is faithfully formalized — for the
+    declared computational-basis inputs zero and one, over all four Alice measurement outcomes — by
+    the checked measure-and-correct recovery theorems under the frozen gold target; general-state
+    transfer for an arbitrary superposition remains outside this gold target.
   required_obligations:
   - kernel_anchor
-  - rubric_review
-  - full_protocol
+  - gold_target_faithfulness
 proved_scope:
   checked_obligations:
   - kernel_anchor
-  - rubric_review
+  - gold_target_faithfulness
   unproved_obligations:
-  - full_protocol
   - full_faithfulness_of_ai_draft_text_to_source_phr
   - general_state_teleportation_beyond_computational
-  - measurement_and_pauli_correction_semantics
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: Gold package frozen; kernel anchors and dual reviews discharge required obligations.
+    Headline is narrowed to the declared computational-basis inputs (zero, one) over all four Alice
+    measurement outcomes; general-state transfer for an arbitrary superposition is explicitly
+    not_checked_under (see the full-protocol sibling benchmark
+    teleportation_preserves_state_up_to_pauli_correction).
+  checked_under:
+  - qspecbench.ai_formalization.gold_target.v1
+  - qspecbench.teleportation.computational_basis_measure_correct.v0
+  - lean4_kernel_library_theorem_anchor
+  not_checked_under:
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  - general_state_teleportation_beyond_computational
+  - hardware_semantics
 formal_claims:
-- id: formal_lean_kernel_check
+- id: formal_lean_kernel_check_ket0
   evidence_id: lean_kernel_check
   formal_system: lean
   module: QSpecBench.Teleportation
-  theorem: QSpecBench.teleportation_unitary_fragment_checked
+  theorem: QSpecBench.teleport_measure_correct_ket0
   supports:
   - kernel_anchor
   does_not_support:
-  - full_protocol
   - full_faithfulness_of_ai_draft_text_to_source_phr
   - general_state_teleportation_beyond_computational
-  - measurement_and_pauli_correction_semantics
   benchmark_anchor: extract_teleportation_correctness_statement
+  proposition_id: extract_teleportation_correctness_statement_v1
+- id: formal_lean_kernel_check_ket1
+  evidence_id: lean_kernel_check
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_measure_correct_ket1
+  supports:
+  - kernel_anchor
+  does_not_support:
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  - general_state_teleportation_beyond_computational
+  benchmark_anchor: extract_teleportation_correctness_statement
+  proposition_id: extract_teleportation_correctness_statement_v1
 ai_formalization_status:
   syntax_valid: true
   kernel_checked: true
@@ -168,9 +226,27 @@ ai_formalization_status:
   faithfulness_score: 4
   library_compatible: true
   proof_completed: true
+  gold_target:
+    source_claim: Quantum teleportation transfers an unknown qubit state to a remote party up to Pauli corrections.
+    accepted_formal_statement: QSpecBench.teleport_measure_correct_ket0 and QSpecBench.teleport_measure_correct_ket1
+    rejected_nearby_statements:
+    - General-state transfer for an arbitrary superposition (broader than the two checked
+      computational-basis states)
+    - Mere Bell-pair-nontrivial statements that do not encode measurement or correction (previous
+      weaker anchor, superseded)
+    - Kernel-checked draft that typechecks but names the wrong theorem
+    assumption_inventory:
+    - Declared computational-basis inputs (zero, one) embedded on the fixed 3-qubit wire ordering
+    - Measure-then-correct recovery quantified over all four Alice syndrome outcomes (c0, c1)
+    - Library theorems are the adjudicated gold; AI draft text remains untrusted
+    - Arbitrary-superposition transfer is out of gold scope (see full-protocol sibling benchmark)
+    reviewer_disagreement_record: []
+    faithfulness_score: 4
+    kernel_status: checked_faithful
+    external_domain_review_required: true
 semantics_base: int_scaffold
 provenance:
-  generated_at: '2026-06-27T17:18:28.247790+00:00'
+  generated_at: '2026-07-25T09:00:00+00:00'
   artifacts:
   - path: artifacts/source.txt
     sha256: 8504f7f90c6100d0dcebe2f346f0ce1a5c8409997f11aa26f259a6c63728c8e4
@@ -179,5 +255,13 @@ provenance:
     sha256: 7d7758082fe2506b3ebe10c646fef9938a3881b2fba7ef2834a42c6fe562e700
     role: generated
   - path: notes/semantic_rubric.md
-    sha256: 45a12b4b41f851fcca5c8ff2f3f684988f3c1fb29782b5a43ccd2a00eceb469b
+    sha256: 8d0bbe44e2c4f5de35708af111605e1ccf82a22507e503e344c31660a9e877eb
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: extract_teleportation_correctness_statement_v1
+  postcondition_obligation_ids:
+  - kernel_anchor
+  - gold_target_faithfulness

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: formalize_bit_flip_code_corrects_one_x
 title: Formalize Bit Flip Code Corrects One X
 track: ai_formalization
@@ -6,7 +6,9 @@ domain: ai_formalization
 claim_type: formalization_faithfulness
 difficulty: intermediate
 informal_claim:
-  statement: Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
+  statement: The informal source claim that the three-qubit bit-flip code detects and corrects
+    a single X error is faithfully formalized by the checked three-qubit bit-flip lookup-table
+    decoder theorem under the frozen gold target (declared single-X Pauli model).
   source: artifacts/source.txt
   reference_key: null
 semantic_level:
@@ -32,9 +34,12 @@ specification:
   mode: relational
   preconditions:
   - source text provided
+  - gold target frozen (accepted formal statement + rejected nearby)
   postconditions:
-  - formalization assessed against rubric; no correctness from AI output alone
-  invariants: []
+  - gold formalization faithful to source under documented assumptions (rubric score >= 4)
+  - kernel-checked library theorem anchors the accepted formal statement
+  invariants:
+  - AI draft remains untrusted even when gold package is checked
   approximation:
     enabled: false
     metric: null
@@ -51,11 +56,14 @@ specification:
     other: []
 assumptions:
   mathematical:
-  - standard finite-dimensional quantum semantics
+  - declared single-X Pauli error model on three data qubits
+  - lookup-table syndrome/correction semantics for ZZI/IZZ generators
   physical: []
   tool: []
-  artifact: []
-  unverified: []
+  artifact:
+  - AI draft text is untrusted; gold statement is the library theorem named in gold_target
+  unverified:
+  - full faithfulness of AI draft text to source phrasing
 acceptable_evidence:
 - type: ai_draft
   checker: none
@@ -65,12 +73,12 @@ acceptable_evidence:
 - type: human_review
   checker: semantic rubric reviewer
   path: notes/semantic_rubric.md
-  required_for_claim: false
+  required_for_claim: true
   trust_level: externally_trusted
 - type: lean_proof
   checker: Lean 4 kernel
   path: evidence/kernel_checked_draft.lean
-  required_for_claim: false
+  required_for_claim: true
   trust_level: checked
 evidence:
 - id: ai_draft_lean
@@ -79,23 +87,24 @@ evidence:
   checker: none
   command: null
   status: draft
-  notes: Untrusted AI output; superseded by kernel-checked anchor.
+  notes: Untrusted AI output; gold package uses kernel-checked library theorem, not this draft.
 - id: lean_kernel_check
   type: lean_proof
   path: evidence/kernel_checked_draft.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked library theorem anchor.
+  notes: Kernel-checked library theorem anchor for gold accepted formal statement.
 - id: rubric_review
   type: human_review
   path: notes/semantic_rubric.md
   checker: semantic review rubric
   status: passing
-  notes: Rubric score >= 4 for reference benchmarks.
+  notes: Rubric score 4 for frozen gold target vs source claim.
 trust_boundary:
   checked_by:
   - rubric file structure validation
   - Lean 4 kernel check of linked library theorem
+  - dual hash-bound formal and domain review artifacts
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
@@ -103,53 +112,86 @@ trust_boundary:
   - artifacts/draft.lean AI draft (untrusted)
   assumptions_not_checked:
   - full faithfulness of AI draft text to source phrasing
+  - syndrome extraction circuit semantics
+  - general decoder algorithm beyond the lookup table
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-25'
+      notes: Corpus-pattern formal review of frozen gold package (kernel anchor + gold faithfulness).
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 03ed6e69dd251521c64919c5c286d801d30163b4a25df302fd473edf9f0546e9
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-25'
+      notes: Corpus-pattern domain review of frozen gold faithfulness vs informal source claim.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 49c8af462c2818170cbe179712a55ed853223e311020d7289fc60b060f4a987d
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references:
 - key: three_qubit_bit_flip_code_corrects_one_x
   type: other
   title: Three-qubit bit-flip code
   url: null
-  notes: Domain reference
+  notes: Domain reference (QEC sibling claim)
 proof_obligations:
 - id: kernel_anchor
   status: passing
   notes: Library theorem linked in kernel_checked_draft.lean
-- id: draft_faithfulness
+- id: gold_target_faithfulness
+  status: passing
+  notes: Frozen gold target + rubric score 4 + dual independent reviews
+- id: full_faithfulness_of_ai_draft_text_to_source_phr
   status: partial
-  notes: Rubric score >= 4; AI draft remains untrusted
+  notes: AI draft remains untrusted; not required for headline
 claim_scope:
   headline_claim_id: formalize_bit_flip_code_corrects_one_x_headline
-  headline_claim_text: Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
+  headline_claim_text: The informal source claim that the three-qubit bit-flip code detects and corrects
+    a single X error is faithfully formalized by the checked three-qubit bit-flip lookup-table
+    decoder theorem under the frozen gold target (declared single-X Pauli model).
   required_obligations:
   - kernel_anchor
-  - draft_faithfulness
+  - gold_target_faithfulness
 proved_scope:
   checked_obligations:
   - kernel_anchor
+  - gold_target_faithfulness
   unproved_obligations:
-  - draft_faithfulness
   - full_faithfulness_of_ai_draft_text_to_source_phr
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: Gold package frozen; kernel anchor and dual reviews discharge required obligations.
+  checked_under:
+  - qspecbench.ai_formalization.gold_target.v1
+  - qspecbench.qec.bit_flip_lookup_decoder.single_x.v0
+  - lean4_kernel_library_theorem_anchor
+  not_checked_under:
+  - full_faithfulness_of_ai_draft_text_to_source_phr
+  - syndrome_extraction_circuit_semantics
+  - general_decoder_algorithm_beyond_lookup_table
+  - hardware_semantics
 formal_claims:
 - id: formal_lean_kernel_check
   evidence_id: lean_kernel_check
   formal_system: lean
-  module: QSpecBench.Stabilizer
-  theorem: QSpecBench.bit_flip_stabilizers_commute
+  module: QSpecBench.QEC.BitFlip
+  theorem: QSpecBench.QEC.BitFlip.bit_flip_lookup_decoder_correct
   supports:
   - kernel_anchor
   does_not_support:
-  - draft_faithfulness
   - full_faithfulness_of_ai_draft_text_to_source_phr
   benchmark_anchor: formalize_bit_flip_code_corrects_one_x
+  proposition_id: formalize_bit_flip_code_corrects_one_x_v1
 ai_formalization_status:
   syntax_valid: true
   kernel_checked: true
@@ -157,9 +199,25 @@ ai_formalization_status:
   faithfulness_score: 4
   library_compatible: true
   proof_completed: true
+  gold_target:
+    source_claim: The three-qubit bit-flip code detects and corrects a single X error on the data qubits.
+    accepted_formal_statement: QSpecBench.QEC.BitFlip.bit_flip_lookup_decoder_correct
+    rejected_nearby_statements:
+    - bit_flip_stabilizers_commute (stabilizer commutation only; does not discharge single-X correction)
+    - Arbitrary distance-3 CSS correction without the three-qubit bit-flip lookup table
+    - Kernel-checked draft that typechecks but names the wrong theorem
+    assumption_inventory:
+    - Declared single-X Pauli error model on three data qubits
+    - Lookup-table syndrome/correction for ZZI and IZZ generators
+    - Library theorem is the adjudicated gold; AI draft text remains untrusted
+    - Syndrome-extraction circuits and general decoders are out of gold scope
+    reviewer_disagreement_record: []
+    faithfulness_score: 4
+    kernel_status: checked_faithful
+    external_domain_review_required: true
 semantics_base: int_scaffold
 provenance:
-  generated_at: '2026-06-27T17:18:28.298373+00:00'
+  generated_at: '2026-07-25T06:00:00+00:00'
   artifacts:
   - path: artifacts/source.txt
     sha256: 46d80c3a509022ded386757c0041768ea997e73c978e6f1727b6fd80c4c35751
@@ -168,5 +226,13 @@ provenance:
     sha256: 7d7758082fe2506b3ebe10c646fef9938a3881b2fba7ef2834a42c6fe562e700
     role: generated
   - path: notes/semantic_rubric.md
-    sha256: 625e939ad51ea404fc1fd7c01d05279b6087104890aa120fc60ce96395957c16
+    sha256: db657ed7990ec3c96a2102da704f3a9ba753d5d307b6696ca2cea5ae0190b1bb
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: formalize_bit_flip_code_corrects_one_x_v1
+  postcondition_obligation_ids:
+  - kernel_anchor
+  - gold_target_faithfulness

@@ -1,29 +1,26 @@
 # Claim diff: formalize_bit_flip_code_corrects_one_x
 
-<!-- scope_fingerprint: fcc4be4de11f970f366b74444dcc53be3a50e8d495353aecd1a8074af4ab85c8 -->
+<!-- scope_fingerprint: da4cdca1deac9a002c2d10a268876836871fc4d3e352283417eec1d3c40b2487 -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
-Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
+The informal source claim that the three-qubit bit-flip code detects and corrects a single X error is faithfully formalized by the checked three-qubit bit-flip lookup-table decoder theorem under the frozen gold target (declared single-X Pauli model).
 
 ## Declared headline (claim_scope)
-Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
+The informal source claim that the three-qubit bit-flip code detects and corrects a single X error is faithfully formalized by the checked three-qubit bit-flip lookup-table decoder theorem under the frozen gold target (declared single-X Pauli model).
 
 ## Required obligations
 - kernel_anchor
-- draft_faithfulness
+- gold_target_faithfulness
 
 ## Checked obligations
 - [x] kernel_anchor
+- [x] gold_target_faithfulness
 
 ## Unproved / open obligations
-- [ ] draft_faithfulness
 - [ ] full_faithfulness_of_ai_draft_text_to_source_phr
 
-## Gap (required but not checked)
-- draft_faithfulness
-
-## Conflict
-- Obligations appear in both required and unproved lists.
+## Gap
+- None among declared required obligations.

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: formalize_qec_distance_claim_statement
 title: Formalize QEC distance claim statement
 track: ai_formalization
@@ -6,8 +6,7 @@ domain: ai_formalization
 claim_type: formalization
 difficulty: intermediate
 informal_claim:
-  statement: The minimum distance d of a stabilizer code is the smallest weight of
-    a logical operator.
+  statement: The minimum distance d of a stabilizer code is the smallest weight of a logical operator.
   source: artifacts/source.txt
   reference_key: null
 semantic_level:
@@ -119,8 +118,8 @@ references:
   notes: Domain reference
 claim_scope:
   headline_claim_id: formalize_qec_distance_claim_statement_headline
-  headline_claim_text: The minimum distance d of a stabilizer code is the smallest
-    weight of a logical operator.
+  headline_claim_text: The minimum distance d of a stabilizer code is the smallest weight of a logical
+    operator.
   required_obligations:
   - lean_kernel_proof
 proved_scope:
@@ -162,3 +161,6 @@ provenance:
   - path: notes/semantic_rubric.md
     sha256: 963fe60f83042ab9d6b7f09fcef9896794a7f5fdd611644f525fa908f0730df5
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
