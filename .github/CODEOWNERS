@@ -1,0 +1,49 @@
+# Code owners for trust-critical paths.
+# GitHub "Require review from Code Owners" should be enabled when branch protection is ready.
+#
+# POLICY: Only real GitHub handles appear below. Track-maintainer *roles* are named in
+# GOVERNANCE.md (assignment table). Until additional maintainers are invited, @fraware is
+# the interim sole owner on every path. Replace the interim handle per-role when assignees
+# land — do not invent fake GitHub users.
+#
+# Role map (see GOVERNANCE.md § Maintainer assignment):
+#   schema-maintainer      → /schema/**
+#   lean-evidence-maintainer → /lean/**, /adapters/**
+#   qec-track-maintainer   → /benchmarks/qec/**
+#   hamiltonian-track-maintainer → /benchmarks/hamiltonian/**
+#   ai-formalization-track-maintainer → /benchmarks/ai_formalization/**
+#   algorithms-track-maintainer → /benchmarks/algorithms/** (default + algorithms)
+#   equivalence-track-maintainer → /benchmarks/equivalence/**
+#   tooling-trust-maintainer → reviews/trust/claim_coherence
+
+# Default: schema + tooling (interim sole owner)
+*                                       @fraware
+
+# Quantum error correction track — role: qec-track-maintainer (TBA)
+/benchmarks/qec/**                      @fraware
+
+# Hamiltonian / resource track — role: hamiltonian-track-maintainer (TBA)
+/benchmarks/hamiltonian/**              @fraware
+
+# AI formalization track (dual human review required) — role: ai-formalization-track-maintainer (TBA)
+/benchmarks/ai_formalization/**         @fraware
+
+# Algorithms track — role: algorithms-track-maintainer (TBA)
+/benchmarks/algorithms/**               @fraware
+
+# Equivalence track — role: equivalence-track-maintainer (TBA)
+/benchmarks/equivalence/**              @fraware
+
+# Lean kernel proofs and generated bridges — role: lean-evidence-maintainer (TBA)
+/lean/**                                @fraware
+
+# Schema dialect and contract surface — role: schema-maintainer (interim: @fraware)
+/schema/**                              @fraware
+
+# Evidence adapters (fail-closed execution paths) — role: lean-evidence-maintainer (TBA)
+/adapters/**                            @fraware
+
+# Review provenance and promotion rules — role: tooling-trust-maintainer (interim: @fraware)
+/tools/qspecbench/reviews.py            @fraware
+/tools/qspecbench/trust.py              @fraware
+/tools/qspecbench/claim_coherence.py    @fraware
