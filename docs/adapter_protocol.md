@@ -14,6 +14,9 @@ Adapters connect external tools to QSpecBench evidence checks.
 | `qec/` | `qec_verifier_result` | tool-checked |
 | `python/` | `simulation` | heuristic |
 | `qcec/` | `qcec_result` | externally_trusted (MQT QCEC or CLI) |
+| `qbricks/` | `qbricks_result` | externally_trusted (external QBricks binary; fail-closed if missing) |
+| `zx/` | `zx_certificate` | independently_checkable (normal-form certificate; no bare success) |
+| `matrix_certificate/` | `matrix_certificate` | independently_checkable (standalone matrix equality; no `qasm_matrix`/`denotate`/`bridge_codegen` imports) |
 | `human_review/` | `human_review` | externally_trusted |
 | `ai_formalization/` | `ai_draft` rubric | untrusted |
 
@@ -47,6 +50,8 @@ locally or in a custom CI job. They are not invoked by `.github/workflows/valida
 
 - Coq adapter: real `coqc` checks when enabled; see `adapters/coq/README.md`
 - Rocq/Isabelle: fail-closed stubs (`skipped: true`) until a driving benchmark needs them
-- Evidence types `qbricks_result` and `zx_certificate` remain schema placeholders until a dedicated adapter is needed
+- Evidence types `qbricks_result` and `zx_certificate` are registered with shipping adapters
+  (`adapters/qbricks/`, `adapters/zx/`). **Adapters exist; still not a complete FV standard** —
+  do not auto-promote ABRC solely on QBricks/ZX evidence.
 
 See [Lean setup](lean_setup.md) for proof assistant installation.
