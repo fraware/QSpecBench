@@ -1,0 +1,5 @@
+{
+  "schema_version": "qspecbench.qbricks_result.v1",
+  "circuit": "source.qasm",
+  "expected_verdict": "proved"
+}
