@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: jordan_wigner_preserves_anticommutation_small_instance
 title: Jordan Wigner Preserves Anticommutation Small Instance
 track: hamiltonian
@@ -6,8 +6,7 @@ domain: hamiltonian_simulation
 claim_type: hamiltonian_claim
 difficulty: intermediate
 informal_claim:
-  statement: 'Hamiltonian simulation claim: jordan wigner preserves anticommutation
-    small instance.'
+  statement: 'Hamiltonian simulation claim: jordan wigner preserves anticommutation small instance.'
   source: null
   reference_key: null
 semantic_level:
@@ -94,8 +93,7 @@ proof_obligations:
   notes: JW anticommutation scaffold
 claim_scope:
   headline_claim_id: jordan_wigner_preserves_anticommutation_small_instance_headline
-  headline_claim_text: 'Hamiltonian simulation claim: jordan wigner preserves anticommutation
-    small instance.'
+  headline_claim_text: 'Hamiltonian simulation claim: jordan wigner preserves anticommutation small instance.'
   required_obligations:
   - anticommutation
 proved_scope:
@@ -127,3 +125,6 @@ provenance:
   - path: artifacts/hamiltonian.json
     sha256: 26bdf9c7133b69cb1bcede39d500b380daa6ebac63f069d6113b23d381d48ded
     role: source
+authorship:
+  author: fraware
+  merging_maintainer: fraware

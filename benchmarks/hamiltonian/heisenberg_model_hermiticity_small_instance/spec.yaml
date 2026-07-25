@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: heisenberg_model_hermiticity_small_instance
 title: Heisenberg model hermiticity small instance
 track: hamiltonian
@@ -98,8 +98,7 @@ proof_obligations:
   notes: Distinct qubit-local Pauli tensors
 claim_scope:
   headline_claim_id: heisenberg_model_hermiticity_small_instance_headline
-  headline_claim_text: A small Heisenberg-type Pauli Hamiltonian with real coefficients
-    is Hermitian.
+  headline_claim_text: A small Heisenberg-type Pauli Hamiltonian with real coefficients is Hermitian.
   required_obligations:
   - hermiticity
   - pauli_tensors
@@ -133,3 +132,6 @@ provenance:
   - path: artifacts/hamiltonian.json
     sha256: 5dcda37ad301db90dc7419be79068f82b2f832875621d8612981c1e2aa5ec4fc
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

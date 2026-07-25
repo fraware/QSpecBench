@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: pauli_decomposition_matches_source_hamiltonian_small_instance
 title: Pauli Decomposition Matches Source Hamiltonian Small Instance
 track: hamiltonian
@@ -6,8 +6,7 @@ domain: hamiltonian_simulation
 claim_type: hamiltonian_claim
 difficulty: advanced
 informal_claim:
-  statement: 'Hamiltonian simulation claim: pauli decomposition matches source hamiltonian
-    small instance.'
+  statement: 'Hamiltonian simulation claim: pauli decomposition matches source hamiltonian small instance.'
   source: null
   reference_key: null
 semantic_level:
@@ -94,8 +93,8 @@ proof_obligations:
   notes: Declared Pauli term match
 claim_scope:
   headline_claim_id: pauli_decomposition_matches_source_hamiltonian_small_instance_headline
-  headline_claim_text: 'Hamiltonian simulation claim: pauli decomposition matches
-    source hamiltonian small instance.'
+  headline_claim_text: 'Hamiltonian simulation claim: pauli decomposition matches source hamiltonian small
+    instance.'
   required_obligations:
   - decomposition
 proved_scope:
@@ -127,3 +126,6 @@ provenance:
   - path: artifacts/hamiltonian.json
     sha256: a46442a9a54c3b0e7c0b108082407cd28822dfe7e8b29075986c1903384494c5
     role: source
+authorship:
+  author: fraware
+  merging_maintainer: fraware

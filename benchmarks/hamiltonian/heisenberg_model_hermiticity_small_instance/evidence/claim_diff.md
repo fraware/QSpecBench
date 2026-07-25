@@ -1,6 +1,6 @@
 # Claim diff: heisenberg_model_hermiticity_small_instance
 
-<!-- scope_fingerprint: ba7e6a228ae2f579fa4bdeb2e4bf7feca5d06f9b92b643606b0e599a50693756 -->
+<!-- scope_fingerprint: 09aa85af5916bd136b30112d3ee6882e7da92a84ad58fd145ad4a5ce1413aa45 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

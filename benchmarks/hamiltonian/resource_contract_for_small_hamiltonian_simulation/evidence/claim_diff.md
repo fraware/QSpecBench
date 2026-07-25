@@ -1,6 +1,6 @@
 # Claim diff: resource_contract_for_small_hamiltonian_simulation
 
-<!-- scope_fingerprint: 4be144131bf43065d21f27331d882fddfc5976aba38cf39cd316a75255143a98 -->
+<!-- scope_fingerprint: fd2574cb23c1d65f7ae00cf3865c5d7a22c87cba335e65cd53951e5e6f1045c3 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** unproved

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: bravyi_kitaev_small_instance
 title: Bravyi-Kitaev small instance
 track: hamiltonian
@@ -6,8 +6,7 @@ domain: fermion_mapping
 claim_type: mapping_sanity
 difficulty: intermediate
 informal_claim:
-  statement: A two-mode Hamiltonian declares Bravyi-Kitaev mapping metadata for simulation
-    scaffolding.
+  statement: A two-mode Hamiltonian declares Bravyi-Kitaev mapping metadata for simulation scaffolding.
   source: null
   reference_key: null
 semantic_level:
@@ -79,8 +78,7 @@ status:
 references: []
 claim_scope:
   headline_claim_id: bravyi_kitaev_small_instance_headline
-  headline_claim_text: A two-mode Hamiltonian declares Bravyi-Kitaev mapping metadata
-    for simulation scaffolding.
+  headline_claim_text: A two-mode Hamiltonian declares Bravyi-Kitaev mapping metadata for simulation scaffolding.
   required_obligations:
   - simulation_heuristic
 proved_scope:
@@ -101,3 +99,6 @@ provenance:
   - path: artifacts/hamiltonian.json
     sha256: 5f7f5bc61053408705838ba164a6211a49515e7538900ec23cd68c15b0aa61d7
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
