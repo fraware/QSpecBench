@@ -15,5 +15,6 @@
   "wire_order": {
     "model": "legacy_kron_order",
     "checked_against": "python_operational"
-  }
+  },
+  "proposition_id": "qft_then_inverse_qft_identity_up_to_ordering_v1"
 }

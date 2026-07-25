@@ -1,6 +1,6 @@
 # Claim diff: qft_then_inverse_qft_identity_up_to_ordering
 
-<!-- scope_fingerprint: 715d9140988387bc4261efb87114d31b5114671d80c87f2bdef198b340ff461e -->
+<!-- scope_fingerprint: 11adbd6907fc60322ef34e00dcfd6b88f68603413462f58b9d306fab4912c1a5 -->
 
 **Maturity:** reference_claim
 **Headline status:** checked
