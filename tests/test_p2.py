@@ -74,10 +74,18 @@ def test_scaffold_claim_diff_evidence_generated():
         cwd=REPO,
         env=env,
     )
-    sample = REPO / "benchmarks/equivalence/clifford_simplification_preserves_unitary/evidence/claim_diff.md"
+    # clifford_simplification_preserves_unitary was promoted out of reference_scaffold
+    # (dual-reviewed to artifact_bound_reference_claim with a normalized obligation
+    # set), so it no longer carries the generic scaffold obligation checked here.
+    # source_optimized_qasm_equivalence_small_instance remains reference_scaffold.
+    sample = (
+        REPO
+        / "benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance"
+        / "evidence/claim_diff.md"
+    )
     assert sample.is_file()
     text = sample.read_text(encoding="utf-8")
-    assert "clifford_simplification_preserves_unitary" in text
+    assert "source_optimized_qasm_equivalence_small_instance" in text
     assert "semantic_correctness_of_circuit_vs_claim" in text
 
 

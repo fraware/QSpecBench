@@ -18,7 +18,6 @@ from qspecbench.verify_bridge import verify_bridge, write_bridge_result
 REPO = Path(__file__).resolve().parents[1]
 
 PYTHON_DENOTATION_CONSISTENCY = [
-    "benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction",
     "benchmarks/algorithms/qft_then_inverse_qft_identity_up_to_ordering",
 ]
 
@@ -28,15 +27,19 @@ KERNEL_CHECKED = [
     "benchmarks/equivalence/single_qubit_gate_cancellation",
     "benchmarks/algorithms/bell_state_preparation",
     "benchmarks/algorithms/swap_from_three_cx",
-    "benchmarks/equivalence/toffoli_decomposition_equivalence",
+    "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary",
     "benchmarks/equivalence/circuit_identity_after_layout",
+    "benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction",
+    # Promoted from manifest_checked_theorem_binding to the stronger
+    # kernel_checked_artifact_semantics link (normalized dual-manifest bridge,
+    # dual reviews on file); see notes/compiler_equivalence_gap.md.
+    "benchmarks/equivalence/clifford_simplification_preserves_unitary",
 ]
 
 MANIFEST_CHECKED = [
     "benchmarks/equivalence/rx_gate_equivalence_small_instance",
     "benchmarks/equivalence/qft_inverse_qft_small_instance",
     "benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance",
-    "benchmarks/equivalence/clifford_simplification_preserves_unitary",
     "benchmarks/equivalence/phase_polynomial_equivalence_small_instance",
 ]
 

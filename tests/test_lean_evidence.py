@@ -13,7 +13,10 @@ from qspecbench.evidence_runner import run_evidence_checks
 REPO = Path(__file__).resolve().parents[1]
 HAS_LAKE = shutil.which("lake") is not None or (Path.home() / ".elan" / "bin" / "lake").is_file()
 
-pytestmark = pytest.mark.skipif(not HAS_LAKE, reason="Lean 4 / lake not installed")
+pytestmark = [
+    pytest.mark.lean,
+    pytest.mark.skipif(not HAS_LAKE, reason="Lean 4 / lake not installed"),
+]
 
 
 def test_lean_cnot_proof_passes():

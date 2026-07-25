@@ -237,7 +237,7 @@ KERNEL_CHECKED_QASM = [
     REPO / "benchmarks" / "equivalence" / "hadamard_conjugates_x_to_z" / "artifacts" / "source.qasm",
     REPO / "benchmarks" / "equivalence" / "single_qubit_gate_cancellation" / "artifacts" / "source.qasm",
     REPO / "benchmarks" / "algorithms" / "swap_from_three_cx" / "artifacts" / "source.qasm",
-    REPO / "benchmarks" / "equivalence" / "toffoli_decomposition_equivalence" / "artifacts" / "source.qasm",
+    REPO / "benchmarks" / "equivalence" / "native_ccx_artifact_denotes_toffoli_unitary" / "artifacts" / "source.qasm",
 ]
 
 BENCHMARK_ID_BY_QASM = {
@@ -246,7 +246,7 @@ BENCHMARK_ID_BY_QASM = {
     "single_qubit_gate_cancellation": REPO / "benchmarks/equivalence/single_qubit_gate_cancellation",
     "bell_state_preparation": REPO / "benchmarks/algorithms/bell_state_preparation",
     "swap_from_three_cx": REPO / "benchmarks/algorithms/swap_from_three_cx",
-    "toffoli_decomposition_equivalence": REPO / "benchmarks/equivalence/toffoli_decomposition_equivalence",
+    "native_ccx_artifact_denotes_toffoli_unitary": REPO / "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary",
 }
 
 
@@ -427,7 +427,7 @@ def test_teleportation_feedforward_artifact_basis_check():
         ("swap_from_three_cx", "benchmarks/algorithms/swap_from_three_cx/artifacts/source.qasm", "swapKernelArtifactSource"),
         ("hadamard_conjugates_x_to_z", "benchmarks/equivalence/hadamard_conjugates_x_to_z/artifacts/source.qasm", "hxhKernelArtifactSource"),
         ("single_qubit_gate_cancellation", "benchmarks/equivalence/single_qubit_gate_cancellation/artifacts/source.qasm", "hhKernelArtifactSource"),
-        ("toffoli_decomposition_equivalence", "benchmarks/equivalence/toffoli_decomposition_equivalence/artifacts/source.qasm", "toffoliKernelArtifactSource"),
+        ("native_ccx_artifact_denotes_toffoli_unitary", "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary/artifacts/source.qasm", "toffoliKernelArtifactSource"),
     ],
 )
 def test_kernel_artifact_byte_sha256_chain(benchmark_id, qasm_rel, lean_def):

@@ -12,6 +12,9 @@ OPTIONAL = {"check.sh", "examples"}
 def test_adapter_layout():
     missing: list[str] = []
     for adapter_dir in sorted(p for p in ADAPTERS.iterdir() if p.is_dir()):
+        if adapter_dir.name.startswith("__"):
+            # Build artifacts (e.g. __pycache__), not a real adapter package.
+            continue
         for name in REQUIRED:
             if not (adapter_dir / name).is_file():
                 missing.append(f"{adapter_dir.name}: missing {name}")
