@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: phase_polynomial_equivalence_small_instance
 title: Phase Polynomial Equivalence Small Instance
 track: equivalence
@@ -78,12 +78,11 @@ evidence:
   status: passing
   notes: Kernel-checked phase-polynomial scaffold with complex H+S denotation.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 complex denotation (manifest_checked_theorem_binding
-    bridge).
+  notes: QASM matrix matches OpenQASM3 complex denotation (manifest_checked_theorem_binding bridge).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -116,11 +115,11 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -131,8 +130,7 @@ proof_obligations:
   notes: manifest_checked_theorem_binding verify-bridge with complex S gate model
 claim_scope:
   headline_claim_id: phase_polynomial_equivalence_small_instance_headline
-  headline_claim_text: Two circuits realize the same phase polynomial on a small declared
-    instance.
+  headline_claim_text: Two circuits realize the same phase polynomial on a small declared instance.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -166,3 +164,6 @@ provenance:
     sha256: 6f1b1944c97ffcd8b322b52d91dca825488a3b3e6467a987907332c1b1bc9415
     role: target
 semantics_base: complex_matrix
+authorship:
+  author: fraware
+  merging_maintainer: fraware

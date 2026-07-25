@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: rx_gate_equivalence_small_instance
 title: RX gate equivalence small instance
 track: equivalence
@@ -65,19 +65,18 @@ acceptable_evidence:
   checker: QCEC equivalence tool
   required_for_claim: false
   trust_level: externally_trusted
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 evidence:
 - id: lean_rx_pi2
   type: lean_proof
   path: evidence/rx_pi2.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Complex RX(π/2) denotation manifest-bound; global phase vs H not claimed
-    (see ComplexGate.rx_pi2_entry01_ne_hadamard_entry01).
+  notes: Complex RX(π/2) denotation manifest-bound; global phase vs H not claimed (see ComplexGate.rx_pi2_entry01_ne_hadamard_entry01).
 - id: qasm_parse_source
   type: qasm_parse
   path: artifacts/source.qasm
@@ -98,7 +97,7 @@ evidence:
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -133,8 +132,8 @@ proof_obligations:
   notes: manifest_checked_theorem_binding verify-bridge + bridge_rx_pi2_denotation
 claim_scope:
   headline_claim_id: rx_gate_equivalence_small_instance_headline
-  headline_claim_text: Rx(pi/2) complex denotation matches the declared OpenQASM rotation
-    matrix; equivalence to H is int-scaffold only (global phase not checked).
+  headline_claim_text: Rx(pi/2) complex denotation matches the declared OpenQASM rotation matrix; equivalence
+    to H is int-scaffold only (global phase not checked).
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -170,3 +169,6 @@ provenance:
     sha256: b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60
     role: target
 semantics_base: complex_matrix
+authorship:
+  author: fraware
+  merging_maintainer: fraware

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: circuit_identity_after_layout
 title: Circuit identity after layout
 track: equivalence
@@ -6,8 +6,7 @@ domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: introductory
 informal_claim:
-  statement: Renaming qubit registers preserves circuit unitary under declared layout
-    map.
+  statement: Renaming qubit registers preserves circuit unitary under declared layout map.
   source: null
   reference_key: null
 semantic_level:
@@ -77,11 +76,11 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
@@ -109,7 +108,7 @@ evidence:
   status: passing
   notes: Kernel-checked layout circuit denotation anchor.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -138,8 +137,7 @@ proof_obligations:
   notes: QCEC on renamed register pair
 claim_scope:
   headline_claim_id: circuit_identity_after_layout_headline
-  headline_claim_text: Renaming qubit registers preserves circuit unitary under declared
-    layout map.
+  headline_claim_text: Renaming qubit registers preserves circuit unitary under declared layout map.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -175,3 +173,6 @@ provenance:
     sha256: 6f48412efbf0f7d6a7717d63193f1929ed5ce0ba8190e28b4c9a1c6c0594434d
     role: target
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
