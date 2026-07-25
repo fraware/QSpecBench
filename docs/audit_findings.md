@@ -5,6 +5,18 @@
 **Branch audited:** local `HEAD` aligned with `origin/main` at `c34ddfc` (PR #5 merged 2026-07-02)  
 **Methodology:** Six-phase full runtime audit per plan `qspecbench_full_audit_145faf00.plan.md`
 
+> **Status: superseded by the Wave 1 reconcile (2026-07-25).** [`docs/audit_issues.yaml`](audit_issues.yaml)
+> is the authoritative, current ledger. As of Wave 1, every P0/P1/P2 finding below is
+> **closed** (fixed, or closed-by-design/closed-as-designed with documented residuals such as
+> exponential cost inside resource caps, or trust-the-corpus evidence execution). Only two
+> grouped P3 items remain genuinely open: **F-027–F-034** (honest corpus/proof-scope residuals —
+> scaffold-heavy maturity, S/T gate stubs, QASM subset, partial dynamic semantics; these are
+> documented trust boundaries, not bugs, and are never fake-closed) and **F-038–F-041**
+> (maintainability debt — monolithic `validate.py`, helper duplication, adapter API
+> inconsistency, environment-dependent Lean/QCEC test skips). The Executive Summary table and
+> individual "Confirmed" / "Still open" labels below are the **original 2026-07-02 snapshot**;
+> treat them as historical narrative and check the ledger for current status.
+
 ## Scope note
 
 **Lean-first proof verification.** Coq, Rocq, and Isabelle adapters are in scope for documentation and optional-CI claims only; default CI is Lean + Python. Stub adapter behavior is recorded but not treated as CI blockers unless docs contradict reality.
@@ -16,10 +28,25 @@
 | Severity | Fixed since 2026-07-02 audit | Still open (local tree) | New / reconciled |
 |----------|-------------------------------|-------------------------|------------------|
 | **P0** | 3 | 0 | 0 |
-| **P1** | 7 | 1 | 0 |
+| **P1** | 8 | 0 | 0 |
 | **P2** | 9 | 10 | 1 |
-| **P3** | 6 | 18 | 0 |
-| **Total** | **25** | **29** | **1** |
+| **P3** | 6 | 16 (+1 partial F-045; F-034 superseded) | 0 |
+| **Total** | **26** | **26** | **1** |
+
+**Phase A reconcile (2026-07-24):** F-010 closed (zero `maintainer-bootstrap` in corpus).
+F-034 superseded by normalized Toffoli ABRC. F-045 closed (`.pre-commit-config.yaml` present).
+Machine ledger: [audit_issues.yaml](audit_issues.yaml).
+
+**Phase E (2026-07-24):** Open/partial findings have stable stub IDs (`QSB-AUD-*`) in
+[audit_github_issues.yaml](audit_github_issues.yaml), linked from `github_issue` in the
+machine ledger. Remote GitHub Issues are filed on-demand (not bulk-created).
+
+**Phase F reconcile (2026-07-24):** Prefer [audit_issues.yaml](audit_issues.yaml) over the
+historical tables below when they disagree. Closed this pass: F-018 (streaming already),
+F-021 (by-design trust-the-corpus), F-042 (in-repo asyncio scope), F-048 (lean artifact
+reuse), F-049 (rocq/isabelle stubs by design), F-057–F-059 (new pytest coverage).
+Re-triaged partial: F-027–F-033, F-038–F-040. Wave 1 closed: F-012–F-016, F-019, F-026, F-043
+(as-designed / implemented). Still open as practical debt: F-027–F-033 scaffolds, F-038–F-040.
 
 ### Local gates vs GitHub CI
 
@@ -35,9 +62,8 @@
 
 ### Confirmed P1 still open
 
-| ID | Severity | Title |
-|----|----------|-------|
-| F-010 | P1 | Four `reference_claim` benchmarks still use `maintainer-bootstrap` reviewers |
+None. **F-010 closed** — `rg maintainer-bootstrap benchmarks/**/spec.yaml` returns no matches;
+corpus ABRC/RC pilots use named reviewers (`rkothari-formal` / `mlewis-quant-sem`).
 
 ### Key P2 items still open
 
@@ -61,13 +87,13 @@
 | F-002 | P0 | Stale `validate_out.txt` | **Fixed** | File absent |
 | F-003 | P0 | Coq smoke blocked validate CI | **Fixed** | No Coq steps in `.github/workflows/validate.yml` |
 | F-004 | P1 | README version drift | **Fixed** | README schema 0.3 / v0.2.3 |
-| F-005 | P1 | `reference_benchmarks.md` stale | **Fixed** | Lists 6 `artifact_bound_reference_claim` pilots |
+| F-005 | P1 | `reference_benchmarks.md` stale | **Fixed** | Lists live ABRC pilots (Phase A: 9) |
 | F-006 | P1 | TRACK maturity tables stale | **Fixed** | Tables auto-synced from `spec.yaml` |
 | F-006b | P1 | TRACK “Good first claims” prose stale | **Fixed** | `c865d4c` — e.g. `rx_gate` → `reference_scaffold`, `shor_code` → `reference_scaffold` |
 | F-007 | P1 | Orphan teleportation `.result.json` | **Fixed** | File not found on disk |
 | F-008 | P1 | Promotion `check=False` | **Fixed** | `promotion-check.yml:41` uses `check=True` |
 | F-009 | P1 | CI ignored `uv.lock` | **Fixed** | Workflows use `uv sync --frozen --extra dev` |
-| F-010 | P1 | Bootstrap reviewers on `reference_claim` | **Still open** | Four specs still `maintainer-bootstrap` |
+| F-010 | P1 | Bootstrap reviewers on `reference_claim` | **Fixed** | Zero `maintainer-bootstrap` in corpus; `reviews.py` forbids bootstrap |
 | F-011 | P1 | Node 20 deprecation | **Fixed** | `actions/checkout@v5`, `setup-python@v6` |
 | F-012 | P2 | Matrix O(4^n) | **Still open** | Code review `qasm_matrix.py` |
 | F-013 | P2 | Duplicate matrix work | **Still open** | `validate.py:192` calls `verify_bridge()` inline |
@@ -78,13 +104,13 @@
 | F-018 | P2 | Release bundle RAM | **Still open** | Code review `release_bundle.py` |
 | F-019 | P2 | Slow pytest | **Still open** | 238 tests in **515.5 s** |
 | F-020 | P2 | Uncached manifest | **Fixed** | `@lru_cache` on `load_manifest()` |
-| F-021 | P2 | Arbitrary code via python/sat | **Still open (by design)** | Trust-the-corpus model |
+| F-021 | P2 | Arbitrary code via python/sat | **Closed (by design)** | Trust-the-corpus + constrained evidence_sandbox |
 | F-022 | P2 | Path traversal in `resolve_claim_path` | **Fixed** | Helper raises `ValueError` on escape |
 | F-023 | P2 | Missing subprocess timeouts | **Fixed** | Timeouts on lean/python/coq/qcec/smt/sat + evidence_runner |
 | F-024 | P2 | Silent JSON failures | **Fixed** | validate + evidence_runner surface decode errors |
 | F-025 | P2 | Empty YAML → None | **Fixed** | `load_spec()` raises `ValueError` |
 | F-026 | P2 | Weak human-review gate | **Still open** | ≥80 chars + keyword list |
-| F-027–F-034 | P3 | Corpus / proof limitations | **Still open (honest)** | Documented partial maturity |
+| F-027–F-034 | P3 | Corpus / proof limitations | **Open (honest); F-034 superseded** | F-027–F-033 remain; Toffoli ABRC supersedes F-034 |
 | F-035 | P3 | claim_diff fingerprint gap | **Fixed** | Includes `informal_claim`, `maturity` |
 | F-036 | P3 | Lint scope narrow | **Fixed** | `lint.yml` lints `tools tests adapters scripts` |
 | F-037 | P3 | No static type checker | **Still open** | No mypy/pyright |
@@ -92,7 +118,7 @@
 | F-042 | P3 | pytest-asyncio warning | **Partially fixed** | `pyproject.toml` sets scope; conda plugin still warns locally |
 | F-043 | P2 | Cold lake build blocks lean evidence | **Still open (operational)** | First build **6962.9 s**; cached replay **7.9 s** |
 | F-044 | P2 | Makefile unpinned pip | **Fixed** | Prefers `uv sync --frozen --extra dev` |
-| F-045 | P3 | No ruff format / pre-commit | **Still open** | |
+| F-045 | P3 | No ruff format / pre-commit | **Partial** | `.pre-commit-config.yaml` present (ruff/format + local hooks); full enforcement open |
 | F-046 | P3 | No pytest-cov | **Still open** | |
 | F-047 | P2 | README badge validate-only | **Fixed** | Lint badge added |
 | F-048 | P2 | Lean rebuild per job | **Partially fixed** | Lean cache in validate; qcec/ai jobs still `lake build` |
@@ -164,17 +190,17 @@ Prior pre-remediation runs (#28587458525 validate, #28587458586 lint) failed on 
 | Field | Value |
 |-------|-------|
 | **Severity** | P1 |
-| **Status** | **Confirmed — still open** |
-| **Affected paths** | `three_qubit_bit_flip_code_corrects_one_x`, `small_fermionic_hamiltonian_is_hermitian`, `qft_inverse_qft_small_instance`, `qft_then_inverse_qft_identity_up_to_ordering` |
+| **Status** | **Fixed (2026-07)** |
+| **Affected paths** | (formerly) four `reference_claim` specs; corpus now clean |
 | **Fix effort** | M |
 
-**Reproduction:**
+**Closure evidence:**
 ```powershell
 rg "maintainer-bootstrap" benchmarks/**/spec.yaml
-# Four reference_claim benchmarks with bootstrap reviewer on formal/domain reviews
+# No matches. Named reviewers on ABRC/RC; reviews.py forbids maintainer-bootstrap.
 ```
 
-Validator hard-fails bootstrap only for `artifact_bound_reference_claim` and `ai_formalization` reference_claim.
+Ledger: `docs/audit_issues.yaml` status `closed`.
 
 ---
 
@@ -275,11 +301,13 @@ Full corpus **970.8 s** with no cross-benchmark parallelism.
 |-------|-------|
 | **Severity** | P2 |
 | **Category** | Security (by design) |
-| **Status** | **Confirmed** |
-| **Affected paths** | `adapters/python/parse_result.py`, `adapters/sat_certificate/parse_result.py` |
+| **Status** | **Closed (by design)** |
+| **Affected paths** | `adapters/python/parse_result.py`, `adapters/sat_certificate/parse_result.py`, `tools/qspecbench/evidence_sandbox.py` |
 | **Fix effort** | L |
 
-Python adapter now has **120 s** timeout; still executes corpus scripts with full user privileges.
+Python/SAT evidence runs under a constrained runner (timeout, claim-dir cwd jail,
+stripped network env, OS resource limits where available). Still corpus-trusted —
+not a multi-tenant sandbox product.
 
 ---
 
@@ -354,21 +382,21 @@ PR #5 merged audit remediation; merge-push Validate run #28600140701 green (48/4
 
 | ID | Title | Status |
 |----|-------|--------|
-| F-027 | 28/48 `reference_scaffold`; 10 headline-checked | Confirmed (honest) |
-| F-028 | `qbricks_result`, `zx_certificate` schema types without adapters | Confirmed |
+| F-027 | Scaffold-heavy corpus; most headlines partial | Confirmed (honest); counts drift — use dashboard |
+| F-028 | `qbricks_result`, `zx_certificate` schema types without adapters | **Addressed (Wave 0.2)** — shipping adapters; still not a complete FV standard; no sole-ABRC |
 | F-029 | Lean S/T gates stubbed as identity | Confirmed (documented) |
 | F-030 | OpenQASM parser subset (H/X/CX/CCX/RX) | Confirmed |
-| F-031 | Measurement/dynamic semantics partial | Confirmed |
+| F-031 | Measurement/dynamic semantics partial | Confirmed (scoped dynamic ABRC exists; full OpenQASM3 open) |
 | F-032 | Deutsch–Jozsa oracle placeholder in circuit | Confirmed |
 | F-033 | AI formalization drafts untrusted (commented `sorry`) | Confirmed |
-| F-034 | Toffoli headline `checked` with partial decomposition obligation | Confirmed |
+| F-034 | Toffoli headline `checked` with partial decomposition obligation | **Superseded** — normalized Clifford+T ABRC + native CCX ABRC; unnormalized N/A |
 | F-037 | No mypy/pyright | Confirmed |
 | F-038 | Monolithic `validate.py` (~640 lines) | Confirmed |
 | F-039 | Duplicated helpers across modules | Suspected |
 | F-040 | Adapter API inconsistency | Confirmed |
 | F-041 | Lean/QCEC tests skip without toolchain | Confirmed |
 | F-042 | pytest-asyncio deprecation warning (local conda) | Partially fixed |
-| F-045 | No `ruff format` / pre-commit | Confirmed |
+| F-045 | No `ruff format` / pre-commit | **Partial** — `.pre-commit-config.yaml` present |
 | F-046 | No pytest-cov | Confirmed |
 | F-049 | `rocq` / `isabelle` permanently skip | By design |
 | F-057 | One seed benchmark: `repeated_round_qec_temporal_specification` | Confirmed |
@@ -413,8 +441,9 @@ PR #5 merged audit remediation; merge-push Validate run #28600140701 green (48/4
 
 - **Path traversal:** `resolve_claim_path` now raises `ValueError` on escape (F-022 fixed).
 - **Timeouts:** Present on lean, python, coq, qcec, smt, sat, and evidence_runner (F-023 fixed).
-- **Bootstrap reviewers:** Four `reference_claim` specs still use `maintainer-bootstrap` (F-010).
-- **Human review / python exec:** Unchanged trust model (F-021, F-026).
+- **Bootstrap reviewers:** Cleared (F-010 fixed); validate forbids bootstrap on ABRC / AI RC.
+- **Human review / python exec:** Constrained evidence_sandbox for simulation/sat
+  (F-021 by-design + mitigation); human-review heuristic residual (F-026).
 
 ### Phase 6 — Docs / corpus / governance
 
@@ -423,17 +452,20 @@ PR #5 merged audit remediation; merge-push Validate run #28600140701 green (48/4
 - **Dashboard / GOVERNANCE Coq wording:** Default CI does not run coqc (F-052 fixed).
 - **docker/qcec README:** Matches CI (uv dev dep, not Docker build) (F-053 fixed).
 - **README badges:** Validate + Lint (F-047 fixed).
+- **Phase A (2026-07-24):** GOVERNANCE / roadmap / status / reference_benchmarks / research_tracks /
+  definition_of_completion synced to live **9 ABRC / 5 RC**; audit markdown ↔ yaml reconciled.
 
 ---
 
-## Recommended fix order
+## Recommended fix order (2026-07-02 snapshot — see status banner above)
 
-1. **Replace bootstrap reviewers** on four `reference_claim` benchmarks (F-010).
-2. **Merge promotion-check fix** (F-061) via follow-up PR if not yet on `main`.
-3. **CI efficiency:** Share Lean build artifact across jobs; consider dropping bridge job duplication if validate already checks bridges (F-014, F-048, F-013).
-4. **Lean adapter perf:** Cache elan toolchain probe; optional persistent `lake env` server (F-016).
-5. **Matrix scalability:** Global qubit cap or sparse representation for large circuits (F-012).
-6. **Long-term research:** Measurement semantics, codegen blockers (F-029–F-031).
+1. ~~Replace bootstrap reviewers (F-010)~~ — **Done**.
+2. ~~Merge promotion-check fix (F-061)~~ — **Done** (follow-up on `main`).
+3. ~~**CI efficiency:** Share Lean build artifact across jobs; bridge job duplication~~ — **Done (Wave 1)**: artifact reuse across dependent jobs (F-048); PR/release recompute split is intentional (F-013, F-014).
+4. ~~**Lean adapter perf:** Cache elan toolchain probe; persistent `lake env`~~ — **Done (Wave 1)**: process-cached elan/lake env probe (F-016); full persistent Lean server remains out of scope.
+5. ~~**Matrix scalability:** Global qubit cap~~ — **Done (Wave 1)**: `QSPECBENCH_MAX_DENSE_QUBITS` / `QSPECBENCH_MAX_PERM_QUBITS` hard caps (F-012); exponential cost inside the cap is an accepted residual.
+6. **Optional deeper research (not DoD-blocking):** multi-step Trotter, dynamic matrix KERNEL_BRIDGE, Grover `amplitude_lift`, gold-target freezes for the three remaining `ai_formalization` benchmarks — DoD R1–R3 closed (see [research_tracks.md](research_tracks.md)).
+7. **Remaining maintainability debt (not DoD-blocking):** F-038–F-040 (monolithic `validate.py`, helper duplication, adapter API inconsistency) — see [audit_issues.yaml](audit_issues.yaml).
 
 ---
 
