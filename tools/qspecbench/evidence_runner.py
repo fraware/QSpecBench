@@ -10,28 +10,60 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from qspecbench.adapter_registry import (
+    EVIDENCE_TYPE_ADAPTERS,
+    adapter_for_evidence_type,
+    validate_adapter_name,
+)
+from qspecbench.artifacts import claim_path_escape_error, resolve_claim_path
+from qspecbench.evidence_sandbox import run_sandboxed, uses_evidence_sandbox
+from qspecbench.evidence_schedule import (
+    EvidenceClass,
+    batches_by_class,
+    max_workers_for,
+    run_bounded,
+    schedule_evidence,
+)
 from qspecbench.schema import REPO_ROOT
 from qspecbench.validate import load_spec
 
 ADAPTERS_ROOT = REPO_ROOT / "adapters"
 
-EVIDENCE_TYPE_ADAPTERS: dict[str, str] = {
-    "qasm_parse": "qasm",
-    "qec_verifier_result": "qec",
-    "simulation": "python",
-    "ai_draft": "ai_formalization",
-    "lean_proof": "lean",
-    "coq_proof": "coq",
-    "rocq_proof": "rocq",
-    "isabelle_proof": "isabelle",
-    "proof_assistant_proof": "lean",
-    "sat_certificate": "sat_certificate",
-    "smt_certificate": "smt",
-    "qcec_result": "qcec",
-    "human_review": "human_review",
-    "bridge_verify": "bridge",
-    "python_denotation_consistency_check": "bridge",
+# `internal_denotation_consistency` covers several checker-specific verifiers beyond
+# the generic matrix-based `verify-bridge CLI` (adapters/bridge/parse_result.py):
+# dynamic AST / dynamic denotation / hardware ISA abstraction each need their own
+# already-implemented, already-tested checker function, not the matrix bridge one.
+# Dispatch on the declared `checker` string so `check-evidence` exercises the same
+# function the review/promotion relied on, instead of silently mis-routing to a
+# checker that inspects the wrong semantics (fail-closed, but for the wrong claim).
+_DYNAMIC_BRIDGE_CHECKER_SCRIPTS: dict[str, str] = {
+    "verify-dynamic-ast-bridge CLI": "bridge/dynamic_ast_check.py",
+    "verify-dynamic-denotation-bridge CLI": "bridge/dynamic_denotation_check.py",
+    "hardware_isa_adapter": "bridge/hardware_isa_check.py",
 }
+
+# `qec_verifier_result` similarly covers several Stim/PyMatching-family checkers
+# beyond the generic stabilizer-code JSON validator (adapters/qec/parse_result.py):
+# see adapters/qec/stim_matching_check.py docstring for the dispatch rationale.
+_QEC_STIM_MATCHING_CHECKERS: frozenset[str] = frozenset(
+    {
+        "stim_dem_adapter",
+        "pymatching_fixture_adapter",
+        "stim_pymatching_adapter",
+        "stim_declared_universe_adapter",
+    }
+)
+
+
+def _dynamic_bridge_command(checker: str | None) -> str | None:
+    script_rel = _DYNAMIC_BRIDGE_CHECKER_SCRIPTS.get(checker or "")
+    if script_rel:
+        script = ADAPTERS_ROOT / script_rel
+        return f"{sys.executable} {script} {{path}}"
+    if checker in _QEC_STIM_MATCHING_CHECKERS:
+        script = ADAPTERS_ROOT / "qec" / "stim_matching_check.py"
+        return f"{sys.executable} {script} {{path}}"
+    return None
 
 
 @dataclass
@@ -53,6 +85,38 @@ class EvidenceRunResult:
 
 def _allow_raw_commands() -> bool:
     return os.environ.get("QSPECBENCH_ALLOW_RAW_COMMANDS") == "1"
+
+
+def _raw_command_errors(claim_dir: Path) -> list[str]:
+    """Fail-closed authorization for raw evidence commands (env alone is insufficient)."""
+    errors: list[str] = []
+    if os.environ.get("CI", "").strip() in {"1", "true", "TRUE", "yes"}:
+        errors.append("raw command: disallowed in CI")
+    if os.environ.get("QSPECBENCH_TRUSTED_LOCAL", "").strip() not in {"1", "true", "yes"}:
+        errors.append(
+            "raw command: requires QSPECBENCH_TRUSTED_LOCAL=1 and "
+            "QSPECBENCH_ALLOW_RAW_COMMANDS=1 (maintainer escape hatch)"
+        )
+    if not _allow_raw_commands():
+        errors.append(
+            "raw command: disallowed; use adapter: field or set "
+            "QSPECBENCH_ALLOW_RAW_COMMANDS=1 (maintainer only)"
+        )
+    try:
+        proc = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            errors.append("raw command: requires a clean git working tree")
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        pass
+    _ = claim_dir  # claim-scoped checks reserved
+    return errors
 
 
 def _resolve_command(
@@ -85,10 +149,22 @@ def _resolve_command(
             resolved.append(str(p))
         elif part.startswith("adapters/"):
             resolved.append(str((REPO_ROOT / part).resolve()))
-        elif (claim_dir / part).exists():
-            resolved.append(str((claim_dir / part).resolve()))
         else:
-            resolved.append(part)
+            try:
+                candidate = resolve_claim_path(claim_dir, part)
+            except ValueError:
+                candidate = None
+            if candidate is not None and candidate.exists():
+                resolved.append(str(candidate.resolve()))
+            elif (claim_dir / part).exists():
+                # Fallback only for non-path tokens that happen to exist as relatives
+                # without going through resolve (should be rare).
+                escape = claim_path_escape_error(claim_dir, part)
+                if escape:
+                    raise ValueError(escape)
+                resolved.append(str((claim_dir / part).resolve()))
+            else:
+                resolved.append(part)
     return resolved
 
 
@@ -97,6 +173,9 @@ def _adapter_command(
     *,
     secondary: Path | None = None,
 ) -> str:
+    errs = validate_adapter_name(adapter_name)
+    if errs:
+        raise ValueError("; ".join(errs))
     script = ADAPTERS_ROOT / adapter_name / "parse_result.py"
     cmd = f"{sys.executable} {script} {{path}}"
     if secondary is not None:
@@ -116,7 +195,9 @@ def _default_adapter_command(
         if evidence_type == "simulation" and artifact_path.suffix.lower() == ".json":
             adapter_name = "dynamic_simulation"
         else:
-            adapter_name = EVIDENCE_TYPE_ADAPTERS.get(evidence_type)
+            adapter_name = adapter_for_evidence_type(evidence_type) or EVIDENCE_TYPE_ADAPTERS.get(
+                evidence_type
+            )
     if not adapter_name:
         return None
     return _adapter_command(adapter_name, secondary=secondary)
@@ -126,7 +207,10 @@ def _resolve_secondary_path(entry: dict, claim_dir: Path) -> Path | None:
     rel = entry.get("secondary_path")
     if not rel:
         return None
-    return (claim_dir / rel).resolve()
+    escape = claim_path_escape_error(claim_dir, rel)
+    if escape:
+        raise ValueError(escape)
+    return resolve_claim_path(claim_dir, rel)
 
 
 def _evidence_timeout(evidence_type: str, cmd: list[str]) -> int:
@@ -148,83 +232,112 @@ def _evidence_timeout(evidence_type: str, cmd: list[str]) -> int:
     return 120
 
 
-def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[EvidenceRunResult]:
-    claim_dir = claim_dir.resolve()
-    spec = load_spec(claim_dir / "spec.yaml")
-    results: list[EvidenceRunResult] = []
-
-    for entry in spec.get("evidence", []):
-        eid = entry.get("id", "?")
-        rel_path = entry.get("path", "")
-        artifact = (claim_dir / rel_path).resolve() if rel_path else None
+def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRunResult:
+    """Execute a single evidence entry (used by per-class run_bounded batches)."""
+    eid = entry.get("id", "?")
+    rel_path = entry.get("path", "")
+    artifact: Path | None = None
+    if rel_path:
+        escape = claim_path_escape_error(claim_dir, rel_path)
+        if escape:
+            return EvidenceRunResult(
+                evidence_id=eid,
+                path=rel_path,
+                command=None,
+                exit_code=1,
+                errors=[escape],
+            )
+        artifact = resolve_claim_path(claim_dir, rel_path)
+    try:
         secondary = _resolve_secondary_path(entry, claim_dir)
-        raw_command = entry.get("command")
-        adapter_name = entry.get("adapter")
-        etype = entry.get("type", "")
+    except ValueError as exc:
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=None,
+            exit_code=1,
+            errors=[str(exc)],
+        )
+    raw_command = entry.get("command")
+    adapter_name = entry.get("adapter")
+    etype = entry.get("type", "")
 
-        command: str | None = None
-        if adapter_name and artifact:
-            command = _default_adapter_command(etype, artifact, adapter_override=adapter_name, secondary=secondary)
-        elif not raw_command and artifact and entry.get("status") == "passing":
-            command = _default_adapter_command(etype, artifact, secondary=secondary)
-        elif raw_command:
-            if not _allow_raw_commands():
-                results.append(
-                    EvidenceRunResult(
-                        evidence_id=eid,
-                        path=rel_path,
-                        command=raw_command,
-                        exit_code=1,
-                        errors=[
-                            "raw command: disallowed; use adapter: field or set "
-                            "QSPECBENCH_ALLOW_RAW_COMMANDS=1 (maintainer only)"
-                        ],
-                    )
-                )
-                continue
-            command = raw_command
-
-        if not command:
-            results.append(
-                EvidenceRunResult(
-                    evidence_id=eid,
-                    path=rel_path,
-                    command=None,
-                    exit_code=None,
-                    skipped=True,
-                    skip_reason="no adapter or command declared",
-                )
-            )
-            continue
-
-        if entry.get("status") in ("draft", "not_checked"):
-            results.append(
-                EvidenceRunResult(
-                    evidence_id=eid,
-                    path=rel_path,
-                    command=command,
-                    exit_code=None,
-                    skipped=True,
-                    skip_reason=f"status is {entry.get('status')}",
-                )
-            )
-            continue
-
-        cmd = _resolve_command(command, claim_dir, artifact, secondary)
-        if dry_run:
-            results.append(
-                EvidenceRunResult(
-                    evidence_id=eid,
-                    path=rel_path,
-                    command=" ".join(cmd),
-                    exit_code=0,
-                    stdout="(dry run)",
-                )
-            )
-            continue
-
+    command: str | None = None
+    if adapter_name and artifact:
         try:
-            timeout = _evidence_timeout(etype, cmd)
+            command = _default_adapter_command(
+                etype, artifact, adapter_override=adapter_name, secondary=secondary
+            )
+        except ValueError as exc:
+            return EvidenceRunResult(
+                evidence_id=eid,
+                path=rel_path,
+                command=None,
+                exit_code=1,
+                errors=[str(exc)],
+            )
+    elif not raw_command and artifact and entry.get("status") == "passing":
+        try:
+            command = _dynamic_bridge_command(entry.get("checker")) or _default_adapter_command(
+                etype, artifact, secondary=secondary
+            )
+        except ValueError as exc:
+            return EvidenceRunResult(
+                evidence_id=eid,
+                path=rel_path,
+                command=None,
+                exit_code=1,
+                errors=[str(exc)],
+            )
+    elif raw_command:
+        raw_errs = _raw_command_errors(claim_dir)
+        if raw_errs:
+            return EvidenceRunResult(
+                evidence_id=eid,
+                path=rel_path,
+                command=raw_command,
+                exit_code=1,
+                errors=raw_errs
+                + ["warning: raw commands are a maintainer escape hatch only"],
+            )
+        command = raw_command
+
+    if not command:
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=None,
+            exit_code=None,
+            skipped=True,
+            skip_reason="no adapter or command declared",
+        )
+
+    if entry.get("status") in ("draft", "not_checked"):
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=command,
+            exit_code=None,
+            skipped=True,
+            skip_reason=f"status is {entry.get('status')}",
+        )
+
+    cmd = _resolve_command(command, claim_dir, artifact, secondary)
+    if dry_run:
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=" ".join(cmd),
+            exit_code=0,
+            stdout="(dry run)",
+        )
+
+    try:
+        timeout = _evidence_timeout(etype, cmd)
+        if uses_evidence_sandbox(etype):
+            # Claim-dir cwd jail + stripped network env + OS limits (F-021).
+            proc = run_sandboxed(cmd, claim_dir=claim_dir, timeout=timeout)
+        else:
             proc = subprocess.run(
                 cmd,
                 cwd=str(REPO_ROOT),
@@ -235,53 +348,102 @@ def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[Evidence
                 shell=(sys.platform == "win32" and cmd[0].endswith(".sh")),
                 timeout=timeout,
             )
-            result = EvidenceRunResult(
-                evidence_id=eid,
-                path=rel_path,
-                command=" ".join(cmd),
-                exit_code=proc.returncode,
-                stdout=proc.stdout.strip(),
-                stderr=proc.stderr.strip(),
-            )
-            if proc.returncode != 0:
-                result.errors.append(f"command failed with exit {proc.returncode}")
-            else:
-                try:
-                    payload = json.loads(proc.stdout.splitlines()[-1]) if proc.stdout.strip() else {}
-                    if payload.get("skipped"):
-                        result.skipped = True
-                        result.skip_reason = payload.get("notes") or payload.get("skip_reason") or "adapter skipped"
-                        result.exit_code = 0
-                    elif payload.get("ok") is False:
-                        detail = payload.get("errors")
-                        if isinstance(detail, list) and detail:
-                            result.errors.extend(str(e) for e in detail)
-                        else:
-                            result.errors.append(payload.get("error", "adapter reported ok=false"))
-                        result.exit_code = 1
-                except json.JSONDecodeError as exc:
-                    result.errors.append(f"adapter stdout is not valid JSON: {exc}")
+        result = EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=" ".join(cmd),
+            exit_code=proc.returncode,
+            stdout=proc.stdout.strip(),
+            stderr=proc.stderr.strip(),
+        )
+        if proc.returncode != 0:
+            result.errors.append(f"command failed with exit {proc.returncode}")
+        else:
+            try:
+                payload = json.loads(proc.stdout.splitlines()[-1]) if proc.stdout.strip() else {}
+                if payload.get("skipped"):
+                    result.skipped = True
+                    result.skip_reason = (
+                        payload.get("notes") or payload.get("skip_reason") or "adapter skipped"
+                    )
+                    result.exit_code = 0
+                elif payload.get("ok") is False:
+                    detail = payload.get("errors")
+                    if isinstance(detail, list) and detail:
+                        result.errors.extend(str(e) for e in detail)
+                    else:
+                        result.errors.append(payload.get("error", "adapter reported ok=false"))
                     result.exit_code = 1
-            results.append(result)
-        except subprocess.TimeoutExpired:
-            timeout = _evidence_timeout(etype, cmd)
-            results.append(
-                EvidenceRunResult(
-                    evidence_id=eid,
-                    path=rel_path,
-                    command=" ".join(cmd),
-                    exit_code=1,
-                    errors=[f"command timed out after {timeout}s"],
-                )
-            )
-        except OSError as exc:
-            results.append(
-                EvidenceRunResult(
-                    evidence_id=eid,
-                    path=rel_path,
-                    command=" ".join(cmd),
-                    exit_code=1,
-                    errors=[str(exc)],
-                )
-            )
+            except json.JSONDecodeError as exc:
+                result.errors.append(f"adapter stdout is not valid JSON: {exc}")
+                result.exit_code = 1
+        return result
+    except subprocess.TimeoutExpired:
+        timeout = _evidence_timeout(etype, cmd)
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=" ".join(cmd),
+            exit_code=1,
+            errors=[f"command timed out after {timeout}s"],
+        )
+    except ValueError as exc:
+        # Path-jail / sandbox config errors fail closed.
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=" ".join(cmd),
+            exit_code=1,
+            errors=[str(exc)],
+        )
+    except OSError as exc:
+        return EvidenceRunResult(
+            evidence_id=eid,
+            path=rel_path,
+            command=" ".join(cmd),
+            exit_code=1,
+            errors=[str(exc)],
+        )
+
+
+def run_evidence_checks(claim_dir: Path, dry_run: bool = False) -> list[EvidenceRunResult]:
+    """Run evidence in class-major batches via ``run_bounded`` (F-015).
+
+    Policy: lightweight/Python concurrent; Lean ``max_workers=1``; QCEC/SMT
+    serialized; output order is deterministic class-major then original index.
+    """
+    claim_dir = claim_dir.resolve()
+    spec = load_spec(claim_dir / "spec.yaml")
+
+    evidence_entries = list(spec.get("evidence", []) or [])
+    scheduled = schedule_evidence(evidence_entries)
+    by_id = {str(e.get("id")): e for e in evidence_entries}
+
+    # Attach original entry dicts; preserve schedule for missing-id append.
+    ordered_items = [item for item in scheduled if item.evidence_id in by_id]
+    seen = {item.evidence_id for item in ordered_items}
+    orphan_entries: list[dict] = []
+    for e in evidence_entries:
+        eid = str(e.get("id"))
+        if eid not in seen:
+            orphan_entries.append(e)
+            seen.add(eid)
+
+    results: list[EvidenceRunResult] = []
+    for cls, batch_items in batches_by_class(ordered_items):
+        batch_entries = [by_id[item.evidence_id] for item in batch_items]
+        workers = max_workers_for(cls)
+        # Lean always serialized (lake/elan contention); policy pinned here too.
+        if cls == EvidenceClass.LEAN:
+            workers = 1
+        batch_results = run_bounded(
+            batch_entries,
+            lambda entry, _cd=claim_dir, _dr=dry_run: _check_one_entry(entry, _cd, _dr),
+            max_workers=workers,
+        )
+        results.extend(r for r in batch_results if isinstance(r, EvidenceRunResult))
+
+    for entry in orphan_entries:
+        results.append(_check_one_entry(entry, claim_dir, dry_run))
+
     return results
