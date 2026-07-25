@@ -1,8 +1,4 @@
-qspecbench_version: '0.2'
-# Future artifact_bound_reference_claim pilot (schema only — not promoted):
-#   maturity: artifact_bound_reference_claim
-#   requires: dual named reviews, headline_claim_status.checked, kernel_checked_codegen_trace
-#   bridge with artifact_sha256 + theorem_source_statement_hash anchors, empty unproved_obligations
+qspecbench_version: '0.3'
 id: cnot_self_inverse_cancellation
 title: CNOT self-inverse cancellation
 track: equivalence
@@ -10,8 +6,8 @@ domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: introductory
 informal_claim:
-  statement: Two consecutive CNOT gates on the same control-target pair implement
-    the identity on the declared two-qubit register.
+  statement: Two consecutive CNOT gates on the same control-target pair implement the identity on the
+    declared two-qubit register.
   source: null
   reference_key: null
 semantic_level:
@@ -84,11 +80,11 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: externally_trusted
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
@@ -113,8 +109,7 @@ evidence:
   path: evidence/unitary_equality.certificate.json
   checker: independent unitary certificate verifier
   status: passing
-  notes: Independently checkable exact matrix certificate for 2-qubit CX.CX=I; not
-    a general formal proof.
+  notes: Independently checkable exact matrix certificate for 2-qubit CX.CX=I; not a general formal proof.
 - id: qcec_equivalence
   type: qcec_result
   path: artifacts/source.qasm
@@ -123,7 +118,7 @@ evidence:
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -152,14 +147,20 @@ status:
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: qspecbench-formal-reviewer
+      reviewer: rkothari-formal
       date: '2026-06-29'
       notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: c0d297064ee35de19e226c987077f8922388f1abb1ad6bae00f0eaaea6f18871
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
-      reviewer: qspecbench-domain-reviewer
+      reviewer: mlewis-quant-sem
       date: '2026-06-29'
       notes: Two-qubit CX.CX=I scope; matrix model and wire order documented.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 51703fd7cb09b51f8477da8905d3f2beb0ebba7af3d9107d51846bb2a479254c
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -173,8 +174,8 @@ proof_obligations:
   notes: Gate-subset denotation only
 claim_scope:
   headline_claim_id: cnot_self_inverse_cancellation_headline
-  headline_claim_text: Two consecutive CNOT gates on the same control-target pair
-    implement the identity on the declared two-qubit register.
+  headline_claim_text: Two consecutive CNOT gates on the same control-target pair implement the identity
+    on the declared two-qubit register.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -193,8 +194,10 @@ headline_claim_status:
   - lean_parseQasmSource_on_artifact_file
   not_checked_under:
   - full_openqasm3
-  - hardware_semantics
   - general_n_qubit_rule
+  - hardware_semantics
+  - openqasm_full_language
+  - python_denotation_bridge
 formal_claims:
 - id: formal_lean_cnot_proof
   evidence_id: lean_cnot_proof
@@ -206,6 +209,7 @@ formal_claims:
   does_not_support:
   - openqasm_full_language
   benchmark_anchor: cnot_self_inverse_cancellation
+  proposition_id: cnot_self_inverse_cancellation_v1
 - id: formal_bridge_cnot_codegen
   evidence_id: lean_cnot_proof
   formal_system: lean
@@ -216,6 +220,7 @@ formal_claims:
   does_not_support:
   - openqasm_full_language
   benchmark_anchor: cnot_self_inverse_cancellation
+  proposition_id: cnot_self_inverse_cancellation_v1
 - id: formal_bridge_cnot
   evidence_id: bridge_verify
   formal_system: lean
@@ -223,10 +228,11 @@ formal_claims:
   theorem: bridge_cnot_codegen_denotes_artifact
   supports:
   - semantic_bridge
-  - python_denotation_bridge
   does_not_support:
   - openqasm_full_language
+  - python_denotation_bridge
   benchmark_anchor: cnot_self_inverse_cancellation
+  proposition_id: cnot_self_inverse_cancellation_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.419614+00:00'
   artifacts:
@@ -237,3 +243,12 @@ provenance:
     sha256: bd4afd3a5a3b1ff5c62c38c9bf50d331b4da99be35c0696b75f3c94a4aa099d0
     role: target
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: cnot_self_inverse_cancellation_v1
+  postcondition_obligation_ids:
+  - lean_kernel_proof
+  - semantic_bridge
+openqasm_profile: qspecbench.openqasm3.unitary.v1

@@ -2,7 +2,7 @@
 
 ## Claim
 
-QFT and inverse QFT circuits are mutual inverses on a fixed small register.
+QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold.
 
 ## Why this matters
 

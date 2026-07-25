@@ -14,5 +14,6 @@
   "wire_order": {
     "model": "legacy_kron_order",
     "checked_against": "both"
-  }
+  },
+  "proposition_id": "qft_inverse_qft_small_instance_v1"
 }

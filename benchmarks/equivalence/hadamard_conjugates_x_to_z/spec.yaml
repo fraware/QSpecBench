@@ -1,6 +1,6 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: hadamard_conjugates_x_to_z
-title: Hadamard conjugates X to Z
+title: Hadamard conjugating X yields Z
 track: equivalence
 domain: circuit_equivalence
 claim_type: unitary_equivalence
@@ -69,11 +69,11 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: externally_trusted
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 evidence:
 - id: lean_hxh_eq_z
   type: lean_proof
@@ -101,12 +101,12 @@ evidence:
   status: passing
   notes: External equivalence check on declared QASM pair.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked_artifact_semantics
-    bridge with codegen trace).
+  notes: QASM matrix matches OpenQASM3 denotation (kernel_checked_artifact_semantics bridge with codegen
+    trace).
 trust_boundary:
   checked_by:
   - QASM syntax parse
@@ -132,11 +132,17 @@ status:
       reviewer: rkothari-formal
       date: '2026-06-29'
       notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 0ef469eb549741fb80d831fbee305d533f989919f90ff614732e007cfd9c5dab
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
       reviewer: mlewis-quant-sem
       date: '2026-06-29'
       notes: H-X-H conjugation scope; H normalization documented in not_checked_under.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: ab3d72e56ac888504db2e5cf9ccbd9b79bb2cc55535f58c09a0d04bdf9f82482
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -147,8 +153,7 @@ proof_obligations:
   notes: kernel_checked_artifact_semantics via codegen trace + bridge_hadamard_codegen_conjugates_x
 claim_scope:
   headline_claim_id: hadamard_conjugates_x_to_z_headline
-  headline_claim_text: Conjugating Pauli X by H yields Pauli Z up to global phase
-    on one qubit.
+  headline_claim_text: Conjugating Pauli X by H yields Pauli Z up to global phase on one qubit.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -169,6 +174,8 @@ headline_claim_status:
   - full_openqasm3
   - hardware_semantics
   - openqasm_h_normalization_links_integer_model
+  - openqasm_h_normalization_links_integer_model_to_
+  - python_denotation_bridge
 formal_claims:
 - id: formal_lean_hxh_eq_z
   evidence_id: lean_hxh_eq_z
@@ -180,17 +187,19 @@ formal_claims:
   does_not_support:
   - openqasm_h_normalization_links_integer_model_to_
   benchmark_anchor: hadamard_conjugates_x_to_z
+  proposition_id: hadamard_conjugates_x_to_z_v1
 - id: formal_bridge_hadamard_conjugates_x_to_z
   evidence_id: bridge_verify
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
   theorem: QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_conjugates_x
   supports:
-  - python_denotation_bridge
   - semantic_bridge
   does_not_support:
   - openqasm_h_normalization_links_integer_model_to_
+  - python_denotation_bridge
   benchmark_anchor: hadamard_conjugates_x_to_z
+  proposition_id: hadamard_conjugates_x_to_z_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.482248+00:00'
   artifacts:
@@ -201,3 +210,12 @@ provenance:
     sha256: 9f27d28491cc129e3cbc20fad9eabede777ccfa0ced9ef88f917eb0981b62f7e
     role: target
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: hadamard_conjugates_x_to_z_v1
+  postcondition_obligation_ids:
+  - lean_kernel_proof
+  - semantic_bridge
+openqasm_profile: qspecbench.openqasm3.unitary.v1
