@@ -1,3 +1,6 @@
+permissions:
+  contents: read
+
 name: Lint
 
 on:
@@ -9,11 +12,34 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
       - run: uv sync --frozen --extra dev
       - run: uv run ruff check tools tests adapters scripts
+      - name: Typecheck (pyright basic)
+        run: uv run pyright tools/qspecbench adapters scripts
+      - name: Coverage gate (trust/unit surface; F-019 unit slice)
+        run: |
+          uv run pytest \
+            tests/test_phase9_governance.py \
+            tests/test_phase10_maintainability.py \
+            tests/test_schema_dialect.py \
+            tests/test_resource_bounds.py \
+            tests/test_release_failclosed.py \
+            tests/test_trust_boundaries.py \
+            tests/test_headline_scope.py \
+            tests/test_p1_negative.py \
+            tests/test_p2.py \
+            tests/test_semantic_bridge_files_validate.py \
+            tests/test_benchmark_layout.py \
+            --cov=qspecbench.trust --cov=qspecbench.reviews --cov=qspecbench.adapter_registry \
+            --cov=qspecbench.validation --cov=qspecbench.adapter_types \
+            --cov=qspecbench.release_bundle --cov=qspecbench.resource_bounds \
+            --cov-report=term-missing --cov-fail-under=55
+      # Markers (pyproject.toml): unit / lean / stim. Full suite is release-only (F-019).
+      - name: Document pytest markers
+        run: uv run pytest --markers | head -n 40
