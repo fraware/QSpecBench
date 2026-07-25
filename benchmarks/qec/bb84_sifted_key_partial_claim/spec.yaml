@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: bb84_sifted_key_partial_claim
 title: BB84 sifted key partial claim
 track: qec
@@ -6,8 +6,7 @@ domain: quantum_cryptography
 claim_type: protocol_claim
 difficulty: intermediate
 informal_claim:
-  statement: BB84 sifted-key generation is documented as a partial claim without full
-    security proof.
+  statement: BB84 sifted-key generation is documented as a partial claim without full security proof.
   source: null
   reference_key: null
 semantic_level:
@@ -82,8 +81,8 @@ status:
 references: []
 claim_scope:
   headline_claim_id: bb84_sifted_key_partial_claim_headline
-  headline_claim_text: BB84 sifted-key generation is documented as a partial claim
-    without full security proof.
+  headline_claim_text: BB84 sifted-key generation is documented as a partial claim without full security
+    proof.
   required_obligations:
   - human_review
 proved_scope:
@@ -116,3 +115,6 @@ provenance:
   - path: artifacts/protocol.json
     sha256: 3c393e8d08da034ff0f6ea51bf266fb90a46b7610e92a9f307189131f4d267c5
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

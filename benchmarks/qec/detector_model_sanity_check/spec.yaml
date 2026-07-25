@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: detector_model_sanity_check
 title: Detector model sanity check
 track: qec
@@ -6,8 +6,7 @@ domain: quantum_error_correction
 claim_type: model_sanity
 difficulty: introductory
 informal_claim:
-  statement: A toy detector model JSON satisfies declared field bounds for QEC experiment
-    scaffolding.
+  statement: A toy detector model JSON satisfies declared field bounds for QEC experiment scaffolding.
   source: null
   reference_key: null
 semantic_level:
@@ -81,8 +80,7 @@ status:
 references: []
 claim_scope:
   headline_claim_id: detector_model_sanity_check_headline
-  headline_claim_text: A toy detector model JSON satisfies declared field bounds for
-    QEC experiment scaffolding.
+  headline_claim_text: A toy detector model JSON satisfies declared field bounds for QEC experiment scaffolding.
   required_obligations:
   - simulation_heuristic
 proved_scope:
@@ -114,3 +112,6 @@ provenance:
   - path: artifacts/detector_model.json
     sha256: d22dc55cab6669c750e71ccec911c6676cca63eedd119fa18ef9586a572f3028
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

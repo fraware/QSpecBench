@@ -1,6 +1,6 @@
 # Claim diff: three_qubit_phase_flip_code_corrects_one_z
 
-<!-- scope_fingerprint: 8c849eb53d73e0f6c9ca369513f017529b2bea59d35e459a8b4640458659267b -->
+<!-- scope_fingerprint: ff46ee4121e320ea270763cbb32e12c76865ae4deed409755904ed9863ef5e46 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

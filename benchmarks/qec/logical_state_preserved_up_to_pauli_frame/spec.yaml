@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: logical_state_preserved_up_to_pauli_frame
 title: Logical State Preserved Up To Pauli Frame
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: advanced
 informal_claim:
-  statement: QEC benchmark claim for `logical_state_preserved_up_to_pauli_frame` under
-    an explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `logical_state_preserved_up_to_pauli_frame` under an explicitly declared
+    Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -99,8 +99,8 @@ proof_obligations:
   notes: Lean stabilizer commutation scaffold
 claim_scope:
   headline_claim_id: logical_state_preserved_up_to_pauli_frame_headline
-  headline_claim_text: QEC benchmark claim for `logical_state_preserved_up_to_pauli_frame`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `logical_state_preserved_up_to_pauli_frame` under an explicitly
+    declared Pauli-dominated error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -145,3 +145,6 @@ provenance:
   - path: artifacts/code.json
     sha256: 351c37691b2cb7276c1eb7d8d23c5e155e1b921cb771fb670a37792814e4163e
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

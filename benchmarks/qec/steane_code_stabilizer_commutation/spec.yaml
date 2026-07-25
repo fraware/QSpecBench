@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: steane_code_stabilizer_commutation
 title: Steane Code Stabilizer Commutation
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: intermediate
 informal_claim:
-  statement: QEC benchmark claim for `steane_code_stabilizer_commutation` under an
-    explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `steane_code_stabilizer_commutation` under an explicitly declared
+    Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -102,8 +102,8 @@ proof_obligations:
   notes: Decoder out of scope
 claim_scope:
   headline_claim_id: steane_code_stabilizer_commutation_headline
-  headline_claim_text: QEC benchmark claim for `steane_code_stabilizer_commutation`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `steane_code_stabilizer_commutation` under an explicitly
+    declared Pauli-dominated error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -148,3 +148,6 @@ provenance:
   - path: artifacts/code.json
     sha256: 728facb182a905b0d822c7ce19f4fc79e7e5713db57a17914a74aeaf594857a9
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

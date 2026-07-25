@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: repetition_code_three_one_three
 title: Repetition code [[3,1,3]]
 track: qec
@@ -6,8 +6,7 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: introductory
 informal_claim:
-  statement: The three-qubit repetition code has parameters [[3,1,3]] under declared
-    stabilizer generators.
+  statement: The three-qubit repetition code has parameters [[3,1,3]] under declared stabilizer generators.
   source: null
   reference_key: null
 semantic_level:
@@ -99,8 +98,8 @@ proof_obligations:
   notes: Lean stabilizer commutation scaffold
 claim_scope:
   headline_claim_id: repetition_code_three_one_three_headline
-  headline_claim_text: The three-qubit repetition code has parameters [[3,1,3]] under
-    declared stabilizer generators.
+  headline_claim_text: The three-qubit repetition code has parameters [[3,1,3]] under declared stabilizer
+    generators.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -145,3 +144,6 @@ provenance:
   - path: artifacts/code.json
     sha256: 5133e19b9be0e2767b95aa4b50c5b794603f7ff41adc955b1c01141d7c40541c
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
