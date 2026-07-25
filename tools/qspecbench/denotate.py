@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, cast
 
 from qspecbench.qasm_matrix import (
     ComplexMatrix,
@@ -25,7 +25,8 @@ from qspecbench.qasm_matrix import (
     matrix_from_json_rows,
 )
 
-Op = tuple[str, tuple[int, ...], float | None]
+# Qubit indices are ints; U packs (qubit, theta, phi, lambda) into args for AST stability.
+Op = tuple[str, tuple[int | float, ...], float | None]
 
 _ANGLE = r"([^)]+)"
 _RX_RE = re.compile(rf"^\s*rx\s*\(\s*{_ANGLE}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
@@ -33,6 +34,10 @@ _RY_RE = re.compile(rf"^\s*ry\s*\(\s*{_ANGLE}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", 
 _RZ_RE = re.compile(rf"^\s*rz\s*\(\s*{_ANGLE}\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
 _U_RE = re.compile(r"^\s*u\s*\(\s*([^)]+)\s*\)\s+(q\[\d+\]|q\d+)\s*;?\s*$", re.I)
 _CP_RE = re.compile(rf"^\s*cp\s*\(\s*{_ANGLE}\s*\)\s+(.*);?\s*$", re.I)
+
+
+def _qubit(args: tuple[int | float, ...], index: int = 0) -> int:
+    return int(args[index])
 
 
 def denotate_ops(n_qubits: int, ops: list[Op]) -> ComplexMatrix:
@@ -43,33 +48,40 @@ def denotate_ops(n_qubits: int, ops: list[Op]) -> ComplexMatrix:
         if g == "rx":
             if angle is None:
                 raise ValueError("rx gate requires angle")
-            op = _apply_rx(n_qubits, angle, args[0])
+            op = _apply_rx(n_qubits, angle, _qubit(args))
         elif g == "ry":
             if angle is None:
                 raise ValueError("ry gate requires angle")
-            op = _apply_ry(n_qubits, angle, args[0])
+            op = _apply_ry(n_qubits, angle, _qubit(args))
         elif g == "rz":
             if angle is None:
                 raise ValueError("rz gate requires angle")
-            op = _apply_rz(n_qubits, angle, args[0])
+            op = _apply_rz(n_qubits, angle, _qubit(args))
         elif g == "u":
-            if angle is None or len(args) < 4:
+            # Legacy AST-stable packing: args = (qubit, theta, phi, lambda).
+            if len(args) < 4:
                 raise ValueError("u gate requires theta, phi, lambda angles")
-            op = _apply_u(n_qubits, args[1], args[2], args[3], args[0])
+            op = _apply_u(
+                n_qubits,
+                float(args[1]),
+                float(args[2]),
+                float(args[3]),
+                _qubit(args, 0),
+            )
         elif g in {"cx", "cnot"}:
-            op = _cnot(n_qubits, args[0], args[1])
+            op = _cnot(n_qubits, _qubit(args, 0), _qubit(args, 1))
         elif g == "cz":
-            op = _cz(n_qubits, args[0], args[1])
+            op = _cz(n_qubits, _qubit(args, 0), _qubit(args, 1))
         elif g == "ccx":
-            op = _ccx(n_qubits, args[0], args[1], args[2])
+            op = _ccx(n_qubits, _qubit(args, 0), _qubit(args, 1), _qubit(args, 2))
         elif g == "swap":
-            op = _swap(n_qubits, args[0], args[1])
+            op = _swap(n_qubits, _qubit(args, 0), _qubit(args, 1))
         elif g == "cp":
             if angle is None:
                 raise ValueError("cp gate requires angle")
-            op = _cp(n_qubits, args[0], args[1], angle)
+            op = _cp(n_qubits, _qubit(args, 0), _qubit(args, 1), angle)
         else:
-            op = _apply_single(n_qubits, g, args[0])
+            op = _apply_single(n_qubits, g, _qubit(args))
         unitary = _mat_mul(op, unitary)
     return unitary
 
@@ -105,6 +117,7 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
             if len(angles) != 3:
                 raise ValueError(f"U expects three angles: {line}")
             q = _parse_qubit_index(u.group(2), n)
+            # Keep floats in args so bridge AST encoding stays stable.
             ops.append(("u", (q, angles[0], angles[1], angles[2]), None))
             continue
         cp = _CP_RE.match(stripped)
@@ -121,7 +134,10 @@ def ops_from_qasm_matrix(data: dict[str, Any]) -> list[Op]:
         if gate not in supported:
             continue
         arg_text = parts[1] if len(parts) > 1 else ""
-        args = tuple(int(m.group(1)) for m in re.finditer(r"\[(\d+)\]", arg_text))
+        args = cast(
+            tuple[int, ...],
+            tuple(int(m.group(1)) for m in re.finditer(r"\[(\d+)\]", arg_text)),
+        )
         if gate in {"cx", "cnot", "cz"}:
             if len(args) != 2:
                 raise ValueError(f"two-qubit gate expects two qubit indices: {line}")

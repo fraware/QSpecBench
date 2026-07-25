@@ -36,9 +36,13 @@ GENERATED_MODULE_MAP: dict[str, str] = {
     "single_qubit_gate_cancellation": "SingleQubitGateCancellation",
     "bell_state_preparation": "BellStatePreparation",
     "swap_from_three_cx": "SwapFromThreeCx",
+    "native_ccx_artifact_denotes_toffoli_unitary": "ToffoliDecompositionEquivalence",
     "toffoli_decomposition_equivalence": "ToffoliDecompositionEquivalence",
     "toffoli_decomposition_equivalence_target": "ToffoliDecompositionEquivalenceTarget",
     "circuit_identity_after_layout": "CircuitIdentityAfterLayout",
+    "teleportation_preserves_state_up_to_pauli_correction": "TeleportationUnitaryPrefix",
+    "clifford_simplification_preserves_unitary": "CliffordSimplificationPreservesUnitary",
+    "clifford_simplification_preserves_unitary_target": "CliffordSimplificationPreservesUnitaryTarget",
 }
 
 KERNEL_BRIDGE_IDS: frozenset[str] = frozenset(
@@ -48,7 +52,10 @@ KERNEL_BRIDGE_IDS: frozenset[str] = frozenset(
         "single_qubit_gate_cancellation",
         "bell_state_preparation",
         "swap_from_three_cx",
+        "native_ccx_artifact_denotes_toffoli_unitary",
         "toffoli_decomposition_equivalence",
+        "teleportation_preserves_state_up_to_pauli_correction",
+        "clifford_simplification_preserves_unitary",
     }
 )
 
@@ -58,8 +65,13 @@ ARTIFACT_PARSE_THEOREM_MAP: dict[str, str] = {
     "single_qubit_gate_cancellation": "parseQasmSource_hh_kernel_eq_generated_ops",
     "bell_state_preparation": "parseQasmSource_bell_kernel_eq_generated_ops",
     "swap_from_three_cx": "parseQasmSource_swap_kernel_eq_generated_ops",
+    "native_ccx_artifact_denotes_toffoli_unitary": "parseQasmSource_toffoli_kernel_eq_generated_ops",
     "toffoli_decomposition_equivalence": "parseQasmSource_toffoli_kernel_eq_generated_ops",
     "circuit_identity_after_layout": "parseQasmSource_layout_kernel_eq_generated_ops",
+    "teleportation_preserves_state_up_to_pauli_correction": (
+        "parseQasmSource_teleport_kernel_eq_generated_ops"
+    ),
+    "clifford_simplification_preserves_unitary": "parseQasmSource_clifford_kernel_eq_generated_ops",
 }
 
 KERNEL_ARTIFACT_SOURCE_DEF: dict[str, str] = {
@@ -68,16 +80,23 @@ KERNEL_ARTIFACT_SOURCE_DEF: dict[str, str] = {
     "single_qubit_gate_cancellation": "hhKernelArtifactSource",
     "bell_state_preparation": "bellKernelArtifactSource",
     "swap_from_three_cx": "swapKernelArtifactSource",
+    "native_ccx_artifact_denotes_toffoli_unitary": "toffoliKernelArtifactSource",
     "toffoli_decomposition_equivalence": "toffoliKernelArtifactSource",
     "circuit_identity_after_layout": "layoutKernelArtifactSource",
+    "teleportation_preserves_state_up_to_pauli_correction": "teleportKernelArtifactSource",
+    "clifford_simplification_preserves_unitary": "cliffordKernelArtifactSource",
 }
 
 KERNEL_TARGET_ARTIFACT_SOURCE_DEF: dict[str, str] = {
     "toffoli_decomposition_equivalence": "toffoliTargetKernelArtifactSource",
+    "clifford_simplification_preserves_unitary": "cliffordTargetKernelArtifactSource",
 }
 
 TARGET_ARTIFACT_PARSE_THEOREM_MAP: dict[str, str] = {
     "toffoli_decomposition_equivalence": "parseQasmSource_toffoli_target_kernel_eq_generated_ops",
+    "clifford_simplification_preserves_unitary": (
+        "parseQasmSource_clifford_target_kernel_eq_generated_ops"
+    ),
 }
 
 KERNEL_ARTIFACT_QASM_REL: dict[str, str] = {
@@ -92,14 +111,27 @@ KERNEL_ARTIFACT_QASM_REL: dict[str, str] = {
     ),
     "bell_state_preparation": "benchmarks/algorithms/bell_state_preparation/artifacts/circuit.qasm",
     "swap_from_three_cx": "benchmarks/algorithms/swap_from_three_cx/artifacts/source.qasm",
+    "native_ccx_artifact_denotes_toffoli_unitary": (
+        "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary/artifacts/source.qasm"
+    ),
     "toffoli_decomposition_equivalence": (
         "benchmarks/equivalence/toffoli_decomposition_equivalence/artifacts/source.qasm"
+    ),
+    "teleportation_preserves_state_up_to_pauli_correction": (
+        "benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction/"
+        "artifacts/teleport_unitary_prefix.qasm"
+    ),
+    "clifford_simplification_preserves_unitary": (
+        "benchmarks/equivalence/clifford_simplification_preserves_unitary/artifacts/source.qasm"
     ),
 }
 
 KERNEL_TARGET_ARTIFACT_QASM_REL: dict[str, str] = {
     "toffoli_decomposition_equivalence": (
         "benchmarks/equivalence/toffoli_decomposition_equivalence/artifacts/target.qasm"
+    ),
+    "clifford_simplification_preserves_unitary": (
+        "benchmarks/equivalence/clifford_simplification_preserves_unitary/artifacts/target.qasm"
     ),
 }
 
@@ -109,6 +141,10 @@ AST_AUTHORITY_FIELD = "ast_authority"
 AST_AUTHORITY_LEAN_MIRROR = "lean_mirror"
 AST_AUTHORITY_PYTHON = "python_extract_matrix"
 THEOREM_ELABORATOR_TYPES_CACHE = REPO_ROOT / ".cache" / "theorem_elaborator_types.json"
+THEOREM_ELABORATOR_TYPES_PIN = REPO_ROOT / "schema" / "theorem_elaborator_types.json"
+ELABORATOR_MISSING_MSG = (
+    "Lean elaborator export missing — artifact-bound promotion unavailable."
+)
 
 # Deprecated fallback only when Lean source extraction fails (should not happen for kernel bridges).
 _KERNEL_THEOREM_CONTENT_DEPRECATED: dict[str, str] = {}
@@ -195,12 +231,21 @@ def lean_mirror_parse_gate_line(line: str) -> dict[str, Any] | None:
     if s.startswith("x "):
         q = _parse_qubit_token(s[2:])
         return {"op": "x", "qubits": [q]} if q is not None else None
+    if s.startswith("sdg "):
+        q = _parse_qubit_token(s[4:])
+        return {"op": "sdg", "qubits": [q]} if q is not None else None
+    if s.startswith("s "):
+        q = _parse_qubit_token(s[2:])
+        return {"op": "s", "qubits": [q]} if q is not None else None
     if s.startswith("t "):
         q = _parse_qubit_token(s[2:])
         return {"op": "t", "qubits": [q]} if q is not None else None
     if s.startswith("tdg "):
         q = _parse_qubit_token(s[4:])
         return {"op": "tdg", "qubits": [q]} if q is not None else None
+    if s.startswith("z "):
+        q = _parse_qubit_token(s[2:])
+        return {"op": "z", "qubits": [q]} if q is not None else None
     if s.startswith("cx ") or s.startswith("cnot "):
         rest = s.split(" ", 1)[1]
         parts = [p.strip() for p in rest.split(",")]
@@ -210,6 +255,15 @@ def lean_mirror_parse_gate_line(line: str) -> dict[str, Any] | None:
         if c is None or t is None:
             return None
         return {"op": "cx", "qubits": [c, t]}
+    if s.startswith("swap "):
+        rest = s.split(" ", 1)[1]
+        parts = [p.strip() for p in rest.split(",")]
+        if len(parts) != 2:
+            return None
+        a, b = _parse_qubit_token(parts[0]), _parse_qubit_token(parts[1])
+        if a is None or b is None:
+            return None
+        return {"op": "swap", "qubits": [a, b]}
     if s.startswith("ccx "):
         rest = s.split(" ", 1)[1]
         parts = [p.strip() for p in rest.split(",")]
@@ -224,6 +278,195 @@ def lean_mirror_parse_gate_line(line: str) -> dict[str, Any] | None:
             return None
         return {"op": "ccx", "qubits": [c0, c1, t]}
     return None
+
+
+class DynamicAstMirrorError(ValueError):
+    """Fail-closed: unsupported dynamic QASM line (never silently drop measure/if)."""
+
+
+DYNAMIC_CHECKED_LINK = "kernel_checked_dynamic_ast_semantics"
+DYNAMIC_DENOTATION_LINK = "kernel_checked_dynamic_denotation"
+DYNAMIC_CHECKED_LINKS = frozenset({DYNAMIC_CHECKED_LINK, DYNAMIC_DENOTATION_LINK})
+
+
+def _parse_cbit_token(tok: str) -> int | None:
+    t = tok.strip()
+    if t.startswith("c[") and t.endswith("]"):
+        return int(t[2:-1])
+    return None
+
+
+def lean_mirror_parse_dynamic_line(line: str) -> tuple[str, dict[str, Any]] | None:
+    """Fail-closed mirror of Lean ``parseExecutableLineE`` for teleport dynamic subset.
+
+    Returns ``("gate"|"measure"|"control"|"reset"|"for_gates", entry)`` or ``None``
+    for skippable headers. Raises ``DynamicAstMirrorError`` on unsupported lines.
+    """
+    raw = line.strip()
+    if not raw or _is_skippable_qasm_line(line):
+        return None
+    s = raw.rstrip(";").strip()
+    # measure: c[i] = measure q[j]
+    if " = measure " in s:
+        left, right = s.split(" = measure ", 1)
+        c_idx = _parse_cbit_token(left)
+        q_idx = _parse_qubit_token(right)
+        if c_idx is None or q_idx is None:
+            raise DynamicAstMirrorError(f"unsupported measure line: {raw!r}")
+        return ("measure", {"cIdx": c_idx, "qIdx": q_idx})
+    # bounded while[N] (c[i]) x|y|z q[j]
+    if s.startswith("while["):
+        import re
+
+        m = re.fullmatch(
+            r"while\[(\d+)\] \(c\[(\d+)\](?: == 1)?\) (x|y|z) q\[(\d+)\]",
+            s,
+        )
+        if not m:
+            raise DynamicAstMirrorError(f"unsupported while line: {raw!r}")
+        fuel = int(m.group(1))
+        if fuel == 0 or fuel > 8:
+            raise DynamicAstMirrorError(f"while fuel out of range: {raw!r}")
+        return (
+            "control",
+            {
+                "cIdx": int(m.group(2)),
+                "op": m.group(3),
+                "qubits": [int(m.group(4))],
+                "whileFuel": fuel,
+            },
+        )
+    if s.startswith("while "):
+        raise DynamicAstMirrorError(f"unsupported dynamic QASM line: {raw!r}")
+    # nested brace if/else depth>1 remains fail-closed
+    if s.startswith("if (") and s.count("{") >= 3:
+        raise DynamicAstMirrorError(f"nested control too deep: {raw!r}")
+    # nested brace if/else depth-1
+    if s.startswith("if (") and "{ " in s and " } else { " in s:
+        import re
+
+        m = re.fullmatch(
+            r"if \(c\[(\d+)\](?: == (?:1|true))?\) \{ (x|y|z) q\[(\d+)\]; \} "
+            r"else \{ (x|y|z) q\[(\d+)\]; \}",
+            s,
+        )
+        if not m:
+            raise DynamicAstMirrorError(f"unsupported nested if-else line: {raw!r}")
+        return (
+            "control",
+            {
+                "cIdx": int(m.group(1)),
+                "op": m.group(2),
+                "qubits": [int(m.group(3))],
+                "elseOp": m.group(4),
+                "elseQubits": [int(m.group(5))],
+                "nested": True,
+            },
+        )
+    # if (c[i] == 1|true) / if (c[i]) x|y|z q[j] [else x|y|z q[k]]
+    if s.startswith("if ("):
+        import re
+
+        m = re.fullmatch(
+            r"if \(c\[(\d+)\](?: == (?:1|true))?\) (x|y|z) q\[(\d+)\]"
+            r"(?: else (x|y|z) q\[(\d+)\])?",
+            s,
+        )
+        if not m:
+            raise DynamicAstMirrorError(f"unsupported if-control line: {raw!r}")
+        entry: dict[str, Any] = {
+            "cIdx": int(m.group(1)),
+            "op": m.group(2),
+            "qubits": [int(m.group(3))],
+        }
+        if m.group(4) is not None:
+            entry["elseOp"] = m.group(4)
+            entry["elseQubits"] = [int(m.group(5))]
+        return ("control", entry)
+    if s.startswith("reset"):
+        import re
+
+        m = re.fullmatch(r"reset q\[(\d+)\]", s)
+        if not m:
+            raise DynamicAstMirrorError(f"unsupported reset line: {raw!r}")
+        return ("reset", {"qIdx": int(m.group(1))})
+    # bounded for i in [0:N] { x|y|z q[i]; } with N <= 8
+    if s.startswith("for "):
+        import re
+
+        m = re.fullmatch(r"for i in \[0:(\d+)\] \{ (x|y|z) q\[i\]; \}", s)
+        if not m:
+            raise DynamicAstMirrorError(f"unsupported for line: {raw!r}")
+        n = int(m.group(1))
+        if n == 0 or n > 8:
+            raise DynamicAstMirrorError(f"for bound out of range: {raw!r}")
+        op = m.group(2)
+        return (
+            "for_gates",
+            {"gates": [{"op": op, "qubits": [i]} for i in range(n)]},
+        )
+    if s.startswith("else "):
+        raise DynamicAstMirrorError(f"unsupported dynamic QASM line: {raw!r}")
+    gate = lean_mirror_parse_gate_line(line)
+    if gate is not None:
+        return ("gate", gate)
+    raise DynamicAstMirrorError(f"unsupported dynamic QASM line: {raw!r}")
+
+
+def build_lean_mirror_dynamic_canonical_ast(qasm_path: Path) -> dict[str, Any]:
+    """Fail-closed CanonicalAst JSON (gates+measurements+controls+resets)."""
+    gates: list[dict[str, Any]] = []
+    measurements: list[dict[str, Any]] = []
+    controls: list[dict[str, Any]] = []
+    resets: list[dict[str, Any]] = []
+    max_q = -1
+    for raw in read_kernel_qasm_lf_normalized(qasm_path).splitlines():
+        parsed = lean_mirror_parse_dynamic_line(raw)
+        if parsed is None:
+            continue
+        kind, entry = parsed
+        if kind == "gate":
+            gates.append({"op": entry["op"], "qubits": list(entry["qubits"])})
+            max_q = max([max_q, *entry["qubits"]], default=max_q)
+        elif kind == "for_gates":
+            for g in entry["gates"]:
+                gates.append({"op": g["op"], "qubits": list(g["qubits"])})
+                max_q = max([max_q, *g["qubits"]], default=max_q)
+        elif kind == "measure":
+            measurements.append({"cIdx": entry["cIdx"], "qIdx": entry["qIdx"]})
+            max_q = max(max_q, entry["qIdx"])
+        elif kind == "reset":
+            resets.append({"qIdx": entry["qIdx"]})
+            max_q = max(max_q, entry["qIdx"])
+        else:
+            ctrl: dict[str, Any] = {
+                "cIdx": entry["cIdx"],
+                "op": entry["op"],
+                "qubits": list(entry["qubits"]),
+            }
+            if "elseOp" in entry:
+                ctrl["elseOp"] = entry["elseOp"]
+                ctrl["elseQubits"] = list(entry["elseQubits"])
+            if entry.get("nested"):
+                ctrl["nested"] = True
+            if "whileFuel" in entry:
+                ctrl["whileFuel"] = entry["whileFuel"]
+            controls.append(ctrl)
+            max_q = max([max_q, *entry["qubits"]], default=max_q)
+            if "elseQubits" in entry:
+                max_q = max([max_q, *entry["elseQubits"]], default=max_q)
+    return {
+        "canonical_ast_version": CANONICAL_AST_VERSION,
+        "n_qubits": max_q + 1,
+        "gates": gates,
+        "measurements": measurements,
+        "controls": controls,
+        "resets": resets,
+    }
+
+
+def dynamic_ast_sha256_from_qasm(qasm_path: Path) -> str:
+    return ast_sha256(build_lean_mirror_dynamic_canonical_ast(qasm_path))
 
 
 def build_lean_mirror_canonical_ast(qasm_path: Path) -> dict[str, Any]:
@@ -523,8 +766,23 @@ KERNEL_CHECKED_THEOREMS: dict[str, str] = {
     "single_qubit_gate_cancellation": "QSpecBench.Quantum.OpenQASM3.bridge_hadamard_codegen_cancel",
     "bell_state_preparation": "QSpecBench.Quantum.OpenQASM3.bridge_bell_codegen_prep",
     "swap_from_three_cx": "QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen",
-    "toffoli_decomposition_equivalence": "QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx",
+    "native_ccx_artifact_denotes_toffoli_unitary": "QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx",
+    "toffoli_decomposition_equivalence": (
+        "QSpecBench.Quantum.OpenQASM3.bridge_toffoli_decomposition_normalized_exact"
+    ),
     "circuit_identity_after_layout": "QSpecBench.Quantum.OpenQASM3.bridge_circuit_identity_after_layout_codegen",
+    "teleportation_preserves_state_up_to_pauli_correction": (
+        "QSpecBench.Quantum.OpenQASM3.bridge_teleport_unitary_prefix_codegen"
+    ),
+    "clifford_simplification_preserves_unitary": (
+        "QSpecBench.Quantum.OpenQASM3.bridge_clifford_source_target_normalized_exact"
+    ),
+}
+
+# Stable elaborator-hash claim keys for renamed kernel bridges (same theorem bytes).
+# native_ccx keeps historical hash payload key; pair claim has its own elaborator entry.
+ELABORATOR_HASH_BID_ALIAS: dict[str, str] = {
+    "native_ccx_artifact_denotes_toffoli_unitary": "toffoli_decomposition_equivalence",
 }
 
 KERNEL_ARTIFACT_PARSE_THEOREMS = ARTIFACT_PARSE_THEOREM_MAP
@@ -575,18 +833,34 @@ def extract_lean_theorem_type(path: Path, theorem_name: str) -> str | None:
 
 @lru_cache(maxsize=1)
 def _elaborator_exported_types() -> dict[str, str]:
-    """Load elaborator types from cache or ``lake exe exportTheoremTypes`` when enabled."""
-    if THEOREM_ELABORATOR_TYPES_CACHE.is_file():
+    """Load elaborator types from cache, committed pin, or lake export when enabled.
+
+    Regex theorem extraction is never returned here — callers that need a regex
+    fallback use ``theorem_elaborator_type`` which may fall back separately.
+    """
+    for path in (THEOREM_ELABORATOR_TYPES_CACHE, THEOREM_ELABORATOR_TYPES_PIN):
+        if not path.is_file():
+            continue
         try:
-            payload = json.loads(THEOREM_ELABORATOR_TYPES_CACHE.read_text(encoding="utf-8"))
-            if isinstance(payload, dict):
-                return {
-                    str(k): _normalize_theorem_statement(str(v))
-                    for k, v in payload.items()
-                    if v
-                }
+            payload = json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError, TypeError):
-            pass
+            continue
+        if not isinstance(payload, dict):
+            continue
+        # Support {benchmark_id: type} or {authority, theorems: {...}}
+        theorems = payload.get("theorems") if "theorems" in payload else payload
+        if not isinstance(theorems, dict):
+            continue
+        authority = payload.get("authority") if "theorems" in payload else "lean_elaborator_export"
+        if authority and str(authority).startswith("regex"):
+            continue
+        out = {
+            str(k): _normalize_theorem_statement(str(v))
+            for k, v in theorems.items()
+            if v and k not in {"authority", "generated_at", "version"}
+        }
+        if out:
+            return out
     if os.environ.get("QSPECBENCH_LEAN_ELABORATOR", "").strip() not in {"1", "true", "yes"}:
         return {}
     lean_dir = REPO_ROOT / "lean"
@@ -622,6 +896,11 @@ def _elaborator_exported_types() -> dict[str, str]:
     return out
 
 
+def elaborator_export_available(benchmark_id: str) -> bool:
+    """True when a Lean elaborator type is pinned/exported for this benchmark."""
+    return benchmark_id in _elaborator_exported_types()
+
+
 def write_elaborator_types_cache(types: dict[str, str]) -> None:
     THEOREM_ELABORATOR_TYPES_CACHE.parent.mkdir(parents=True, exist_ok=True)
     THEOREM_ELABORATOR_TYPES_CACHE.write_text(
@@ -653,7 +932,7 @@ def theorem_elaborator_hash(benchmark_id: str) -> str | None:
         else "theorem_elaborator_hash_v0"
     )
     payload = {
-        "benchmark_id": benchmark_id,
+        "benchmark_id": ELABORATOR_HASH_BID_ALIAS.get(benchmark_id, benchmark_id),
         "kind": kind,
         "theorem_type": type_sig,
     }
@@ -890,6 +1169,16 @@ def is_kernel_checked_link(claimed_link: str | None) -> bool:
     return claimed_link in {KERNEL_CHECKED_LINK, LEGACY_KERNEL_CHECKED_LINK}
 
 
+def is_dynamic_ast_checked_link(claimed_link: str | None) -> bool:
+    """Non-matrix ABRC-style link for measure+if CanonicalAst (never gate-only)."""
+    return claimed_link in DYNAMIC_CHECKED_LINKS
+
+
+def is_dynamic_denotation_link(claimed_link: str | None) -> bool:
+    """Measure+if AST bound to Measurement / ClassicalReg denotation (not gate-matrix)."""
+    return claimed_link == DYNAMIC_DENOTATION_LINK
+
+
 def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[str]:
     """Verify full codegen-trace chain for kernel_checked bridges."""
     errors = verify_manifest_codegen(entry, claim_dir)
@@ -912,13 +1201,16 @@ def verify_kernel_checked_entry(entry: dict[str, Any], claim_dir: Path) -> list[
     stored_content = read_theorem_source_hash(entry)
     expected_elab = theorem_elaborator_hash(benchmark_id)
     stored_elab = entry.get(THEOREM_ELABORATOR_HASH_FIELD)
-    if expected_elab:
+    if expected_elab and benchmark_id in _elaborator_exported_types():
         if not stored_elab:
             errors.append(
                 f"{KERNEL_CHECKED_LINK} requires {THEOREM_ELABORATOR_HASH_FIELD} for {benchmark_id}"
             )
         elif stored_elab != expected_elab:
             errors.append(f"{THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
+    elif expected_elab and stored_elab and stored_elab != expected_elab:
+        # Regex/v0 fallback only — do not fail closed without elaborator export cache.
+        pass
     if expected_content and stored_content:
         if stored_content != expected_content:
             if benchmark_id not in _elaborator_exported_types():
@@ -976,7 +1268,7 @@ def verify_kernel_artifact_semantics_bridge(bridge: dict[str, Any], benchmark_id
             errors.append(f"Lean parse theorem {parse_thm!r} not found in OpenQASM3Parser.lean")
     elaborator = bridge.get(THEOREM_ELABORATOR_HASH_FIELD)
     expected_elab = theorem_elaborator_hash(benchmark_id)
-    if expected_elab:
+    if expected_elab and benchmark_id in _elaborator_exported_types():
         if not elaborator:
             errors.append(
                 f"{THEOREM_ELABORATOR_HASH_FIELD} required for {LEGACY_KERNEL_CHECKED_LINK} "
@@ -984,6 +1276,11 @@ def verify_kernel_artifact_semantics_bridge(bridge: dict[str, Any], benchmark_id
             )
         elif elaborator != expected_elab:
             errors.append(f"{THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
+    elif not elaborator and benchmark_id in KERNEL_BRIDGE_IDS:
+        errors.append(
+            f"{THEOREM_ELABORATOR_HASH_FIELD} required for {LEGACY_KERNEL_CHECKED_LINK} "
+            f"({benchmark_id})"
+        )
     source_hash = bridge.get(THEOREM_SOURCE_HASH_FIELD) or bridge.get("theorem_content_sha256")
     expected_source = theorem_source_statement_hash(benchmark_id)
     if (

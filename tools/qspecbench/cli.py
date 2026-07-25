@@ -287,20 +287,38 @@ def bridge_codegen_cmd(
 
 @app.command("bridge-metadata")
 def bridge_metadata_cmd(
-    action: str = typer.Argument(..., help="verify"),
+    action: str = typer.Argument(..., help="verify | generate"),
 ) -> None:
-    """Verify Lean BridgeMetadata pins against bridge_theorem_manifest.json."""
-    from qspecbench.bridge_metadata import verify_all_kernel_bridge_metadata
+    """Verify or generate Lean BridgeMetadata from bridge_theorem_manifest.json.
 
-    if action != "verify":
-        console.print(f"[red]Unknown action {action!r}; use verify[/red]")
-        raise typer.Exit(code=1)
-    errors = verify_all_kernel_bridge_metadata()
-    if errors:
-        for err in errors:
-            console.print(f"[red]FAIL[/red] {err}")
-        raise typer.Exit(code=1)
-    console.print("[green]OK[/green] all kernel BridgeMetadata pins match manifest")
+    ``verify`` regenerates expected hash fields in memory and compares without
+    rewriting. ``generate`` rewrites BridgeMetadata.lean from the manifest.
+    """
+    from qspecbench.bridge_metadata import verify_all_kernel_bridge_metadata
+    from qspecbench.bridge_metadata_gen import verify_bridge_metadata_generated
+
+    if action == "verify":
+        errors = verify_all_kernel_bridge_metadata()
+        errors.extend(verify_bridge_metadata_generated(write=False))
+        if errors:
+            for err in errors:
+                console.print(f"[red]FAIL[/red] {err}")
+            raise typer.Exit(code=1)
+        console.print(
+            "[green]OK[/green] BridgeMetadata pins match manifest "
+            "(in-memory regenerate; no rewrite)"
+        )
+        return
+    if action == "generate":
+        errors = verify_bridge_metadata_generated(write=True)
+        if errors:
+            for err in errors:
+                console.print(f"[red]FAIL[/red] {err}")
+            raise typer.Exit(code=1)
+        console.print("[green]OK[/green] wrote lean/QSpecBench/Quantum/BridgeMetadata.lean")
+        return
+    console.print(f"[red]Unknown action {action!r}; use verify or generate[/red]")
+    raise typer.Exit(code=1)
 
 
 @app.command("release-bundle")
@@ -329,11 +347,25 @@ def release_bundle_cmd(
 @app.command("verify-release-bundle")
 def verify_release_bundle_cmd(
     bundle: Path = typer.Argument(..., help="Release bundle .tar.gz path"),
+    require_review_artifacts: bool = typer.Option(
+        False,
+        "--require-review-artifacts",
+        help="Fail when promoted benchmarks lack review JSON artifacts",
+    ),
+    expected_commit: Optional[str] = typer.Option(
+        None,
+        "--expected-commit",
+        help="Require manifest reproducibility.git_commit to match",
+    ),
 ) -> None:
     """Verify manifest integrity inside a release bundle."""
     from qspecbench.release_bundle import verify_release_bundle
 
-    errors = verify_release_bundle(bundle)
+    errors = verify_release_bundle(
+        bundle,
+        expected_commit=expected_commit,
+        require_review_artifacts=require_review_artifacts,
+    )
     if errors:
         for err in errors:
             console.print(f"[red]FAIL[/red] {err}")

@@ -378,13 +378,17 @@ def validate_kernel_checked_bridge(claim_dir: Path, bridge: dict[str, Any], spec
 
     expected_elab = theorem_elaborator_hash(benchmark_id)
     bridge_elab = bridge.get(THEOREM_ELABORATOR_HASH_FIELD)
-    if expected_elab:
+    if expected_elab and has_elab:
         if not bridge_elab:
             errors.append(
                 f"semantic_bridge missing {THEOREM_ELABORATOR_HASH_FIELD} for kernel-checked bridge"
             )
         elif bridge_elab != expected_elab:
             errors.append(f"semantic_bridge {THEOREM_ELABORATOR_HASH_FIELD} drift for {benchmark_id}")
+    elif not bridge_elab and benchmark_id in KERNEL_BRIDGE_IDS:
+        errors.append(
+            f"semantic_bridge missing {THEOREM_ELABORATOR_HASH_FIELD} for kernel-checked bridge"
+        )
 
     if benchmark_id in KERNEL_BRIDGE_IDS:
         expected_lean_ast = lean_ast_sha256_for_benchmark(benchmark_id)

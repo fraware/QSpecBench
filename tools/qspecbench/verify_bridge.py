@@ -6,12 +6,23 @@ import json
 from pathlib import Path
 from typing import Any
 
+from qspecbench.bridge_codegen import is_dynamic_ast_checked_link
 from qspecbench.denotate import (
     denotate_ops,
     matrix_from_qasm_json,
     ops_from_qasm_matrix,
 )
-from qspecbench.qasm_matrix import extract_matrix, matrices_equal
+from qspecbench.qasm_matrix import _line_skip_category, extract_matrix, matrices_equal
+
+
+def _qasm_has_measure_or_classical_control(qasm_path: Path) -> bool:
+    """True when on-disk QASM contains measure / if / while that matrix codegen drops."""
+    text = qasm_path.read_text(encoding="utf-8")
+    for raw in text.splitlines():
+        cat = _line_skip_category(raw)
+        if cat in {"measurement", "classical_control", "reset"}:
+            return True
+    return False
 
 
 def _find_qasm_artifact(claim_dir: Path, bridge: dict[str, Any] | None = None) -> Path | None:
@@ -59,13 +70,31 @@ def verify_bridge(claim_dir: Path) -> dict[str, Any]:
     bridge = _load_bridge(claim_dir)
     spec = _load_spec(claim_dir)
     extraction = spec.get("qasm_extraction")
+    claimed = bridge.get("claimed_link")
     qasm = _find_qasm_artifact(claim_dir, bridge)
     if qasm is None:
         return {
             "ok": False,
             "claim": claim_dir.name,
-            "claimed_link": bridge.get("claimed_link"),
+            "claimed_link": claimed,
             "errors": ["no qasm3 artifact found"],
+        }
+
+    # Fail-closed: matrix KERNEL_BRIDGE must not silently drop measure/if/reset.
+    if _qasm_has_measure_or_classical_control(qasm) and not is_dynamic_ast_checked_link(
+        claimed
+    ):
+        return {
+            "ok": False,
+            "claim": claim_dir.name,
+            "claimed_link": claimed,
+            "qasm": str(qasm),
+            "matrix_match": False,
+            "errors": [
+                "matrix KERNEL_BRIDGE path refuses measure/if/reset QASM "
+                "(would drop dynamics); use kernel_checked_dynamic_ast_semantics "
+                "or kernel_checked_dynamic_denotation"
+            ],
         }
 
     qasm_data = extract_matrix(qasm, extraction=extraction)
@@ -78,7 +107,7 @@ def verify_bridge(claim_dir: Path) -> dict[str, Any]:
     result = {
         "ok": match,
         "claim": claim_dir.name,
-        "claimed_link": bridge.get("claimed_link"),
+        "claimed_link": claimed,
         "lean_module": bridge.get("lean_module"),
         "lean_theorem": bridge.get("lean_theorem"),
         "qasm": str(qasm),
