@@ -21,6 +21,18 @@ def _parse_equivalence_verdict(text: str) -> str:
     return text.strip() or "unknown"
 
 
+def _base_metadata(source: Path, target: Path | None) -> dict:
+    return {
+        "adapter": "qcec",
+        "checker": "mqt.qcec",
+        "source": str(source),
+        "target": str(target) if target else None,
+        "trust_level": "externally_trusted",
+        "independently_checkable": False,
+        "evidence_kind": "external_equivalence_tool",
+    }
+
+
 def _check_with_mqt(source: Path, target: Path) -> dict:
     from mqt import qcec
 
@@ -28,15 +40,17 @@ def _check_with_mqt(source: Path, target: Path) -> dict:
     verdict_raw = str(getattr(result, "equivalence", result))
     verdict = _parse_equivalence_verdict(verdict_raw)
     ok = verdict == "equivalent"
-    return {
-        "ok": ok,
-        "adapter": "qcec",
-        "source": str(source),
-        "target": str(target),
-        "equivalence_verdict": verdict,
-        "trust_level": "externally_trusted",
-        "errors": [] if ok else [f"QCEC verdict: {verdict_raw}"],
-    }
+    payload = _base_metadata(source, target)
+    payload.update(
+        {
+            "ok": ok,
+            "backend": "mqt.qcec",
+            "equivalence_verdict": verdict,
+            "raw_verdict": verdict_raw,
+            "errors": [] if ok else [f"QCEC verdict: {verdict_raw}"],
+        }
+    )
+    return payload
 
 
 def _check_with_cli(source: Path, target: Path) -> dict:
@@ -52,15 +66,19 @@ def _check_with_cli(source: Path, target: Path) -> dict:
     combined = (proc.stdout or "") + (proc.stderr or "")
     verdict = _parse_equivalence_verdict(combined)
     ok = proc.returncode == 0 and verdict == "equivalent"
-    return {
-        "ok": ok,
-        "adapter": "qcec",
-        "source": str(source),
-        "target": str(target),
-        "equivalence_verdict": verdict,
-        "trust_level": "externally_trusted",
-        "errors": [] if ok else [combined.strip() or f"exit code {proc.returncode}"],
-    }
+    payload = _base_metadata(source, target)
+    payload.update(
+        {
+            "ok": ok,
+            "backend": "qcec_cli",
+            "checker": "qcec_cli",
+            "equivalence_verdict": verdict,
+            "raw_verdict": combined.strip()[:2000],
+            "exit_code": proc.returncode,
+            "errors": [] if ok else [combined.strip() or f"exit code {proc.returncode}"],
+        }
+    )
+    return payload
 
 
 def check(source: Path, target: Path | None = None) -> dict:
@@ -72,38 +90,47 @@ def check(source: Path, target: Path | None = None) -> dict:
     elif not target.is_file():
         errors.append(f"missing target: {target}")
     if errors:
-        return {
-            "ok": False,
-            "adapter": "qcec",
-            "source": str(source),
-            "target": str(target) if target else None,
-            "equivalence_verdict": "unknown",
-            "errors": errors,
-        }
+        payload = _base_metadata(source, target)
+        payload.update(
+            {
+                "ok": False,
+                "backend": None,
+                "equivalence_verdict": "unknown",
+                "errors": errors,
+            }
+        )
+        return payload
 
+    # Narrowed after the error gate above: target is required and present.
+    assert target is not None
     try:
         return _check_with_mqt(source, target)
     except ImportError:
         try:
             return _check_with_cli(source, target)
         except FileNotFoundError:
-            return {
-                "ok": False,
-                "adapter": "qcec",
-                "source": str(source),
-                "target": str(target),
-                "equivalence_verdict": "unknown",
-                "errors": ["mqt.qcec not installed and qcec CLI not in PATH"],
-            }
+            payload = _base_metadata(source, target)
+            payload.update(
+                {
+                    "ok": False,
+                    "backend": None,
+                    "equivalence_verdict": "unknown",
+                    "errors": ["mqt.qcec not installed and qcec CLI not in PATH"],
+                }
+            )
+            return payload
     except Exception as exc:
-        return {
-            "ok": False,
-            "adapter": "qcec",
-            "source": str(source),
-            "target": str(target),
-            "equivalence_verdict": "unknown",
-            "errors": [str(exc)],
-        }
+        payload = _base_metadata(source, target)
+        payload.update(
+            {
+                "ok": False,
+                "backend": "mqt.qcec",
+                "equivalence_verdict": "unknown",
+                "errors": [str(exc)],
+            }
+        )
+        return payload
+
 
 
 def main() -> None:
