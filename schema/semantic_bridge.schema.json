@@ -26,7 +26,9 @@
         "python_denotation_consistency",
         "manifest_checked_theorem_binding",
         "kernel_checked_codegen_trace",
-        "kernel_checked_artifact_semantics"
+        "kernel_checked_artifact_semantics",
+        "kernel_checked_dynamic_ast_semantics",
+        "kernel_checked_dynamic_denotation"
       ]
     },
     "wire_order": {
@@ -106,6 +108,31 @@
     "pair_lean_theorem": {
       "type": ["string", "null"],
       "description": "Lean theorem id for source-target pair equivalence on dual-manifest compiler bridges"
+    },
+    "proposition_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Must match claim_identity.proposition_id on promoted benchmarks"
+    },
+    "artifact_bound_category": {
+      "type": "string",
+      "enum": [
+        "kernel_checked_codegen_trace",
+        "hash_bound_kernel_parsed_artifact",
+        "kernel_owned_artifact_semantics",
+        "kernel_checked_dynamic_ast_semantics",
+        "kernel_checked_dynamic_denotation"
+      ]
+    },
+    "dynamic_ast_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 of fail-closed CanonicalAst JSON (gates+measurements+controls)"
+    },
+    "dynamic_artifact_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 of on-disk dynamic feedforward QASM (LF-normalized)"
     }
   },
   "additionalProperties": false

@@ -82,7 +82,7 @@ For runnable seeds, use [`benchmarks/_template/`](../benchmarks/_template/) or a
 | `metric` | enum \| null | Required when enabled |
 | `bound` | string \| null | Required when enabled |
 
-Metrics: `trace_distance`, `fidelity`, `diamond_norm`, `total_variation`, `operator_norm`, `logical_error_rate`, `other`.
+Metrics: `trace_distance`, `fidelity`, `diamond_norm`, `total_variation`, `operator_norm`, `entry_modulus`, `logical_error_rate`, `other`.
 
 ### `resources`
 

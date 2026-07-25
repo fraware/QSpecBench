@@ -39,7 +39,8 @@
       "theorem_source_statement_hash": "90bad2d936dbcf09781fd10bb8bc32ccb0db645bbc946ad51c6892b4263ccef0",
       "lean_ast_sha256": "e3d3f42daa46d4d2a5c8f4c9857bf9d556df7ef6c9f530ce41ee61d6646bb7e9",
       "theorem_elaborator_hash": "d5eb7ecbb9f29f95f7bff4887de8997cb34815e1e3012733afc3b1e6c5242f44",
-      "ast_authority": "lean_mirror"
+      "ast_authority": "lean_mirror",
+      "proposition_id": "cnot_self_inverse_cancellation_v1"
     },
     {
       "benchmark_id": "hadamard_conjugates_x_to_z",
@@ -82,7 +83,8 @@
       "theorem_source_statement_hash": "81071fc7bf13c241377641f4ea9c728c10b3afbbe897cc551fa6e7d90958eaae",
       "lean_ast_sha256": "20ba11fb108eb7d9fd66258197818165202009cf9a8ddaf1534b7627320c131f",
       "theorem_elaborator_hash": "d19b731099df836f7b6e3387306fa0d82a85a57658dbb7e2fe50dd4fbfda1e30",
-      "ast_authority": "lean_mirror"
+      "ast_authority": "lean_mirror",
+      "proposition_id": "hadamard_conjugates_x_to_z_v1"
     },
     {
       "benchmark_id": "single_qubit_gate_cancellation",
@@ -119,7 +121,8 @@
       "theorem_source_statement_hash": "1a1e5daae2c6f128938cdfd74d1a76920e82681b6cc347f93ce1b806cc8267a0",
       "lean_ast_sha256": "f731f909a694e3cc30b96260cc4f25a88888e093ef952d7bc9e0cbeb9973d4d9",
       "theorem_elaborator_hash": "7baa6f6317bee71629f295e1f602e0e5ed06224ae38cae50b48c08855164f720",
-      "ast_authority": "lean_mirror"
+      "ast_authority": "lean_mirror",
+      "proposition_id": "single_qubit_gate_cancellation_v1"
     },
     {
       "benchmark_id": "qft_inverse_qft_small_instance",
@@ -198,10 +201,11 @@
       "theorem_source_statement_hash": "5ab0a29c12bac6bb5bea240295ac00e77f32392f814f13ade3bf585947f693d7",
       "lean_ast_sha256": "f56ae68da29a95751c8273e8a97849139cf683ebdf9caa1a3061f219fd3962cc",
       "theorem_elaborator_hash": "b3f11063a041dcecf8401c3626fa161bfb83096177cb1cfa773e79cc5ade8bff",
-      "ast_authority": "lean_mirror"
+      "ast_authority": "lean_mirror",
+      "proposition_id": "swap_from_three_cx_v1"
     },
     {
-      "benchmark_id": "toffoli_decomposition_equivalence",
+      "benchmark_id": "native_ccx_artifact_denotes_toffoli_unitary",
       "qasm_artifact": "artifacts/source.qasm",
       "artifact_sha256": "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511",
       "gate_trace": [
@@ -219,7 +223,7 @@
       "lean_theorem": "bridge_toffoli_codegen_ccx",
       "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
       "ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
-      "generated_lean_sha256": "d081179341f6d920f77a537a3c634f46906af642d68d38c34fb6d45a733a4809",
+      "generated_lean_sha256": "5b20b2248452752eb707da5c515a50912dddebde4bc66e893e3f63b5640c707a",
       "obligation_ids": [
         "semantic_bridge"
       ],
@@ -229,113 +233,10 @@
       "theorem_sha256": "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d",
       "theorem_content_sha256": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a",
       "theorem_source_statement_hash": "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a",
-      "target_qasm_artifact": "artifacts/target.qasm",
-      "target_artifact_sha256": "6a3c0d66d83bbe92e0ca8832ceba358aa09f4be4e7d3fc068d80076a11e7a07c",
-      "target_gate_trace": [
-        [
-          "h",
-          [
-            2
-          ]
-        ],
-        [
-          "cx",
-          [
-            1,
-            2
-          ]
-        ],
-        [
-          "tdg",
-          [
-            2
-          ]
-        ],
-        [
-          "cx",
-          [
-            0,
-            2
-          ]
-        ],
-        [
-          "t",
-          [
-            2
-          ]
-        ],
-        [
-          "cx",
-          [
-            1,
-            2
-          ]
-        ],
-        [
-          "tdg",
-          [
-            2
-          ]
-        ],
-        [
-          "cx",
-          [
-            0,
-            2
-          ]
-        ],
-        [
-          "t",
-          [
-            2
-          ]
-        ],
-        [
-          "t",
-          [
-            1
-          ]
-        ],
-        [
-          "h",
-          [
-            2
-          ]
-        ],
-        [
-          "cx",
-          [
-            0,
-            1
-          ]
-        ],
-        [
-          "t",
-          [
-            0
-          ]
-        ],
-        [
-          "tdg",
-          [
-            1
-          ]
-        ],
-        [
-          "cx",
-          [
-            0,
-            1
-          ]
-        ]
-      ],
-      "target_gate_trace_sha256": "95563403d76b28a1c0798ec45e8a1cf0e7c33a288f266f67eefaae9d989f0944",
-      "target_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
-      "target_generated_lean_sha256": "b66a39fa3ef69933d39cb41727e3d6098cef250d59e8be01c40e8702fea1da5b",
       "lean_ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
-      "target_lean_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
       "theorem_elaborator_hash": "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6",
-      "ast_authority": "lean_mirror"
+      "ast_authority": "lean_mirror",
+      "proposition_id": "native_ccx_artifact_denotes_toffoli_unitary_v1"
     },
     {
       "benchmark_id": "circuit_identity_after_layout",
@@ -442,7 +343,8 @@
       "theorem_source_statement_hash": "66e89587795528e78c0d4abb4c178b844da6f994b0cbfcb9bcd83175c499b1da",
       "lean_ast_sha256": "b10f78436f7d74bd4291c6a05cb415857f8102bcd4e12a22be0321eb6a34d635",
       "theorem_elaborator_hash": "0857f84b49f7b7d5522811279ba3024dff365f34613a4e9df7f07c03c0cbf202",
-      "ast_authority": "lean_mirror"
+      "ast_authority": "lean_mirror",
+      "proposition_id": "bell_state_preparation_v1"
     },
     {
       "benchmark_id": "clifford_simplification_preserves_unitary",
@@ -470,10 +372,15 @@
       ],
       "gate_trace_sha256": "8804cd386c5179b088ed07b9aa6d83143a11687ad2bb309e068173df5ac2fe1e",
       "lean_module": "QSpecBench.Quantum.OpenQASM3",
-      "lean_theorem": "bridge_clifford_hhs",
-      "theorem_statement_kind": "matrix_equality_on_declared_gate_trace",
+      "lean_theorem": "bridge_clifford_source_target_normalized_exact",
+      "kernel_checked_theorem": "bridge_clifford_source_target_normalized_exact",
+      "artifact_parse_theorem": "parseQasmSource_clifford_kernel_eq_generated_ops",
+      "target_artifact_parse_theorem": "parseQasmSource_clifford_target_kernel_eq_generated_ops",
+      "theorem_statement_kind": "normalized_source_target_matrix_equality",
       "ast_sha256": "8d877bec8367c1b09dc280937365b1e3eeb8d957246b8a6806098dd3a0232123",
-      "generated_lean_sha256": "3a7e86233dd356e0fa9c907ddfbeb4402f670b88294265d49ecde889f0c03eae",
+      "lean_ast_sha256": "8d877bec8367c1b09dc280937365b1e3eeb8d957246b8a6806098dd3a0232123",
+      "generated_lean_sha256": "81c2803db29a8f1311ab6eebdc4d1514775016161e9d1874be8cfddb3d2a5c5c",
+      "package_lean_sha256": "1248e66bba70d4634d4713613c3fa1095d6158e4c59ace8b8d45bc663eb29a30",
       "target_qasm_artifact": "artifacts/target.qasm",
       "target_artifact_sha256": "b64706e2d1603b550ad1f7702914aac884098448a61977baa881d3e7bc90e6f4",
       "target_gate_trace": [
@@ -485,12 +392,21 @@
         ]
       ],
       "target_gate_trace_sha256": "757da467297db36f204c94bdcff4b2c004dc3d0544c88f7094dad1c1151ab566",
-      "target_lean_theorem": "bridge_clifford_s_single",
+      "target_lean_theorem": "bridge_clifford_source_target_normalized_exact",
       "target_ast_sha256": "d1e212be29cc79e5e58616e1acfc8aca50dab4d96a814246ed55350bf2a8fbb1",
-      "target_generated_lean_sha256": "a020b8d7f97d53c6eda2bd490e73c0c07b538bc52e0bb299a150a1ca2be13a66",
+      "target_generated_lean_sha256": "dd6f2a591bc32b841c8797301a5b29b8f5b69357f8496945e9a83a95a8737e71",
       "obligation_ids": [
+        "source_target_equivalence",
         "semantic_bridge"
-      ]
+      ],
+      "theorem_identifier_sha256": "331a27fda0a9837a254c1976074984112760d45de25c773bc8f9280894ea5c4e",
+      "theorem_sha256": "331a27fda0a9837a254c1976074984112760d45de25c773bc8f9280894ea5c4e",
+      "theorem_elaborator_hash": "aeabd1fbd8ee6dce934467594e8d3d5385e59eec4f0ceb85d06b8c54b6fec6e5",
+      "ast_authority": "lean_mirror",
+      "proposition_id": "clifford_simplification_preserves_unitary_v1",
+      "claimed_link": "kernel_checked_artifact_semantics",
+      "theorem_source_statement_hash": "7e6ed8251e88cab400c15402e839b0db03aa1cc4097d81cf56586982a9275812",
+      "theorem_content_sha256": "7e6ed8251e88cab400c15402e839b0db03aa1cc4097d81cf56586982a9275812"
     },
     {
       "benchmark_id": "rx_gate_equivalence_small_instance",
@@ -540,6 +456,102 @@
       "ast_sha256": null,
       "generated_lean_sha256": null,
       "obligation_ids": null
+    },
+    {
+      "benchmark_id": "toffoli_decomposition_equivalence",
+      "qasm_artifact": "artifacts/source.qasm",
+      "target_qasm_artifact": "artifacts/target.qasm",
+      "artifact_sha256": "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511",
+      "gate_trace": [
+        [
+          "ccx",
+          [
+            0,
+            1,
+            2
+          ]
+        ]
+      ],
+      "gate_trace_sha256": "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d359be",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_toffoli_decomposition_normalized_exact",
+      "kernel_checked_theorem": "bridge_toffoli_decomposition_normalized_exact",
+      "artifact_parse_theorem": "parseQasmSource_toffoli_kernel_eq_generated_ops",
+      "target_artifact_parse_theorem": "parseQasmSource_toffoli_target_kernel_eq_generated_ops",
+      "theorem_statement_kind": "normalized_ct_source_target_matrix_equality",
+      "ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
+      "lean_ast_sha256": "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795",
+      "generated_lean_sha256": "d081179341f6d920f77a537a3c634f46906af642d68d38c34fb6d45a733a4809",
+      "package_lean_sha256": "7f4007e3c454390a4c69274f95a49ae93a7dff1635c8bf0947380be14db46b3a",
+      "target_ast_sha256": "b4d6fa38606890a8d75155d226a02020060f8c2900549717f326ce55fda95531",
+      "target_generated_lean_sha256": "b66a39fa3ef69933d39cb41727e3d6098cef250d59e8be01c40e8702fea1da5b",
+      "target_artifact_sha256": "6a3c0d66d83bbe92e0ca8832ceba358aa09f4be4e7d3fc068d80076a11e7a07c",
+      "obligation_ids": [
+        "source_target_equivalence",
+        "semantic_bridge"
+      ],
+      "theorem_identifier_sha256": "490e177553421771aca85d50b38a707fbbce17a903c39d107cafe4923941a4ce",
+      "theorem_sha256": "490e177553421771aca85d50b38a707fbbce17a903c39d107cafe4923941a4ce",
+      "theorem_elaborator_hash": "e213fe8f4169874802ed34e5615ae9ab8d75ce1a40810d64d592656979193e74",
+      "ast_authority": "lean_mirror",
+      "proposition_id": "toffoli_decomposition_equivalence_v1",
+      "claimed_link": "kernel_checked_artifact_semantics",
+      "theorem_source_statement_hash": "f00e3bb817902ee291bc017bfa9aad7897faed07dc9f7a26f89f62702a48b100",
+      "theorem_content_sha256": "f00e3bb817902ee291bc017bfa9aad7897faed07dc9f7a26f89f62702a48b100"
+    },
+    {
+      "benchmark_id": "teleportation_preserves_state_up_to_pauli_correction",
+      "qasm_artifact": "artifacts/teleport_unitary_prefix.qasm",
+      "artifact_sha256": "4dcc0c1b7fe0a92f3be82332241535377b8005cce5bad6dfa62941868f28c898",
+      "gate_trace": [
+        [
+          "h",
+          [
+            1
+          ]
+        ],
+        [
+          "cx",
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "cx",
+          [
+            0,
+            1
+          ]
+        ],
+        [
+          "h",
+          [
+            0
+          ]
+        ]
+      ],
+      "gate_trace_sha256": "64b65c94ef607fc233cdb1c22a98c87ddcdc25a6436d68ff42af98e42c970281",
+      "lean_module": "QSpecBench.Quantum.OpenQASM3",
+      "lean_theorem": "bridge_teleport_unitary_prefix_codegen",
+      "kernel_checked_theorem": "bridge_teleport_unitary_prefix_codegen",
+      "artifact_parse_theorem": "parseQasmSource_teleport_kernel_eq_generated_ops",
+      "theorem_statement_kind": "matrix_equality_on_codegen_gate_trace",
+      "ast_sha256": "2dd1807377ae7ec0677c7deeee471d29e53041b3d78d397bfa762c348857aab3",
+      "lean_ast_sha256": "2dd1807377ae7ec0677c7deeee471d29e53041b3d78d397bfa762c348857aab3",
+      "generated_lean_sha256": "2d8c81ed223e8c9b7f40a11d2457945d84ea0548455016ba205d6a26faffb568",
+      "package_lean_sha256": "a6edd501d38cf21bd7dbbe89c51257f1845b4aed7269c28ed57ddf257fbbc7c1",
+      "obligation_ids": [
+        "semantic_bridge"
+      ],
+      "theorem_identifier_sha256": "b2f4d0df0c4ffad9cf822c70186821c80b56ca83695f21c51cc34216371270ef",
+      "theorem_sha256": "b2f4d0df0c4ffad9cf822c70186821c80b56ca83695f21c51cc34216371270ef",
+      "theorem_source_statement_hash": "d4ad77e9404633aee0e0c802b3b81841a9ab29b44b587044457ccc8e4d1c1786",
+      "theorem_content_sha256": "d4ad77e9404633aee0e0c802b3b81841a9ab29b44b587044457ccc8e4d1c1786",
+      "theorem_elaborator_hash": "4f26fb4ce497c2f0deb5b42955a7b58f203751201de85671ec99560a50572074",
+      "ast_authority": "lean_mirror",
+      "proposition_id": "teleportation_preserves_state_up_to_pauli_correction_v2",
+      "claimed_link": "kernel_checked_artifact_semantics"
     }
   ]
 }

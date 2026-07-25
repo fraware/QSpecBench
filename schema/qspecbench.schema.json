@@ -117,6 +117,13 @@
         "dynamic_circuit",
         "hamiltonian_operator"
       ]
+    },
+    "authorship": { "$ref": "#/$defs/authorship" },
+    "claim_identity": { "$ref": "#/$defs/claim_identity" },
+    "openqasm_profile": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Profile id under schema/profiles/ (e.g. qspecbench.openqasm3.unitary.v1)"
     }
   },
   "additionalProperties": false,
@@ -132,16 +139,19 @@
         "smt_certificate",
         "sat_certificate",
         "qcec_result",
-        "qbricks_result",
         "qec_verifier_result",
-        "zx_certificate",
         "simulation",
         "human_review",
         "ai_draft",
         "qasm_parse",
         "python_denotation_consistency_check",
+        "internal_denotation_consistency",
+        "matrix_certificate",
+        "qbricks_result",
+        "zx_certificate",
         "other"
-      ]
+      ],
+      "description": "Primary corpus evidence types. qbricks_result and zx_certificate have shipping adapters (externally_trusted / independently_checkable); adapters exist but are still not a complete FV standard — do not sole-ABRC on them."
     },
     "object_entry": {
       "type": "object",
@@ -215,6 +225,7 @@
             "diamond_norm",
             "total_variation",
             "operator_norm",
+            "entry_modulus",
             "logical_error_rate",
             "other",
             null
@@ -349,16 +360,49 @@
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["required", "approved", "rejected", "pending"]
+          "enum": ["required", "approved", "rejected", "pending"],
+          "description": "For checked headlines, only approved satisfies promotion; required is incomplete"
         },
         "reviewer": { "type": ["string", "null"] },
+        "review_artifact_path": {
+          "type": ["string", "null"],
+          "description": "Claim-relative path to hash-bound review artifact JSON"
+        },
         "review_artifact_sha256": {
           "type": ["string", "null"],
           "pattern": "^[a-f0-9]{64}$",
-          "description": "Optional SHA-256 of signed review artifact bundle"
+          "description": "SHA-256 of the review artifact at review_artifact_path"
+        },
+        "review_commit": {
+          "type": ["string", "null"],
+          "description": "Git commit SHA at which the review was performed"
         },
         "date": { "type": ["string", "null"] },
         "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "authorship": {
+      "type": "object",
+      "properties": {
+        "author": { "type": ["string", "null"] },
+        "merging_maintainer": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "claim_identity": {
+      "type": "object",
+      "required": ["proposition_id"],
+      "properties": {
+        "proposition_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "postcondition_obligation_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
       },
       "additionalProperties": false
     },
@@ -501,7 +545,12 @@
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
         },
-        "benchmark_anchor": { "type": ["string", "null"] }
+        "benchmark_anchor": { "type": ["string", "null"] },
+        "proposition_id": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Must match claim_identity.proposition_id on promoted benchmarks"
+        }
       },
       "additionalProperties": false
     },
@@ -583,7 +632,58 @@
         "semantic_reviewed": { "type": "boolean" },
         "faithfulness_score": { "type": ["integer", "null"], "minimum": 0, "maximum": 5 },
         "library_compatible": { "type": "boolean" },
-        "proof_completed": { "type": "boolean" }
+        "proof_completed": { "type": "boolean" },
+        "gold_target": { "$ref": "#/$defs/ai_gold_target" }
+      },
+      "additionalProperties": false
+    },
+    "ai_gold_target": {
+      "type": "object",
+      "required": [
+        "source_claim",
+        "accepted_formal_statement",
+        "rejected_nearby_statements",
+        "assumption_inventory",
+        "reviewer_disagreement_record",
+        "faithfulness_score",
+        "kernel_status"
+      ],
+      "properties": {
+        "source_claim": { "type": "string", "minLength": 1 },
+        "accepted_formal_statement": { "type": "string", "minLength": 1 },
+        "rejected_nearby_statements": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "assumption_inventory": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "reviewer_disagreement_record": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["axis", "summary"],
+            "properties": {
+              "axis": { "type": "string" },
+              "summary": { "type": "string" },
+              "resolved": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "faithfulness_score": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "kernel_status": {
+          "type": "string",
+          "enum": [
+            "checked_faithful",
+            "checked_but_semantically_wrong",
+            "not_checked",
+            "failed_elaboration"
+          ],
+          "description": "Kernel-checked + semantically wrong statement = failed formalization (checked_but_semantically_wrong)."
+        },
+        "external_domain_review_required": { "type": "boolean" }
       },
       "additionalProperties": false
     },

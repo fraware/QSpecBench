@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: cnot_self_inverse_cancellation
 title: CNOT cancel
 track: equivalence
@@ -53,7 +53,7 @@ assumptions:
   unverified: []
 acceptable_evidence:
 - type: lean_proof
-  checker: "Lean 4 kernel"
+  checker: Lean 4 kernel
   path: null
   required_for_claim: false
   trust_level: checked
@@ -80,3 +80,6 @@ status:
   ci: passing
   maturity: seed
 references: []
+authorship:
+  author: fraware
+  merging_maintainer: fraware

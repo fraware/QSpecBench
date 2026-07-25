@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/openqasm_profile.schema.json",
+  "title": "QSpecBench OpenQASM language profile",
+  "type": "object",
+  "required": [
+    "id",
+    "accepted_headers",
+    "accepted_declarations",
+    "gate_set",
+    "angle_grammar",
+    "control_flow_support",
+    "measurement_support",
+    "reset_support",
+    "wire_order_convention",
+    "global_phase_policy",
+    "unsupported_syntax_behavior"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^qspecbench\\.openqasm3\\.[a-z0-9_.]+$",
+      "description": "Profile identifier referenced by benchmarks as openqasm_profile"
+    },
+    "accepted_headers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "accepted_declarations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "gate_set": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "angle_grammar": {
+      "type": "string",
+      "enum": ["none", "pi_rational", "float_literal", "symbolic_restricted"]
+    },
+    "control_flow_support": {
+      "type": "string",
+      "enum": ["none", "if_else_classical", "full"]
+    },
+    "measurement_support": {
+      "type": "string",
+      "enum": ["none", "projective_record", "full"]
+    },
+    "reset_support": {
+      "type": "string",
+      "enum": ["none", "allowed", "full"]
+    },
+    "wire_order_convention": {
+      "type": "string",
+      "enum": ["legacy_kron_order", "openqasm_little_endian_wire_order"]
+    },
+    "global_phase_policy": {
+      "type": "string",
+      "enum": ["exact", "ignore_global_phase", "declared_phase_policy"]
+    },
+    "unsupported_syntax_behavior": {
+      "type": "string",
+      "enum": ["fail_closed", "skip_documented", "reject_executable"]
+    },
+    "notes": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

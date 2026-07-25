@@ -1,0 +1,14 @@
+{
+  "id": "qspecbench.openqasm3.dynamic_canonical_ast.v1",
+  "accepted_headers": ["OPENQASM 3.0", "OPENQASM 3", "include"],
+  "accepted_declarations": ["qubit", "qubit[]", "bit", "bit[]"],
+  "gate_set": ["i", "x", "y", "z", "h", "s", "sdg", "t", "tdg", "cx", "ccx"],
+  "angle_grammar": "none",
+  "control_flow_support": "if_else_classical",
+  "measurement_support": "projective_record",
+  "reset_support": "allowed",
+  "wire_order_convention": "legacy_kron_order",
+  "global_phase_policy": "exact",
+  "unsupported_syntax_behavior": "fail_closed",
+  "notes": "Dynamic subset: mid-circuit measure, reset, if/else/nested, bounded for/while[N], classical bit[]. Checked software ISA abstraction (hardware_abstraction_isa_layer). Unsupported: bare else/bare while/arrow-measure/deeper nested. hardware_semantics / device fidelity not_checked. Not full OpenQASM3."
+}

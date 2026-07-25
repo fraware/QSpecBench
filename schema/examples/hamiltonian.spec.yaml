@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: small_fermionic_hamiltonian_is_hermitian
 title: Hermitian
 track: hamiltonian
@@ -48,7 +48,7 @@ assumptions:
   unverified: []
 acceptable_evidence:
 - type: lean_proof
-  checker: "Lean 4 kernel"
+  checker: Lean 4 kernel
   path: null
   required_for_claim: false
   trust_level: checked
@@ -75,3 +75,6 @@ status:
   ci: passing
   maturity: seed
 references: []
+authorship:
+  author: fraware
+  merging_maintainer: fraware
