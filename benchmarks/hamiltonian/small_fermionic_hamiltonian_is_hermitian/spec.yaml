@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: small_fermionic_hamiltonian_is_hermitian
 title: Small fermionic Hamiltonian is Hermitian
 track: hamiltonian
@@ -6,8 +6,8 @@ domain: hamiltonian_simulation
 claim_type: hermiticity
 difficulty: introductory
 informal_claim:
-  statement: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents
-    a Hermitian operator (H = H†).
+  statement: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents a Hermitian operator
+    (H = H†).
   source: null
   reference_key: null
 semantic_level:
@@ -98,14 +98,20 @@ status:
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: rkothari-formal
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 76f54a3fc86f4cf864f64d52d2139bd73797e4adc3af058fc8ed8e6a3569b1cd
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: mlewis-quant-sem
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 0f39d4a238d4f1eb134537a94f87b3b50f975be9b7961edbe2b93b688f1ddb28
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:
 - id: hermiticity
@@ -116,8 +122,8 @@ proof_obligations:
   notes: Jordan-Wigner mapping not fully checked
 claim_scope:
   headline_claim_id: small_fermionic_hamiltonian_is_hermitian_headline
-  headline_claim_text: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json
-    represents a Hermitian operator (H = H†).
+  headline_claim_text: The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents a Hermitian
+    operator (H = H†).
   required_obligations:
   - hermiticity
 proved_scope:
@@ -128,15 +134,16 @@ proved_scope:
   - mapping_from_fermionic_source_to_pauli_artifact
 headline_claim_status:
   status: checked
-  notes: All declared required obligations are kernel- or manifest-checked under the
-    stated gate model.
+  notes: All declared required obligations are kernel- or manifest-checked under the stated gate model.
   checked_under:
   - qspecbench.pauli_hamiltonian_model.v0
   - finite_matrix_model
   not_checked_under:
   - fermionic_source_semantics
-  - jordan_wigner_mapping
   - hardware_semantics
+  - jordan_wigner_mapping
+  - jw_mapping
+  - mapping_from_fermionic_source_to_pauli_artifact
 formal_claims:
 - id: formal_lean_hermitian
   evidence_id: lean_hermitian
@@ -149,6 +156,7 @@ formal_claims:
   - jw_mapping
   - mapping_from_fermionic_source_to_pauli_artifact
   benchmark_anchor: small_fermionic_hamiltonian_is_hermitian
+  proposition_id: small_fermionic_hamiltonian_is_hermitian_v1
 hamiltonian_claim_scope:
   claim_class: hermiticity_claim
   derivation_status: checked
@@ -159,3 +167,10 @@ provenance:
     sha256: 66102ea2c021742709ddc66b1e2cbe92b529a74bfec6b8974a1eabbce253ad3d
     role: source
 semantics_base: hamiltonian_operator
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: small_fermionic_hamiltonian_is_hermitian_v1
+  postcondition_obligation_ids:
+  - hermiticity

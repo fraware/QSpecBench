@@ -2,7 +2,7 @@
 
 ## Claim
 
-Hermiticity of a small Pauli-decomposed Hamiltonian.
+The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents a Hermitian operator (H = H†).
 
 ## Why this matters
 

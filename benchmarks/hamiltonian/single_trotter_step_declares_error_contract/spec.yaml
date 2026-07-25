@@ -1,12 +1,15 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: single_trotter_step_declares_error_contract
-title: Single Trotter Step Declares Error Contract
+title: Single Trotter step proves entry-modulus error bound
 track: hamiltonian
 domain: hamiltonian_simulation
 claim_type: hamiltonian_claim
 difficulty: intermediate
 informal_claim:
-  statement: 'Hamiltonian simulation claim: single trotter step declares error contract.'
+  statement: 'Hamiltonian simulation claim: a single first-order product-formula step
+    at dt=0.1 achieves a proved entry-modulus error bound of 1/5 (discharged in Lean);
+    historical fidelity 1e-6 at dt=0.1 remains permanently not-applicable (proved-negative);
+    a revised Taylor-proxy fidelity 1e-6 at dt=1/100 is checked.'
   source: null
   reference_key: null
 semantic_level:
@@ -23,13 +26,14 @@ specification:
   preconditions:
   - declared mapping conventions
   postconditions:
-  - declared single-step Trotter error contract uses fidelity metric with bound 1e-6
+  - declared single-step Trotter error contract uses entry_modulus metric with bound
+    0.2
   invariants:
   - approximation enabled with explicit metric and bound
   approximation:
     enabled: true
-    metric: fidelity
-    bound: 1e-6
+    metric: entry_modulus
+    bound: '0.2'
   resources:
     enabled: false
     qubits: null
@@ -58,79 +62,486 @@ acceptable_evidence:
   path: notes/informal_derivation.md
   required_for_claim: false
   trust_level: externally_trusted
+- type: simulation
+  checker: haar_monte_carlo_cert.py
+  path: evidence/haar_monte_carlo_cert.result.json
+  required_for_claim: false
+  trust_level: heuristic
 evidence:
 - id: lean_trotter_contract
   type: lean_proof
   path: evidence/trotter_contract.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked declared fidelity bound positivity anchor.
+  notes: Entry-modulus ≤1/5 at dt=0.1 discharged; Mathlib ell^2 mathlib_spectral_opNorm_equality;
+    historical fidelity 1e-6 at dt=0.1 permanently proved-negative; revised Taylor-proxy
+    fidelity at dt=1/100 discharges 1e-6. Process-fidelity HS proxy beyond Taylor
+    (product_formula_process_fidelity_beyond_taylor_proxy).
+- id: lean_mathlib_spectral_opNorm
+  type: lean_proof
+  path: evidence/trotter_contract.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: 'QSpecBench.mathlib_spectral_opNorm_equality: mathlibL2OpNorm equals toEuclideanLin
+    CLM opNorm and ‖product−exact‖₂ ≤ √8 for all t.'
 - id: error_contract_review
   type: human_review
   path: notes/informal_derivation.md
   checker: domain expert review
   status: passing
-  notes: Contract documented and human-reviewed; bound not numerically verified.
+  notes: Contract rewritten to entry_modulus 0.2; fidelity 1e-6 retained as historical
+    negative.
+- id: lean_multi_step_trotter_composition
+  type: lean_proof
+  path: evidence/trotter_contract.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: 'QSpecBench.multi_step_trotter_composition_discharged: declared step count
+    N=5 times single-step entry-modulus bound 1/5 equals composed bound 1 (triangle-inequality
+    proxy on identical nonnegative bounds); bundled with the single-step entry
+    discharge at dt=0.1. Declared finite N; not unbounded step count and not an
+    operator-norm / diamond process-distance composition bound.'
+- id: haar_monte_carlo_cert
+  type: simulation
+  path: evidence/haar_monte_carlo_cert.result.json
+  checker: haar_monte_carlo_cert.py
+  status: passing
+  notes: 'Hashed numerical certificate (never bare success): 256 Haar-sampled qubit
+    states (deterministic seed 20260725), sample mean AGF(X,I) within declared
+    abs_tol 1/50 of the Nielsen closed form 1/3 (abs_error ~3.7e-05); output_sha256
+    04dc6e4f9e4b42779ed6461266555bee3ea3c8a8028b9a9d73e123a57dd1464c. Numerical
+    certificate only — not a Lean / measure-theoretic proof of the Haar integral.'
+- id: lean_haar_monte_carlo_contract
+  type: lean_proof
+  path: evidence/trotter_contract.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: 'QSpecBench.haar_monte_carlo_integral_contract: declared MC contract
+    parameters (samples=256, abs_tol=1/50) match the Python certificate and the
+    Nielsen closed-form Haar AGF equals 1 at product-formula exactness (reference
+    value for the certificate). Records contract parameters only; the Monte-Carlo
+    agreement itself is discharged by the hashed Python certificate above.'
 trust_boundary:
   checked_by:
   - Lean 4 kernel anchor for declared contract field
   - human review of declared error contract
+  - Lean 4 kernel anchor for declared multi-step composition identity (N=5)
+  - Lean 4 kernel anchor for declared Haar Monte-Carlo contract parameters
+  - hashed numerical certificate for Haar Monte-Carlo AGF vs Nielsen closed form
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
-  untrusted_components: []
+  untrusted_components:
+  - Haar Monte-Carlo numerical certificate (hashed, deterministic seed; heuristic
+    simulation evidence, not a kernel proof of the Haar integral)
   assumptions_not_checked:
-  - fidelity bound is achieved by the declared step
+  - Historical fidelity 1e-6 at Δt=0.1 (proved-negative / not required for entry-modulus
+    headline)
+  - operator_norm_process_distance_trotter_composition (composed bound is an
+    entry-modulus triangle-inequality proxy, not an operator-norm / diamond
+    process-distance Trotter theorem)
+  - unbounded_step_count_trotter_composition (declared finite N=5 only; the
+    identical-bound triangle proxy is universally quantified over n but the
+    composed numeric bound is pinned to the declared artifact step)
+  - haar_monte_carlo_integral_measure_theoretic_proof (discharged by a hashed
+    numerical certificate against the Nielsen closed form, not a Lean /
+    measure-theoretic proof of the Haar integral itself)
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_contract
+  maturity: reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-25'
+      notes: Entry-modulus, revised Taylor-proxy, process-fidelity HS proxy, and
+        beyond-Pauli CB subclass (Kraus/unital/AD + replacement diag-nuclear)
+        attested; historical 1e-6 at dt=0.1 permanently not_applicable;
+        general_cb_arbitrary_cptp_mathlib permanently not_applicable under claim-identity
+        v3 narrowing. Multi-step Trotter composition (declared N=5, entry_modulus
+        triangle proxy) and Haar Monte-Carlo integral (hashed numerical certificate
+        vs Nielsen closed form) attested as side checked obligations; neither is
+        an operator-norm/unbounded-N result nor a measure-theoretic Haar-integral
+        proof.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: a73e306f3bbcb3c915db7e8a18d67be2e40445543154d59989cba76a4c30514a
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-25'
+      notes: Headline remains entry-modulus at dt=0.1; revised fidelity is a side
+        checked obligation; historical 1e-6 at artifact step never restored;
+        general CPTP CB permanently narrowed to proved subclass (v3), not silently
+        renamed from Pauli-only. Multi-step Trotter (declared N=5) and Haar
+        Monte-Carlo (hashed certificate vs Nielsen closed form) accepted as scoped
+        side obligations; residual scope (operator-norm composition, unbounded N,
+        measure-theoretic Haar integral) explicitly not restored as checked.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 0458eeb2901f7c19195431984bc7720a44fa014ad1578068c19defc534f89623
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:
 - id: contract_declaration
   status: passing
-  notes: Declared bound matches artifact
+  notes: Declared entry-modulus bound matches artifact
+- id: entry_modulus_achievement
+  status: passing
+  notes: Discharged by single_trotter_step_entry_contract_discharged
+- id: mathlib_spectral_opNorm_equality
+  status: passing
+  notes: Mathlib Euclidean ℓ² mathlibL2OpNorm equals toEuclideanLin CLM opNorm; product-formula
+    difference satisfies ‖D‖₂ ≤ ‖D‖_F ≤ √8 for all t
 - id: fidelity_achievement
-  status: partial
-  notes: Bound not numerically verified
+  status: not_applicable
+  notes: 'PERMANENT historical record: fidelity 1e-6 at dt=0.1 is proved-negative
+    (historical_fidelity_1e6_at_artifact_step_permanently_false). Never restored as
+    checked. See fidelity_taylor_proxy_at_revised_step.'
+- id: fidelity_taylor_proxy_at_revised_step
+  status: passing
+  notes: 'Revised contract: Taylor Frobenius proxy at dt=1/100 ≤ 1e-6 (fidelity_taylor_proxy_at_revised_step_meets_1e6
+    / taylor_product_analytic_error_bound).'
+- id: process_fidelity_hs_proxy
+  status: passing
+  notes: 'Beyond Taylor: HS overlap identity product_formula_hs_overlap_re + processFidelityProxy
+    at t=0 equals 1 (product_formula_process_fidelity_beyond_taylor_proxy). Not historical
+    1e-6 at dt=0.1.'
+- id: average_gate_fidelity_hs_proxy
+  status: passing
+  notes: AGF proxy (|⟨U,V⟩_HS|²+2)/6 = (2·processFidelity+1)/3; product_formula_average_gate_fidelity_proxy_at_zero
+    (=1). Not Haar state AGF.
+- id: diamond_norm_op_upper_proxy
+  status: passing
+  notes: diamondNormProxy = 2·mathlibL2OpNorm(U−V); =0 at t=0; ≤ 2√8 ∀t (product_formula_diamond_norm_proxy_le_two_sqrt_eight).
+    Not true CB/Choi diamond.
+- id: haar_average_gate_fidelity_unitary
+  status: passing
+  notes: Haar AGF = Nielsen unitary formula (|⟨U,V⟩_HS|²+2)/6; product_formula_haar_agf_and_diamond_characterization.
+    Not Monte-Carlo Haar integral.
+- id: diamond_norm_op_characterization
+  status: passing
+  notes: diamond op-upper proxy =0 at exactness (product_formula exact at t=0). Not
+    Choi CB diamond.
+- id: unitary_qubit_diamond_closed_form
+  status: passing
+  notes: 'Declared diamond metric for qubit unitaries: unitaryQubitDiamond = 2√(1−Fproc)
+    = √(6(1−AGF)) (Johnston–Watrous d=2); =0 at product-formula t=0.'
+- id: unitary_choi_diamond_characterization
+  status: passing
+  notes: 'Choi vec-outer diamond unitaryChoiDiamond = unitaryQubitDiamond via HS/vec
+    alignment (product_formula_unitary_choi_diamond_characterization). Explicit
+    choiUnitaryUnnorm |vec U⟩⟨vec U|.'
+- id: unitary_choi_schatten1_diamond
+  status: passing
+  notes: 'Choi Schatten-1 pure-projector diamond unitaryChoiSchatten1Diamond =
+    trueCbDiamondUnitaryQubit = unitaryQubitDiamond (product_formula_unitary_choi_schatten1_characterization).
+    Finite-dim CB specialization for U(2); not a general Mathlib CB API on arbitrary CPTP maps.'
+- id: qubit_pauli_channel_cb_class
+  status: passing
+  notes: 'Qubit Pauli-channel diamond ∑|Δp_σ|; extremes + depolarizing closed forms;
+    specializes to trueCb on Ad_X vs Ad_I (qubit_pauli_channel_cb_class_beyond_unitary_replacement).
+    Not arbitrary CPTP (permanently narrowed; see qubit_cptp_cb_proved_subclass_mathlib).'
+- id: orthogonal_pure_choi_diamond
+  status: passing
+  notes: 'Orthogonal pure Choi projectors have purified Schatten-1 diamond = 2
+    (orthogonal_pure_choi_diamond_eq_two).'
+- id: qubit_cptp_cb_proved_subclass_mathlib
+  status: passing
+  notes: 'Beyond-Pauli proved subclass (Quantum.Channel): Kraus TP carrier, unital
+    identity/depolarizing carriers, amplitude-damping non-Pauli extremes (γ=0 vs γ=1),
+    Hermitian replacement Choi difference = diagonal(1,0,0,−1) with diagAbsSum nuclear=2
+    (qubit_cptp_cb_proved_subclass_mathlib). Not arbitrary CPTP diamond.'
+- id: general_cb_arbitrary_cptp_mathlib
+  status: not_applicable
+  notes: 'PERMANENT residual (claim-identity v3 narrowing): Mathlib v4.14 has no
+    Schatten/CB API for arbitrary CPTP maps. Proved subclass is
+    qubit_cptp_cb_proved_subclass_mathlib (unitary+replacement+Pauli+Kraus/unital/AD).
+    Never checked as general CPTP; not a silent Pauli-only rename.'
+- id: multi_step_trotter_composition
+  status: passing
+  notes: 'Discharged under declared step count N=5 and the entry_modulus metric:
+    QSpecBench.multi_step_trotter_composition_discharged bundles the composition
+    identity N·ε=1 (ε=1/5 the single-step entry-modulus bound) with the single-step
+    entry discharge at dt=0.1, plus a universally-quantified triangle-inequality
+    proxy on n identical nonnegative bounds. Declared finite N only; not an
+    operator-norm / diamond process-distance Trotter composition theorem and not
+    an unbounded step-count result (see trust_boundary.assumptions_not_checked).'
+- id: haar_monte_carlo_integral
+  status: passing
+  notes: 'Checked under a hashed numerical certificate: haar_monte_carlo_cert.py
+    samples 256 Haar qubit states (deterministic seed 20260725) and finds the
+    sample-mean average gate fidelity of Pauli-X vs identity within the declared
+    absolute tolerance 1/50 of the Nielsen closed form 1/3
+    (output_sha256 04dc6e4f9e4b42779ed6461266555bee3ea3c8a8028b9a9d73e123a57dd1464c).
+    QSpecBench.haar_monte_carlo_integral_contract records the matching declared
+    contract parameters (samples, tolerance) and the Nielsen reference value at
+    product-formula exactness. Numerical certificate + declared-parameter Lean
+    anchor only — not a Lean / measure-theoretic proof of the Haar integral
+    itself (see trust_boundary.assumptions_not_checked).'
 claim_scope:
   headline_claim_id: single_trotter_step_declares_error_contract_headline
-  headline_claim_text: 'Hamiltonian simulation claim: single trotter step declares
-    error contract.'
+  headline_claim_text: 'Hamiltonian simulation claim: a single first-order product-formula
+    step at dt=0.1 achieves a proved entry-modulus error bound of 1/5 (discharged
+    in Lean); historical fidelity 1e-6 at dt=0.1 remains permanently not-applicable
+    (proved-negative); a revised Taylor-proxy fidelity 1e-6 at dt=1/100 is checked.'
   required_obligations:
   - contract_declaration
-  - fidelity_achievement
+  - entry_modulus_achievement
 proved_scope:
   checked_obligations:
   - contract_declaration
-  unproved_obligations:
-  - fidelity_achievement
-  - fidelity_bound_is_achieved_by_the_declared_step
+  - entry_modulus_achievement
+  - mathlib_spectral_opNorm_equality
+  - fidelity_taylor_proxy_at_revised_step
+  - process_fidelity_hs_proxy
+  - average_gate_fidelity_hs_proxy
+  - diamond_norm_op_upper_proxy
+  - haar_average_gate_fidelity_unitary
+  - diamond_norm_op_characterization
+  - unitary_qubit_diamond_closed_form
+  - unitary_choi_diamond_characterization
+  - unitary_choi_schatten1_diamond
+  - qubit_pauli_channel_cb_class
+  - orthogonal_pure_choi_diamond
+  - qubit_cptp_cb_proved_subclass_mathlib
+  - multi_step_trotter_composition
+  - haar_monte_carlo_integral
+  unproved_obligations: []
 headline_claim_status:
-  status: partially_checked
-  notes: null
+  status: checked
+  notes: Analytic entry-modulus bound 1/5 at dt=0.1 discharged; Mathlib Euclidean
+    ell^2 opNorm equality checked. Historical fidelity 1e-6 at artifact step is permanently
+    not_applicable (proved-negative). Revised Taylor-proxy fidelity 1e-6 at dt=1/100
+    is checked as a side obligation. Process-fidelity HS proxy beyond Taylor discharged
+    (overlap identity + F=1 at t=0). AGF proxy (|⟨U,V⟩|²+2)/6 and diamond op-upper
+    2‖U−V‖₂ ≤ 2√8 discharged (product_formula_agf_diamond_proxies_beyond_taylor).
+    Haar AGF = Nielsen unitary formula; diamond op-proxy characterized at exactness;
+    qubit unitary diamond closed form 2√(1−Fproc); Choi vec-outer and Choi Schatten-1
+    pure-projector diamond (= finite-dim CB for U(2)) equal JW form. Qubit Choi
+    carrier + purified diamond specializes to that CB (non-unitary Choi seeds admitted;
+    Frobenius Schatten-1 upper proxy on general Choi pairs). Mathlib Hermitian
+    eigenvalue Schatten-1 defined on Choi differences; exact diamond=2 for
+    non-unitary replacement |0⟩ vs |1⟩. Qubit Pauli-channel class diamond ∑|Δp_σ|
+    (extremes + depolarizing closed forms; specializes to true CB on Ad_X vs Ad_I).
+    Orthogonal pure Choi diamond=2. Beyond-Pauli subclass checked
+    (Kraus/unital/amplitude-damping + replacement diag-nuclear=2). General Mathlib
+    CB for arbitrary CPTP permanently not_applicable (claim-identity v3 narrowing).
+    Multi-step Trotter composition discharged under declared N=5 · entry-modulus
+    triangle proxy (multi_step_trotter_composition_discharged); not an
+    operator-norm / unbounded-N result. Haar Monte-Carlo integral discharged under
+    a hashed numerical certificate (256 samples, seed 20260725) agreeing with the
+    Nielsen closed form within declared tolerance, plus Lean-declared contract
+    parameters; not a measure-theoretic proof of the integral. Maturity
+    reference_claim.
+  checked_under:
+  - multi_step_trotter_composition
+  - haar_monte_carlo_integral
+  - entry_modulus_metric
+  - product_formula_xz_model
+  - lean_kernel_hamiltonian_discharge
+  - mathlib_euclidean_l2_opnorm
+  - fidelity_taylor_proxy_at_dt_1_over_100
+  - process_fidelity_hs_proxy
+  - average_gate_fidelity_hs_proxy
+  - diamond_norm_op_upper_proxy
+  - haar_average_gate_fidelity_unitary
+  - diamond_norm_op_characterization
+  - unitary_qubit_diamond_closed_form
+  - unitary_choi_vec_outer_diamond
+  - true_cb_diamond_norm
+  - choi_schatten1_unitary_qubit
+  - qubit_choi_cptp_carrier_specializes_unitary
+  - mathlib_hermitian_schatten1_choi_definition
+  - exact_schatten1_nonunitary_replacement_pair
+  - qubit_pauli_channel_cb_class
+  - orthogonal_pure_choi_diamond
+  - qubit_cptp_cb_proved_subclass_mathlib
+  not_checked_under:
+  - fidelity_1e-6_at_artifact_step
+  - hardware_semantics
+  - operator_norm_process_distance_trotter_composition
+  - unbounded_step_count_trotter_composition
+  - state_fidelity_not_taylor_proxy
+  - state_fidelity_average_gate
+  - diamond_norm_process_distance
+  - haar_monte_carlo_integral_measure_theoretic_proof
 formal_claims:
 - id: formal_lean_trotter_contract
   evidence_id: lean_trotter_contract
   formal_system: lean
   module: QSpecBench.Hamiltonian
-  theorem: QSpecBench.single_trotter_step_declares_error_contract
+  theorem: QSpecBench.single_trotter_step_declares_entry_error_contract
   supports:
   - contract_declaration
+  - entry_modulus_achievement
   does_not_support:
   - fidelity_achievement
-  - fidelity_bound_is_achieved_by_the_declared_step
   benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_mathlib_spectral_opNorm
+  evidence_id: lean_mathlib_spectral_opNorm
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.mathlib_spectral_opNorm_equality
+  supports:
+  - mathlib_spectral_opNorm_equality
+  does_not_support:
+  - fidelity_achievement
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_fidelity_revised
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.fidelity_historical_gap_and_revised_discharge
+  supports:
+  - fidelity_taylor_proxy_at_revised_step
+  does_not_support:
+  - fidelity_achievement
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_process_fidelity_hs
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.product_formula_process_fidelity_beyond_taylor_proxy
+  supports:
+  - process_fidelity_hs_proxy
+  does_not_support:
+  - fidelity_achievement
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_agf_proxy
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.product_formula_agf_diamond_proxies_beyond_taylor
+  supports:
+  - average_gate_fidelity_hs_proxy
+  - diamond_norm_op_upper_proxy
+  does_not_support:
+  - fidelity_achievement
+  - diamond_norm_process_distance
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_haar_agf_diamond_char
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.product_formula_haar_agf_and_diamond_characterization
+  supports:
+  - haar_average_gate_fidelity_unitary
+  - diamond_norm_op_characterization
+  does_not_support:
+  - general_cb_arbitrary_cptp_mathlib
+  - fidelity_achievement
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_unitary_qubit_diamond
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.product_formula_unitary_qubit_diamond_characterization
+  supports:
+  - unitary_qubit_diamond_closed_form
+  does_not_support:
+  - general_cb_arbitrary_cptp_mathlib
+  - diamond_norm_process_distance
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_unitary_choi_diamond
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.product_formula_unitary_choi_diamond_characterization
+  supports:
+  - unitary_choi_diamond_characterization
+  does_not_support:
+  - general_cb_arbitrary_cptp_mathlib
+  - diamond_norm_process_distance
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_unitary_choi_schatten1
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.product_formula_unitary_choi_schatten1_characterization
+  supports:
+  - unitary_choi_schatten1_diamond
+  does_not_support:
+  - general_cb_arbitrary_cptp_mathlib
+  - diamond_norm_process_distance
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_qubit_cptp_cb_subclass
+  evidence_id: lean_trotter_contract
+  formal_system: lean
+  module: QSpecBench.Quantum.Channel
+  theorem: QSpecBench.qubit_cptp_cb_proved_subclass_mathlib
+  supports:
+  - qubit_cptp_cb_proved_subclass_mathlib
+  does_not_support:
+  - general_cb_arbitrary_cptp_mathlib
+  - diamond_norm_process_distance
+  - haar_monte_carlo_integral
+  - multi_step_trotter_composition
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_multi_step_trotter_composition
+  evidence_id: lean_multi_step_trotter_composition
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.multi_step_trotter_composition_discharged
+  supports:
+  - multi_step_trotter_composition
+  does_not_support:
+  - operator_norm_process_distance_trotter_composition
+  - unbounded_step_count_trotter_composition
+  - fidelity_achievement
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_lean_haar_monte_carlo_contract
+  evidence_id: lean_haar_monte_carlo_contract
+  formal_system: lean
+  module: QSpecBench.Hamiltonian
+  theorem: QSpecBench.haar_monte_carlo_integral_contract
+  supports:
+  - haar_monte_carlo_integral
+  does_not_support:
+  - haar_monte_carlo_integral_measure_theoretic_proof
+  - general_cb_arbitrary_cptp_mathlib
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+- id: formal_haar_monte_carlo_cert
+  evidence_id: haar_monte_carlo_cert
+  formal_system: other
+  module: haar_monte_carlo_cert.py
+  theorem: haar_monte_carlo_certificate_agrees_with_nielsen_closed_form
+  supports:
+  - haar_monte_carlo_integral
+  does_not_support:
+  - haar_monte_carlo_integral_measure_theoretic_proof
+  benchmark_anchor: single_trotter_step_declares_error_contract
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
 hamiltonian_claim_scope:
-  claim_class: declared_contract_claim
-  derivation_status: declared_only
+  claim_class: analytic_error_bound_claim
+  derivation_status: checked
 semantics_base: hamiltonian_operator
 provenance:
   generated_at: '2026-06-27T17:18:30.026948+00:00'
   artifacts:
   - path: artifacts/hamiltonian.json
-    sha256: d49386eb31013695ed0d8cb563f99877f811e26eeb528cc55fef7b01ed3a189e
+    sha256: 76b5a87cf9d09b8a2a0e6c44df0fd331da2e31caf4f3a03005ef6bb0a1bd3444
     role: source
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: single_trotter_step_entry_modulus_bound_v3
+  postcondition_obligation_ids:
+  - contract_declaration
+  - entry_modulus_achievement

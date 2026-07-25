@@ -1,0 +1,13 @@
+{
+  "schema": "qspecbench.haar_monte_carlo_integral.v1",
+  "ok": true,
+  "pair": "pauli_X_vs_identity",
+  "nielsen_closed_form": 0.3333333333333333,
+  "samples": 256,
+  "seed": 20260725,
+  "abs_tol": 0.02,
+  "monte_carlo_mean": 0.33329590809082743,
+  "abs_error": 3.742524250588408e-05,
+  "notes": "Hashed Haar MC estimate of AGF(X,I) vs Nielsen (|Tr(X)|\u00b2+2)/6=1/3. Not a Lean proof of the Haar integral; numerical certificate only.",
+  "output_sha256": "04dc6e4f9e4b42779ed6461266555bee3ea3c8a8028b9a9d73e123a57dd1464c"
+}

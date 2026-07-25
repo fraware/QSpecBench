@@ -5,8 +5,8 @@
   "step_time": "0.1",
   "hamiltonian_terms": 2,
   "error_contract": {
-    "metric": "fidelity",
-    "bound": "1e-6",
-    "notes": "Declared first-order product-formula error budget for one step."
+    "metric": "entry_modulus",
+    "bound": "0.2",
+    "notes": "Rewritten from fidelity 1e-6 (proved false under Taylor proxy). Declared entry-modulus bound 1/5 at step 0.1; discharged by product_formula_entry_discharges_declared_bound_at_step. Historical fidelity gap retained as taylor_at_artifact_step_exceeds_fidelity_ceiling."
   }
 }

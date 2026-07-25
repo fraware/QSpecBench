@@ -1,0 +1,39 @@
+{
+  "benchmark_id": "single_trotter_step_declares_error_contract",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "haar_average_gate_fidelity_unitary",
+    "diamond_norm_op_characterization",
+    "unitary_qubit_diamond_closed_form",
+    "unitary_choi_diamond_characterization",
+    "unitary_choi_schatten1_diamond",
+    "qubit_pauli_channel_cb_class",
+    "orthogonal_pure_choi_diamond",
+    "qubit_cptp_cb_proved_subclass_mathlib",
+    "multi_step_trotter_composition",
+    "haar_monte_carlo_integral"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "nielsen_haar_agf_not_monte_carlo",
+    "general_cb_arbitrary_cptp_mathlib_permanently_not_applicable_v3_narrowing",
+    "operator_norm_process_distance_trotter_composition_unchecked",
+    "unbounded_step_count_trotter_composition_unchecked",
+    "haar_monte_carlo_integral_measure_theoretic_proof_unchecked"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem",
+  "proposition_id": "single_trotter_step_entry_modulus_bound_v3"
+}

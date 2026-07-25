@@ -1,3 +1,11 @@
 import QSpecBench.Hamiltonian
 
 #check QSpecBench.trotter_second_order_bound_contract
+#check QSpecBench.product_formula_opNorm_sandwich_forall_t
+#check QSpecBench.product_formula_opNorm_entry_bound_forall_t
+#check QSpecBench.trotter_second_order_contract_commuting_fragment
+#check QSpecBench.taylor_at_artifact_step_exceeds_fidelity_ceiling
+#check QSpecBench.product_formula_entry_error_le_two_abs_t
+#check QSpecBench.product_formula_entry_le_C_t_cubed_on_artifact_interval
+#check QSpecBench.product_formula_entry_discharges_declared_bound_at_step
+
