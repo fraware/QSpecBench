@@ -42,10 +42,10 @@ def id8 (i j : Fin 8) : Int :=
 def scale4 (k : Int) (M : Matrix4) (i j : Fin 4) : Int :=
   k * M i j
 
-/-- CCX with controls q0,q1 and target q2 in lexicographic |q0 q1 q2⟩ basis. -/
+/-- CCX with controls q0,q1 and target q2 in LSB-q0 basis (|011⟩↔|111⟩ i.e. 3↔7). -/
 def ccx8 (i j : Fin 8) : Int :=
-  if i = j then 1
-  else if (i.val = 3 ∧ j.val = 7) ∨ (i.val = 7 ∧ j.val = 3) then 1
+  if (i.val = 3 ∧ j.val = 7) ∨ (i.val = 7 ∧ j.val = 3) then 1
+  else if i = j ∧ i.val ≠ 3 ∧ i.val ≠ 7 then 1
   else 0
 
 /-- SWAP on qubits 0 and 1 in lexicographic two-qubit basis. -/

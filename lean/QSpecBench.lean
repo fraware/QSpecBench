@@ -9,9 +9,28 @@ import QSpecBench.Quantum.OpenQASM3
 import QSpecBench.Quantum.BridgeMetadata
 import QSpecBench.Quantum.OpenQASM3Parser
 import QSpecBench.Quantum.Measurement
+import QSpecBench.Quantum.ToffoliDecomposition
+import QSpecBench.Quantum.StabilizerTableau
 import QSpecBench.Teleportation
 import QSpecBench.NoCloning
 import QSpecBench.Hamiltonian
 import QSpecBench.QECDistant
 import QSpecBench.QEC.BitFlip
+import QSpecBench.QEC.SyndromeExtraction
 import QSpecBench.Algorithms
+
+/-!
+# QSpecBench library root
+
+Default `lake build QSpecBench` does **not** import `QSpecBench.Evidence.All`.
+That aggregate `#check` surface previously caused `std::bad_alloc` when Lean merged
+the full environment into this root.
+
+Build the evidence aggregate separately:
+
+```
+lake build QSpecBench.Evidence.All
+```
+
+See `docs/research_tracks.md` (Adapters / polish).
+-/
