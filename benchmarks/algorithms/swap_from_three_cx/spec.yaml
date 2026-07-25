@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: swap_from_three_cx
 title: SWAP from three CNOT gates
 track: algorithm
@@ -65,11 +65,17 @@ status:
       reviewer: rkothari-formal
       date: '2026-06-29'
       notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 9a97d1e84fa448f6fdda015b7da6425d9f3ab0016f95f23cf0b724fd18f827cc
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
       reviewer: mlewis-quant-sem
       date: '2026-06-29'
       notes: Three-CX SWAP on source artifact; gate-subset limits in not_checked_under.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 93161f0f26c785d013a79ba43041b36a3770a5d7ffc5216d462990d004483ce7
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 acceptable_evidence:
 - type: qasm_parse
@@ -87,11 +93,11 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
@@ -117,9 +123,9 @@ evidence:
   path: evidence/swap_bridge.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked three-CX SWAP denotation anchor.
+  notes: Kernel-checked three-CX ↔ native SWAP denotation (source–target exact + wire-order).
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -161,12 +167,15 @@ proved_scope:
   unproved_obligations: []
 headline_claim_status:
   status: checked
-  notes: Headline checked under artifact-bound codegen trace with Lean parseQasmSource on source QASM.
+  notes: Headline checked under artifact-bound codegen with Lean source–target
+    denotation equality (`bridge_swap_source_target_exact`) and parse of both QASM artifacts.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
   - kernel_checked_artifact_semantics
   - lean_parseQasmSource_on_artifact_file
+  - lean_source_target_denotation_equality
+  - lean_parse_target_swap_gate
   not_checked_under:
   - full_openqasm3
   - hardware_semantics
@@ -179,9 +188,26 @@ formal_claims:
   theorem: QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen
   supports:
   - lean_kernel_proof
+  - semantic_bridge
+  - qcec_equivalence
   does_not_support:
   - unitary_equivalence_beyond_declared_gate_subset
   benchmark_anchor: swap_from_three_cx
+  proposition_id: swap_from_three_cx_v1
+- id: formal_lean_swap_source_target
+  evidence_id: lean_swap_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_swap_source_target_exact
+  supports:
+  - lean_kernel_proof
+  - semantic_bridge
+  - qcec_equivalence
+  does_not_support:
+  - unitary_equivalence_beyond_declared_gate_subset
+  - full_openqasm3
+  benchmark_anchor: swap_from_three_cx
+  proposition_id: swap_from_three_cx_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.205782+00:00'
   artifacts:
@@ -192,3 +218,13 @@ provenance:
     sha256: 36afad4803ee631480654452006f178d2015798d486ff7fc4b7b2349ef735f20
     role: target
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: swap_from_three_cx_v1
+  postcondition_obligation_ids:
+  - lean_kernel_proof
+  - semantic_bridge
+  - qcec_equivalence
+openqasm_profile: qspecbench.openqasm3.unitary.v1
