@@ -1,0 +1,81 @@
+{
+  "schema": "qspecbench.stim_declared_repetition_universe.v1",
+  "ok": true,
+  "universe_id": "stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01",
+  "universe_description": "Stim Circ.generated repetition_code:memory for all odd d in {3,5,7} with rounds=d and after_clifford_depolarization=0.01; PyMatching Blossom agreement on declared generating-set tables per member.",
+  "unbounded_all_codes_mwpm": false,
+  "unbounded_all_codes_mwpm_status": "not_applicable",
+  "unbounded_all_codes_mwpm_note": "Open-ended code/distance/round family; only finite declared universes admit certificates.",
+  "full_spacetime_mwpm": true,
+  "full_spacetime_mwpm_scope": "stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01",
+  "members": [
+    {
+      "distance": 3,
+      "rounds": 3,
+      "label": "spacetime_mwpm_3qubit_bitflip_R3",
+      "ok": true,
+      "dem_num_detectors": 8,
+      "dem_sha256": "1773fbc466ebaa5ed9788d4de53670145a276163ea48798867dff9d97eb14f85",
+      "table_sha256": "3f1cc0850a31617d61b2c803d9268a7593672f8e843284233c74df6c9b117138",
+      "output_sha256": "856e829e09311b98673ffe7b96ecf4015bb8de65692a71d8d0e7eb4a0922beaf",
+      "agreed_faults": [
+        "none",
+        "single_D0",
+        "single_D1",
+        "single_D2",
+        "single_D3",
+        "single_D4",
+        "single_D5",
+        "single_D6",
+        "single_D7",
+        "dual_D0D1"
+      ]
+    },
+    {
+      "distance": 5,
+      "rounds": 5,
+      "label": "spacetime_mwpm_repetition_d5_R5",
+      "ok": true,
+      "dem_num_detectors": 24,
+      "dem_sha256": "21febf7e66c9610333b4dbc53afe6421d3c88e2d0d45c77f963c7f0288091140",
+      "table_sha256": "41b0c0195257c72bd4b10b0267a340a905b4dc0b30d18d589fe597fa6f997a6f",
+      "output_sha256": "04e678548df9c5e361ab427181faa5d72742034ccb01a556f5633fb5a5611952",
+      "agreed_faults": [
+        "none",
+        "single_D0",
+        "single_D1",
+        "single_D2",
+        "single_D3",
+        "single_D4",
+        "single_D5",
+        "single_D6",
+        "single_D7",
+        "dual_D0D1"
+      ]
+    },
+    {
+      "distance": 7,
+      "rounds": 7,
+      "label": "spacetime_mwpm_repetition_d7_R7",
+      "ok": true,
+      "dem_num_detectors": 48,
+      "dem_sha256": "398c6389fb4f9da88be4bbd16bd2fb54e6ae24c51068c51f353dae1d0c9daa03",
+      "table_sha256": "dad40b3340d180fd48998866b8b2222c210c2ce784584b0ad96e73ddd9b45217",
+      "output_sha256": "041cb1ee99715180b6ce253acca63f32dd15363eb88e4532a3af457f048de308",
+      "agreed_faults": [
+        "none",
+        "single_D0",
+        "single_D1",
+        "single_D2",
+        "single_D3",
+        "single_D4",
+        "single_D5",
+        "single_D6",
+        "single_D7",
+        "dual_D0D1"
+      ]
+    }
+  ],
+  "notes": "Declared-universe discharge of full_spacetime_mwpm for stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01. Not unbounded all-codes / all-distances MWPM (permanently not_applicable).",
+  "output_sha256": "0864664836ac711386c464e17e00209ee32460918da262665bd03795fa8e48bf"
+}

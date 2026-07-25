@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "adapter": "qec_json_validator",
+  "path": "benchmarks\\qec\\three_qubit_bit_flip_code_corrects_one_x\\artifacts\\stim_compatible_dem_2x7.json",
+  "trust_level": "tool_checked",
+  "checks_run": [
+    "schema_structure",
+    "syndrome_table_structure",
+    "correction_table_structure",
+    "correction_table_syndrome_alignment",
+    "logical_preservation_bruteforce"
+  ],
+  "check_results": {
+    "structure": false,
+    "syndrome": false,
+    "correction": true,
+    "logical_preservation": false,
+    "distance": null
+  },
+  "warnings": [],
+  "errors": [
+    "type must be stabilizer_code",
+    "parameters.n required",
+    "parameters.k required",
+    "parameters.d required",
+    "at least one stabilizer required",
+    "code missing n or stabilizers for syndrome validation"
+  ]
+}

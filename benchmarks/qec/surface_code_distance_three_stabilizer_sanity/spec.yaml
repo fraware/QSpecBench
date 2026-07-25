@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: surface_code_distance_three_stabilizer_sanity
 title: Surface Code Distance Three Stabilizer Sanity
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: intermediate
 informal_claim:
-  statement: QEC benchmark claim for `surface_code_distance_three_stabilizer_sanity`
-    under an explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `surface_code_distance_three_stabilizer_sanity` under an explicitly
+    declared Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -69,17 +69,37 @@ evidence:
   checker: Lean 4 kernel
   status: passing
   notes: Kernel-checked surface stabilizer commutation scaffold.
+- id: stim_declared_surface_universe
+  type: qec_verifier_result
+  path: evidence/stim_declared_surface_universe.result.json
+  checker: stim_declared_universe_adapter
+  status: passing
+  notes: Declared-universe discharge for the singleton rotated surface-code member
+    d=3, R=3, after_clifford_depolarization=0.01 (circuit_kind=surface_code:rotated_memory_z);
+    full_spacetime_mwpm_surface=true only under universe_id
+    stim_surface_rotated_memory_d_eq_3_R_eq_3_p0p01; unbounded_all_codes_mwpm=not_applicable;
+    distinct from the repetition-code declared universe used by the sibling
+    three_qubit_bit_flip_code_corrects_one_x benchmark.
 trust_boundary:
   checked_by:
   - stabilizer JSON schema validation
   - Lean 4 kernel stabilizer commutation
+  - Stim==1.16.0 DetectorErrorModel + PyMatching==2.4.0 Blossom agreement on the
+    declared surface-code spacetime universe member (d=3, R=3)
+  - Lean 4 kernel anchor for the declared surface-code universe pin
+    (distinct from the repetition-code universe pin)
   trusted_kernels:
   - Lean 4 kernel
-  trusted_external_tools: []
+  trusted_external_tools:
+  - stim
+  - pymatching
   untrusted_components: []
   assumptions_not_checked:
   - algebraic commutation proof
   - decoder and correction claims
+  - unbounded_all_codes_mwpm (permanently not_applicable; open-ended code family)
+  - full_mwpm_multi_round_ft (no explicit declared fault set beyond the singleton
+    d=3 R=3 universe member)
 status:
   informal_claim: complete
   machine_spec: complete
@@ -97,21 +117,46 @@ proof_obligations:
 - id: stabilizer_commutation
   status: passing
   notes: Lean stabilizer commutation scaffold
+- id: full_spacetime_mwpm_surface
+  status: passing
+  notes: 'Declared-universe discharge only: Stim Circ.generated
+    surface_code:rotated_memory_z for the singleton member d=3, R=3,
+    after_clifford_depolarization=0.01 (universe_id
+    stim_surface_rotated_memory_d_eq_3_R_eq_3_p0p01). Certificate
+    stim_declared_surface_universe.result.json + Lean universe pin
+    (unbounded_all_codes_mwpm_infeasible_open_ended_surface). NOT unbounded
+    all-codes / all-distances MWPM and NOT the repetition-code declared
+    universe used by the sibling three_qubit_bit_flip_code_corrects_one_x
+    benchmark.'
+- id: unbounded_all_codes_mwpm
+  status: not_applicable
+  notes: 'Permanently not_applicable: the family of all QEC codes, distances, and
+    round counts is industrially open-ended. Lean theorem
+    unbounded_all_codes_mwpm_infeasible_open_ended_surface records the residual
+    for this benchmark. Only finite declared universes admit certificates.'
 claim_scope:
   headline_claim_id: surface_code_distance_three_stabilizer_sanity_headline
-  headline_claim_text: QEC benchmark claim for `surface_code_distance_three_stabilizer_sanity`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `surface_code_distance_three_stabilizer_sanity` under an
+    explicitly declared Pauli-dominated error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
   checked_obligations:
   - stabilizer_commutation
+  - full_spacetime_mwpm_surface
   unproved_obligations:
   - algebraic_commutation_proof
   - decoder_and_correction_claims
 headline_claim_status:
   status: partially_checked
-  notes: null
+  notes: Headline stabilizer-commutation claim remains partially_checked
+    (algebraic commutation proof and decoder/correction claims stay open). A
+    new side obligation, full_spacetime_mwpm_surface, is checked under the
+    declared singleton Stim rotated surface-code universe
+    (stim_surface_rotated_memory_d_eq_3_R_eq_3_p0p01, d=3, R=3, p=0.01); this
+    is a distinct, bounded declared universe from the repetition-code one on
+    the sibling bit-flip benchmark and is never conflated with unbounded
+    all-codes MWPM, which stays permanently not_applicable.
 formal_claims:
 - id: formal_lean_surface_commutation
   evidence_id: lean_surface_commutation
@@ -121,6 +166,19 @@ formal_claims:
   supports:
   - stabilizer_commutation
   does_not_support:
+  - algebraic_commutation_proof
+  - decoder_and_correction_claims
+  benchmark_anchor: surface_code_distance_three_stabilizer_sanity
+- id: formal_lean_declared_stim_surface_universe
+  evidence_id: stim_declared_surface_universe
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.unbounded_all_codes_mwpm_infeasible_open_ended_surface
+  supports:
+  - full_spacetime_mwpm_surface
+  does_not_support:
+  - unbounded_all_codes_mwpm
+  - stabilizer_commutation
   - algebraic_commutation_proof
   - decoder_and_correction_claims
   benchmark_anchor: surface_code_distance_three_stabilizer_sanity
@@ -145,3 +203,9 @@ provenance:
   - path: artifacts/code.json
     sha256: 90439ac0de1563bef750320e835c71b48137e31f3dbb2a7f8580a3ea863ad31f
     role: specification
+  - path: artifacts/declared_decode_table_surface_spacetime_d3_R3.json
+    sha256: e7501c2592874fc425c17a6a47bce5c028a62856c233fad799a94a12e4ce55cd
+    role: reference
+authorship:
+  author: fraware
+  merging_maintainer: fraware

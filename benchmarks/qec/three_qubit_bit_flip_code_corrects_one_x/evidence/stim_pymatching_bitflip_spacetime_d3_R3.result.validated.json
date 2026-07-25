@@ -1,0 +1,24 @@
+{
+  "ok": false,
+  "adapter": "qec_json_validator",
+  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\three_qubit_bit_flip_code_corrects_one_x\\evidence\\stim_pymatching_bitflip_spacetime_d3_R3.result.json",
+  "trust_level": "tool_checked",
+  "checks_run": [
+    "schema_structure"
+  ],
+  "check_results": {
+    "structure": false,
+    "syndrome": null,
+    "correction": null,
+    "logical_preservation": null,
+    "distance": null
+  },
+  "warnings": [],
+  "errors": [
+    "type must be stabilizer_code",
+    "parameters.n required",
+    "parameters.k required",
+    "parameters.d required",
+    "at least one stabilizer required"
+  ]
+}

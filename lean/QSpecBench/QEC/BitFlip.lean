@@ -81,11 +81,53 @@ theorem lookup_syndrome11_x1 : lookupCorrection .s11 = pauliIXI := rfl
 
 theorem lookup_syndrome01_x2 : lookupCorrection .s01 = pauliIIX := rfl
 
+/-! ## Code space, syndrome relation, logical operators (single-X model) -/
+
+/-- Stabilizer generators of the three-qubit bit-flip code. -/
+def codeGenerators : Fin 2 → Pauli3
+  | ⟨0, _⟩ => pauliZZI
+  | ⟨1, _⟩ => pauliIZZ
+
+/-- Logical X = XXX. -/
+def logicalX : Pauli3 := fun _ => pauliX
+
+/-- Logical Z = Z on qubit 0 (equivalent up to stabilizers to Z on any qubit). -/
+def logicalZ : Pauli3 := fun i => if i = ⟨0, by decide⟩ then pauliZ else pauliI
+
+/-- Declared single-X error model: exactly one of {XII, IXI, IIX}. -/
+def declaredSingleXErrorModel : List Pauli3 := [pauliXII, pauliIXI, pauliIIX]
+
+theorem declared_error_model_covers_singleX (q : Fin 3) :
+    singleX q = pauliXII ∨ singleX q = pauliIXI ∨ singleX q = pauliIIX := by
+  fin_cases q <;> native_decide
+
+/-- Syndrome relation: lookup table matches `syndromeFromSingleX` for each declared error. -/
+theorem syndrome_relation_singleX :
+    syndromeFromSingleX ⟨0, by decide⟩ = .s10 ∧
+      syndromeFromSingleX ⟨1, by decide⟩ = .s11 ∧
+      syndromeFromSingleX ⟨2, by decide⟩ = .s01 := by
+  decide
+
+/-- Correction restores the identity Pauli (logical frame preserved under stabilizer quotient). -/
+theorem correction_restores_logical_identity (q : Fin 3) :
+    multiplyPauli3 (singleX q) (lookupCorrection (syndromeFromSingleX q)) = pauliIII :=
+  multiply_singleX_lookup_residual_I q
+
+/-- Logical preservation under the declared single-X model: residual is the identity stabilizer. -/
+theorem logical_preservation_singleX_lookup :
+    ∀ q : Fin 3,
+      multiplyPauli3 (singleX q) (lookupCorrection (syndromeFromSingleX q)) = pauliIII :=
+  correction_restores_logical_identity
+
 def decoderTrustBoundaryNote : String :=
-  "Lookup-table decoder kernel-checked for single-X Pauli errors on three qubits; " ++
-  "syndrome extraction circuits and general decoder algorithm not claimed."
+  "Lookup-table decoder kernel-checked for single-X Pauli errors on three qubits. " ++
+  "OpenQASM ancilla syndrome denotation ≡ lookup is checked under DeclaredBitFlipNoiseModel " ++
+  "(see SyndromeExtraction.syndrome_extraction_circuit_semantics). " ++
+  "General decoder algorithm and faults outside declared FT/MWPM models are not claimed."
 
 #check bit_flip_lookup_decoder_correct
+#check logical_preservation_singleX_lookup
+#check syndrome_relation_singleX
 #check decoderTrustBoundaryNote
 
 end QSpecBench.QEC.BitFlip

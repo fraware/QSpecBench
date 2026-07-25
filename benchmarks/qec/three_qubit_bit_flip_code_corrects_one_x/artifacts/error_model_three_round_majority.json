@@ -1,0 +1,19 @@
+{
+  "schema": "qspecbench.error_model.v1",
+  "name": "DeclaredThreeRoundMajorityDecodeModel",
+  "max_declared_faults": 1,
+  "decode_rule": "majority_of_three_rounds",
+  "in_model_faults": [
+    "none",
+    "measFlipRound0S0",
+    "measFlipRound0S1",
+    "measFlipRound1S0",
+    "measFlipRound1S1",
+    "measFlipRound2S0",
+    "measFlipRound2S1"
+  ],
+  "outside_negatives": [
+    "dual_flipS0_R0R1_R2_clean"
+  ],
+  "notes": "DeclaredThreeRoundMajorityDecodeModel: two-of-three majority corrects every single round-i S0/S1 flip (including R1, which prefer-round1 fails); outside negative for dual S0 flips on R0 and R1. Fragment \u2014 not full matching FT."
+}

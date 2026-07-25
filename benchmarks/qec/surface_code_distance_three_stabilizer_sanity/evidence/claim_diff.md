@@ -1,6 +1,6 @@
 # Claim diff: surface_code_distance_three_stabilizer_sanity
 
-<!-- scope_fingerprint: 289d82db8b737d83aef16ea956c11401d9c469c3f10f3ef91571e6ab70a57ae6 -->
+<!-- scope_fingerprint: 2010e03b723044512025f157ce7c7c599db464c282fac8f7500b619e9144b543 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked
@@ -16,6 +16,7 @@ QEC benchmark claim for `surface_code_distance_three_stabilizer_sanity` under an
 
 ## Checked obligations
 - [x] stabilizer_commutation
+- [x] full_spacetime_mwpm_surface
 
 ## Unproved / open obligations
 - [ ] algebraic_commutation_proof

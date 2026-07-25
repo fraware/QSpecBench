@@ -1,3 +1,6 @@
 import QSpecBench.Stabilizer
+import QSpecBench.QEC.SyndromeExtraction
 
 #check QSpecBench.surface_stabilizers_commute
+#check QSpecBench.QEC.SyndromeExtraction.unbounded_all_codes_mwpm_infeasible_open_ended_surface
+#check QSpecBench.QEC.SyndromeExtraction.declared_stim_surface_universe_distinct_from_repetition

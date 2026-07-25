@@ -1,0 +1,25 @@
+{
+  "schema": "qspecbench.error_model.v1",
+  "name": "DeclaredFiveRoundMajorityMatchingModel",
+  "max_declared_faults": 2,
+  "decode_rule": "majority_of_five_rounds_threshold_3",
+  "in_model_faults": [
+    "none",
+    "measFlipRound0S0",
+    "measFlipRound0S1",
+    "measFlipRound1S0",
+    "measFlipRound1S1",
+    "measFlipRound2S0",
+    "measFlipRound2S1",
+    "dualFlipS0_R0R1",
+    "dualFlipS0_R0R2",
+    "dualFlipS0_R1R2",
+    "dualFlipS1_R0R1",
+    "dualFlipS1_R0R2",
+    "dualFlipS1_R1R2"
+  ],
+  "outside_negatives": [
+    "triple_flipS0_R0R1R2"
+  ],
+  "notes": "DeclaredFiveRoundMajorityMatchingModel: \u22653-of-5 majority corrects singles and declared dual same-bit flips (covers three-round dual R0R1 hole); outside triple S0 R0R1R2. Fragment \u2014 not full MWPM."
+}

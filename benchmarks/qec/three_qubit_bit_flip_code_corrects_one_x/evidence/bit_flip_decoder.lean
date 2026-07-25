@@ -5,6 +5,14 @@ theorem = "QSpecBench.QEC.BitFlip.bit_flip_lookup_decoder_correct"
 -/
 
 import QSpecBench.QEC.BitFlip
+import QSpecBench.QEC.SyndromeExtraction
 
 #check QSpecBench.QEC.BitFlip.bit_flip_lookup_decoder_correct
 #check QSpecBench.QEC.BitFlip.decoderTrustBoundaryNote
+#check QSpecBench.QEC.SyndromeExtraction.syndrome_extraction_circuit_semantics
+#check QSpecBench.QEC.SyndromeExtraction.ancilla_extraction_eq_bitFlip_lookup
+#check QSpecBench.QEC.SyndromeExtraction.ancilla_extraction_eq_parity_on_data_embed
+#check QSpecBench.QEC.SyndromeExtraction.declared_noise_model_ancilla_corrects_singleX
+#check QSpecBench.QEC.SyndromeExtraction.outside_model_meas_flip_can_break_correction
+#check QSpecBench.QEC.SyndromeExtraction.under_syndrome_flip_model_none_corrects_singleX
+#check QSpecBench.QEC.SyndromeExtraction.under_syndrome_flip_model_flipS0_breaks_X0

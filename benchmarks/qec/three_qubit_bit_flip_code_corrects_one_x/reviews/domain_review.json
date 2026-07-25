@@ -1,0 +1,38 @@
+{
+  "benchmark_id": "three_qubit_bit_flip_code_corrects_one_x",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "artifacts/error_model_spacetime_mwpm_2x7.json"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "stabilizer_commutation",
+    "lookup_table_decoder",
+    "decoder_correctness",
+    "correction_restores_logical_state",
+    "seven_round_majority_fault_tolerance",
+    "spacetime_mwpm_fragment_fault_tolerance",
+    "stim_invoked_dem_pymatching",
+    "spacetime_mwpm_3qubit_bitflip_R3",
+    "spacetime_mwpm_repetition_d5_R5",
+    "spacetime_mwpm_repetition_d7_R7",
+    "full_spacetime_mwpm"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "unbounded_all_codes_mwpm_not_applicable_open_ended",
+    "declared_universe_not_all_codes"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem",
+  "proposition_id": "three_qubit_bit_flip_code_corrects_one_x_v1"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "two_round_idle_syndrome",
+  "type": "error_model",
+  "name": "DeclaredTwoRoundIdleExtractionModel",
+  "max_data_x_before_round0": 1,
+  "inter_round_data_idle": true,
+  "measurement_ideal": true,
+  "notes": "DeclaredTwoRoundIdleExtractionModel: idle re-probes agree and correct single-X; inter-round data X0 makes rounds disagree and stale round0 decode fails. Not fault tolerance."
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "qspecbench.declared_decode_table.v1",
+  "name": "decodeSpacetimeMwpm_2x7_mirror",
+  "lean_decoder": "QSpecBench.QEC.SyndromeExtraction.decodeSpacetimeMwpm",
+  "cases": [
+    {
+      "name": "none",
+      "kind": "in_model",
+      "syndrome_bits": [0, 0, 0, 0, 0, 0, 0, 0],
+      "expected_prediction": [0, 0, 0, 0, 0, 0, 0, 0],
+      "lean_rounds_s0_flipped": [],
+      "lean_decode_uses_tail": true,
+      "notes": "No detection events; Blossom idle; Lean majority/tail clean."
+    },
+    {
+      "name": "fiveFlipS0_R0R1R2R3R4",
+      "kind": "in_model",
+      "syndrome_bits": [1, 0, 0, 0, 0, 1, 0, 0],
+      "expected_prediction": [0, 0, 0, 0, 0, 1, 1, 1],
+      "lean_rounds_s0_flipped": [0, 1, 2, 3, 4],
+      "lean_decode_uses_tail": true,
+      "notes": "Head-5 time-chain detection endpoints; Blossom matches time edges into preferred boundary; Lean decodeSpacetimeMwpm uses clean tail."
+    },
+    {
+      "name": "quadFlipS0_R0R1R2R3",
+      "kind": "in_model",
+      "syndrome_bits": [1, 0, 0, 0, 1, 0, 0, 0],
+      "expected_prediction": [1, 1, 1, 1, 0, 0, 0, 0],
+      "lean_rounds_s0_flipped": [0, 1, 2, 3],
+      "lean_decode_uses_tail": true,
+      "notes": "Head-4 time-chain; Blossom matches R0..R3 edges; Lean uses clean tail."
+    },
+    {
+      "name": "six_flipS0_R0R1R2R3R4R5",
+      "kind": "outside",
+      "syndrome_bits": [1, 0, 0, 0, 0, 0, 1, 0],
+      "expected_prediction": [0, 0, 0, 0, 0, 0, 1, 1],
+      "lean_rounds_s0_flipped": [0, 1, 2, 3, 4, 5],
+      "lean_decode_uses_tail": false,
+      "notes": "Outside six-flip: Blossom still returns a matching; Lean outside theorem shows correction fails. Agreement is on the declared prediction vector, not FT."
+    }
+  ],
+  "notes": "Finite fixture: PyMatching Blossom predictions pinned against this table; Lean decodeSpacetimeMwpm FT proved separately for in-model faults."
+}
