@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: '^(tools|tests|adapters|scripts)/'
+      - id: ruff-format
+        files: '^(tools|tests|adapters|scripts)/'
+
+  - repo: local
+    hooks:
+      - id: schema-validate-examples
+        name: Validate schema examples
+        entry: python scripts/check_schema_examples.py
+        language: system
+        pass_filenames: false
+        files: '^schema/'
+
+      - id: generated-ops-drift
+        name: Reject hand-authored Generated op duplicates
+        entry: python -m pytest tests/test_generated_ops_integrity.py -q
+        language: system
+        pass_filenames: false
+        files: '^(lean/QSpecBench/(Generated|Quantum/OpenQASM3)|tools/qspecbench/bridge_codegen)'
+
+      - id: yaml-audit-ledger
+        name: Parse audit_issues.yaml and audit_github_issues.yaml
+        entry: python -c "import yaml; from pathlib import Path; [yaml.safe_load(Path(p).read_text(encoding='utf-8')) for p in ('docs/audit_issues.yaml', 'docs/audit_github_issues.yaml')]"
+        language: system
+        pass_filenames: false
+        files: '^docs/audit_(issues|github_issues)\.yaml$'

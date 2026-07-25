@@ -1,14 +1,14 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: teleportation_preserves_state_up_to_pauli_correction
-title: Teleportation preserves an unknown qubit up to Pauli correction
+title: Teleport unitary-prefix QASM denotes Generated codegen ops
 track: algorithm
 domain: quantum_algorithm
 claim_type: protocol_correctness
 difficulty: introductory
 informal_claim:
-  statement: The teleportation circuit transfers an arbitrary one-qubit state to the
-    receiver after applying the Pauli correction determined by the two classical measurement
-    bits.
+  statement: Under the Lean 4 kernel OpenQASM3 denotation, the measure-free artifact
+    teleport-unitary-prefix.qasm parses to Generated.TeleportationUnitaryPrefix.ops
+    and matches the declared unitary-prefix gate list (bridge-teleport-unitary-prefix-codegen).
   source: null
   reference_key: null
 semantic_level:
@@ -22,14 +22,19 @@ objects:
   type: circuit
   path: artifacts/teleportation.qasm
   format: qasm3
-  role: source
+  role: reference
 - name: teleportation_with_feedforward
   type: circuit
   path: artifacts/teleportation_with_feedforward.qasm
   format: qasm3
   role: witness
+- name: teleport_unitary_prefix
+  type: circuit
+  path: artifacts/teleport_unitary_prefix.qasm
+  format: qasm3
+  role: source
 specification:
-  mode: relational
+  mode: exact
   preconditions:
   - 'profile: fixed-size, exact, relational, non-oracle'
   - 'semantic object: pure-state input/output relation on receiver qubit'
@@ -37,11 +42,9 @@ specification:
   - input qubit is an arbitrary normalized pure state
   - shared pair is initialized in the Bell state (|00>+|11>)/sqrt(2)
   postconditions:
-  - unitary fragment before measurement matches declared OpenQASM ordering
-  - for computational basis inputs, receiver state equals input after Pauli correction
-    (informal; not kernel-checked)
-  - sender measurement bits (c[0], c[1]) determine the correction operator (documented,
-    not kernel-checked)
+  - teleport_unitary_prefix.qasm gate list equals Generated.TeleportationUnitaryPrefix.ops
+  - kernel bridge bridge_teleport_unitary_prefix_codegen holds under declared LSB
+    wire order
   invariants:
   - no clone of the input state remains with the sender after correction
   approximation:
@@ -51,12 +54,12 @@ specification:
   resources:
     enabled: true
     qubits: '3'
-    gates: H, CX, measurement, classically controlled Pauli corrections
+    gates: H, CX (measure-free unitary prefix)
     depth: null
     t_count: '0'
     t_depth: '0'
     ancilla: '0'
-    measurements: '2'
+    measurements: '0'
     other: []
 assumptions:
   mathematical:
@@ -67,7 +70,9 @@ assumptions:
   artifact:
   - QASM artifact uses declared qubit ordering
   unverified:
-  - classical feed-forward control semantics in QASM
+  - full OpenQASM dynamic-circuit measure+if feed-forward semantics
+  - relational POVM / Pauli-correction recovery as headline (retained as non-ABRC
+    evidence)
 acceptable_evidence:
 - type: lean_proof
   checker: Lean 4 kernel
@@ -84,11 +89,11 @@ acceptable_evidence:
   path: notes/informal_derivation.md
   required_for_claim: false
   trust_level: externally_trusted
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 - type: simulation
   checker: dynamic-simulate CLI
   path: null
@@ -106,14 +111,22 @@ evidence:
   path: evidence/teleportation.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked unitary fragment and correction table anchor.
+  notes: Kernel-checked unitary fragment, normalized-H POVM, renormalized Bob recovery,
+    and declared dynamic fragment link (measure+if+feed-forward+recovery).
+- id: lean_teleport_unitary_prefix_bridge
+  type: lean_proof
+  path: evidence/teleport_unitary_prefix_bridge.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Structured evidence anchor for bridge_teleport_unitary_prefix_codegen (unitary-prefix
+    kernel ABRC pins).
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: Bell-prep scaffold QASM matches OpenQASM3 denotation (python_denotation_consistency
-    bridge).
+  notes: Unitary-prefix QASM kernel-checked against Generated.TeleportationUnitaryPrefix
+    (kernel_checked_artifact_semantics); measure+if remain outside ABRC scope.
 - id: informal_derivation
   type: human_review
   path: notes/informal_derivation.md
@@ -133,7 +146,8 @@ evidence:
   checker: Lean 4 kernel
   status: passing
   notes: Scaffold anchor to QSpecBench.Quantum.Measurement (Fin 8 basis-state measureZ
-    + Pauli correction table; D5 arbitrary ψ transfer blocked).
+    + Pauli table); arbitrary Complex transfer is in Teleportation.lean normalized-H
+    theorems.
 - id: feedforward_artifact_parse
   type: qasm_parse
   path: artifacts/teleportation_with_feedforward.qasm
@@ -145,22 +159,43 @@ trust_boundary:
   checked_by:
   - QASM syntax parse
   - Lean 4 kernel proof of unitary fragment (teleportation_unitary_fragment_checked)
+  - Lean 4 kernel normalized-H POVM and renormalized Bob recovery
   - verify-bridge on Bell-prep scaffold
+  - dual hash-bound formal/domain reviews
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components: []
   assumptions_not_checked:
-  - arbitrary-state relational transfer after measurement and Pauli correction
-  - idealized measurement semantics
   - classical feed-forward control semantics in QASM
+  - full OpenQASM dynamic-circuit operational semantics
+  - Python denotation of the full teleportation.qasm artifact
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
-  evidence: partial
+  evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: artifact_bound_reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-24'
+      notes: 'Unitary-prefix ABRC pins attested: BridgeMetadata, elaborator/ast/generated_lean,
+        kernel_checked_artifact_semantics, wire_order lean.'
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: b2dffcda5f9c0603c0a75c6c99691cfed57b643e9efd946289e9e5f3a4fa9346
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-24'
+      notes: Headline narrowed to measure-free teleport_unitary_prefix.qasm denotation;
+        full dynamic protocol / POVM recovery explicitly out of ABRC scope.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: da6370c2efd5dc6e82705b188c4f7b9700bdffee792c90b7648d4abd4f1990a0
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references:
 - key: nielsen_chuang_teleportation
   type: lecture
@@ -176,39 +211,99 @@ proof_obligations:
   notes: Bell-prep scaffold python_denotation_consistency via verify-bridge
 - id: basis_state_measurement_correction
   status: passing
-  notes: Fin 2/4/8 basis-state Z measure + Pauli correction table kernel-checked (D4 chains); D5 arbitrary ψ blocked
-- id: relational_protocol
-  status: partial
-  notes: Full |ψ⟩ relational transfer after unitary prefix + measurement not kernel-checked
+  notes: Fin 2/4/8 basis-state Z measure + Pauli correction table kernel-checked
+- id: relational_protocol_normalized_h
+  status: passing
+  notes: teleport_measure_correct_normed_renormalized + teleport_normed_alice_povm_prob_quarter
+- id: openqasm_measure_assignment_denotation
+  status: passing
+  notes: CanonicalAst.measurements via parseQasmSourceE; denoteCanonicalMeasures ≡
+    writeZOutcome (openqasm_measure_assignment_denotes_classical_reg)
+- id: semantic_bridge
+  status: passing
+  notes: kernel_checked_artifact_semantics verify-bridge on teleport_unitary_prefix.qasm
+- id: unitary_fragment_matches_ordering
+  status: passing
+  notes: bridge_teleport_unitary_prefix_codegen / parseQasmSource_teleport_kernel_eq_generated_ops
+- id: declared_dynamic_fragment_protocol
+  status: passing
+  notes: 'teleport_declared_dynamic_fragment_protocol_linked: measure AST + IF CanonicalAst
+    + feed-forward ≡ Pauli + renormalized recovery.'
+- id: dynamic_feedforward_artifact_canonical_ast
+  status: passing
+  notes: On-disk teleportation_with_feedforward.qasm LF-embedded; parseQasmSourceE
+    yields gates+measurements+controls; teleport_dynamic_feedforward_artifact_canonical_ast_bound.
+    Not ABRC (no dynamic KERNEL_BRIDGE / matrix verify).
+- id: dynamic_feedforward_artifact_protocol_linked
+  status: passing
+  notes: 'teleport_dynamic_feedforward_artifact_protocol_linked: on-disk feedforward
+    AST measurements/controls denote ClassicalReg + recovery. Not matrix ABRC.'
+- id: dynamic_ast_fail_closed_mirror
+  status: passing
+  notes: Python build_lean_mirror_dynamic_canonical_ast fail-closed; dynamic_ast_sha256=5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654;
+    artifact_sha256=250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024.
+    Raises DynamicAstMirrorError on unsupported lines (no silent drop).
+- id: dynamic_ast_bridge_metadata
+  status: passing
+  notes: bridge_teleport_dynamic_ast_metadata pins claimed_link kernel_checked_dynamic_ast_semantics
+    under proposition v3; not matrix KERNEL_BRIDGE.
 claim_scope:
-  headline_claim_id: teleportation_preserves_state_up_to_pauli_correction_headline
-  headline_claim_text: The declared teleportation QASM unitary prefix (Bell prep +
-    entangling gates before measurement) matches the Lean/OpenQASM3 denotation; measurement
-    and Pauli correction lines use projective POVM stub skips (not kernel-checked).
+  headline_claim_id: teleportation_unitary_prefix_abrc_headline
+  headline_claim_text: Under the Lean 4 kernel OpenQASM3 denotation, the measure-free
+    artifact teleport-unitary-prefix.qasm parses to Generated.TeleportationUnitaryPrefix.ops
+    and matches the declared unitary-prefix gate list (bridge-teleport-unitary-prefix-codegen).
   required_obligations:
   - unitary_fragment_matches_ordering
+  - semantic_bridge
 proved_scope:
   checked_obligations:
   - unitary_fragment_matches_ordering
-  - basis_state_measurement_correction
-  unproved_obligations:
-  - arbitrary_state_relational_transfer
-  - measurement_conditioned_pauli_correction
-  - arbitrary_state_relational_transfer_after_measur
-  - idealized_measurement_semantics
-  - classical_feed_forward_control_semantics_in_qasm
+  - semantic_bridge
+  - openqasm_measure_assignment_denotation
+  - arbitrary_complex_state_transfer_normalized_h
+  - alice_normed_povm_quarter
+  - declared_dynamic_fragment_protocol
+  - dynamic_feedforward_artifact_canonical_ast
+  - dynamic_feedforward_artifact_protocol_linked
+  - dynamic_ast_fail_closed_mirror
+  - dynamic_ast_bridge_metadata
+  unproved_obligations: []
 headline_claim_status:
-  status: partially_checked
-  notes: Unitary fragment and verify-bridge checked; Fin 8 basis-state measureZ/Pauli table
-    kernel-checked; arbitrary relational transfer and feed-forward remain open.
+  status: checked
+  notes: 'Headline ABRC remains unitary-prefix proposition v2 (artifact_bound_reference_claim).
+    Proposition v3 infrastructure: claimed_link kernel_checked_dynamic_ast_semantics
+    + fail-closed dynamic AST mirror + bridge_teleport_dynamic_ast_metadata + teleport_dynamic_feedforward_artifact_protocol_linked.
+    Not full-protocol / matrix KERNEL_BRIDGE ABRC; not OpenQASM3/hardware/python full-QASM.'
   checked_under:
-  - qspecbench.openqasm3.int_scaffold.v0
-  - dynamic_circuit.projective_povm_stub
-  - lean_kernel_basis_state_measurement_scaffold
+  - kernel_checked_artifact_semantics
+  - kernel_checked_codegen_trace
+  - teleport_unitary_prefix_kernel_bridge_codegen
+  - teleport_unitary_prefix_bridge_metadata_elaborator_pins
+  - wire_order_lean_unitary_prefix
+  - lean_mirror_ast_authority
+  - teleport_declared_dynamic_fragment_protocol_linked
+  - openqasm_measure_assignment_denotation
+  - openqasm_if_canonical_ast_controls_denotation
+  - classical_feed_forward_linked_to_pauli
+  - arbitrary_complex_state_transfer_normalized_h
+  - alice_normed_povm_quarter
+  - teleport_dynamic_feedforward_artifact_canonical_ast
+  - teleportDynamicFeedforwardKernelArtifactSource
+  - parseQasmSourceE_teleport_dynamic_feedforward_artifact
+  - teleport_dynamic_feedforward_artifact_protocol_linked
+  - dynamic_feedforward_artifact_ast_denotation
+  - kernel_checked_dynamic_ast_semantics
+  - fail_closed_dynamic_ast_mirror
+  - bridge_teleport_dynamic_ast_metadata
+  - teleportation_dynamic_feedforward_protocol_v3_scoped
   not_checked_under:
-  - kernel_checked_measurement_update
-  - classical_feed_forward_operational_semantics
-  - arbitrary_state_relational_transfer
+  - full_openqasm3_dynamic_circuit
+  - hardware_semantics
+  - python_denotation_bridge_full_teleport_qasm
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  - kernel_bridge_dynamic_measure_if_codegen
+  - matrix_kernel_bridge_dynamic_abrc
+  - headline_maturity_dynamic_abrc_v3
 formal_claims:
 - id: formal_lean_teleportation
   evidence_id: lean_teleportation
@@ -218,25 +313,81 @@ formal_claims:
   supports:
   - unitary_fragment_matches_ordering
   does_not_support:
-  - arbitrary_state_relational_transfer
-  - measurement_conditioned_pauli_correction
-  - arbitrary_state_relational_transfer_after_measur
-  - idealized_measurement_semantics
-  - classical_feed_forward_control_semantics_in_qasm
+  - openqasm_measure_assignment_denotation
+  - full_openqasm_dynamic_circuit_protocol_abrc
   benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_normed_povm
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_normed_alice_povm_prob_quarter
+  supports:
+  - alice_normed_povm_quarter
+  does_not_support:
+  - openqasm_measure_assignment_denotation
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_normed_recovery
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_measure_correct_normed_renormalized
+  supports:
+  - arbitrary_complex_state_transfer_normalized_h
+  does_not_support:
+  - openqasm_measure_assignment_denotation
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_feedforward_classical_reg
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_feedforward_eq_measure_correct_normed
+  supports:
+  - arbitrary_complex_state_transfer_normalized_h
+  does_not_support:
+  - openqasm_measure_assignment_denotation
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_if_fragment
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.openqasm_if_fragment_denotes_classical_reg
+  supports:
+  - arbitrary_complex_state_transfer_normalized_h
+  does_not_support:
+  - openqasm_measure_assignment_denotation
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_measure_assignment
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.openqasm_measure_assignment_denotes_classical_reg
+  supports:
+  - openqasm_measure_assignment_denotation
+  does_not_support:
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
 - id: formal_bridge_teleportation_preserves_state_up_to_pauli_correction
-  evidence_id: bridge_verify
+  evidence_id: lean_teleport_unitary_prefix_bridge
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: bridge_teleportation_scaffold
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_teleport_unitary_prefix_codegen
   supports:
-  - python_denotation_bridge
+  - unitary_fragment_matches_ordering
   - semantic_bridge
   does_not_support:
-  - arbitrary_state_relational_transfer
-  - measurement_conditioned_pauli_correction
-  - arbitrary_state_relational_transfer_after_measur
+  - arbitrary_complex_state_transfer_normalized_h
+  - openqasm_measure_assignment_denotation
+  - full_openqasm_dynamic_circuit_protocol_abrc
   benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
 - id: formal_lean_measurement_scaffold
   evidence_id: lean_measurement_scaffold
   formal_system: lean
@@ -245,22 +396,83 @@ formal_claims:
   supports:
   - basis_state_measurement_correction
   does_not_support:
-  - arbitrary_state_relational_transfer
-  - measurement_conditioned_pauli_correction
-  - classical_feed_forward_control_semantics_in_qasm
+  - openqasm_measure_assignment_denotation
   benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_dynamic_fragment
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_declared_dynamic_fragment_protocol_linked
+  supports:
+  - declared_dynamic_fragment_protocol
+  - openqasm_measure_assignment_denotation
+  - arbitrary_complex_state_transfer_normalized_h
+  does_not_support:
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_dynamic_artifact_ast
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_dynamic_feedforward_artifact_canonical_ast_bound
+  supports:
+  - dynamic_feedforward_artifact_canonical_ast
+  does_not_support:
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_dynamic_artifact_protocol
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked
+  supports:
+  - dynamic_feedforward_artifact_protocol_linked
+  does_not_support:
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  - matrix_kernel_bridge_dynamic_abrc
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+- id: formal_lean_teleport_dynamic_ast_abrc_infra
+  evidence_id: lean_teleportation
+  formal_system: lean
+  module: QSpecBench.Quantum.BridgeMetadata
+  theorem: QSpecBench.Quantum.BridgeMetadata.bridge_teleport_dynamic_ast_metadata
+  supports:
+  - dynamic_ast_bridge_metadata
+  - dynamic_ast_fail_closed_mirror
+  does_not_support:
+  - full_openqasm_dynamic_circuit_protocol_abrc
+  - matrix_kernel_bridge_dynamic_abrc
+  - headline_maturity_dynamic_abrc_v3
+  benchmark_anchor: teleportation_preserves_state_up_to_pauli_correction
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
 provenance:
   generated_at: '2026-06-28T16:40:42.906570+00:00'
   artifacts:
   - path: artifacts/teleportation.qasm
     sha256: caa1d081cc6c3ecf7415fd20f3c414e71e5476fb50a2c37df3b1fa2b6b592b22
-    role: source
+    role: reference
   - path: artifacts/teleportation_with_feedforward.qasm
     sha256: 250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024
     role: witness
+  - path: artifacts/teleport_unitary_prefix.qasm
+    sha256: 4dcc0c1b7fe0a92f3be82332241535377b8005cce5bad6dfa62941868f28c898
+    role: source
 qasm_extraction:
   mode: dynamic_fragment_recording
   allowed_to_skip:
   - measurement
   - classical_control
 semantics_base: dynamic_circuit
+openqasm_profile: qspecbench.openqasm3.unitary.v1
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: teleportation_preserves_state_up_to_pauli_correction_v2
+  postcondition_obligation_ids:
+  - unitary_fragment_matches_ordering
+  - semantic_bridge

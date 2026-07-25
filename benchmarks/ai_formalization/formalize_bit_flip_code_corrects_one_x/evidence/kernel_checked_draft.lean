@@ -1,3 +1,3 @@
-import QSpecBench.Stabilizer
+import QSpecBench.QEC.BitFlip
 
-#check QSpecBench.bit_flip_stabilizers_commute
+#check QSpecBench.QEC.BitFlip.bit_flip_lookup_decoder_correct

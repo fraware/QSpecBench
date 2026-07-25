@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: surface_code_single_round_syndrome_extraction
 title: Surface Code Single Round Syndrome Extraction
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: intermediate
 informal_claim:
-  statement: QEC benchmark claim for `surface_code_single_round_syndrome_extraction`
-    under an explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `surface_code_single_round_syndrome_extraction` under an explicitly
+    declared Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -99,8 +99,8 @@ proof_obligations:
   notes: Lean stabilizer commutation scaffold
 claim_scope:
   headline_claim_id: surface_code_single_round_syndrome_extraction_headline
-  headline_claim_text: QEC benchmark claim for `surface_code_single_round_syndrome_extraction`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `surface_code_single_round_syndrome_extraction` under an
+    explicitly declared Pauli-dominated error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -145,3 +145,6 @@ provenance:
   - path: artifacts/code.json
     sha256: ec363f89c6a67f1fb6f22ccdcccb14980aa8d258e2873500f3a2321823f6f976
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

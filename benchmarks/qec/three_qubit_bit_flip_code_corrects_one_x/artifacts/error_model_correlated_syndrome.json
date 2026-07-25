@@ -1,0 +1,8 @@
+{
+  "id": "correlated_syndrome_dual_flip",
+  "type": "declared_noise_model",
+  "name": "DeclaredCorrelatedSyndromeFlipModel",
+  "maxCorrelatedDualFlips": 1,
+  "measurementIdealOtherwise": true,
+  "notes": "DeclaredCorrelatedSyndromeFlipModel: at most one correlated flip of both syndrome bits. Ideal path corrects single-X; dual flip on X0 breaks correction. Independent single-bit flips are a distinct outside channel."
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "qspecbench.error_model.v1",
+  "name": "DeclaredTwoRoundRepeatDecodeModel",
+  "max_declared_faults": 1,
+  "decode_rule": "agree_or_prefer_round1",
+  "in_model_faults": ["none", "measFlipRound0S0", "measFlipRound0S1"],
+  "outside_negatives": ["measFlipRound1S0", "measFlipRound1S1", "dual_flipS0_both_rounds", "dual_flipS1_both_rounds"],
+  "notes": "DeclaredTwoRoundRepeatDecodeModel: prefer-round1 decode corrects single-X under {none, measFlipRound0S0, measFlipRound0S1}; outside negatives for flipR1S0, flipR1S1, and dual S0/S1 flips. Fragment of repeated-round FT — not full matching / arbitrary multi-round FT."
+}

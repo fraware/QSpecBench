@@ -18,7 +18,7 @@ Lean 4 proofs, human review, QASM parse (syntax), simulation (heuristic only).
 
 ## Good first claims
 
-- `teleportation_preserves_state_up_to_pauli_correction` (introductory, reference_scaffold)
+- `teleportation_preserves_state_up_to_pauli_correction` (introductory, artifact_bound_reference_claim)
 - `bell_state_preparation` (introductory, artifact_bound_reference_claim)
 
 ## Examples
@@ -34,7 +34,7 @@ Lean 4 proofs, human review, QASM parse (syntax), simulation (heuristic only).
 | qft_then_inverse_qft_identity_up_to_ordering | intermediate | reference_claim | Auto-synced from spec.yaml |
 | superdense_coding_decodes_two_classical_bits | introductory | reference_scaffold | Auto-synced from spec.yaml |
 | swap_from_three_cx | introductory | artifact_bound_reference_claim | Auto-synced from spec.yaml |
-| teleportation_preserves_state_up_to_pauli_correction | introductory | reference_scaffold | Auto-synced from spec.yaml |
+| teleportation_preserves_state_up_to_pauli_correction | introductory | artifact_bound_reference_claim | Auto-synced from spec.yaml |
 
 ## Known limitations
 

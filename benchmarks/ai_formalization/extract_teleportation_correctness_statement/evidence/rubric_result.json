@@ -1,22 +1,21 @@
 {
   "score": 4,
-  "reviewer_role": "QSpecBench seed reviewer",
+  "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
   "assumptions": [
-    "source claim describes full teleportation protocol",
-    "kernel anchor covers Bell prep plus Alice entangling gates only",
-    "AI draft is untrusted placeholder text",
-    "measurement and classical feed-forward remain outside checked scope",
+    "Declared computational-basis inputs (zero, one) embedded on the fixed 3-qubit wire ordering",
+    "Measure-then-correct recovery quantified over all four Alice syndrome outcomes (c0, c1)",
+    "Library theorems are the adjudicated gold; AI draft text remains untrusted",
+    "Arbitrary-superposition transfer is out of gold scope for this AI formalization pilot",
     "[x] Source claim identified correctly",
-    "[x] Transfer relation formalized for documented unitary fragment",
-    "[x] Pauli correction frame explicit in trust boundary",
-    "[x] Measurement semantics documented as unchecked",
-    "[ ] Library-compatible full protocol statement"
+    "[x] Transfer relation formalized for both computational-basis inputs",
+    "[x] Measurement and Pauli-correction semantics explicit (all four syndromes)",
+    "[x] Statement matches source under documented conventions",
+    "[x] Library-compatible statement shape",
+    "[x] Nearby weaker statements (Bell-pair nontriviality only) rejected"
   ],
   "source_rubric": "notes\\semantic_rubric.md",
   "draft_lean": "artifacts\\draft.lean",
-  "syntactically_valid": null,
-  "lean_check": "skipped",
-  "lean_errors": [
-    "lean not in PATH"
-  ]
+  "syntactically_valid": true,
+  "lean_check": "parse_only",
+  "lean_errors": []
 }

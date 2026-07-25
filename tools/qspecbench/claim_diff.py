@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from qspecbench.validate import load_spec
+from qspecbench.validation.result import load_spec
 
 
 def claim_diff_scope_payload(spec: dict[str, Any]) -> dict[str, Any]:

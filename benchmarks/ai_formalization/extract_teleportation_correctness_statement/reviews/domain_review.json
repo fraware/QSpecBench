@@ -1,0 +1,32 @@
+{
+  "benchmark_id": "extract_teleportation_correctness_statement",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "artifacts/source.txt",
+    "notes/semantic_rubric.md"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "kernel_anchor",
+    "gold_target_faithfulness"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_faithfulness_of_ai_draft_text_to_source_phr",
+    "ai_draft_text_untrusted",
+    "declared_computational_basis_inputs_only"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Corpus-pattern domain review attesting gold-target faithfulness score 4 for the frozen informal claim (narrowed to computational-basis inputs, all four syndromes) vs accepted formal statement; rejected broader general-state formalizations."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem",
+  "proposition_id": "extract_teleportation_correctness_statement_v1"
+}

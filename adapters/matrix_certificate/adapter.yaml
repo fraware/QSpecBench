@@ -1,0 +1,5 @@
+adapter_name: matrix_certificate
+evidence_types:
+  - matrix_certificate
+check_command: "python parse_result.py {path}"
+notes: Independent matrix certificate checker; no qasm_matrix/denotate/bridge_codegen imports.

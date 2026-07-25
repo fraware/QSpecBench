@@ -2,46 +2,64 @@
 
 ## Claim
 
-A Clifford simplification pass preserves the circuit unitary on declared registers.
+Clifford simplification of the declared H-H-S source trace to the S-only target circuit
+preserves the unitary exactly under the normalized 1-qubit complex denotation (algebraic
+H = H/√2; global phase φ = 0).
 
 ## Why this matters
 
-Compiler equivalence representative for Clifford circuits.
+Compiler equivalence representative for Clifford circuits; mirrors the honest promotion
+path used by `toffoli_decomposition_equivalence` (normalized kernel-checked source/target
+pair, elaborator-bound theorem, BridgeMetadata pin).
 
 ## Objects
 
-- source/target QASM
+- `artifacts/source.qasm` — H H S (pre-simplification)
+- `artifacts/target.qasm` — S (post-simplification)
 
 ## Specification
 
-Exact unitary equality; ancillae/garbage per preconditions.
+Exact matrix equality under `denotateOps1C_normalized` (trusted composition semantics for
+this claim). Gate atoms H/S match `ComplexGate` normalized Hadamard / algebraic S matrices.
 
 ## Evidence
 
-- See `spec.yaml` evidence block (QCEC, source anchor, verify-bridge, scaled pair scaffold in
-  `evidence/source_target_equivalence_open.lean`).
+- QASM syntax checks (passing)
+- QCEC on source/target pair (supporting external)
+- Lean pair bridge: `evidence/clifford_pair_bridge.lean`
+- verify-bridge: `evidence/bridge_verify.result.json`
+- Policy: `notes/normalized_unitary_policy.md`, `notes/compiler_equivalence_gap.md`
 
-## Trust boundary
+## Trust boundary / checker chain
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+Checked obligations:
+
+- `source_artifact_parse`
+- `target_artifact_parse`
+- `source_denotation`
+- `target_denotation`
+- `source_target_equivalence`
+- `global_phase_policy`
+- `wire_order_alignment`
+
+Not claimed: unnormalized `denotateOps1C` pair equality (factor 2); full OpenQASM 3 /
+hardware semantics.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 
-Lean kernel anchor proves complex OpenQASM3 denotation of the **source** gate trace (H H S on one
-qubit), aligned with Python `qasm_matrix` for S/T phases. **Scaled pair relation** under the
-unnormalized model: `denotateOps1C clifford_hhs = 2 · denotateOps1C clifford_s_single`
-(`bridge_clifford_source_target_scaled`; see `notes/normalized_unitary_policy.md`). Exact matrix
-equality is false in that model; QCEC certifies physical unitary equivalence externally. Full
-compiler simplification headline (`semantic_correctness_of_circuit_vs_claim`) remains open.
-Maturity stays **reference_scaffold** until normalized dual-manifest verify-bridge closes the gap.
+- Unnormalized `denotateOps1C` exact source = target (intentionally out of scope; scaled
+  by factor 2, see `notes/normalized_unitary_policy.md`)
+- Full OpenQASM 3 / hardware semantics
 
 ## References
 
-- (add references when promoting beyond seed)
+See `notes/normalized_unitary_policy.md`, `notes/compiler_equivalence_gap.md`, and sibling
+`toffoli_decomposition_equivalence` for the reference promotion pattern.
+
 ## Claim diff
 
 See evidence/claim_diff.md for declared vs checked obligation gap (Section C).

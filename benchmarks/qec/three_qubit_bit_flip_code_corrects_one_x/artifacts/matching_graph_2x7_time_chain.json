@@ -1,0 +1,18 @@
+{
+  "schema": "qspecbench.matching_graph_fixture.v1",
+  "name": "spacetime_mwpm_2x7_time_chain_fixture",
+  "description": "Declared detection graph for 2-detector time-chain fragment. Nodes 0..6 are round detectors for S0; boundary node 7. Edges encode head time-chain meas-error matches (not full Stim DEM).",
+  "num_detectors": 7,
+  "boundary_node": 7,
+  "edges": [
+    {"nodes": [0, 1], "fault_ids": [0], "weight": 1.0, "label": "time_edge_R0R1"},
+    {"nodes": [1, 2], "fault_ids": [1], "weight": 1.0, "label": "time_edge_R1R2"},
+    {"nodes": [2, 3], "fault_ids": [2], "weight": 1.0, "label": "time_edge_R2R3"},
+    {"nodes": [3, 4], "fault_ids": [3], "weight": 1.0, "label": "time_edge_R3R4"},
+    {"nodes": [4, 5], "fault_ids": [4], "weight": 1.0, "label": "time_edge_R4R5"},
+    {"nodes": [5, 6], "fault_ids": [5], "weight": 1.0, "label": "time_edge_R5R6"},
+    {"nodes": [0, 7], "fault_ids": [6], "weight": 2.0, "label": "boundary_R0"},
+    {"nodes": [6, 7], "fault_ids": [7], "weight": 0.5, "label": "boundary_R6_preferred"}
+  ],
+  "notes": "Fixture graph for PyMatching Blossom agreement tests. Not a Stim DetectorErrorModel."
+}

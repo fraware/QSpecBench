@@ -1,0 +1,266 @@
+{
+  "schema": "qspecbench.stim_pymatching_dem.v1",
+  "ok": true,
+  "stim_invoked": true,
+  "pymatching_invoked": true,
+  "full_spacetime_mwpm": false,
+  "stim_version": "1.16.0",
+  "pymatching_version": "2.4.0",
+  "command": "python -m qspecbench.stim_pymatching_adapter --dem bitflip_spacetime_d3_R3.dem --table declared_decode_table_bitflip_spacetime_d3_R3.json",
+  "dem_sha256": "1773fbc466ebaa5ed9788d4de53670145a276163ea48798867dff9d97eb14f85",
+  "dem_num_detectors": 8,
+  "table_sha256": "3f1cc0850a31617d61b2c803d9268a7593672f8e843284233c74df6c9b117138",
+  "agreed_faults": [
+    "none",
+    "single_D0",
+    "single_D1",
+    "single_D2",
+    "single_D3",
+    "single_D4",
+    "single_D5",
+    "single_D6",
+    "single_D7",
+    "dual_D0D1"
+  ],
+  "disagreed_faults": [],
+  "outside_checked": [
+    "all_detectors_outside"
+  ],
+  "outside_failed": [],
+  "case_details": [
+    {
+      "name": "none",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D0",
+      "kind": "in_model",
+      "syndrome_bits": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D1",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        1
+      ],
+      "stim_pymatching_prediction": [
+        1
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D2",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D3",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        1
+      ],
+      "stim_pymatching_prediction": [
+        1
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D4",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D5",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        1
+      ],
+      "stim_pymatching_prediction": [
+        1
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D6",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "single_D7",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected_prediction": [
+        1
+      ],
+      "stim_pymatching_prediction": [
+        1
+      ],
+      "agree": true
+    },
+    {
+      "name": "dual_D0D1",
+      "kind": "in_model",
+      "syndrome_bits": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "all_detectors_outside",
+      "kind": "outside",
+      "syndrome_bits": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_prediction": [
+        0
+      ],
+      "stim_pymatching_prediction": [
+        0
+      ],
+      "agree": true
+    }
+  ],
+  "notes": "Stim Circ.generated repetition_code:memory d=3 rounds=3 spacetime DEM + PyMatching. Checked label spacetime_mwpm_3qubit_bitflip_R3; full_spacetime_mwpm=false; not Lean kernel of Stim.",
+  "output_sha256": "1a5aaa01dfcef1fbc6e40054ab410ce280e54fdb42bdfd0a5743bf89afd6b4db",
+  "spacetime_mwpm_3qubit_bitflip_R3": true
+}

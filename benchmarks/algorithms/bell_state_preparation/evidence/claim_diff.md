@@ -1,6 +1,6 @@
 # Claim diff: bell_state_preparation
 
-<!-- scope_fingerprint: 03c5120d3ddb24eda97bea868c84397832215b8942d2ef7b416048e5dd9e6e59 -->
+<!-- scope_fingerprint: fedce8a7892e80125d52602f01146d8976e4397403d4ed2dc68a54237a344c71 -->
 
 **Maturity:** artifact_bound_reference_claim
 **Headline status:** checked

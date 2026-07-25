@@ -1,0 +1,640 @@
+version: 1
+source: docs/audit_findings.md
+notes: Machine-readable audit ledger. Markdown summarizes; this file is the tracked backlog. Open/partial
+  findings link to stable stub IDs in docs/audit_github_issues.yaml via github_issue (replace with a numeric
+  GitHub issue when filed remotely).
+findings:
+- id: F-001
+  severity: P0
+  status: closed
+  title: Lint F401 (3)
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`ruff check tools tests adapters scripts` → exit 0'
+  notes: '**Fixed**'
+- id: F-002
+  severity: P0
+  status: closed
+  title: Stale `validate_out.txt`
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: File absent
+  notes: '**Fixed**'
+- id: F-003
+  severity: P0
+  status: closed
+  title: Coq smoke blocked validate CI
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: No Coq steps in `.github/workflows/validate.yml`
+  notes: '**Fixed**'
+- id: F-004
+  severity: P1
+  status: closed
+  title: README version drift
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: README schema 0.3 / v0.2.3
+  notes: '**Fixed**'
+- id: F-005
+  severity: P1
+  status: closed
+  title: '`reference_benchmarks.md` stale'
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Originally closed when lists matched 6 ABRC pilots; Phase A refreshed reference_benchmarks.md
+    / GOVERNANCE to live 9 ABRC (historical closure stands)
+  notes: '**Fixed** (keep docs synced with dashboard)'
+- id: F-006
+  severity: P1
+  status: closed
+  title: TRACK maturity tables stale
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Tables auto-synced from `spec.yaml`
+  notes: '**Fixed**'
+- id: F-006b
+  severity: P1
+  status: closed
+  title: TRACK “Good first claims” prose stale
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`c865d4c` — e.g. `rx_gate` → `reference_scaffold`, `shor_code` → `reference_scaffold`'
+  notes: '**Fixed**'
+- id: F-007
+  severity: P1
+  status: closed
+  title: Orphan teleportation `.result.json`
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: File not found on disk
+  notes: '**Fixed**'
+- id: F-008
+  severity: P1
+  status: closed
+  title: Promotion `check=False`
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`promotion-check.yml:41` uses `check=True`'
+  notes: '**Fixed**'
+- id: F-009
+  severity: P1
+  status: closed
+  title: CI ignored `uv.lock`
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Workflows use `uv sync --frozen --extra dev`
+  notes: '**Fixed**'
+- id: F-010
+  severity: P1
+  status: closed
+  title: Bootstrap reviewers on reference_claim
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests:
+  - tests/test_schema_dialect.py
+  depends_on: []
+  closure_evidence: reviews.py forbids maintainer-bootstrap; `rg maintainer-bootstrap benchmarks/**/spec.yaml`
+    returns zero matches; ABRC/RC pilots use rkothari-formal / mlewis-quant-sem
+  notes: '**Fixed** — closed 2026-07 (Phase A reconcile); zero bootstrap reviewers in corpus'
+- id: F-011
+  severity: P1
+  status: closed
+  title: Node 20 deprecation
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`actions/checkout@v5`, `setup-python@v6`'
+  notes: '**Fixed**'
+- id: F-012
+  severity: P2
+  status: closed
+  title: Matrix O(4^n) uncapped
+  owner: unassigned
+  github_issue: QSB-AUD-012
+  affected_files:
+  - tools/qspecbench/resource_bounds.py
+  - tools/qspecbench/qasm_matrix.py
+  - tools/qspecbench/perm_circuit.py
+  acceptance_tests:
+  - tests/test_resource_bounds.py
+  depends_on: []
+  closure_evidence: QSPECBENCH_MAX_DENSE_QUBITS (default 8) + QSPECBENCH_MAX_PERM_QUBITS (default 24)
+    + CircuitBackend; dense/perm still exponential inside the cap (accepted residual)
+  notes: '**Closed as designed (Wave 1)** — hard caps prevent uncapped OOM; exponential cost
+    inside caps is an accepted residual (no fake "fixed OOM forever")'
+- id: F-013
+  severity: P2
+  status: closed
+  title: Duplicate bridge verify work
+  owner: unassigned
+  github_issue: QSB-AUD-013
+  affected_files:
+  - tools/qspecbench/validation/bridges.py
+  - .github/workflows/validate.yml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: QSPECBENCH_RECOMPUTE_BRIDGE=0 on validate job trusts committed bridge_verify.result.json;
+    bridge job still recomputes; release keeps default recompute=1
+  notes: '**Closed as designed (Wave 1)** — intentional PR skip vs release/bridge recompute split'
+- id: F-014
+  severity: P2
+  status: closed
+  title: Redundant CI work
+  owner: unassigned
+  github_issue: QSB-AUD-014
+  affected_files:
+  - .github/workflows/validate.yml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Single full check-evidence; Evidence.All separate; bridge job remains intentional;
+    pytest sliced on PR (F-019) with full suite on release
+  notes: '**Closed as designed (Wave 1)** — remaining duplication is intentional release honesty cost'
+- id: F-015
+  severity: P2
+  status: closed
+  title: Sequential evidence checks
+  owner: unassigned
+  github_issue: QSB-AUD-015
+  affected_files:
+  - tools/qspecbench/evidence_schedule.py
+  - tools/qspecbench/evidence_runner.py
+  acceptance_tests:
+  - tests/test_resource_bounds.py
+  depends_on: []
+  closure_evidence: evidence_runner.run_evidence_checks uses per-class batches via run_bounded;
+    Lean max_workers=1; deterministic class-major output order
+  notes: '**Closed (Wave 1)** — lightweight/Python concurrent; Lean serialized by policy'
+- id: F-016
+  severity: P2
+  status: closed
+  title: Lean adapter overhead
+  owner: unassigned
+  github_issue: QSB-AUD-016
+  affected_files:
+  - adapters/lean/parse_result.py
+  acceptance_tests:
+  - tests/test_wave1_ops_audit.py
+  depends_on: []
+  closure_evidence: Process-cached elan toolchain + lake env probe; QSPECBENCH_LEAN_TOOLCHAIN hint;
+    QSPECBENCH_SKIP_LEAN_ENV_PROBE for pre-warmed CI; sorry scan already cached
+  notes: '**Closed (Wave 1)** — cold probe amortized per process; per-file lake env lean compile cost
+    remains (persistent Lean server out of scope)'
+- id: F-017
+  severity: P2
+  status: closed
+  title: Dynamic sim regenerated
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Fingerprint skip in `dynamic_simulation_evidence.py`
+  notes: '**Fixed**'
+- id: F-018
+  severity: P2
+  status: closed
+  title: Release bundle RAM
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - tools/qspecbench/release_bundle.py
+  acceptance_tests:
+  - tests/test_release_failclosed.py
+  depends_on: []
+  closure_evidence: write_release_bundle streams on-disk members; verify_release_bundle uses _sha256_stream;
+    tests/test_release_failclosed.py::test_streaming_verify_passes
+  notes: '**Fixed** — production write+verify path is streaming/bounded-memory'
+- id: F-019
+  severity: P2
+  status: closed
+  title: Slow pytest
+  owner: unassigned
+  github_issue: QSB-AUD-019
+  affected_files:
+  - .github/workflows/lint.yml
+  - .github/workflows/validate.yml
+  - .github/workflows/release.yml
+  - pyproject.toml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: pytest markers unit/lean/stim; lint unit/trust coverage; validate runs not-lean
+    + stim slices; release runs full suite; Lean e2e on PR via check-evidence
+  notes: '**Closed (Wave 1)** — suite sliced in CI; full pytest retained on release only'
+- id: F-020
+  severity: P2
+  status: closed
+  title: Uncached manifest
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`@lru_cache` on `load_manifest()`'
+  notes: '**Fixed**'
+- id: F-021
+  severity: P2
+  status: closed
+  title: Arbitrary code via python/sat
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - docs/trust_boundaries.md
+  - adapters/python/parse_result.py
+  - adapters/sat_certificate/parse_result.py
+  - tools/qspecbench/evidence_sandbox.py
+  - tools/qspecbench/evidence_runner.py
+  acceptance_tests:
+  - tests/test_trust_boundaries.py
+  - tests/test_evidence_sandbox.py
+  depends_on: []
+  closure_evidence: Documented trust-the-corpus model in docs/trust_boundaries.md;
+    constrained evidence_sandbox (timeout, claim-dir cwd jail, stripped network env,
+    OS RLIMIT where available) wired into evidence_runner for simulation/sat_certificate;
+    raw commands fail-closed in CI
+  notes: '**Closed (by design)** — corpus-executed evidence is intentional; constrained
+    runner mitigates foot-guns but is not a multi-tenant sandbox product'
+- id: F-022
+  severity: P2
+  status: closed
+  title: Path traversal in `resolve_claim_path`
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Helper raises `ValueError` on escape
+  notes: '**Fixed**'
+- id: F-023
+  severity: P2
+  status: closed
+  title: Missing subprocess timeouts
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Timeouts on lean/python/coq/qcec/smt/sat + evidence_runner
+  notes: '**Fixed**'
+- id: F-024
+  severity: P2
+  status: closed
+  title: Silent JSON failures
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: validate + evidence_runner surface decode errors
+  notes: '**Fixed**'
+- id: F-025
+  severity: P2
+  status: closed
+  title: Empty YAML → None
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`load_spec()` raises `ValueError`'
+  notes: '**Fixed**'
+- id: F-026
+  severity: P2
+  status: closed
+  title: Weak human-review gate
+  owner: unassigned
+  github_issue: QSB-AUD-026
+  affected_files:
+  - adapters/human_review/parse_result.py
+  - tools/qspecbench/trust.py
+  - docs/trust_boundaries.md
+  acceptance_tests:
+  - tests/test_wave1_ops_audit.py
+  depends_on: []
+  closure_evidence: Heuristic adapter sets satisfies_required_for_claim=false; ABRC/RC required_for_claim
+    for human_review gated by dual approved status.reviews (reviews.py authority)
+  notes: '**Closed by design (Wave 1)** — dual-review JSON is the gate; heuristic alone cannot satisfy
+    required_for_claim on ABRC/RC'
+- id: F-027-F-034
+  severity: P3
+  status: partial
+  title: Corpus / proof limitations
+  owner: unassigned
+  github_issue: QSB-AUD-027
+  affected_files:
+  - docs/research_tracks.md
+  - docs/status.md
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: 'Wave 1 re-triage: F-034 superseded/closed; F-027–F-033 remain honest residuals
+    (scaffolds, QBricks/ZX adapters exist but not complete FV standard, S/T stubs, QASM subset,
+    dynamic scope, DJ oracle placeholder, AI draft untrusted) — no fake promotions'
+  notes: '**Re-triaged (Wave 1 2026-07-25):** F-027–F-033 practical residuals; F-034 closed by Toffoli
+    ABRC path. No Wave 1 promotions.'
+- id: F-035
+  severity: P3
+  status: closed
+  title: claim_diff fingerprint gap
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Includes `informal_claim`, `maturity`
+  notes: '**Fixed**'
+- id: F-036
+  severity: P3
+  status: closed
+  title: Lint scope narrow
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`lint.yml` lints `tools tests adapters scripts`'
+  notes: '**Fixed**'
+- id: F-037
+  severity: P3
+  status: closed
+  title: No static type checker
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - .github/workflows/lint.yml
+  - pyproject.toml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: lint.yml runs `uv run pyright tools/qspecbench adapters scripts` as a hard fail (basic
+    mode); pyright listed in dev extras
+  notes: '**Fixed** — pyright basic is a hard CI gate'
+- id: F-038-F-041
+  severity: P3
+  status: partial
+  title: Maintainability / test skips
+  owner: unassigned
+  github_issue: QSB-AUD-038
+  affected_files:
+  - tools/qspecbench/validate.py
+  - tests/test_lean_evidence.py
+  - tests/test_qcec_evidence.py
+  acceptance_tests:
+  - tests/test_phase10_maintainability.py
+  depends_on: []
+  closure_evidence: 'Wave 1 re-triage: F-041 skipif-without-toolchain accepted; F-038–F-040 remain
+    practical tech-debt (monolith validate, helper duplication, adapter API) — not Wave 1 blockers'
+  notes: '**Re-triaged (Wave 1):** F-041 closed-as-accepted; F-038–F-040 open maintainability debt.'
+- id: F-042
+  severity: P3
+  status: closed
+  title: pytest-asyncio warning
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - pyproject.toml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: pyproject.toml sets asyncio_default_fixture_loop_scope=function; project does not
+    depend on pytest-asyncio — remaining local conda plugin noise is out-of-repo
+  notes: '**Fixed (in-repo)** — local conda plugin warnings are environment-specific'
+- id: F-043
+  severity: P2
+  status: closed
+  title: Cold lake build blocks lean evidence
+  owner: unassigned
+  github_issue: QSB-AUD-043
+  affected_files:
+  - .github/workflows/validate.yml
+  - .github/workflows/release.yml
+  - lean/QSpecBench.lean
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Mathlib/lake cache in CI; Evidence.All separate job/step (not root import); cold
+    first build remains operationally expensive (documented residual)
+  notes: '**Closed as designed (Wave 1)** — Evidence.All split + caching landed; cold-lake wall time
+    is an accepted operational residual'
+- id: F-044
+  severity: P2
+  status: closed
+  title: Makefile unpinned pip
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Prefers `uv sync --frozen --extra dev`
+  notes: '**Fixed**'
+- id: F-045
+  severity: P3
+  status: closed
+  title: No ruff format / pre-commit
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - .pre-commit-config.yaml
+  - .github/workflows/lint.yml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`.pre-commit-config.yaml` present (ruff + ruff-format + local schema/ops/audit hooks);
+    lint.yml runs `ruff check` as a hard gate'
+  notes: '**Fixed** — pre-commit config tracked; ruff is a hard CI gate'
+- id: F-046
+  severity: P3
+  status: closed
+  title: No pytest-cov
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - .github/workflows/lint.yml
+  - pyproject.toml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: lint.yml coverage gate on trust/promotion surface with --cov-fail-under=55; pytest-cov
+    in dev extras; pyproject fail_under=40 aggregate secondary
+  notes: '**Fixed** — coverage gate is a hard CI fail'
+- id: F-047
+  severity: P2
+  status: closed
+  title: README badge validate-only
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Lint badge added
+  notes: '**Fixed**'
+- id: F-048
+  severity: P2
+  status: closed
+  title: Separate Lean builds in dependent CI jobs
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - .github/workflows/validate.yml
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: lean-build uploads .lake/build; validate/ai/qcec/evidence-all download artifacts (no
+    per-job lake build); Evidence.All remains a separate lake target by design (OOM)
+  notes: '**Fixed** — artifact reuse across dependent jobs; Evidence.All split intentional'
+- id: F-049
+  severity: P3
+  status: closed
+  title: rocq/isabelle permanent skip
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - docs/evidence_model.md
+  - adapters/rocq/parse_result.py
+  - adapters/isabelle/parse_result.py
+  acceptance_tests:
+  - tests/test_repo_policy.py
+  depends_on: []
+  closure_evidence: Documented Lean-primary / stub skip policy in docs/evidence_model.md and definition_of_completion.md
+    permanent residuals; adapters return not_checked
+  notes: '**Closed (by design)** — stubs never gate maturity; second kernel opt-in only'
+- id: F-050
+  severity: P3
+  status: closed
+  title: Coq optional vs docs
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`adapter_protocol.md`, dashboard, GOVERNANCE aligned'
+  notes: '**Fixed**'
+- id: F-051
+  severity: P3
+  status: closed
+  title: release-bundle not in CI
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Smoke in `validate.yml:61-64`
+  notes: '**Fixed**'
+- id: F-052
+  severity: P1
+  status: closed
+  title: Dashboard Coq smoke in default CI
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: 'Dashboard: “Default CI does not install or invoke coqc”'
+  notes: '**Fixed**'
+- id: F-053
+  severity: P2
+  status: closed
+  title: Docker QCEC README vs CI
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: README states CI uses `mqt.qcec` via uv
+  notes: '**Fixed**'
+- id: F-054
+  severity: P1
+  status: closed
+  title: adapter_protocol denies coq/
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Documents optional stubs + `test_repo_policy.py`
+  notes: '**Fixed**'
+- id: F-055
+  severity: P2
+  status: closed
+  title: status.md drift not enforced
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`git diff --exit-code docs/status.md` in validate'
+  notes: '**Fixed**'
+- id: F-056
+  severity: P2
+  status: closed
+  title: promotion-check path filter
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: Includes `lean/`, `adapters/`, `scripts/`, `tests/`
+  notes: '**Fixed**'
+- id: F-057-F-059
+  severity: P3
+  status: closed
+  title: Testing / corpus gaps
+  owner: unassigned
+  github_issue: null
+  affected_files:
+  - tests/test_phase_f_audit_gaps.py
+  acceptance_tests:
+  - tests/test_phase_f_audit_gaps.py
+  depends_on: []
+  closure_evidence: 'tests/test_phase_f_audit_gaps.py: seed QEC layout+evidence (F-057), Hamiltonian Lean
+    e2e via evidence_runner (F-058), dynamic-simulate CLI CliRunner (F-059)'
+  notes: '**Fixed** — F-057 covers sole seed QEC (corpus still has one seed by design); F-058/F-059 pytest
+    gaps closed'
+- id: F-060
+  severity: P2
+  status: closed
+  title: Remediation merged to main
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: 'PR #5 merged to `main` at `c34ddfc`; CI green on merge push'
+  notes: '**Fixed**'
+- id: F-061
+  severity: P2
+  status: closed
+  title: Promotion-check missing elaborator export
+  owner: unassigned
+  github_issue: null
+  affected_files: []
+  acceptance_tests: []
+  depends_on: []
+  closure_evidence: '`promotion-check.yml` now mirrors Validate Lean export before `validate`'
+  notes: '**Fixed (follow-up)**'

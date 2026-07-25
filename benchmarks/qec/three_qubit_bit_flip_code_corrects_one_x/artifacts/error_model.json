@@ -7,5 +7,5 @@
   "correlated_errors": false,
   "leakage": false,
   "measurement_errors": false,
-  "notes": "Single independent X error on one physical qubit."
+  "notes": "DeclaredBitFlipNoiseModel: single independent X on one physical qubit; ideal projective Z measurement (measurementIdeal=true). Measurement-bit flips are outside the model."
 }

@@ -11,10 +11,15 @@ import QSpecBench.Generated.HadamardConjugatesXToZ
 import QSpecBench.Generated.SingleQubitGateCancellation
 import QSpecBench.Generated.BellStatePreparation
 import QSpecBench.Generated.SwapFromThreeCx
+import QSpecBench.Generated.SwapFromThreeCxTarget
 import QSpecBench.Generated.ToffoliDecompositionEquivalence
 import QSpecBench.Generated.ToffoliDecompositionEquivalenceTarget
 import QSpecBench.Generated.CircuitIdentityAfterLayout
+import QSpecBench.Generated.TeleportationUnitaryPrefix
+import QSpecBench.Generated.CliffordSimplificationPreservesUnitary
+import QSpecBench.Generated.CliffordSimplificationPreservesUnitaryTarget
 import QSpecBench.Quantum.BridgeMetadata
+import QSpecBench.Quantum.CliffordTAlg
 
 /-!
 # Denotational OpenQASM 3 semantics for the benchmark gate subset.
@@ -33,6 +38,7 @@ open QSpecBench (Matrix2 Matrix4 Matrix8 mul2 mul4 mul8 id2 id4 id8 ccx8 swap4 k
 open QSpecBench.Quantum (pauliY)
 open QSpecBench.Quantum.ComplexGate
 open QSpecBench.Quantum.QasmOp
+open QSpecBench.Quantum.CliffordTAlg
 open QSpecBench.Generated
 open Complex
 
@@ -62,10 +68,32 @@ noncomputable def denotateGateC : SingleGate → Mat2C
   | .Sdg => sDagGate
   | .Tdg => tDagGate
 
+/-- Physical unitary single-qubit gate model: Hadamard uses `hadamardC_normalized`. -/
+noncomputable def denotateGateC_normalized : SingleGate → Mat2C
+  | .I => ComplexGate.identityGate
+  | .X => pauliXC
+  | .Y => pauliYC
+  | .Z => pauliZC
+  | .H => hadamardC_normalized
+  | .S => sGate
+  | .T => tGate
+  | .Sdg => sDagGate
+  | .Tdg => tDagGate
+
 noncomputable def denotateOps1C (ops : List QasmOp) : Mat2C :=
   ops.foldl (fun acc op =>
     match op with
     | .gate g _ => mul2C (denotateGateC g) acc
+    | .rx θ _ => mul2C (rxGate θ) acc
+    | .cx _ _ => acc
+    | .ccx _ _ _ => acc
+    | .swap _ _ => acc) (1 : Mat2C)
+
+/-- 1-qubit denotation with normalized Hadamard (exact H·H = I). -/
+noncomputable def denotateOps1C_normalized (ops : List QasmOp) : Mat2C :=
+  ops.foldl (fun acc op =>
+    match op with
+    | .gate g _ => mul2C (denotateGateC_normalized g) acc
     | .rx θ _ => mul2C (rxGate θ) acc
     | .cx _ _ => acc
     | .ccx _ _ _ => acc
@@ -136,36 +164,38 @@ noncomputable def denotateOps3C (ops : List QasmOp) : Mat8C :=
 
 def toffoli_target_codegen_ops : List QasmOp := Generated.ToffoliDecompositionEquivalenceTarget.ops
 
-theorem toffoli_target_codegen_ops_eq_hand_trace :
+theorem toffoli_target_codegen_ops_eq_generated :
     Generated.ToffoliDecompositionEquivalenceTarget.ops = toffoli_target_codegen_ops := rfl
-
-def cnot_cx_cx : List QasmOp := [.cx 0 1, .cx 0 1]
 
 open QSpecBench.Quantum.BridgeMetadata
 
+/-- Artifact-derived CNOT.CX trace — only `Generated.CnotSelfInverse.ops` is authoritative. -/
 @[deprecated QSpecBench.Generated.CnotSelfInverse.ops (since := "2026-06-28")]
 def cnot_self_inverse_codegen_ops : List QasmOp := Generated.CnotSelfInverse.ops
 
-theorem cnot_codegen_ops_eq_hand_trace : Generated.CnotSelfInverse.ops = cnot_cx_cx := rfl
-
+/-- Matrix model for two CX applications composed with the identity; used to bridge
+the Generated codegen trace to the legacy `cnot4` matrix representation directly
+(no hand-authored `List QasmOp` duplicate of `Generated.CnotSelfInverse.ops`). -/
 def cnot_cx_cxMat (i j : Fin 4) : Int := mul4 cnot4 (mul4 cnot4 id4) i j
 
-theorem denotateOps2_cnot_cx_cx (i j : Fin 4) : denotateOps2 cnot_cx_cx i j = cnot_cx_cxMat i j := by
-  fin_cases i <;> fin_cases j <;> rfl
-
-theorem bridge_cnot_self_inverse (i j : Fin 4) :
-    denotateOps2 cnot_cx_cx i j = id4 i j := by
-  rw [denotateOps2_cnot_cx_cx]
+theorem denotateOps2_cnot_generated (i j : Fin 4) :
+    denotateOps2 Generated.CnotSelfInverse.ops i j = cnot_cx_cxMat i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
 theorem bridge_cnot_codegen_self_inverse (i j : Fin 4) :
     denotateOps2 Generated.CnotSelfInverse.ops i j = id4 i j := by
-  rw [cnot_codegen_ops_eq_hand_trace, bridge_cnot_self_inverse]
+  rw [denotateOps2_cnot_generated]
+  fin_cases i <;> fin_cases j <;> rfl
+
+/-- Legacy alias for the Generated-backed CNOT bridge. -/
+theorem bridge_cnot_self_inverse (i j : Fin 4) :
+    denotateOps2 Generated.CnotSelfInverse.ops i j = id4 i j :=
+  bridge_cnot_codegen_self_inverse i j
 
 /-- Codegen trace denotation matches the declared artifact matrix model. -/
 theorem bridge_cnot_codegen_denotes_artifact (i j : Fin 4) :
-    denotateOps2 Generated.CnotSelfInverse.ops i j = cnot_cx_cxMat i j := by
-  rw [cnot_codegen_ops_eq_hand_trace, denotateOps2_cnot_cx_cx]
+    denotateOps2 Generated.CnotSelfInverse.ops i j = cnot_cx_cxMat i j :=
+  denotateOps2_cnot_generated i j
 
 /-- Codegen-aligned H-X-H trace (matches bridge-codegen stub). -/
 @[deprecated QSpecBench.Generated.HadamardConjugatesXToZ.ops (since := "2026-06-28")]
@@ -231,17 +261,27 @@ theorem bridge_qft2_inverse (i j : Fin 4) :
     simpa [invqft2] using qft2_mul_invqft2 i j ▸ this
   simp [hf, invqft2]
 
-def clifford_hhs : List QasmOp := [.gate .H 0, .gate .H 0, .gate .S 0]
+/-- Source trace after Clifford simplification (H H S on q[0]).
+Authority: `Generated.CliffordSimplificationPreservesUnitary.ops`. -/
+def clifford_hhs : List QasmOp := Generated.CliffordSimplificationPreservesUnitary.ops
 
-/-- Target trace after Clifford simplification (single S gate). -/
-def clifford_s_single : List QasmOp := [.gate .S 0]
+/-- Target trace after Clifford simplification (single S gate).
+Authority: `Generated.CliffordSimplificationPreservesUnitaryTarget.ops`. -/
+def clifford_s_single : List QasmOp := Generated.CliffordSimplificationPreservesUnitaryTarget.ops
+
+theorem clifford_hhs_eq_generated :
+    Generated.CliffordSimplificationPreservesUnitary.ops = clifford_hhs := rfl
+
+theorem clifford_s_single_eq_generated :
+    Generated.CliffordSimplificationPreservesUnitaryTarget.ops = clifford_s_single := rfl
 
 def clifford_s_singleMatC (i j : Fin 2) : ℂ := sGate i j
 
 theorem denotateOps1C_clifford_s_single (i j : Fin 2) :
     denotateOps1C clifford_s_single i j = clifford_s_singleMatC i j := by
   fin_cases i <;> fin_cases j <;> simp [denotateOps1C, clifford_s_single, denotateGateC, clifford_s_singleMatC,
-    sGateEntry, Matrix.of_apply, mul2C, mul2C_one_right]
+    sGateEntry, Matrix.of_apply, mul2C, mul2C_one_right,
+    Generated.CliffordSimplificationPreservesUnitaryTarget.ops]
 
 theorem bridge_clifford_s_single (i j : Fin 2) :
     denotateOps1C clifford_s_single i j = clifford_s_singleMatC i j :=
@@ -252,7 +292,8 @@ def clifford_hhsMatC (i j : Fin 2) : ℂ := mul2C sGate (mul2C hadamardC hadamar
 theorem denotateOps1C_clifford_hhs (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = clifford_hhsMatC i j := by
   fin_cases i <;> fin_cases j <;> simp [denotateOps1C, clifford_hhs, denotateGateC, clifford_hhsMatC, mul2C,
-    sGate, sGateEntry, hadamardC, hadamardEntry, Matrix.of_apply, mul2C_one_right]
+    sGate, sGateEntry, hadamardC, hadamardEntry, Matrix.of_apply, mul2C_one_right,
+    Generated.CliffordSimplificationPreservesUnitary.ops]
 
 theorem bridge_clifford_hhs (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = clifford_hhsMatC i j :=
@@ -263,7 +304,7 @@ theorem clifford_hhsMatC_eq_two_s (i j : Fin 2) :
   unfold clifford_hhsMatC
   exact mul2C_sGate_hadamard_sq i j
 
-/-- Unnormalized H·H = 2·I ⇒ HHS denotes 2·S (see normalized_unitary_policy.md). -/
+/-- Unnormalized H·H = 2·I ⇒ HHS denotes 2·S (legacy scaled policy). -/
 theorem clifford_source_target_denotation_scaled (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = (2 : ℂ) * denotateOps1C clifford_s_single i j := by
   rw [denotateOps1C_clifford_hhs, denotateOps1C_clifford_s_single, clifford_hhsMatC_eq_two_s,
@@ -272,6 +313,103 @@ theorem clifford_source_target_denotation_scaled (i j : Fin 2) :
 theorem bridge_clifford_source_target_scaled (i j : Fin 2) :
     denotateOps1C clifford_hhs i j = (2 : ℂ) * denotateOps1C clifford_s_single i j :=
   clifford_source_target_denotation_scaled i j
+
+/-- Normalized source matrix: S · (H_n · H_n). -/
+noncomputable def clifford_hhsMatC_normalized (i j : Fin 2) : ℂ :=
+  mul2C sGate (mul2C hadamardC_normalized hadamardC_normalized) i j
+
+theorem denotateOps1C_normalized_clifford_s_single (i j : Fin 2) :
+    denotateOps1C_normalized clifford_s_single i j = sGate i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [denotateOps1C_normalized, clifford_s_single, denotateGateC_normalized,
+      Generated.CliffordSimplificationPreservesUnitaryTarget.ops, sGate, sGateEntry,
+      Matrix.of_apply, mul2C, mul2C_one_right]
+
+theorem denotateOps1C_normalized_clifford_hhs (i j : Fin 2) :
+    denotateOps1C_normalized clifford_hhs i j = clifford_hhsMatC_normalized i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [denotateOps1C_normalized, clifford_hhs, denotateGateC_normalized,
+      clifford_hhsMatC_normalized, Generated.CliffordSimplificationPreservesUnitary.ops,
+      mul2C, sGate, sGateEntry, hadamardC_normalized, hadamardC_normalizedEntry, hadamardEntry,
+      Matrix.of_apply, mul2C_one_right]
+
+theorem clifford_hhsMatC_normalized_eq_s (i j : Fin 2) :
+    clifford_hhsMatC_normalized i j = sGate i j := by
+  unfold clifford_hhsMatC_normalized
+  exact mul2C_sGate_hadamard_normalized_sq i j
+
+/-- Exact source–target equality under normalized 1-qubit Hadamard denotation. -/
+theorem clifford_source_target_normalized_exact (i j : Fin 2) :
+    denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitary.ops i j =
+      denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitaryTarget.ops i j := by
+  rw [show Generated.CliffordSimplificationPreservesUnitary.ops = clifford_hhs from rfl,
+    show Generated.CliffordSimplificationPreservesUnitaryTarget.ops = clifford_s_single from rfl]
+  rw [denotateOps1C_normalized_clifford_hhs, denotateOps1C_normalized_clifford_s_single,
+    clifford_hhsMatC_normalized_eq_s]
+
+/-- Kernel bridge: normalized dual-manifest source–target equality (Clifford HHS→S). -/
+theorem bridge_clifford_source_target_normalized_exact (i j : Fin 2) :
+    denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitary.ops i j =
+      denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitaryTarget.ops i j :=
+  clifford_source_target_normalized_exact i j
+
+/-- `source_denotation` obligation: normalized source denotation equals the canonical
+S-gate matrix (mirrors `CliffordTAlg.toffoli_source_denotateOps3C_normalized_eq_ccx8C`). -/
+theorem clifford_source_denotateOps1C_normalized_eq_sGate (i j : Fin 2) :
+    denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitary.ops i j =
+      sGate i j :=
+  (denotateOps1C_normalized_clifford_hhs i j).trans (clifford_hhsMatC_normalized_eq_s i j)
+
+/-- `target_denotation` obligation: normalized target denotation equals the canonical
+S-gate matrix (mirrors `CliffordTAlg.toffoli_target_denotateOps3C_normalized_eq_ccx8C`). -/
+theorem clifford_target_denotateOps1C_normalized_eq_sGate (i j : Fin 2) :
+    denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitaryTarget.ops i j =
+      sGate i j :=
+  denotateOps1C_normalized_clifford_s_single i j
+
+/-- `wire_order_alignment` obligation: a single-qubit register has no wire-permutation
+ambiguity; both source and target denote the same canonical 1-qubit matrix `sGate`. -/
+theorem clifford_normalized_pair_wire_order_trivial (i j : Fin 2) :
+    denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitary.ops i j =
+        sGate i j ∧
+      denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitaryTarget.ops i j =
+        sGate i j :=
+  ⟨clifford_source_denotateOps1C_normalized_eq_sGate i j,
+    clifford_target_denotateOps1C_normalized_eq_sGate i j⟩
+
+/-- Normalized Hadamard policy: H·H = I under `denotateOps1C_normalized`. -/
+theorem bridge_clifford_normalized_hadamard_policy (i j : Fin 2) :
+    denotateOps1C_normalized [.gate .H 0, .gate .H 0] i j = ComplexGate.identityGate i j := by
+  have hfold :
+      denotateOps1C_normalized [.gate .H 0, .gate .H 0] =
+        mul2C hadamardC_normalized (mul2C hadamardC_normalized (1 : Mat2C)) := by
+    simp [denotateOps1C_normalized, denotateGateC_normalized]
+  have hone : mul2C hadamardC_normalized (1 : Mat2C) = hadamardC_normalized := by
+    ext a b; exact mul2C_one_right hadamardC_normalized a b
+  rw [hfold, hone]
+  exact hadamardC_normalized_mul_self i j
+
+/-- Exact equality implies global-phase equivalence with φ = 0 (documentation note;
+see `clifford_normalized_global_phase_policy_exact` for the kernel-checked statement). -/
+def clifford_normalized_global_phase_policy : String :=
+  "Exact matrix equality under denotateOps1C_normalized (φ = 0); \
+unnormalized denotateOps1C pair equality remains scaled (factor 2)."
+
+/-- Global-phase equivalence for 1-qubit matrices: ∃ φ, A = e^{iφ} · B entrywise
+(mirrors `ToffoliDecomposition.EquivUpToGlobalPhase` for `Mat8C`). -/
+def EquivUpToGlobalPhase1 (A B : Mat2C) : Prop :=
+  ∃ φ : ℝ, ∀ i j : Fin 2, A i j = Complex.exp (I * φ) * B i j
+
+/-- `global_phase_policy` obligation: the declared phase policy for this claim is exact
+equality (global phase φ = 0), kernel-checked from `bridge_clifford_source_target_normalized_exact`
+(mirrors `ToffoliDecomposition.toffoli_normalized_global_phase_policy`). -/
+theorem clifford_normalized_global_phase_policy_exact :
+    EquivUpToGlobalPhase1
+      (denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitary.ops)
+      (denotateOps1C_normalized Generated.CliffordSimplificationPreservesUnitaryTarget.ops) :=
+  ⟨0, fun i j => by
+    have h := bridge_clifford_source_target_normalized_exact i j
+    simp [Complex.exp_zero, h]⟩
 
 def cnot_single : List QasmOp := [.cx 0 1]
 
@@ -414,17 +552,35 @@ theorem bridge_rx_parser_plumbing (i j : Fin 2) :
     denotateOps1IntScaffold rx_parser_plumbing_ops i j = hadamard2 i j :=
   denotateOps1IntScaffold_rx_pi2 i j
 
-def ccx_single : List QasmOp := [.ccx 0 1 2]
+/-- Artifact-derived CCX trace — only `Generated.ToffoliDecompositionEquivalence.ops` is authoritative.
+    Do not reintroduce a hand-authored `[.ccx 0 1 2]` list that duplicates the Generated module. -/
+@[deprecated QSpecBench.Generated.ToffoliDecompositionEquivalence.ops (since := "2026-06-28")]
+def toffoli_codegen_ops : List QasmOp := Generated.ToffoliDecompositionEquivalence.ops
 
-theorem denotateOps3_ccx_single (i j : Fin 8) :
-    denotateOps3 ccx_single i j = ccx8 i j := by
+theorem denotateOps3_toffoli_generated (i j : Fin 8) :
+    denotateOps3 Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
-theorem bridge_ccx_single (i j : Fin 8) :
-    denotateOps3 ccx_single i j = ccx8 i j :=
-  denotateOps3_ccx_single i j
+theorem bridge_toffoli_codegen_ccx (i j : Fin 8) :
+    denotateOps3 Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j :=
+  denotateOps3_toffoli_generated i j
 
-def swap_single : List QasmOp := [.swap 0 1]
+theorem denotateOps3C_toffoli_generated (i j : Fin 8) :
+    denotateOps3C Generated.ToffoliDecompositionEquivalence.ops i j = ccx8C i j := by
+  simp [denotateOps3C, Generated.ToffoliDecompositionEquivalence.ops, mul8C_mat,
+    Matrix.of_apply, mul8C_one_right, ccx8Entry]
+
+theorem bridge_toffoli_codegen_ccxC (i j : Fin 8) :
+    denotateOps3C Generated.ToffoliDecompositionEquivalence.ops i j = ccx8C i j :=
+  denotateOps3C_toffoli_generated i j
+
+theorem denotateOps3C_toffoli_target (i j : Fin 8) :
+    denotateOps3C toffoli_target_codegen_ops i j =
+      denotateOps3C Generated.ToffoliDecompositionEquivalenceTarget.ops i j := rfl
+
+/-- Native two-qubit SWAP trace — alias for `Generated.SwapFromThreeCxTarget.ops`
+(avoids a hand-authored `List QasmOp` literal duplicate). -/
+def swap_single : List QasmOp := Generated.SwapFromThreeCxTarget.ops
 
 theorem denotateOps2_swap_single (i j : Fin 4) :
     denotateOps2 swap_single i j = swap4 i j := by
@@ -434,7 +590,7 @@ theorem bridge_swap_single (i j : Fin 4) :
     denotateOps2 swap_single i j = swap4 i j :=
   denotateOps2_swap_single i j
 
-/-- Three CX gates in standard order implement SWAP (CX_{0,1} CX_{1,0} CX_{0,1}). -/
+/-- Three CX gates in standard order implement SWAP — authority is Generated.SwapFromThreeCx.ops. -/
 def swap_from_three_cx_ops : List QasmOp := Generated.SwapFromThreeCx.ops
 
 theorem denotateOps2_swap_from_three_cx (i j : Fin 4) :
@@ -445,46 +601,54 @@ theorem bridge_swap_from_three_cx (i j : Fin 4) :
     denotateOps2 swap_from_three_cx_ops i j = swap4 i j :=
   denotateOps2_swap_from_three_cx i j
 
-/-- Codegen-aligned three-CX SWAP trace (matches bridge-codegen stub). -/
 @[deprecated QSpecBench.Generated.SwapFromThreeCx.ops (since := "2026-06-28")]
 def swap_from_three_cx_codegen_ops : List QasmOp := Generated.SwapFromThreeCx.ops
 
-theorem swap_codegen_ops_eq_hand_trace :
-    Generated.SwapFromThreeCx.ops = swap_from_three_cx_ops := rfl
-
 theorem bridge_swap_from_three_cx_codegen (i j : Fin 4) :
-    denotateOps2 Generated.SwapFromThreeCx.ops i j = swap4 i j := by
-  rw [swap_codegen_ops_eq_hand_trace, denotateOps2_swap_from_three_cx]
+    denotateOps2 Generated.SwapFromThreeCx.ops i j = swap4 i j :=
+  denotateOps2_swap_from_three_cx i j
 
 theorem bridge_swap_from_three_cx_codegen_denotes_artifact (i j : Fin 4) :
-    denotateOps2 Generated.SwapFromThreeCx.ops i j = denotateOps2 swap_from_three_cx_ops i j := rfl
+    denotateOps2 Generated.SwapFromThreeCx.ops i j =
+      denotateOps2 swap_from_three_cx_ops i j := rfl
 
-/-- Codegen-aligned CCX trace (matches bridge-codegen stub for toffoli source artifact). -/
-@[deprecated QSpecBench.Generated.ToffoliDecompositionEquivalence.ops (since := "2026-06-28")]
-def toffoli_codegen_ops : List QasmOp := Generated.ToffoliDecompositionEquivalence.ops
+/-- Target artifact ops are the native two-qubit SWAP. -/
+theorem swap_target_ops_eq_swap_single :
+    Generated.SwapFromThreeCxTarget.ops = swap_single := rfl
 
-theorem toffoli_codegen_ops_eq_hand_trace :
-    Generated.ToffoliDecompositionEquivalence.ops = ccx_single := rfl
+/-- Exact source–target denotation equality: three CX vs native SWAP (legacy wire order). -/
+theorem bridge_swap_source_target_exact (i j : Fin 4) :
+    denotateOps2 Generated.SwapFromThreeCx.ops i j =
+      denotateOps2 Generated.SwapFromThreeCxTarget.ops i j := by
+  rw [bridge_swap_from_three_cx_codegen, swap_target_ops_eq_swap_single,
+    denotateOps2_swap_single]
 
-theorem bridge_toffoli_codegen_ccx (i j : Fin 8) :
-    denotateOps3 Generated.ToffoliDecompositionEquivalence.ops i j = ccx8 i j := by
-  rw [toffoli_codegen_ops_eq_hand_trace, denotateOps3_ccx_single]
-
-theorem denotateOps3C_ccx_single (i j : Fin 8) :
-    denotateOps3C ccx_single i j = ccx8C i j := by
-  simp [denotateOps3C, ccx_single, mul8C_mat, Matrix.of_apply, mul8C_one_right, ccx8Entry]
-
-theorem bridge_toffoli_codegen_ccxC (i j : Fin 8) :
-    denotateOps3C Generated.ToffoliDecompositionEquivalence.ops i j = ccx8C i j := by
-  rw [show Generated.ToffoliDecompositionEquivalence.ops = ccx_single from rfl,
-    denotateOps3C_ccx_single]
-
-theorem denotateOps3C_toffoli_target (i j : Fin 8) :
-    denotateOps3C toffoli_target_codegen_ops i j =
-      denotateOps3C Generated.ToffoliDecompositionEquivalenceTarget.ops i j := rfl
+/-- Wire-order theorem: source and target agree under the declared legacy Kronecker model. -/
+theorem bridge_swap_source_target_wire_order (i j : Fin 4) :
+    denotateOps2 Generated.SwapFromThreeCx.ops i j =
+      denotateOps2 [.swap 0 1] i j := by
+  simpa [Generated.SwapFromThreeCxTarget.ops] using bridge_swap_source_target_exact i j
 
 def bridge_toffoli_pair_equivalence_scoped_note : String :=
-  "Source CCX kernel-checked; target trace pinned in OpenQASM3Parser; matrix pair equality open."
+  "Source CCX + target parse bound; normalized CT pair equality is \
+bridge_toffoli_decomposition_normalized_exact."
+
+/-- Kernel bridge: normalized Clifford+T source–target equality (Toffoli pair). -/
+theorem bridge_toffoli_decomposition_normalized_exact (i j : Fin 8) :
+    denotateOps3C_normalized Generated.ToffoliDecompositionEquivalence.ops i j =
+      denotateOps3C_normalized Generated.ToffoliDecompositionEquivalenceTarget.ops i j :=
+  toffoli_source_target_normalized_exact i j
+
+/-- Wire-order bridge under LSB / `openqasm_little_endian_wire_order` (both = CCX). -/
+theorem bridge_toffoli_decomposition_wire_order_lsb (i j : Fin 8) :
+    denotateOps3C_normalized Generated.ToffoliDecompositionEquivalence.ops i j =
+      denotateOps3C_normalized Generated.ToffoliDecompositionEquivalenceTarget.ops i j :=
+  bridge_toffoli_decomposition_normalized_exact i j
+
+/-- Open Toffoli path — see `QSpecBench.Quantum.ToffoliDecomposition` for checklist. -/
+def toffoliPairEquivalenceOpenGoal : String :=
+  "Normalized CT equality closed in CliffordTAlg.toffoli_source_target_normalized_exact; \
+OpenQASM3.bridge_toffoli_decomposition_normalized_exact exports the kernel bridge."
 
 /-- Layout-identity scaffold: H then CX on qubits 0,1. -/
 def layout_identity_ops : List QasmOp := Generated.CircuitIdentityAfterLayout.ops
@@ -506,6 +670,24 @@ theorem bridge_circuit_identity_after_layout (i j : Fin 4) :
 theorem bridge_circuit_identity_after_layout_codegen (i j : Fin 4) :
     denotateOps2 Generated.CircuitIdentityAfterLayout.ops i j = layoutIdentityMatrix i j := by
   rw [← layout_identity_ops_eq_codegen, denotateOps2_layout_identity]
+
+/-- Teleport unitary-prefix codegen ops match the hand list in Teleportation.lean. -/
+theorem teleport_unitary_prefix_ops_eq_codegen :
+    Generated.TeleportationUnitaryPrefix.ops =
+      [.gate .H 1, .cx 1 2, .cx 0 1, .gate .H 0] := rfl
+
+/-- Kernel bridge: Generated teleport unitary prefix matches the declared 4-op hand list. -/
+theorem bridge_teleport_unitary_prefix_codegen :
+    Generated.TeleportationUnitaryPrefix.ops =
+      [.gate .H 1, .cx 1 2, .cx 0 1, .gate .H 0] :=
+  teleport_unitary_prefix_ops_eq_codegen
+
+/-- Wire-order: prefix ops are the declared LSB / legacy kron hand list (length 4). -/
+theorem bridge_teleport_unitary_prefix_wire_order :
+    Generated.TeleportationUnitaryPrefix.ops =
+        [.gate .H 1, .cx 1 2, .cx 0 1, .gate .H 0] ∧
+      Generated.TeleportationUnitaryPrefix.ops.length = 4 :=
+  ⟨bridge_teleport_unitary_prefix_codegen, by rfl⟩
 
 /-- On a 2-qubit register, CX q[0]→q[1] denotation matches legacy `cnot4` (int-scaffold and operational wire models agree). -/
 theorem cnot_wire_order_models_agree_on_two_qubits (i j : Fin 4) :

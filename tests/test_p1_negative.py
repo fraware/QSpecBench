@@ -135,6 +135,64 @@ def test_ai_reference_without_human_review_rejected():
     assert any("human_review" in e for e in errors)
 
 
+def test_ai_reference_claim_requires_gold_target():
+    spec = _base()
+    spec["track"] = "ai_formalization"
+    spec["status"]["maturity"] = "reference_claim"
+    spec["headline_claim_status"] = {
+        "status": "checked",
+        "checked_under": ["ai_gold"],
+        "not_checked_under": ["ai_draft"],
+    }
+    spec["proved_scope"] = {
+        "checked_obligations": ["ob_a", "ob_b"],
+        "unproved_obligations": [],
+    }
+    spec["ai_formalization_status"] = {
+        "semantic_reviewed": True,
+        "faithfulness_score": 4,
+        "kernel_checked": True,
+    }
+    spec["acceptable_evidence"] = [
+        {
+            "type": "human_review",
+            "checker": "rubric",
+            "path": None,
+            "required_for_claim": True,
+            "trust_level": "externally_trusted",
+        },
+        {
+            "type": "lean_proof",
+            "checker": "Lean 4 kernel",
+            "path": None,
+            "required_for_claim": True,
+            "trust_level": "checked",
+        },
+    ]
+    spec["evidence"] = [
+        {
+            "id": "rubric",
+            "type": "human_review",
+            "path": "notes/r.md",
+            "checker": "rubric",
+            "status": "passing",
+        },
+        {
+            "id": "lean_ob",
+            "type": "lean_proof",
+            "path": "evidence/p.lean",
+            "checker": "Lean 4 kernel",
+            "status": "passing",
+        },
+    ]
+    spec["status"]["reviews"] = {
+        "formal_evidence_review": {"status": "approved", "reviewer": "rkothari-formal"},
+        "domain_semantics_review": {"status": "approved", "reviewer": "mlewis-quant-sem"},
+    }
+    errors = validate_trust_rules(spec)
+    assert any("gold_target" in e for e in errors)
+
+
 def test_raw_command_rejected_without_escape_hatch():
     with tempfile.TemporaryDirectory() as tmp:
         claim = Path(tmp)

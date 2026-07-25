@@ -1,0 +1,36 @@
+{
+  "schema": "qspecbench.declared_decode_table.v1",
+  "name": "stim_dual_syndrome_2x7_beyond_s0_fragment",
+  "lean_decoder": null,
+  "cases": [
+    {
+      "name": "none_dual",
+      "kind": "in_model",
+      "syndrome_bits": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "expected_prediction": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "notes": "Idle dual tape."
+    },
+    {
+      "name": "fiveFlipS0_R0R1R2R3R4",
+      "kind": "in_model",
+      "syndrome_bits": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "expected_prediction": [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      "notes": "S0 head-5; S1 idle. Beyond S0-only Lean DEM fragment via dual Stim tape."
+    },
+    {
+      "name": "fiveFlipS1_R0R1R2R3R4",
+      "kind": "in_model",
+      "syndrome_bits": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+      "expected_prediction": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+      "notes": "S1 head-5; S0 idle."
+    },
+    {
+      "name": "dual_six_flip_outside",
+      "kind": "outside",
+      "syndrome_bits": [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1],
+      "expected_prediction": [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+      "notes": "Outside dual six-flip endpoints; agreement on prediction, not FT."
+    }
+  ],
+  "notes": "Stim-invoked dual-syndrome spacetime fragment beyond S0-only Lean table. Not full_spacetime_mwpm."
+}

@@ -1,6 +1,6 @@
 # Claim diff: repetition_code_three_one_three
 
-<!-- scope_fingerprint: 38e6cd31949d84f9c80e89d03fe3528ff3ed2feed1d9a4750373090384eeb7a1 -->
+<!-- scope_fingerprint: 7b7df9f6064d29dcbba2b20660d362c78bbeaff78fcb2c9e0b991ab2ea8fc3a1 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

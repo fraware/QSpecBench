@@ -1,6 +1,6 @@
 # Claim diff: shor_code_stabilizer_commutation
 
-<!-- scope_fingerprint: 91c4f7cc3250834e01cb5f00a35307ca1ed011ecad44ee5cefd05edbd8018078 -->
+<!-- scope_fingerprint: 2f7ee58866383f43be2e4f8288b43ae10a4782e1877a61fc20a2bead681457b7 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

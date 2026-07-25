@@ -1,0 +1,186 @@
+qspecbench_version: '0.3'
+id: native_ccx_artifact_denotes_toffoli_unitary
+title: Native CCX artifact denotes Toffoli unitary
+track: equivalence
+domain: circuit_equivalence
+claim_type: unitary_denotation
+difficulty: intermediate
+informal_claim:
+  statement: The declared native CCX artifact denotes the standard three-qubit Toffoli unitary under the
+    declared finite matrix semantics.
+  source: null
+  reference_key: null
+claim_identity:
+  proposition_id: native_ccx_artifact_denotes_toffoli_unitary_v1
+  postcondition_obligation_ids:
+  - lean_kernel_proof
+  - semantic_bridge
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+semantic_level:
+  primary: circuit
+  secondary:
+  - compiler
+objects:
+- name: source
+  type: circuit
+  path: artifacts/source.qasm
+  format: qasm3
+  role: source
+specification:
+  mode: exact
+  preconditions:
+  - 'finite matrix semantics: declared complex unitary / permutation model on three qubits'
+  - q[2] is the CCX target wire
+  postconditions:
+  - The declared native CCX artifact denotes the standard three-qubit Toffoli unitary under the declared
+    finite matrix semantics.
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard three-qubit unitary / permutation semantics for CCX
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: complete
+  ci: passing
+  maturity: artifact_bound_reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-06-29'
+      notes: Source CCX artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 9242919f9c00b696ebad71fa72f237a3d1aebf0ed6e5b9ccfad4240c52c8efdc
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-06-29'
+      notes: Native CCX source-only scope; decomposition pair tracked separately.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 2eb44e32edca39ba521a569345d95b78423bfe34c193df5df6e1af0e27cb58c9
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+references: []
+acceptable_evidence:
+- type: qasm_parse
+  checker: qasm parser adapter
+  path: null
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: true
+  trust_level: checked
+- type: internal_denotation_consistency
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: true
+  trust_level: heuristic
+evidence:
+- id: qasm_parse_source
+  type: qasm_parse
+  path: artifacts/source.qasm
+  checker: qasm parser adapter
+  status: passing
+  notes: Syntax only.
+- id: lean_toffoli_bridge
+  type: lean_proof
+  path: evidence/toffoli_bridge.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: bridge_toffoli_codegen_ccx kernel-checked anchor on native CCX codegen trace
+- id: bridge_verify
+  type: internal_denotation_consistency
+  path: evidence/bridge_verify.result.json
+  checker: verify-bridge CLI
+  status: passing
+  notes: kernel_checked_codegen_trace verify-bridge on native CCX artifact
+trust_boundary:
+  checked_by:
+  - QASM syntax parse
+  - Lean 4 kernel CCX denotation anchor
+  - verify-bridge matrix match on native CCX
+  trusted_kernels:
+  - Lean 4 kernel
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - full OpenQASM 3 / hardware semantics
+  - H/T/CX decomposition equivalence (separate benchmark)
+proof_obligations:
+- id: lean_kernel_proof
+  status: passing
+  notes: bridge_toffoli_codegen_ccx anchor on native CCX artifact
+- id: semantic_bridge
+  status: passing
+  notes: python_denotation_consistency verify-bridge
+claim_scope:
+  headline_claim_id: native_ccx_artifact_denotes_toffoli_unitary_headline
+  headline_claim_text: The declared native CCX artifact denotes the standard three-qubit Toffoli unitary
+    under the declared finite matrix semantics.
+  required_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+proved_scope:
+  checked_obligations:
+  - lean_kernel_proof
+  - semantic_bridge
+  unproved_obligations: []
+headline_claim_status:
+  status: checked
+  notes: Native CCX artifact bound via kernel_checked_artifact_semantics under declared finite matrix
+    semantics.
+  checked_under:
+  - qspecbench.openqasm3.int_scaffold.v0
+  - finite_matrix_model
+  - kernel_checked_artifact_semantics
+  - lean_parseQasmSource_on_artifact_file
+  not_checked_under:
+  - decomposition_target_equivalence
+  - full_openqasm3
+  - hardware_semantics
+formal_claims:
+- id: formal_lean_toffoli_bridge
+  evidence_id: lean_toffoli_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx
+  supports:
+  - lean_kernel_proof
+  - semantic_bridge
+  does_not_support:
+  - decomposition_target_equivalence
+  - hardware_semantics
+  benchmark_anchor: native_ccx_artifact_denotes_toffoli_unitary
+  proposition_id: native_ccx_artifact_denotes_toffoli_unitary_v1
+provenance:
+  generated_at: '2026-06-27T17:18:29.834935+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511
+    role: source
+semantics_base: openqasm_fragment
+openqasm_profile: qspecbench.openqasm3.unitary.v1

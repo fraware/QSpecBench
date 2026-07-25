@@ -12,3 +12,7 @@ venv/
 lean/.lake/
 pytest_last.txt
 .cache/
+.coverage
+.coverage.*
+htmlcov/
+*.tmp

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: phase_estimation_exact_eigenphase_small_instance
 title: Phase Estimation Exact Eigenphase Small Instance
 track: algorithm
@@ -6,8 +6,8 @@ domain: quantum_algorithm
 claim_type: eigenphase_estimation
 difficulty: frontier
 informal_claim:
-  statement: Phase estimation on a declared small unitary eigenstate reports the correct
-    eigenphase bits in ideal semantics.
+  statement: Phase estimation on a declared small unitary eigenstate reports the correct eigenphase bits
+    in ideal semantics.
   source: null
   reference_key: null
 semantic_level:
@@ -99,8 +99,8 @@ proof_obligations:
   notes: Full PE unitary not checked
 claim_scope:
   headline_claim_id: phase_estimation_exact_eigenphase_small_instance_headline
-  headline_claim_text: Phase estimation on a declared small unitary eigenstate reports
-    the correct eigenphase bits in ideal semantics.
+  headline_claim_text: Phase estimation on a declared small unitary eigenstate reports the correct eigenphase
+    bits in ideal semantics.
   required_obligations:
   - z_eigenvalue
   - eigenphase_relation
@@ -132,3 +132,6 @@ provenance:
   - path: artifacts/circuit.qasm
     sha256: 852ed20cef7847279f414e561411392dc5ca44082a16128004aa5b95a0584a78
     role: source
+authorship:
+  author: fraware
+  merging_maintainer: fraware

@@ -1,26 +1,35 @@
 # Claim diff: clifford_simplification_preserves_unitary
 
-<!-- scope_fingerprint: eb41a2de27136e54bc3a8e79efc4aa26da6ae1e36c64e624cca951b35194c931 -->
+<!-- scope_fingerprint: 3a6aba321dbe2036fc614c22e093b1d51ddf789798e9027c17e831859e45608a -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** artifact_bound_reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
-A Clifford simplification pass preserves the circuit unitary on declared registers.
+Clifford simplification of the declared H-H-S source trace to the S-only target circuit preserves the unitary exactly under the normalized 1-qubit complex denotation (algebraic H = H/√2; global phase φ = 0).
 
 ## Declared headline (claim_scope)
-A Clifford simplification pass preserves the circuit unitary on declared registers.
+Clifford simplification of the declared H-H-S source trace to the S-only target circuit preserves the unitary exactly under the normalized 1-qubit complex denotation (algebraic H = H/√2; global phase φ = 0).
 
 ## Required obligations
-- lean_kernel_proof
-- semantic_bridge
+- source_artifact_parse
+- target_artifact_parse
+- source_denotation
+- target_denotation
+- source_target_equivalence
+- global_phase_policy
+- wire_order_alignment
 
 ## Checked obligations
-- [x] lean_kernel_proof
-- [x] semantic_bridge
+- [x] source_artifact_parse
+- [x] target_artifact_parse
+- [x] source_denotation
+- [x] target_denotation
+- [x] source_target_equivalence
+- [x] global_phase_policy
+- [x] wire_order_alignment
 
 ## Unproved / open obligations
-- [ ] semantic_correctness_of_circuit_vs_claim
 
 ## Gap
-- Headline not marked checked despite obligation coverage; review maturity label.
+- None among declared required obligations.

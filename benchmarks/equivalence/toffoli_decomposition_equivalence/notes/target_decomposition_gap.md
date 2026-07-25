@@ -1,22 +1,11 @@
-# Toffoli target decomposition gap (C2)
+# Target decomposition gap (historical)
 
-## Source artifact (kernel-checked)
+Unnormalized `denotateOps3C` source = target remains **out of scope**.
 
-Native CCX on three qubits is at `kernel_checked_artifact_semantics`:
+Closed under the declared claim semantics:
 
-- `parseQasmSource_toffoli_kernel_eq_generated_ops`
-- `bridge_toffoli_codegen_ccx` on codegen trace
+- `denotateOps3C_normalized` source = target = `ccx8C`
+- Elaborator-bound `bridge_toffoli_decomposition_normalized_exact`
+- Phase policy φ = 0 and LSB wire-order obligations
 
-## Target artifact (partial)
-
-Target QASM parse/codegen bound via `parseQasmSource_toffoli_target_kernel_eq_generated_ops`.
-Complex denotation scaffold: `denotateOps3C` on target trace (H/T/CX).
-
-## Blocker for full equivalence claim
-
-- Lean pair theorem relating source CCX to decomposed target trace (exact or documented global phase).
-- QCEC remains external; not sufficient alone for closed kernel pair chain.
-
-## Order
-
-Source-side artifact semantics (done) → target codegen parse (done) → pair equivalence (open; QCEC + partial Lean).
+See `notes/pair_equivalence_policy.md`.

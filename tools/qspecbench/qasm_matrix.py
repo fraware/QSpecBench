@@ -247,9 +247,9 @@ def _u_matrix(theta: float, phi: float, lam: float) -> ComplexMatrix:
         br, bi = b
         return (ar * br - ai * bi, ar * bi + ai * br)
 
-    neg_e_lam_s = mul_cell((-e_lam[0], -e_lam[1]), (s, 0))
-    e_phi_s = mul_cell(e_phi, (s, 0))
-    e_phi_lam_c = mul_cell(e_phi_lam, (c, 0))
+    neg_e_lam_s = mul_cell((-e_lam[0], -e_lam[1]), (s, Fraction(0)))
+    e_phi_s = mul_cell(e_phi, (s, Fraction(0)))
+    e_phi_lam_c = mul_cell(e_phi_lam, (c, Fraction(0)))
     return [[_cell(c), neg_e_lam_s], [e_phi_s, e_phi_lam_c]]
 
 
@@ -259,8 +259,8 @@ def _parse_angle_list(text: str) -> list[float]:
 
 
 def _sum_cells(cells: list[Cell]) -> Cell:
-    re = sum(c[0] for c in cells)
-    im = sum(c[1] for c in cells)
+    re = sum((c[0] for c in cells), Fraction(0))
+    im = sum((c[1] for c in cells), Fraction(0))
     return (re, im)
 
 
@@ -297,6 +297,14 @@ def _kron(a: ComplexMatrix, b: ComplexMatrix) -> ComplexMatrix:
 
 
 def _apply_single(n_qubits: int, gate: str, qubit: int) -> ComplexMatrix:
+    """Embed a single-qubit gate (legacy Kronecker order).
+
+    Builds ``mats[0]⊗…⊗mats[n-1]`` with qubit index 0 on the *first* (MSB) factor.
+    This matches Lean ``kron2I``/``kronI2`` for 2-qubit verify-bridge checks.
+
+    For LSB-consistent embeds (qubit ``q`` = bit weight ``2^q``, matching ``_cnot`` and
+    Lean 3-qubit ``kron3``), use ``dynamic_simulator._tensor_product_on_qubit`` instead.
+    """
     op = _single_qubit_gate(gate)
     mats: list[ComplexMatrix] = []
     for q in range(n_qubits):
@@ -490,8 +498,11 @@ def extract_matrix(
     qasm_path: Path,
     extraction: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    from qspecbench.resource_bounds import require_dense_matrix
+
     text = qasm_path.read_text(encoding="utf-8")
     n = _register_size(text)
+    require_dense_matrix(n)
     unitary = _eye(1 << n)
     gates_applied: list[str] = []
     dynamic_fragments: list[dict[str, Any]] = []

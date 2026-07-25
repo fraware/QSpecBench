@@ -126,7 +126,7 @@ def test_extract_lean_theorem_statement_from_openqasm3():
         ("single_qubit_gate_cancellation", "bridge_hadamard_codegen_cancel"),
         ("bell_state_preparation", "bridge_bell_codegen_prep"),
         ("swap_from_three_cx", "bridge_swap_from_three_cx_codegen"),
-        ("toffoli_decomposition_equivalence", "bridge_toffoli_codegen_ccx"),
+        ("native_ccx_artifact_denotes_toffoli_unitary", "bridge_toffoli_codegen_ccx"),
     ],
 )
 def test_kernel_bridge_theorem_extracted_from_lean(benchmark_id, theorem_short):
@@ -239,6 +239,6 @@ def test_theorem_source_statement_hash_alias_matches_legacy():
         "single_qubit_gate_cancellation",
         "bell_state_preparation",
         "swap_from_three_cx",
-        "toffoli_decomposition_equivalence",
+        "native_ccx_artifact_denotes_toffoli_unitary",
     ):
         assert theorem_source_statement_hash(bid) == theorem_content_sha256(bid)

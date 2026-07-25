@@ -1,0 +1,20 @@
+{
+  "schema": "qspecbench.hardware_isa_abstraction.v1",
+  "ok": true,
+  "isa_layer_id": "openqasm3_canonical_ast_software_isa_v1",
+  "backend_id": "qspecbench.offline_simulated.canonical_ast",
+  "isa_id": "openqasm3_canonical_ast_software_isa_v1",
+  "execution_mode": "abstract_isa_only",
+  "profile_sha256": "d3167783546062bc341bc4e63c06d3e272b2dab4a1a283094735cd06c1a2ba31",
+  "claims_device_fidelity": false,
+  "claims_pulse_schedule_semantics": false,
+  "hardware_semantics_checked": false,
+  "pulse_schedule_semantics_checked": false,
+  "hardware_abstraction_isa_layer": true,
+  "satisfied_obligations": [
+    "hardware_abstraction_isa_layer"
+  ],
+  "command": "python -m qspecbench.hardware_isa_adapter --profile hardware_isa_profile.json",
+  "notes": "Fail-closed ISA/hardware-profile abstraction. Records backend/ISA IDs + hashes for offline/simulated profiles only. Does NOT check device fidelity, pulse schedules, or live hardware execution (hardware_semantics / device_fidelity / pulse_schedule_semantics remain not_checked).",
+  "output_sha256": "1eee032b9097b5ef7e755c7daa00f95466d020e8964864539db412ff997d2e1f"
+}

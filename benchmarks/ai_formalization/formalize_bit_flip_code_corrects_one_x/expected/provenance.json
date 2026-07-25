@@ -1,6 +1,6 @@
 {
   "benchmark_id": "formalize_bit_flip_code_corrects_one_x",
-  "generated_at": "2026-06-27T17:18:28.298373+00:00",
+  "generated_at": "2026-07-25T06:14:27.377626+00:00",
   "tooling_version": "0.2.0",
   "artifacts": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "path": "notes/semantic_rubric.md",
-      "sha256": "625e939ad51ea404fc1fd7c01d05279b6087104890aa120fc60ce96395957c16",
+      "sha256": "db657ed7990ec3c96a2102da704f3a9ba753d5d307b6696ca2cea5ae0190b1bb",
       "role": "specification"
     }
   ]

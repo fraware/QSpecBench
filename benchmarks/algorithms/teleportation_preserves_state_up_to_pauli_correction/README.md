@@ -1,50 +1,43 @@
-# Teleportation preserves an unknown qubit up to Pauli correction
+# Teleport unitary-prefix QASM denotes Generated codegen ops
 
 ## Claim
 
-The teleportation protocol transfers an arbitrary one-qubit pure state from Alice to Bob using one Bell pair and two classical bits that determine a Pauli correction on Bob's qubit.
+Under the Lean 4 kernel OpenQASM3 denotation, the measure-free artifact teleport-unitary-prefix.qasm parses to Generated.TeleportationUnitaryPrefix.ops and matches the declared unitary-prefix gate list (bridge-teleport-unitary-prefix-codegen).
 
 ## Why this matters
 
-This is the canonical **relational** algorithm benchmark: correctness is a relation between input state, measurement outcomes, and corrected output — not merely a unitary factorization.
+Artifact-bound kernel ABRC for the measure-free teleport unitary prefix (Path B narrowing).
+Full dynamic OpenQASM measure+if feed-forward remains out of ABRC headline scope.
 
 ## Objects
 
-- `artifacts/teleportation.qasm` — three-qubit teleportation circuit (q[0] input, q[1]/q[2] Bell pair)
-- `artifacts/bell_prep_scaffold.qasm` — two-qubit Bell-pair fragment for semantic bridge verification
+- `artifacts/teleport_unitary_prefix.qasm` — measure-free H/CX prefix (ABRC source)
+- `artifacts/teleportation.qasm` — full protocol reference (non-ABRC)
 
 ## Specification
 
-Fixed-size, exact, relational claim on pure states. Qubit ordering is explicit in preconditions. Resource contract: 3 qubits, 2 measurements, no T gates. Postconditions distinguish kernel-checked unitary fragment from documented (unchecked) relational transfer.
+Exact gate-list denotation under Lean OpenQASM3 kernel bridge.
 
 ## Evidence
 
-- QASM syntax check on full circuit (passing)
-- Lean 4 kernel: `teleportation_unitary_fragment_checked` and documented correction table (`evidence/teleportation.lean`)
-- verify-bridge on Bell-prep scaffold (`kernel_checked` against OpenQASM3 denotation)
-- Informal derivation in `notes/informal_derivation.md` (partial human review)
+- Lean kernel bridge + BridgeMetadata/elaborator pins
+- verify-bridge kernel_checked_artifact_semantics
+- Dual hash-bound formal/domain reviews for proposition v2
 
 ## Trust boundary
 
-**Checked:** Bell-pair preparation denotation matches OpenQASM3; Alice entangling unitary fragment is nontrivial on declared ordering.
+**Checked under:** kernel_checked_artifact_semantics on unitary-prefix artifact.
 
-**Not checked:** arbitrary-state transfer after measurement; Pauli correction correctness; classical feed-forward in QASM; full relational protocol.
-
-See `spec.yaml` `trust_boundary` and `proof_obligations` (`relational_protocol: partial`).
+**Not checked under:** full_openqasm_dynamic_circuit_protocol; POVM/relational recovery as headline.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **artifact_bound_reference_claim**.
 
 ## Known gaps
 
-- Kernel-checked proof of full relational transfer for arbitrary `|ψ⟩`
-- Fully expanded classically controlled Pauli corrections in QASM
-- Three-qubit semantic bridge for the complete pre-measurement unitary
+Full dynamic teleport protocol ABRC remains future work (measure+if outside gate-only chain).
 
 ## References
 
-- Standard teleportation presentation (Nielsen & Chuang)
-## Claim diff
-
-See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
+- Nielsen and Chuang teleportation presentation

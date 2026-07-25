@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: qft_inverse_qft_small_instance
 title: QFT and inverse QFT are mutual inverses (small instance)
 track: equivalence
@@ -6,8 +6,7 @@ domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: intermediate
 informal_claim:
-  statement: QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit
-    scaffold.
+  statement: QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold.
   source: null
   reference_key: null
 semantic_level:
@@ -74,11 +73,11 @@ acceptable_evidence:
   path: null
   required_for_claim: false
   trust_level: externally_trusted
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
@@ -112,7 +111,7 @@ evidence:
   status: passing
   notes: QCEC equivalence on declared QASM pair (self-inverse scaffold instance).
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -140,14 +139,20 @@ status:
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: rkothari-formal
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 5acfd8b87262ae3b1d0131f37249533645bdea4a3ce165f4060803eb3ea430ec
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: mlewis-quant-sem
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 3f9385b9fd51bd3589e03c9532459b1ca9cdcf9f925186e2e937b1494cab86ab
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -158,8 +163,7 @@ proof_obligations:
   notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: qft_inverse_qft_small_instance_headline
-  headline_claim_text: QFT and inverse QFT circuits are mutual inverses on a fixed
-    two-qubit scaffold.
+  headline_claim_text: QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -171,14 +175,16 @@ proved_scope:
   - openqasm_h_normalization_matches_lean_integer_mo
 headline_claim_status:
   status: checked
-  notes: All declared required obligations are kernel- or manifest-checked under the
-    stated two-qubit QFT scaffold model.
+  notes: All declared required obligations are kernel- or manifest-checked under the stated two-qubit
+    QFT scaffold model.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
   not_checked_under:
   - full_openqasm3
   - general_n_qubit_qft
+  - openqasm_h_normalization_matches_lean_integer_mo
+  - python_denotation_bridge
 formal_claims:
 - id: formal_lean_qft_proof
   evidence_id: lean_qft_proof
@@ -190,17 +196,19 @@ formal_claims:
   does_not_support:
   - openqasm_h_normalization_matches_lean_integer_mo
   benchmark_anchor: qft_inverse_qft_small_instance
+  proposition_id: qft_inverse_qft_small_instance_v1
 - id: formal_bridge_qft_inverse_qft_small_instance
   evidence_id: bridge_verify
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
   theorem: bridge_qft2_inverse
   supports:
-  - python_denotation_bridge
   - semantic_bridge
   does_not_support:
   - openqasm_h_normalization_matches_lean_integer_mo
+  - python_denotation_bridge
   benchmark_anchor: qft_inverse_qft_small_instance
+  proposition_id: qft_inverse_qft_small_instance_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.598410+00:00'
   artifacts:
@@ -211,3 +219,12 @@ provenance:
     sha256: 929eac84843cd608c985c374bfa67fb7906ee0ce64b4c5fdcf742f39ba715c38
     role: target
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: qft_inverse_qft_small_instance_v1
+  postcondition_obligation_ids:
+  - lean_kernel_proof
+  - semantic_bridge
+openqasm_profile: qspecbench.openqasm3.unitary.v1

@@ -1,0 +1,16 @@
+{
+  "authority": "lean_elaborator_export",
+  "generated_at": "2026-07-25T09:06:09.750118+00:00",
+  "notes": "Produced by scripts/refresh_elaborator_pin.py from lake elaborator export.",
+  "theorems": {
+    "bell_state_preparation": "(i j : Fin 4) : QSpecBench.Quantum.OpenQASM3.denotateOps2 QSpecBench.Generated.BellStatePreparation.ops i j = QSpecBench.Quantum.OpenQASM3.bellPrepMatrix i j",
+    "clifford_simplification_preserves_unitary": "(i j : Fin 2) : QSpecBench.Quantum.OpenQASM3.denotateOps1C_normalized QSpecBench.Generated.CliffordSimplificationPreservesUnitary.ops i j = QSpecBench.Quantum.OpenQASM3.denotateOps1C_normalized QSpecBench.Generated.CliffordSimplificationPreservesUnitaryTarget.ops i j",
+    "cnot_self_inverse_cancellation": "(i j : Fin 4) : QSpecBench.Quantum.OpenQASM3.denotateOps2 QSpecBench.Generated.CnotSelfInverse.ops i j = QSpecBench.id4 i j",
+    "hadamard_conjugates_x_to_z": "(i j : Fin 2) : QSpecBench.Quantum.OpenQASM3.denotateOps1IntScaffold QSpecBench.Generated.HadamardConjugatesXToZ.ops i j = QSpecBench.scale2 2 QSpecBench.pauliZ2 i j",
+    "native_ccx_artifact_denotes_toffoli_unitary": "(i j : Fin 8) : QSpecBench.Quantum.OpenQASM3.denotateOps3 QSpecBench.Generated.ToffoliDecompositionEquivalence.ops i j = QSpecBench.ccx8 i j",
+    "single_qubit_gate_cancellation": "(i j : Fin 2) : QSpecBench.Quantum.OpenQASM3.denotateOps1IntScaffold QSpecBench.Generated.SingleQubitGateCancellation.ops i j = QSpecBench.scale2 2 QSpecBench.id2 i j",
+    "swap_from_three_cx": "(i j : Fin 4) : QSpecBench.Quantum.OpenQASM3.denotateOps2 QSpecBench.Generated.SwapFromThreeCx.ops i j = QSpecBench.swap4 i j",
+    "teleportation_preserves_state_up_to_pauli_correction": ": QSpecBench.Generated.TeleportationUnitaryPrefix.ops = [QSpecBench.Quantum.QasmOp.QasmOp.gate QSpecBench.Quantum.QasmOp.SingleGate.H 1, QSpecBench.Quantum.QasmOp.QasmOp.cx 1 2, QSpecBench.Quantum.QasmOp.QasmOp.cx 0 1, QSpecBench.Quantum.QasmOp.QasmOp.gate QSpecBench.Quantum.QasmOp.SingleGate.H 0]",
+    "toffoli_decomposition_equivalence": "(i j : Fin 8) : QSpecBench.Quantum.CliffordTAlg.denotateOps3C_normalized QSpecBench.Generated.ToffoliDecompositionEquivalence.ops i j = QSpecBench.Quantum.CliffordTAlg.denotateOps3C_normalized QSpecBench.Generated.ToffoliDecompositionEquivalenceTarget.ops i j"
+  }
+}

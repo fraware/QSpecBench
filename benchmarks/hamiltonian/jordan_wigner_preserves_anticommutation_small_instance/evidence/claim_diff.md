@@ -1,6 +1,6 @@
 # Claim diff: jordan_wigner_preserves_anticommutation_small_instance
 
-<!-- scope_fingerprint: 37d377b6c0ddece4324329ff027d7c664b9cdb7fbc7fbf28a7e7aeec44fb7b64 -->
+<!-- scope_fingerprint: d70e882d2f4f92b6b8aa18a7308131e30c94afc73ddd068f53e9f7f85f295eea -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

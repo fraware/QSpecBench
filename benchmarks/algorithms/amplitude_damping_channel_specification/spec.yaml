@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: amplitude_damping_channel_specification
 title: Amplitude damping channel specification
 track: algorithm
@@ -6,8 +6,8 @@ domain: open_systems
 claim_type: channel_specification
 difficulty: intermediate
 informal_claim:
-  statement: A declared amplitude-damping channel with Kraus operators satisfies the
-    benchmark channel schema.
+  statement: A declared amplitude-damping channel with Kraus operators satisfies the benchmark channel
+    schema.
   source: null
   reference_key: null
 semantic_level:
@@ -80,8 +80,8 @@ status:
 references: []
 claim_scope:
   headline_claim_id: amplitude_damping_channel_specification_headline
-  headline_claim_text: A declared amplitude-damping channel with Kraus operators satisfies
-    the benchmark channel schema.
+  headline_claim_text: A declared amplitude-damping channel with Kraus operators satisfies the benchmark
+    channel schema.
   required_obligations:
   - simulation_heuristic
 proved_scope:
@@ -99,3 +99,6 @@ provenance:
   - path: artifacts/channel.json
     sha256: d90d42c9324c0c9b3c8fcdeaac66317b3de4f68f37ae5179f5cd5dbee9cb9c36
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

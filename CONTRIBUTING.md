@@ -7,6 +7,33 @@ Thank you for contributing. Every benchmark must include:
 3. Explicit assumptions and trust boundary
 4. Artifacts and evidence in the correct subdirectories
 
+## Developer setup
+
+1. Install dependencies with `uv sync --frozen --extra dev`.
+2. **Install pre-commit hooks** (required for PRs that touch Python, schema, Lean generated ops, or the audit ledger):
+
+   ```bash
+   uv run pre-commit install
+   uv run pre-commit run --all-files
+   ```
+
+   The config is [`.pre-commit-config.yaml`](.pre-commit-config.yaml) (ruff + ruff-format, schema examples, generated-ops integrity, audit YAML parse). CI also runs `ruff check` as a hard gate; local pre-commit catches the same class of issues earlier.
+3. Schema **0.3** is the active dialect for ABRC and elaborator/AST anchors — see [docs/schema_migration_0.3.md](docs/schema_migration_0.3.md) (and [0.2](docs/schema_migration_0.2.md) for earlier fields).
+4. Track maintainer roles and CODEOWNERS policy: [GOVERNANCE.md](GOVERNANCE.md).
+5. **Lean proofs are optional locally** ([Lean setup](docs/lean_setup.md)); CI installs elan and
+   runs `lake build`. If you add or change Lean evidence:
+
+   ```bash
+   cd lean && lake build
+   ```
+
+   **Never** import `QSpecBench.Evidence.All` into the root `lean/QSpecBench.lean` — it is a
+   separate, heavier target built on its own to avoid CI out-of-memory failures:
+
+   ```bash
+   cd lean && lake build QSpecBench.Evidence.All
+   ```
+
 ## Adding a benchmark
 
 Follow [docs/adding_a_benchmark.md](docs/adding_a_benchmark.md). Copy an existing seed benchmark in the appropriate track and adapt it.
@@ -36,7 +63,11 @@ Usable maturity is fine for a first contribution; reference promotion follows [d
 - [ ] Trust boundary is explicit
 - [ ] Maturity level is honest
 - [ ] No unsupported proof claims in README
+- [ ] Pre-commit hooks pass locally (`uv run pre-commit run --all-files`)
+- [ ] Dashboard regenerated if corpus counts change: `qspecbench dashboard benchmarks/ --out docs/status.md`
 - [ ] CI passes
+
+Local CI/release dry-run commands (no commit/push required): [docs/release_prep_notes.md](docs/release_prep_notes.md).
 
 ## Reference benchmarks
 
@@ -45,16 +76,27 @@ Reference maturity requires checked evidence, declared checker, passing CI, and 
 **Promotion workflow:**
 
 1. Open a [Reference promotion proposal](.github/ISSUE_TEMPLATE/reference_promotion.yml) issue.
-2. Ensure evidence stack meets [reference_benchmarks.md](docs/reference_benchmarks.md) checklist (when published) and track norms.
+2. Ensure evidence stack meets the checklists in [docs/reference_benchmarks.md](docs/reference_benchmarks.md) and track norms.
 3. Add or update `semantic_bridge` when both QASM and Lean evidence are present.
-4. Document `proof_obligations` for multi-lemma reference claims (schema 0.2).
+4. Document `proof_obligations` for multi-lemma reference claims (schema 0.2+).
 5. Obtain scientific, specification, and evidence review per [GOVERNANCE.md](GOVERNANCE.md).
 
-See [docs/schema_migration_0.2.md](docs/schema_migration_0.2.md) for schema fields introduced in v0.2.
+### ABRC checklist
+
+Before setting `status.maturity: artifact_bound_reference_claim`, complete the full
+[`artifact_bound_reference_claim` promotion checklist](docs/reference_benchmarks.md#artifact_bound_reference_claim-promotion-checklist)
+(also mirrored in [GOVERNANCE.md](GOVERNANCE.md) under ABRC). Schema field shapes:
+[docs/schema_migration_0.3.md](docs/schema_migration_0.3.md).
+
+See [docs/schema_migration_0.2.md](docs/schema_migration_0.2.md) for fields introduced in v0.2.
 
 ## Proof assistants
 
-**Lean 4 is the currently supported proof assistant in CI.** Add proofs under `lean/QSpecBench/` and wire `lean_proof` evidence. CI runs `lake build`. The evidence model also reserves `coq_proof`, `rocq_proof`, and `isabelle_proof` types with stub adapters for future kernels.
+**Lean 4 is the only proof assistant in default CI** (Lean-primary policy; see
+[GOVERNANCE.md](GOVERNANCE.md) § Second-kernel policy). Add proofs under
+`lean/QSpecBench/` and wire `lean_proof` evidence. CI runs `lake build`.
+Coq / Rocq / Isabelle are discovery/opt-in only (`coq_proof` stubs, `QSPECBENCH_COQ=1`);
+they do not affect maturity tiers.
 
 ## AI-generated content
 

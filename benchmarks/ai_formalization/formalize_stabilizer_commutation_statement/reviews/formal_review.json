@@ -1,0 +1,33 @@
+{
+  "benchmark_id": "formalize_stabilizer_commutation_statement",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "rkothari-formal",
+  "reviewer_role": "formal_evidence",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "artifacts/source.txt",
+    "evidence/kernel_checked_draft.lean",
+    "notes/semantic_rubric.md"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "kernel_anchor",
+    "gold_target_faithfulness"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_faithfulness_of_ai_draft_text_to_source_phr",
+    "all_pairs_stabilizer_commutation_general_code",
+    "non_adjacent_steane_generator_pairs"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Corpus-pattern formal review attesting frozen gold package: source claim narrowed to the declared Steane Z-chain scaffold's 5 adjacent pairs mapping to QSpecBench.steane_stabilizers_commute; AI draft remains untrusted."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-rkothari-formal",
+  "proposition_id": "formalize_stabilizer_commutation_statement_v1"
+}

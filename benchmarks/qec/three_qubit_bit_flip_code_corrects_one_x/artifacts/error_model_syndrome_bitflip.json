@@ -1,0 +1,12 @@
+{
+  "id": "syndrome_bit_flip_channel",
+  "type": "error_model",
+  "pauli_only": true,
+  "allowed_errors": ["X"],
+  "max_weight": 1,
+  "correlated_errors": false,
+  "leakage": false,
+  "measurement_errors": true,
+  "max_syndrome_flips": 1,
+  "notes": "DeclaredSyndromeBitFlipNoiseModel: single-X data + at most one classical syndrome-bit flip. Ideal path (zero flips) corrects; flipS0 on X0 proved to break correction. Two-data-X outside model."
+}

@@ -3,6 +3,7 @@ import QSpecBench.Legacy.Pauli
 import QSpecBench.Legacy.CNOT
 import QSpecBench.Legacy.QFT2
 import QSpecBench.Teleportation
+import QSpecBench.Quantum.Measurement
 import Mathlib.Tactic.FinCases
 
 /-!
@@ -13,6 +14,7 @@ namespace QSpecBench
 
 open QSpecBench (Matrix2 Matrix4 mul2 mul4 id2 id4 scale2 scale4 kron2I hadamard2 pauliX2 pauliZ2
   cnot4 qft2 invqft2 bellPrep)
+open QSpecBench.Quantum.Measurement
 
 /-- Superdense-coding Bell-pair preparation matches teleportation Bell prep. -/
 def superdenseBellPrep := bellPrep
@@ -31,13 +33,19 @@ theorem dj_constant_oracle_hadamard_square (i j : Fin 2) :
 
 /-- Grover single-iteration diffuser scaffold H X H on the marked qubit.
 
-Amplitude-lift claims remain blocked on kernel-checked measurement semantics; see
-`QSpecBench.Quantum.Measurement` and `docs/operational_semantics.md`. -/
+Fin-2 superposition marked-weight lift is kernel-checked in
+`QSpecBench.Quantum.Measurement.grover_fin2_superposition_amplitude_lift_scaffold`
+(declared H∘Z fragment). Full on-disk 2-qubit circuit vs claim remains unproved. -/
 def groverDiffuser (i j : Fin 2) : Int :=
   mul2 hadamard2 (mul2 pauliX2 hadamard2) i j
 
 theorem grover_diffuser_nontrivial : ∃ i j : Fin 2, groverDiffuser i j ≠ 0 := ⟨0, 0, by
   simp [groverDiffuser, mul2, hadamard2, pauliX2]⟩
+
+/-- Re-export: Fin-2 equal-amplitude marked-weight lift (Measurement scaffold). -/
+theorem grover_amplitude_lift_fin2_scaffold :
+    markedWeight2 plusState2 < markedWeight2 (amplifyMarked1 plusState2) :=
+  amplifyMarked1_plus_concentrates.2.2
 
 /-- QFT then inverse QFT equals 4•I on the two-qubit scaffold (unnormalized convention). -/
 theorem qft_then_inverse_qft_identity (i j : Fin 4) :

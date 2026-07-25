@@ -15,6 +15,11 @@ LEAN_ROOT = REPO_ROOT / "lean"
 PACKAGE_LEAN_ROOT = LEAN_ROOT / "QSpecBench"
 LEAN_COMPILE_TIMEOUT = 300
 
+# Optional persistent toolchain hint (F-016): skip re-reading lean-toolchain when set.
+_TOOLCHAIN_ENV = "QSPECBENCH_LEAN_TOOLCHAIN"
+# When set to 1/true, skip elan install + lake env probe (CI already warmed toolchain).
+_SKIP_PROBE_ENV = "QSPECBENCH_SKIP_LEAN_ENV_PROBE"
+
 
 def _lake_exe() -> str | None:
     lake = shutil.which("lake")
@@ -91,7 +96,29 @@ def _required_import_present(evidence_text: str) -> bool:
     return True
 
 
-def _ensure_elan_toolchain(toolchain: str, env: dict[str, str]) -> None:
+def _skip_env_probe() -> bool:
+    return os.environ.get(_SKIP_PROBE_ENV, "").strip().lower() in {"1", "true", "yes"}
+
+
+def _resolve_toolchain() -> str | None:
+    hinted = os.environ.get(_TOOLCHAIN_ENV, "").strip()
+    if hinted:
+        return hinted
+    toolchain_file = LEAN_ROOT / "lean-toolchain"
+    if toolchain_file.is_file():
+        return toolchain_file.read_text(encoding="utf-8").strip()
+    return None
+
+
+@lru_cache(maxsize=8)
+def _ensure_elan_toolchain_cached(toolchain: str, path_key: str) -> str:
+    """Install/verify elan toolchain once per process (F-016).
+
+    ``path_key`` is included so PATH changes invalidate the cache in tests.
+    Returns a status string for diagnostics.
+    """
+    env = os.environ.copy()
+    env["PATH"] = path_key
     list_proc = subprocess.run(
         ["elan", "toolchain", "list"],
         cwd=str(LEAN_ROOT),
@@ -102,7 +129,7 @@ def _ensure_elan_toolchain(toolchain: str, env: dict[str, str]) -> None:
         env=env,
     )
     if list_proc.returncode == 0 and toolchain in list_proc.stdout:
-        return
+        return "present"
     subprocess.run(
         ["elan", "toolchain", "install", toolchain],
         cwd=str(LEAN_ROOT),
@@ -112,9 +139,67 @@ def _ensure_elan_toolchain(toolchain: str, env: dict[str, str]) -> None:
         errors="replace",
         env=env,
     )
+    return "installed"
+
+
+@lru_cache(maxsize=4)
+def _lake_env_probe_cached(lake: str, lean_root: str, path_key: str) -> tuple[bool, str]:
+    """Probe ``lake env`` once per process so cold PATH/setup is not repeated (F-016)."""
+    env = os.environ.copy()
+    env["PATH"] = path_key
+    try:
+        proc = subprocess.run(
+            [lake, "env", "printenv", "LEAN"],
+            cwd=lean_root,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+            timeout=60,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as exc:
+        return False, str(exc)
+    if proc.returncode != 0:
+        # Older lake may lack printenv; fall back to lean --version via lake env.
+        try:
+            ver = subprocess.run(
+                [lake, "env", "lean", "--version"],
+                cwd=lean_root,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                env=env,
+                timeout=60,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as exc:
+            return False, str(exc)
+        if ver.returncode != 0:
+            detail = (ver.stderr or ver.stdout or "").strip()[:300]
+            return False, detail or "lake env lean --version failed"
+        return True, (ver.stdout or "").strip()[:200]
+    return True, (proc.stdout or "").strip()[:200]
+
+
+def _lean_process_env() -> dict[str, str]:
+    env = os.environ.copy()
+    elan_bin = Path.home() / ".elan" / "bin"
+    if elan_bin.is_dir():
+        env["PATH"] = str(elan_bin) + os.pathsep + env.get("PATH", "")
+    return env
+
+
+def clear_lean_env_caches() -> None:
+    """Test helper: clear F-016 process caches."""
+    _ensure_elan_toolchain_cached.cache_clear()
+    _lake_env_probe_cached.cache_clear()
 
 
 def check(evidence_file: Path) -> dict:
+    """Compile Lean evidence. Accepts Path or AdapterRequest-like objects with ``.path``."""
+    if not isinstance(evidence_file, Path):
+        evidence_file = Path(getattr(evidence_file, "path", evidence_file))
     errors: list[str] = []
     if not evidence_file.is_file():
         return {"ok": False, "adapter": "lean_proof", "errors": ["evidence file missing"]}
@@ -147,14 +232,21 @@ def check(evidence_file: Path) -> dict:
             "errors": ["lake not found; install Lean 4 via elan"],
         }
 
-    env = os.environ.copy()
-    elan_bin = Path.home() / ".elan" / "bin"
-    if elan_bin.is_dir():
-        env["PATH"] = str(elan_bin) + os.pathsep + env.get("PATH", "")
+    env = _lean_process_env()
+    path_key = env.get("PATH", "")
 
-    toolchain_file = LEAN_ROOT / "lean-toolchain"
-    if toolchain_file.is_file():
-        _ensure_elan_toolchain(toolchain_file.read_text(encoding="utf-8").strip(), env)
+    if not _skip_env_probe():
+        toolchain = _resolve_toolchain()
+        if toolchain:
+            try:
+                _ensure_elan_toolchain_cached(toolchain, path_key)
+            except OSError:
+                pass
+        # Best-effort warm probe; compile path below remains authoritative.
+        try:
+            _lake_env_probe_cached(lake, str(LEAN_ROOT), path_key)
+        except OSError:
+            pass
 
     rel_evidence = _evidence_relative_to_lean(evidence_file)
     try:

@@ -1,0 +1,25 @@
+{
+  "benchmark_id": "small_fermionic_hamiltonian_is_hermitian",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_openqasm3",
+    "hardware_semantics"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem",
+  "proposition_id": "small_fermionic_hamiltonian_is_hermitian_v1"
+}

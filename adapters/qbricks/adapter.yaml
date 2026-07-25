@@ -1,0 +1,13 @@
+adapter_name: qbricks
+supported_evidence_types:
+  - qbricks_result
+required_files:
+  - "*"
+check_command: "python parse_result.py {path}"
+success_condition: "exit code 0 with ok=true, tool version, command, and hashes"
+failure_condition: "tool missing, bare success string, or structured verdict mismatch"
+trust_level: externally_trusted
+output_format: json
+notes: >
+  Invokes external QBricks (QSPECBENCH_QBRICKS_BIN or qbricks on PATH). Fail-closed if absent.
+  Adapters exist; still not a complete FV standard — do not sole-ABRC on QBricks alone.

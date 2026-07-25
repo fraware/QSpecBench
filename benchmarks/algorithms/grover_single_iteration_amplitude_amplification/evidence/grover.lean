@@ -1,3 +1,4 @@
 import QSpecBench.Algorithms
 
 #check QSpecBench.grover_diffuser_nontrivial
+#check QSpecBench.grover_amplitude_lift_fin2_scaffold

@@ -1,0 +1,11 @@
+{
+  "id": "weight_one_data_x_channel",
+  "type": "error_model",
+  "pauli_only": true,
+  "allowed_errors": ["X"],
+  "max_weight": 1,
+  "correlated_errors": false,
+  "leakage": false,
+  "measurement_errors": false,
+  "notes": "DeclaredWeightOneDataXChannel: at most one data-qubit X; ideal measurement. Weight-2 X outside (proved not corrected)."
+}

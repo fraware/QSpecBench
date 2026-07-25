@@ -1,0 +1,17 @@
+{
+  "claimed_link": "kernel_checked_dynamic_ast_semantics",
+  "artifact_bound_category": "kernel_checked_dynamic_ast_semantics",
+  "proposition_id": "teleportation_dynamic_feedforward_protocol_v3",
+  "lean_module": "QSpecBench.Teleportation",
+  "lean_theorem": "QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked",
+  "qasm_artifact": "artifacts/teleportation_with_feedforward.qasm",
+  "dynamic_artifact_sha256": "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024",
+  "dynamic_ast_sha256": "5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654",
+  "bridge_metadata": "QSpecBench.Quantum.BridgeMetadata.bridge_teleport_dynamic_ast_metadata",
+  "headline_maturity_unchanged": "artifact_bound_reference_claim_unitary_prefix_v2",
+  "does_not_claim": [
+    "full_openqasm_dynamic_circuit_protocol_abrc",
+    "matrix_kernel_bridge_dynamic_abrc",
+    "headline_maturity_dynamic_abrc_v3"
+  ]
+}

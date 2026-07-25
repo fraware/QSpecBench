@@ -1,0 +1,24 @@
+import QSpecBench.Quantum.OpenQASM3
+import QSpecBench.Quantum.OpenQASM3Parser
+import QSpecBench.Quantum.ToffoliDecomposition
+import QSpecBench.Quantum.CliffordTAlg
+
+/- QSpecBench evidence:
+benchmark_id = "toffoli_decomposition_equivalence"
+obligation_id = "semantic_bridge"
+theorem = "QSpecBench.Quantum.OpenQASM3.bridge_toffoli_decomposition_normalized_exact"
+artifact_sha256 = "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511"
+gate_trace_sha256 = "fb37d6d92ec353d74107dd246c84c0d3750414c0d8041531920f1444b5d359be"
+-/
+
+#check QSpecBench.Quantum.OpenQASM3.bridge_toffoli_decomposition_normalized_exact
+#check QSpecBench.Quantum.OpenQASM3.bridge_toffoli_decomposition_wire_order_lsb
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_toffoli_kernel_eq_generated_ops
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_toffoli_target_kernel_eq_generated_ops
+#check QSpecBench.Quantum.CliffordTAlg.toffoli_source_denotateOps3C_normalized_eq_ccx8C
+#check QSpecBench.Quantum.CliffordTAlg.toffoli_target_denotateOps3C_normalized_eq_ccx8C
+#check QSpecBench.Quantum.ToffoliDecomposition.toffoli_normalized_global_phase_policy
+#check QSpecBench.Quantum.ToffoliDecomposition.toffoli_normalized_pair_wire_order_lsb
+#check QSpecBench.Quantum.CliffordTAlg.hadamardN_toComplex
+#check QSpecBench.Quantum.CliffordTAlg.tGateCT_toComplex
+#check QSpecBench.Quantum.CliffordTAlg.tDagGateCT_toComplex

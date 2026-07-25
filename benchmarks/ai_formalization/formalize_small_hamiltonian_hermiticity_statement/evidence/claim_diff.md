@@ -1,29 +1,26 @@
 # Claim diff: formalize_small_hamiltonian_hermiticity_statement
 
-<!-- scope_fingerprint: 5eccd1ac2c131aa6a3990055c377a81d5f840e2ad8defb99cedf6b384bd1fdc6 -->
+<!-- scope_fingerprint: 997945998b745192a57c947189c994d72ef85b77b287e49ade340b0878afaf07 -->
 
-**Maturity:** reference_scaffold
-**Headline status:** partially_checked
+**Maturity:** reference_claim
+**Headline status:** checked
 
 ## Informal claim (README/spec)
-Evaluate AI-assisted formalization faithfulness for `formalize_small_hamiltonian_hermiticity_statement`.
+The informal source claim that a small Pauli-decomposed Hamiltonian with real coefficients represents a Hermitian operator is faithfully formalized by the checked small-fermionic-Hamiltonian Hermiticity theorem under the frozen gold target (declared 2-qubit Pauli-term artifact).
 
 ## Declared headline (claim_scope)
-Evaluate AI-assisted formalization faithfulness for `formalize_small_hamiltonian_hermiticity_statement`.
+The informal source claim that a small Pauli-decomposed Hamiltonian with real coefficients represents a Hermitian operator is faithfully formalized by the checked small-fermionic-Hamiltonian Hermiticity theorem under the frozen gold target (declared 2-qubit Pauli-term artifact).
 
 ## Required obligations
 - kernel_anchor
-- draft_faithfulness
+- gold_target_faithfulness
 
 ## Checked obligations
 - [x] kernel_anchor
+- [x] gold_target_faithfulness
 
 ## Unproved / open obligations
-- [ ] draft_faithfulness
 - [ ] full_faithfulness_of_ai_draft_text_to_source_phr
 
-## Gap (required but not checked)
-- draft_faithfulness
-
-## Conflict
-- Obligations appear in both required and unproved lists.
+## Gap
+- None among declared required obligations.

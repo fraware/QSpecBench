@@ -1,5 +1,10 @@
+permissions:
+  contents: read
+
 name: Validate
 
+# PR / push gate: one Lean build, then Python validate + dynamic bridge targets.
+# Full release gate lives in release.yml.
 on:
   push:
     branches: [main]
@@ -7,19 +12,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate:
+  lean-build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Install elan
         run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Cache Lean toolchain and build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.elan
@@ -33,75 +44,66 @@ jobs:
           cd lean
           lake exe cache get || true
 
-      - name: Build Lean proofs
+      - name: Build Lean proofs (single stage)
         run: |
           cd lean
           lake build
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
 
-      - run: uv sync --frozen --extra dev
+      - run: uv sync --frozen --extra dev --extra qec-matching
 
       - name: Export theorem elaborator types
-        run: uv run python scripts/export_theorem_types.py > /dev/null
-      - run: uv run qspecbench validate benchmarks/
-      - run: uv run qspecbench bridge-metadata verify
-      - run: uv run qspecbench bridge-codegen verify benchmarks/
-      - run: uv run qspecbench dynamic-simulate benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction --teleport-basis-check
-      - run: uv run qspecbench check-evidence benchmarks/
-      - run: uv run qspecbench dashboard benchmarks/ --out docs/status.md
-      - name: Check dashboard drift
-        run: git diff --exit-code docs/status.md
-      - run: uv run pytest
-      - name: Release bundle smoke
         run: |
-          uv run qspecbench release-bundle benchmarks/equivalence/cnot_self_inverse_cancellation --out /tmp/qspecbench-smoke.tar.gz
-          uv run qspecbench verify-release-bundle /tmp/qspecbench-smoke.tar.gz
+          mkdir -p artifacts/ci
+          uv run python scripts/export_theorem_types.py | tee artifacts/ci/theorem-elaborator-types.json
 
-  bridge:
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - name: Bridge metadata verify
+        run: uv run qspecbench bridge-metadata verify | tee artifacts/ci/bridge-metadata-report.txt
+
+      - name: Upload Lean build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          python-version: "3.11"
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-      - run: uv sync --frozen --extra dev
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/cnot_self_inverse_cancellation
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/hadamard_conjugates_x_to_z
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/single_qubit_gate_cancellation
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/qft_inverse_qft_small_instance
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/clifford_simplification_preserves_unitary
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/source_optimized_qasm_equivalence_small_instance
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/phase_polynomial_equivalence_small_instance
-      - run: uv run qspecbench verify-bridge benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/rx_gate_equivalence_small_instance
-      - run: uv run qspecbench verify-bridge benchmarks/algorithms/bell_state_preparation
-      - run: uv run qspecbench verify-bridge benchmarks/algorithms/swap_from_three_cx
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/toffoli_decomposition_equivalence
-      - run: uv run qspecbench verify-bridge benchmarks/equivalence/circuit_identity_after_layout
-      - run: uv run qspecbench verify-bridge benchmarks/algorithms/qft_then_inverse_qft_identity_up_to_ordering
+          name: lean-build-${{ github.sha }}
+          path: |
+            lean/.lake/build
+            artifacts/ci/
+            schema/theorem_elaborator_types.json
+          if-no-files-found: error
+          retention-days: 7
 
-  ai_formalization:
+  # Separate from default lake build — Evidence.All must not be imported by QSpecBench.lean (OOM).
+  evidence-all:
     runs-on: ubuntu-latest
-    needs: validate
+    needs: lean-build
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Download Lean build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: lean-build-${{ github.sha }}
+          path: .
 
       - name: Install elan
         run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Cache Lean toolchain and build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.elan
@@ -110,33 +112,183 @@ jobs:
           restore-keys: |
             lean-${{ runner.os }}-
 
-      - name: Build Lean proofs
+      - name: Build Evidence.All aggregate
         run: |
           cd lean
           lake exe cache get || true
-          lake build
+          lake build QSpecBench.Evidence.All
 
-      - uses: actions/setup-python@v6
+  validate:
+    runs-on: ubuntu-latest
+    needs: lean-build
+    timeout-minutes: 45
+    env:
+      # Bridge job recomputes matrix verify; skip duplicate inline work (F-013).
+      QSPECBENCH_RECOMPUTE_BRIDGE: "0"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Download Lean build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: lean-build-${{ github.sha }}
+          path: .
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+
+      - run: uv sync --frozen --extra dev --extra qec-matching
+
+      - name: Install elan (for lake-dependent checks)
+        run: |
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - run: mkdir -p artifacts/ci
+      - run: uv run qspecbench validate benchmarks/ | tee artifacts/ci/validation-report.txt
+      - run: uv run qspecbench bridge-codegen verify benchmarks/
+      - run: uv run qspecbench dynamic-simulate benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction --teleport-basis-check
+      - run: uv run qspecbench check-evidence benchmarks/ | tee artifacts/ci/evidence-report.txt
+      - run: uv run qspecbench dashboard benchmarks/ --out docs/status.md
+      - name: Check dashboard drift
+        run: git diff --exit-code docs/status.md
+      # F-019: sliced pytest on PR validate; full suite on release only.
+      - name: Pytest (unit / trust)
+        run: >
+          uv run pytest -m "not lean and not stim"
+          --junitxml=artifacts/ci/pytest-unit.xml
+      - name: Pytest (stim)
+        run: >
+          uv run pytest -m stim
+          --junitxml=artifacts/ci/pytest-stim.xml
+      # Lean-heavy pytest markers run on release (check-evidence covers Lean proofs here).
+      - name: Release bundle smoke
+        run: |
+          uv run qspecbench release-bundle benchmarks/equivalence/cnot_self_inverse_cancellation --out artifacts/ci/smoke-bundle.tar.gz
+          uv run qspecbench verify-release-bundle artifacts/ci/smoke-bundle.tar.gz
+      - name: Upload validation artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validate-${{ github.sha }}
+          path: |
+            artifacts/ci/
+            docs/status.md
+          if-no-files-found: error
+          retention-days: 7
+
+  bridge:
+    runs-on: ubuntu-latest
+    needs: lean-build
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - run: uv sync --frozen --extra dev
+      - name: Verify bridges (dynamic corpus targets)
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ci
+          mapfile -t TARGETS < <(uv run python scripts/list_bridge_targets.py)
+          echo "bridge targets: ${#TARGETS[@]}"
+          uv run python scripts/list_bridge_targets.py --json > artifacts/ci/bridge-targets.json
+          : > artifacts/ci/bridge-verify-report.txt
+          for t in "${TARGETS[@]}"; do
+            echo "=== verify-bridge $t ===" | tee -a artifacts/ci/bridge-verify-report.txt
+            uv run qspecbench verify-bridge "$t" | tee -a artifacts/ci/bridge-verify-report.txt
+          done
+      - name: Upload bridge report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bridge-${{ github.sha }}
+          path: artifacts/ci/
+          if-no-files-found: warn
+          retention-days: 7
+
+  ai_formalization:
+    runs-on: ubuntu-latest
+    needs: lean-build
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Download Lean build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: lean-build-${{ github.sha }}
+          path: .
+      - name: Install elan
+        run: |
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
       - run: uv sync --frozen --extra dev
       - run: uv run qspecbench check-evidence benchmarks/ai_formalization/
 
   qcec:
     runs-on: ubuntu-latest
-    needs: validate
+    needs: lean-build
     steps:
-      - uses: actions/checkout@v5
-
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Download Lean build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: lean-build-${{ github.sha }}
+          path: .
       - name: Install elan
         run: |
-          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | bash -s -- -y
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Cache Lean toolchain and build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.elan
@@ -145,31 +297,25 @@ jobs:
           restore-keys: |
             lean-${{ runner.os }}-
 
-      - name: Build Lean proofs
-        run: |
-          cd lean
-          lake exe cache get || true
-          lake build
-
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
       - run: uv sync --frozen --extra dev
       - run: uv run qspecbench check-evidence benchmarks/equivalence/
 
   smt:
     runs-on: ubuntu-latest
-    needs: validate
+    needs: lean-build
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Install Z3
         run: sudo apt-get update && sudo apt-get install -y z3
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
       - run: uv sync --frozen --extra dev
       - run: uv run qspecbench check-evidence benchmarks/qec/distance_certificate_small_css_code/

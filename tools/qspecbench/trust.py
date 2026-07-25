@@ -18,6 +18,12 @@ CHECKED_EVIDENCE_TYPES = {
     "sat_certificate",
 }
 
+# Shared-primitive Python bridge — consistency only, not independently checkable.
+INTERNAL_CONSISTENCY_EVIDENCE_TYPES = {
+    "python_denotation_consistency_check",
+    "internal_denotation_consistency",
+}
+
 HEURISTIC_EVIDENCE_TYPES = {"simulation"}
 UNTRUSTED_EVIDENCE_TYPES = {"ai_draft"}
 
@@ -53,6 +59,16 @@ def validate_trust_rules(spec: dict[str, Any], claim_dir: Path | None = None) ->
             errors.append(f"acceptable_evidence ai_draft must be untrusted, got {trust}")
         if etype == "simulation" and trust == "checked":
             errors.append("acceptable_evidence simulation must not be checked")
+        if etype in INTERNAL_CONSISTENCY_EVIDENCE_TYPES and trust == "independently_checkable":
+            errors.append(
+                f"acceptable_evidence {etype} must not be independently_checkable "
+                "(internal denotation consistency shares matrix primitives)"
+            )
+        if etype in INTERNAL_CONSISTENCY_EVIDENCE_TYPES and trust == "checked":
+            errors.append(
+                f"acceptable_evidence {etype} must not be checked "
+                "(use Lean/kernel evidence for checked trust)"
+            )
 
     declared_types = {e.get("type") for e in spec.get("acceptable_evidence", [])}
     for entry in spec.get("evidence", []):
@@ -101,6 +117,10 @@ def validate_trust_rules(spec: dict[str, Any], claim_dir: Path | None = None) ->
     errors.extend(_validate_hamiltonian_claim_scope(spec, maturity))
     errors.extend(_validate_proof_assistant_evidence(spec))
 
+    from qspecbench.permanent_residuals import validate_permanent_residuals
+
+    errors.extend(validate_permanent_residuals(spec))
+
     return errors
 
 
@@ -120,6 +140,8 @@ def _validate_formal_claims(spec: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     formal = spec.get("formal_claims") or []
     evidence_by_id = {e.get("id"): e for e in spec.get("evidence", [])}
+    obligation_ids = _declared_obligation_ids(spec)
+    maturity = (spec.get("status") or {}).get("maturity")
 
     passing_lean = [
         e for e in spec.get("evidence", [])
@@ -134,6 +156,9 @@ def _validate_formal_claims(spec: dict[str, Any]) -> list[str]:
             )
 
     seen_ids: set[str] = set()
+    supported_required: set[str] = set()
+    required = set((spec.get("claim_scope") or {}).get("required_obligations") or [])
+
     for fc in formal:
         fid = fc.get("id", "")
         if fid in seen_ids:
@@ -145,23 +170,95 @@ def _validate_formal_claims(spec: dict[str, Any]) -> list[str]:
             errors.append(f"formal_claims {fid!r} references unknown evidence_id {eid!r}")
         elif ev.get("status") != "passing":
             errors.append(f"formal_claims {fid!r} evidence_id {eid!r} is not passing")
-        supports = fc.get("supports") or []
+        supports = list(fc.get("supports") or [])
+        does_not = list(fc.get("does_not_support") or [])
         if not supports:
             errors.append(f"formal_claims {fid!r} must declare at least one supported obligation")
+        overlap = sorted(set(supports) & set(does_not))
+        if overlap:
+            errors.append(
+                f"formal_claims {fid!r} has obligations in both supports and "
+                f"does_not_support: {', '.join(overlap)}"
+            )
+        for oid in supports:
+            if obligation_ids and oid not in obligation_ids:
+                errors.append(
+                    f"formal_claims {fid!r} supports unknown obligation id {oid!r}"
+                )
+        # does_not_support may name residual scope labels (not_checked_under / conventions).
+        scope_labels = set(obligation_ids)
+        scope_labels.update((spec.get("headline_claim_status") or {}).get("not_checked_under") or [])
+        scope_labels.update((spec.get("headline_claim_status") or {}).get("checked_under") or [])
+        for oid in does_not:
+            if scope_labels and oid not in scope_labels and oid not in obligation_ids:
+                # Allow residual assumption labels that are explicit in trust_boundary.
+                tb_assumptions = set(
+                    (spec.get("trust_boundary") or {}).get("assumptions_not_checked") or []
+                )
+                if oid not in tb_assumptions:
+                    errors.append(
+                        f"formal_claims {fid!r} does_not_support unknown id {oid!r}"
+                    )
+        supported_required.update(oid for oid in supports if oid in required)
+
         anchor = fc.get("benchmark_anchor")
         if anchor and anchor != spec.get("id"):
             errors.append(
                 f"formal_claims {fid!r} benchmark_anchor {anchor!r} != spec id {spec.get('id')!r}"
             )
 
+        # Theorem string must be non-empty for lean formal claims.
+        theorem = (fc.get("theorem") or "").strip()
+        if fc.get("formal_system") == "lean" and not theorem:
+            errors.append(f"formal_claims {fid!r} requires theorem")
+
+    if maturity in {REFERENCE_CLAIM_LEVEL, ARTIFACT_BOUND_LEVEL} and required:
+        missing = sorted(oid for oid in required if oid not in supported_required)
+        # Allow certificate-backed obligations without lean supports when no lean
+        # formal claim covers them — still require some binding for lean-backed claims.
+        if formal_for_lean and missing and not any(
+            e.get("type") in {"sat_certificate", "smt_certificate", "qcec_result"}
+            and e.get("status") == "passing"
+            for e in spec.get("evidence", [])
+        ):
+            # Only error when lean is the sole path and required obligations lack supports.
+            lean_only_missing = [
+                oid
+                for oid in missing
+                if oid in {"lean_kernel_proof", "semantic_bridge"}
+            ]
+            for oid in lean_only_missing:
+                if oid not in supported_required:
+                    errors.append(
+                        f"required obligation {oid!r} has no formal_claims.supports binding"
+                    )
+
     return errors
+
+
+def _declared_obligation_ids(spec: dict[str, Any]) -> set[str]:
+    """Obligation identifiers that formal_claims may legally reference."""
+    ids: set[str] = set()
+    for entry in spec.get("proof_obligations") or []:
+        oid = entry.get("id")
+        if oid:
+            ids.add(oid)
+    claim_scope = spec.get("claim_scope") or {}
+    ids.update(claim_scope.get("required_obligations") or [])
+    proved = spec.get("proved_scope") or {}
+    ids.update(proved.get("checked_obligations") or [])
+    ids.update(proved.get("unproved_obligations") or [])
+    headline = spec.get("headline_claim_status") or {}
+    ids.update(headline.get("checked_under") or [])
+    ids.update(headline.get("not_checked_under") or [])
+    return ids
 
 
 def _validate_ai_formalization_reference(spec: dict[str, Any], maturity: str | None) -> list[str]:
     errors: list[str] = []
     if spec.get("track") != "ai_formalization":
         return errors
-    if maturity not in REFERENCE_SCAFFOLD_LEVELS:
+    if maturity not in REFERENCE_SCAFFOLD_LEVELS | {REFERENCE_CLAIM_LEVEL}:
         return errors
     has_review = any(
         e.get("type") == "human_review" and e.get("status") == "passing"
@@ -180,21 +277,58 @@ def _validate_ai_formalization_status(spec: dict[str, Any], maturity: str | None
     if spec.get("track") != "ai_formalization":
         return errors
     status_block = spec.get("ai_formalization_status")
-    if maturity in REFERENCE_SCAFFOLD_LEVELS and not status_block:
+    if maturity in REFERENCE_SCAFFOLD_LEVELS | {REFERENCE_CLAIM_LEVEL} and not status_block:
         errors.append(f"{maturity} ai_formalization benchmark requires ai_formalization_status block")
         return errors
     if not status_block:
         return errors
-    if maturity in REFERENCE_SCAFFOLD_LEVELS:
+    if maturity in REFERENCE_SCAFFOLD_LEVELS | {REFERENCE_CLAIM_LEVEL}:
         if not status_block.get("semantic_reviewed"):
             errors.append(f"{maturity} ai_formalization requires semantic_reviewed: true")
         score = status_block.get("faithfulness_score")
         if not isinstance(score, int) or score < 4:
             errors.append(f"{maturity} ai_formalization requires faithfulness_score >= 4")
     if maturity == REFERENCE_CLAIM_LEVEL:
-        errors.append(
-            "ai_formalization benchmarks use reference_scaffold for faithfulness, not reference_claim"
-        )
+        gold = status_block.get("gold_target")
+        if not isinstance(gold, dict):
+            errors.append(
+                "ai_formalization reference_claim requires ai_formalization_status.gold_target "
+                "(frozen source claim, accepted formal statement, rejected nearby, assumptions, "
+                "disagreement record, faithfulness, kernel status)"
+            )
+        else:
+            for key in (
+                "source_claim",
+                "accepted_formal_statement",
+                "rejected_nearby_statements",
+                "assumption_inventory",
+                "reviewer_disagreement_record",
+                "faithfulness_score",
+                "kernel_status",
+            ):
+                if key not in gold:
+                    errors.append(
+                        f"ai_formalization reference_claim gold_target missing required field {key!r}"
+                    )
+            gold_score = gold.get("faithfulness_score")
+            if isinstance(gold_score, int) and gold_score < 4:
+                errors.append(
+                    "ai_formalization reference_claim gold_target.faithfulness_score must be >= 4"
+                )
+            if gold.get("kernel_status") != "checked_faithful":
+                errors.append(
+                    "ai_formalization reference_claim gold_target.kernel_status must be "
+                    "'checked_faithful'"
+                )
+            if gold.get("external_domain_review_required") is True:
+                reviews = (spec.get("status") or {}).get("reviews") or {}
+                domain = reviews.get("domain_semantics_review") or {}
+                if domain.get("status") != "approved" or not (domain.get("reviewer") or "").strip():
+                    errors.append(
+                        "ai_formalization reference_claim with "
+                        "gold_target.external_domain_review_required requires approved "
+                        "status.reviews.domain_semantics_review with named reviewer"
+                    )
     return errors
 
 
@@ -293,12 +427,29 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
                 )
 
         # Required evidence must actually pass.
+        # F-026: heuristic human_review cannot satisfy required_for_claim on ABRC/RC;
+        # dual hash-bound review JSON (status.reviews) is the authority.
         passing_types = _passing_evidence_types(spec)
         for entry in spec.get("acceptable_evidence", []):
-            if entry.get("required_for_claim") and entry.get("type") not in passing_types:
+            if not entry.get("required_for_claim"):
+                continue
+            etype = entry.get("type")
+            if etype == "human_review":
+                reviews = (spec.get("status") or {}).get("reviews") or {}
+                formal = reviews.get("formal_evidence_review") or {}
+                domain = reviews.get("domain_semantics_review") or {}
+                if formal.get("status") != "approved" or domain.get("status") != "approved":
+                    errors.append(
+                        f"{label}: human_review required_for_claim cannot be satisfied by "
+                        "the heuristic adapter alone; dual approved hash-bound review JSON "
+                        "(status.reviews.formal_evidence_review + domain_semantics_review) "
+                        "is required"
+                    )
+                continue
+            if etype not in passing_types:
                 errors.append(
                     f"{label} requires passing evidence for required_for_claim type "
-                    f"{entry.get('type')!r}"
+                    f"{etype!r}"
                 )
 
         errors.extend(_validate_reference_claim_reviews(spec, label=label))
@@ -307,7 +458,11 @@ def _validate_headline_scope(spec: dict[str, Any], maturity: str | None) -> list
 
 
 def _validate_reference_claim_reviews(spec: dict[str, Any], *, label: str = REFERENCE_CLAIM_LEVEL) -> list[str]:
-    """reference_claim / artifact_bound promotions require dual maintainer review metadata."""
+    """reference_claim / artifact_bound promotions require dual approved review metadata.
+
+    Full provenance (reviewer identity, artifact hash, commit) is enforced by
+    ``qspecbench.reviews.validate_promotion_reviews``.
+    """
     errors: list[str] = []
     reviews = (spec.get("status") or {}).get("reviews") or {}
     for key in ("formal_evidence_review", "domain_semantics_review"):
@@ -316,10 +471,10 @@ def _validate_reference_claim_reviews(spec: dict[str, Any], *, label: str = REFE
             errors.append(f"{label} requires status.reviews.{key}")
             continue
         status = review.get("status")
-        if status not in {"approved", "required"}:
+        if status != "approved":
             errors.append(
-                f"{label} status.reviews.{key}.status must be approved or required "
-                f"(got {status!r})"
+                f"{label} status.reviews.{key}.status must be approved "
+                f"(got {status!r}; 'required' is not a completed promotion status)"
             )
     return errors
 

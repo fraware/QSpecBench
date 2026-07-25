@@ -1,6 +1,6 @@
 # Claim diff: source_optimized_qasm_equivalence_small_instance
 
-<!-- scope_fingerprint: 5e45f3dedb4adac030736c5796b173001bc250d57697556ec8831f8bb211db1a -->
+<!-- scope_fingerprint: 6fd14bf81ef3738a9b9d6c672afd674ac3dc864aaf689f10a7c44a425f8662a9 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

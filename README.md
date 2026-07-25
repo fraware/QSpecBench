@@ -19,7 +19,7 @@
 [![Lint](https://github.com/fraware/QSpecBench/actions/workflows/lint.yml/badge.svg)](https://github.com/fraware/QSpecBench/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Benchmarks](https://img.shields.io/badge/benchmarks-48-green.svg)](docs/status.md)
+[![Benchmarks](https://img.shields.io/badge/benchmarks-50-green.svg)](docs/status.md)
 
 [Quick start](#quick-start) · [Contribute](#contribute) · [Tracks](#tracks) · [Dashboard](docs/status.md) · [Docs](#documentation)
 
@@ -185,25 +185,43 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 | **Corpus** (benchmark suite) | 0.2.0 |
 | **Release tag** | v0.2.3 |
 
-**Release honesty (v0.2.3):** tag `v0.2.3` (`49e8899`) delivers six `artifact_bound_reference_claim` kernel bridges
-with dual named reviews and hash anchor chain, schema **0.3** (elaborator/AST authority fields), and
-`ast_authority: lean_mirror` on kernel-checked codegen-trace bridges. Most benchmarks remain **reference scaffolds**;
-only `reference_claim` and `artifact_bound_reference_claim` entries assert a checked headline under declared scope.
-See [versioning.md](docs/versioning.md) for honest scope.
+**Release honesty (v0.2.3):** tag `v0.2.3` (`49e8899`) delivered the first six `artifact_bound_reference_claim`
+kernel bridges with dual named reviews and hash anchor chain, schema **0.3** (elaborator/AST authority fields), and
+`ast_authority: lean_mirror` on kernel-checked codegen-trace bridges. The working tree has since expanded ABRC
+(see status block / [docs/status.md](docs/status.md)); most benchmarks remain **reference scaffolds**.
+Only `reference_claim` and `artifact_bound_reference_claim` entries assert a checked headline under declared scope.
+See [versioning.md](docs/versioning.md) and [definition_of_completion.md](docs/definition_of_completion.md).
+
+### Permanent residuals (not a complete FV standard)
+
+Even when the [definition of completion](docs/definition_of_completion.md) is met,
+QSpecBench remains a **scoped research benchmark** — not a complete quantum formal-verification
+standard. The following are permanent trust boundaries; they are not unfinished promotions:
+
+| Item | Disposition |
+|------|-------------|
+| `unbounded_all_codes_mwpm` | `not_applicable`; Lean impossibility note (`unbounded_all_codes_mwpm_infeasible_open_ended`) |
+| Device `hardware_semantics` / `device_fidelity` / `pulse_schedule_semantics` | Stay `not_checked`; ISA-layer checks are separate |
+| Unnormalized `denotateOps3C` Toffoli equality | Out of scope (wrong semantics) |
+| QBricks / ZX | Adapters exist; still not a complete FV standard |
+| Rocq / Isabelle skip stubs | Never counted as checked evidence |
+| Full industrial Stim/Blossom all-codes | Outside declared universe `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01` |
+
+Details: [research_tracks.md](docs/research_tracks.md), [definition_of_completion.md](docs/definition_of_completion.md).
 
 <!-- qspecbench-status-begin -->
-Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **4**
-benchmarks are `reference_claim` and **6**
+Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **9**
+benchmarks are `reference_claim` and **10**
 are `artifact_bound_reference_claim` under declared scope.
 
 | | |
 |---|---|
-| **Benchmarks** | 48 across 5 tracks |
-| **Reference scaffolds** (any scoped reference level) | 40 |
-| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | 10 |
-| **With any checked evidence** | 44 |
-| **Manifest-checked theorem bindings** | 5 |
-| **Python denotation consistency checks** | 2 |
+| **Benchmarks** | 50 across 5 tracks |
+| **Reference scaffolds** (any scoped reference level) | 42 |
+| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | 19 |
+| **With any checked evidence** | 46 |
+| **Manifest-checked theorem bindings** | 4 |
+| **Python denotation consistency checks** | 1 |
 | **Kernel-checked codegen-trace bridges** | 1 |
 | **Coq/Rocq/Isabelle (optional CI)** | excluded from default maturity counts |
 | **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, bridge-metadata verify, circuit equivalence (QCEC) |
@@ -221,8 +239,11 @@ Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate
 | `spec.yaml` fields | [Schema reference](docs/schema_reference.md) |
 | Evidence types and checkers | [Evidence model](docs/evidence_model.md) |
 | What is proved vs assumed | [Trust boundaries](docs/trust_boundaries.md) |
+| When “community-grade” applies | [Definition of completion](docs/definition_of_completion.md) |
+| Scientific leftovers + permanent N/A | [Research tracks](docs/research_tracks.md) |
 | Lean setup | [Lean setup](docs/lean_setup.md) |
-| Schema v0.2 migration | [Migration guide](docs/schema_migration_0.2.md) |
+| Schema v0.3 migration (active) | [Migration guide](docs/schema_migration_0.3.md) |
+| Schema v0.2 migration (historical) | [Migration guide](docs/schema_migration_0.2.md) |
 
 ---
 

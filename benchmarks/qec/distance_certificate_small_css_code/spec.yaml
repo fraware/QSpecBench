@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: distance_certificate_small_css_code
 title: Distance Certificate Small Css Code
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: intermediate
 informal_claim:
-  statement: QEC benchmark claim for `distance_certificate_small_css_code` under an
-    explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `distance_certificate_small_css_code` under an explicitly declared
+    Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -73,15 +73,14 @@ evidence:
   path: evidence/qec_verifier_result.json
   checker: qec json validator
   status: passing
-  notes: Brute-force min logical weight computed (d=4); declared parameter d=3 remains
-    declared_only.
+  notes: Brute-force min logical weight computed (d=4); declared parameter d=3 remains declared_only.
 - id: bruteforce_distance_witness
   type: qec_verifier_result
   path: evidence/qec_verifier_result.json
   checker: qec json validator
   status: passing
-  notes: distance_result.method=bruteforce_min_weight_logical_operator; computed_min_weight=4
-    wired to proof_obligation bruteforce_min_weight.
+  notes: distance_result.method=bruteforce_min_weight_logical_operator; computed_min_weight=4 wired to
+    proof_obligation bruteforce_min_weight.
 - id: smt_distance_cert
   type: smt_certificate
   path: evidence/distance_claim.certificate.json
@@ -129,8 +128,8 @@ proof_obligations:
   notes: Toy certificate only
 claim_scope:
   headline_claim_id: distance_certificate_small_css_code_headline
-  headline_claim_text: QEC benchmark claim for `distance_certificate_small_css_code`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `distance_certificate_small_css_code` under an explicitly
+    declared Pauli-dominated error model.
   required_obligations:
   - distance_certificate
   - stabilizer_json
@@ -167,3 +166,6 @@ provenance:
   - path: artifacts/code.json
     sha256: 90e22de1b076f3405ca29afa85c94a9abd6e46a7502c42f17ad444b73798161c
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: qft_then_inverse_qft_identity_up_to_ordering
 title: Qft Then Inverse Qft Identity Up To Ordering
 track: algorithm
@@ -6,8 +6,8 @@ domain: quantum_algorithm
 claim_type: algorithm_identity
 difficulty: intermediate
 informal_claim:
-  statement: Applying QFT followed by inverse QFT yields the identity on the declared
-    register up to bit-ordering conventions.
+  statement: Applying QFT followed by inverse QFT yields the identity on the declared register up to bit-ordering
+    conventions.
   source: null
   reference_key: null
 semantic_level:
@@ -61,7 +61,7 @@ evidence:
   status: passing
   notes: Kernel-checked QFT/inverse-QFT identity on 2-qubit scaffold.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -86,14 +86,20 @@ status:
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: rkothari-formal
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: ef5874c9a021277606a26825c3b77b55a2cc264365d10fef9245bd4b2e954e3a
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: mlewis-quant-sem
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: bc10258dfb5bb1720b4ad679a8cdb538e7631632124aa4ac56e5c05fba263cdc
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
@@ -103,11 +109,11 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 references: []
 proof_obligations:
 - id: qft_inverse_identity
@@ -118,8 +124,8 @@ proof_obligations:
   notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: qft_then_inverse_qft_identity_up_to_ordering_headline
-  headline_claim_text: Applying QFT followed by inverse QFT yields the identity on
-    the declared register up to bit-ordering conventions.
+  headline_claim_text: Applying QFT followed by inverse QFT yields the identity on the declared register
+    up to bit-ordering conventions.
   required_obligations:
   - qft_inverse_identity
   - semantic_bridge
@@ -131,15 +137,15 @@ proved_scope:
   - semantic_correctness_of_circuit_vs_claim
 headline_claim_status:
   status: checked
-  notes: All declared required obligations are kernel- or manifest-checked under the
-    stated gate model.
+  notes: All declared required obligations are kernel- or manifest-checked under the stated gate model.
   checked_under:
   - qspecbench.openqasm3.int_scaffold.v0
   - finite_matrix_model
   not_checked_under:
   - full_openqasm3
-  - hardware_semantics
   - general_n_qubit_rule
+  - hardware_semantics
+  - semantic_correctness_of_circuit_vs_claim
 formal_claims:
 - id: formal_lean_qft_identity
   evidence_id: lean_qft_identity
@@ -148,9 +154,11 @@ formal_claims:
   theorem: QSpecBench.qft_then_inverse_qft_identity
   supports:
   - qft_inverse_identity
+  - semantic_bridge
   does_not_support:
   - semantic_correctness_of_circuit_vs_claim
   benchmark_anchor: qft_then_inverse_qft_identity_up_to_ordering
+  proposition_id: qft_then_inverse_qft_identity_up_to_ordering_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.099253+00:00'
   artifacts:
@@ -158,3 +166,12 @@ provenance:
     sha256: d0f63cc2ee48b0385947548ada10d0a0e3ad83f7bbf0c81280822d67e2a9df5e
     role: source
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: qft_then_inverse_qft_identity_up_to_ordering_v1
+  postcondition_obligation_ids:
+  - qft_inverse_identity
+  - semantic_bridge
+openqasm_profile: qspecbench.openqasm3.unitary.v1

@@ -1,6 +1,6 @@
 # Claim diff: swap_from_three_cx
 
-<!-- scope_fingerprint: 4280d37c61cdef761158706a9cb44f90ad25b407499e4606f00704618a776889 -->
+<!-- scope_fingerprint: bea8a2f96b895bebd0189116f2d689aa235795fbc109e2a92c835c6ba79d5d15 -->
 
 **Maturity:** artifact_bound_reference_claim
 **Headline status:** checked

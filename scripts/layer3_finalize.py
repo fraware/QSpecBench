@@ -132,7 +132,7 @@ def dump_yaml(path: Path, data: dict) -> None:
 
 
 def ensure_bridge_matrix(claim_dir: Path) -> None:
-    from qspecbench.verify_bridge import write_reference_matrix
+    from qspecbench.qasm_matrix import write_matrix
 
     spec = load_yaml(claim_dir / "spec.yaml")
     qasm = None
@@ -152,7 +152,7 @@ def ensure_bridge_matrix(claim_dir: Path) -> None:
     if qasm is None:
         return
     out = claim_dir / "expected" / "bridge_reference_matrix.json"
-    write_reference_matrix(qasm, out)
+    write_matrix(qasm, out)
 
 
 def update_bridge_json(claim_dir: Path, kernel_checked: bool) -> None:

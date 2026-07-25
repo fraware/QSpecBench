@@ -1,6 +1,6 @@
 # Claim diff: circuit_identity_after_layout
 
-<!-- scope_fingerprint: 52bfeec950cfae94dc92ffd6de64725422ab14bcb883ba74efba7855810b3613 -->
+<!-- scope_fingerprint: 94495f77139dcd91e16c7a3337260b2b14b1c7fcca9ce2667f2a8afc8b760f0b -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

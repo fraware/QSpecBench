@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: surface_code_single_pauli_error_correction
 title: Surface Code Single Pauli Error Correction
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: intermediate
 informal_claim:
-  statement: QEC benchmark claim for `surface_code_single_pauli_error_correction`
-    under an explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `surface_code_single_pauli_error_correction` under an explicitly
+    declared Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -99,8 +99,8 @@ proof_obligations:
   notes: Lean stabilizer commutation scaffold
 claim_scope:
   headline_claim_id: surface_code_single_pauli_error_correction_headline
-  headline_claim_text: QEC benchmark claim for `surface_code_single_pauli_error_correction`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `surface_code_single_pauli_error_correction` under an explicitly
+    declared Pauli-dominated error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -145,3 +145,6 @@ provenance:
   - path: artifacts/code.json
     sha256: 8f77e8909750adb46ca4a8f55320c9f18189179ef53312a5772c73e6e51869af
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

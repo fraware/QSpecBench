@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: repeated_round_qec_temporal_specification
 title: Repeated Round Qec Temporal Specification
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: qec_claim
 difficulty: intermediate
 informal_claim:
-  statement: QEC benchmark claim for `repeated_round_qec_temporal_specification` under
-    an explicitly declared Pauli-dominated error model.
+  statement: QEC benchmark claim for `repeated_round_qec_temporal_specification` under an explicitly declared
+    Pauli-dominated error model.
   source: null
   reference_key: null
 semantic_level:
@@ -99,8 +99,8 @@ proof_obligations:
   notes: Lean stabilizer commutation scaffold
 claim_scope:
   headline_claim_id: repeated_round_qec_temporal_specification_headline
-  headline_claim_text: QEC benchmark claim for `repeated_round_qec_temporal_specification`
-    under an explicitly declared Pauli-dominated error model.
+  headline_claim_text: QEC benchmark claim for `repeated_round_qec_temporal_specification` under an explicitly
+    declared Pauli-dominated error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -145,3 +145,6 @@ provenance:
   - path: artifacts/code.json
     sha256: bbad53ac08f02c6b8e89c5fb8170aeb68fd8f2e3413de6cb5677fc5f67285aa0
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

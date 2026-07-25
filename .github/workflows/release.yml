@@ -1,0 +1,173 @@
+name: Release
+
+# Full release gate on the exact checked-out commit. A git tag must not be
+# created unless every step below succeeds on that commit.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Record release commit
+        run: |
+          echo "RELEASE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+
+      - name: Install elan
+        run: |
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean toolchain and build
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.elan
+            lean/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('lean/lean-toolchain', 'lean/lakefile.lean') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - name: Fetch Mathlib cache
+        run: |
+          cd lean
+          lake exe cache get
+
+      - name: Build Lean proofs
+        run: |
+          cd lean
+          lake build
+
+      # Separate target — never import Evidence.All into lean/QSpecBench.lean (OOM).
+      - name: Build Lean evidence aggregate
+        run: |
+          cd lean
+          lake build QSpecBench.Evidence.All
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+
+      # qec-matching: stim+pymatching extras required for Stim evidence honesty.
+      - run: uv sync --frozen --extra dev --extra qec-matching
+
+      - name: Install Z3
+        run: sudo apt-get update && sudo apt-get install -y z3
+
+      - name: Export theorem elaborator types
+        run: |
+          mkdir -p artifacts/release
+          uv run python scripts/export_theorem_types.py | tee artifacts/release/theorem-elaborator-types.json
+
+      - name: Validate corpus
+        run: |
+          uv run qspecbench validate benchmarks/ | tee artifacts/release/validation-report.txt
+          python - <<'PY'
+          import json, pathlib
+          text = pathlib.Path("artifacts/release/validation-report.txt").read_text(encoding="utf-8")
+          ok = text.count("\nOK ") + (1 if text.startswith("OK ") else 0)
+          # Count FAIL lines
+          failed = [ln for ln in text.splitlines() if ln.startswith("FAIL ")]
+          payload = {
+              "ok": not failed,
+              "fail_count": len(failed),
+              "failures": failed,
+              "git_commit": __import__("os").environ.get("RELEASE_COMMIT"),
+          }
+          pathlib.Path("artifacts/release/validation-report.json").write_text(
+              json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+          )
+          raise SystemExit(0 if payload["ok"] else 1)
+          PY
+
+      - name: Bridge metadata verify
+        run: |
+          uv run qspecbench bridge-metadata verify | tee artifacts/release/bridge-metadata-report.txt
+          python -c "import json,pathlib; pathlib.Path('artifacts/release/bridge-metadata-report.json').write_text(json.dumps({'ok': True, 'command': 'bridge-metadata verify'}, indent=2)+'\n')"
+
+      - name: Bridge codegen verify
+        run: |
+          uv run qspecbench bridge-codegen verify benchmarks/ | tee artifacts/release/bridge-codegen-report.txt
+          python -c "import json,pathlib; pathlib.Path('artifacts/release/bridge-codegen-report.json').write_text(json.dumps({'ok': True, 'command': 'bridge-codegen verify'}, indent=2)+'\n')"
+
+      - name: Check evidence
+        run: |
+          uv run qspecbench check-evidence benchmarks/ | tee artifacts/release/evidence-report.txt
+          python -c "import json,pathlib; pathlib.Path('artifacts/release/evidence-report.json').write_text(json.dumps({'ok': True, 'command': 'check-evidence'}, indent=2)+'\n')"
+
+      - name: Dashboard
+        run: |
+          uv run qspecbench dashboard benchmarks/ --out artifacts/release/dashboard.md
+
+      - name: Pytest (full suite; F-019 release gate)
+        run: uv run pytest --junitxml=artifacts/release/pytest.xml
+
+      - name: Release bundle
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          uv run qspecbench release-bundle benchmarks/ --out artifacts/release/release-bundle.tar.gz \
+            --ci-run-id "${{ github.run_id }}" \
+            --ci-run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          uv run qspecbench verify-release-bundle artifacts/release/release-bundle.tar.gz \
+            --require-review-artifacts \
+            --expected-commit "${{ env.RELEASE_COMMIT }}" \
+            | tee artifacts/release/release-bundle-verification.txt
+          python - <<'PY'
+          import json, pathlib
+          pathlib.Path("artifacts/release/release-bundle-verification.json").write_text(
+              json.dumps({"ok": True, "bundle": "artifacts/release/release-bundle.tar.gz",
+                         "require_review_artifacts": True}, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Assert exact-commit metadata
+        run: |
+          python - <<'PY'
+          import json, os, tarfile
+          commit = os.environ["RELEASE_COMMIT"]
+          with tarfile.open("artifacts/release/release-bundle.tar.gz", "r:gz") as tar:
+              manifest = json.loads(tar.extractfile("manifest.json").read())
+          repro = manifest["reproducibility"]
+          assert repro.get("git_commit") == commit, (repro.get("git_commit"), commit)
+          assert repro.get("workflow_run_id") or repro.get("ci_run_id")
+          required = [
+              "schema_version", "tooling_version", "corpus_version",
+              "lean_version", "mathlib_commit", "qcec_version", "uv_lock_hash",
+          ]
+          missing = [k for k in required if not repro.get(k)]
+          assert not missing, missing
+          print("release commit gate OK", commit)
+          PY
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: qspecbench-release-${{ github.sha }}
+          path: artifacts/release/
+          if-no-files-found: error

@@ -20,7 +20,8 @@ abbrev Mat2C := Matrix (Fin 2) (Fin 2) ℂ
 abbrev Mat4C := Matrix (Fin 4) (Fin 4) ℂ
 abbrev Mat8C := Matrix (Fin 8) (Fin 8) ℂ
 
-private def ifDiag (i j : Fin 2) (d : ℂ) : ℂ :=
+/-- Diagonal embedding helper shared by single-qubit gate matrices. -/
+def ifDiag (i j : Fin 2) (d : ℂ) : ℂ :=
   if i = j then d else 0
 
 /-- Identity on one qubit. -/
@@ -155,10 +156,10 @@ def swap4Entry (i j : Fin 4) : ℂ :=
 
 def swap4C : Mat4C := Matrix.of swap4Entry
 
-/-- CCX with controls q0,q1 and target q2. -/
+/-- CCX with controls q0,q1 and target q2 (LSB = q0): swaps |011⟩↔|111⟩. -/
 def ccx8Entry (i j : Fin 8) : ℂ :=
-  if i = j then (1 : ℂ)
-  else if (i.val = 3 ∧ j.val = 7) ∨ (i.val = 7 ∧ j.val = 3) then (1 : ℂ)
+  if (i.val = 3 ∧ j.val = 7) ∨ (i.val = 7 ∧ j.val = 3) then (1 : ℂ)
+  else if i = j ∧ i.val ≠ 3 ∧ i.val ≠ 7 then (1 : ℂ)
   else 0
 
 def ccx8C : Mat8C := Matrix.of ccx8Entry
@@ -231,8 +232,9 @@ def applySingle3C (g : Mat2C) (q : Nat) : Mat8C :=
     (if q = 1 then g else identityGate)
     (if q = 2 then g else identityGate)
 
-private def cnot8Col (ctrl tgt row : Nat) : Nat :=
-  if (row >>> ctrl) &&& 1 = 1 then row ^ (1 <<< tgt) else row
+/-- Column permutation for CNOT (XOR target bit when control is set). Aligns with Python. -/
+def cnot8Col (ctrl tgt row : Nat) : Nat :=
+  if (row >>> ctrl) &&& 1 = 1 then row ^^^ (1 <<< tgt) else row
 
 def cnot8Entry (ctrl tgt : Nat) (i j : Fin 8) : ℂ :=
   if j.val = cnot8Col ctrl tgt i.val then (1 : ℂ) else 0
@@ -242,5 +244,93 @@ def cnot8 (ctrl tgt : Nat) : Mat8C := Matrix.of (cnot8Entry ctrl tgt)
 theorem mul8C_one_right (A : Mat8C) (i j : Fin 8) :
     mul8C A (1 : Mat8C) i j = A i j := by
   fin_cases j <;> fin_cases i <;> simp [mul8C, Matrix.one_apply]
+
+theorem mul8C_one_left (A : Mat8C) (i j : Fin 8) :
+    mul8C (1 : Mat8C) A i j = A i j := by
+  fin_cases j <;> fin_cases i <;> simp [mul8C, Matrix.one_apply]
+
+/-- Column map for CX is an involution on the 3-qubit computational basis (Nat-level). -/
+theorem cnot8Col_01_involutive (r : Fin 8) :
+    cnot8Col 0 1 (cnot8Col 0 1 r.val) = r.val := by
+  fin_cases r <;> decide
+
+theorem cnot8Col_10_involutive (r : Fin 8) :
+    cnot8Col 1 0 (cnot8Col 1 0 r.val) = r.val := by
+  fin_cases r <;> decide
+
+theorem cnot8Col_12_involutive (r : Fin 8) :
+    cnot8Col 1 2 (cnot8Col 1 2 r.val) = r.val := by
+  fin_cases r <;> decide
+
+theorem cnot8Col_02_involutive (r : Fin 8) :
+    cnot8Col 0 2 (cnot8Col 0 2 r.val) = r.val := by
+  fin_cases r <;> decide
+
+/-- T · T† = I (exact phase cancellation). -/
+theorem tGate_mul_tDagGate (i j : Fin 2) :
+    mul2C tGate tDagGate i j = identityGate i j := by
+  have hexp :
+      Complex.exp (I * (Real.pi / 4)) * Complex.exp (-(I * (Real.pi / 4))) = 1 := by
+    rw [← Complex.exp_add]
+    have : (I * (Real.pi / 4) + -(I * (Real.pi / 4)) : ℂ) = 0 := by ring
+    simp [this, Complex.exp_zero]
+  fin_cases i <;> fin_cases j <;>
+    simp [mul2C, tGate, tDagGate, tGateEntry, tDagGateEntry, identityGate, identityEntry,
+      ifDiag, Matrix.of_apply, hexp, show (-I * (Real.pi / 4) : ℂ) = -(I * (Real.pi / 4)) by ring]
+
+theorem tDagGate_mul_tGate (i j : Fin 2) :
+    mul2C tDagGate tGate i j = identityGate i j := by
+  have hexp :
+      Complex.exp (-(I * (Real.pi / 4))) * Complex.exp (I * (Real.pi / 4)) = 1 := by
+    rw [← Complex.exp_add]
+    have : (-(I * (Real.pi / 4)) + I * (Real.pi / 4) : ℂ) = 0 := by ring
+    simp [this, Complex.exp_zero]
+  fin_cases i <;> fin_cases j <;>
+    simp [mul2C, tGate, tDagGate, tGateEntry, tDagGateEntry, identityGate, identityEntry,
+      ifDiag, Matrix.of_apply, hexp, show (-I * (Real.pi / 4) : ℂ) = -(I * (Real.pi / 4)) by ring]
+
+theorem sGate_mul_sDagGate (i j : Fin 2) :
+    mul2C sGate sDagGate i j = identityGate i j := by
+  fin_cases i <;> fin_cases j <;>
+    simp [mul2C, sGate, sDagGate, sGateEntry, sDagGateEntry, identityGate, identityEntry,
+      ifDiag, Matrix.of_apply, Complex.I_mul_I] <;> ring
+
+/-- Normalized Hadamard entry (physical unitary convention). -/
+noncomputable def hadamardC_normalizedEntry (i j : Fin 2) : ℂ :=
+  (1 / Real.sqrt 2 : ℂ) * hadamardEntry i j
+
+noncomputable def hadamardC_normalized : Mat2C := Matrix.of hadamardC_normalizedEntry
+
+theorem hadamardC_normalized_mul_self (i j : Fin 2) :
+    mul2C hadamardC_normalized hadamardC_normalized i j = identityGate i j := by
+  have hsqrt : (Real.sqrt 2 : ℝ) ≠ 0 := Real.sqrt_ne_zero'.mpr (by norm_num : (0 : ℝ) < 2)
+  have h2 : (Real.sqrt 2 : ℝ) * Real.sqrt 2 = 2 := Real.mul_self_sqrt (by norm_num)
+  fin_cases i <;> fin_cases j <;>
+    simp [mul2C, hadamardC_normalized, hadamardC_normalizedEntry, hadamardEntry,
+      identityGate, identityEntry, Matrix.of_apply] <;>
+    field_simp [hsqrt] <;> norm_cast <;> simp [h2] <;> norm_num
+
+/-- Normalized H·H = I as a matrix equality (for rewriting under `mul2C`). -/
+theorem hadamardC_normalized_mul_self_mat :
+    mul2C hadamardC_normalized hadamardC_normalized = (1 : Mat2C) := by
+  ext i j
+  simpa [identityGate, identityEntry, Matrix.of_apply, Matrix.one_apply] using
+    hadamardC_normalized_mul_self i j
+
+/-- S · (H_n · H_n) = S under normalized Hadamard (exact unitary cancellation). -/
+theorem mul2C_sGate_hadamard_normalized_sq (i j : Fin 2) :
+    mul2C sGate (mul2C hadamardC_normalized hadamardC_normalized) i j = sGate i j := by
+  rw [hadamardC_normalized_mul_self_mat]
+  exact mul2C_one_right sGate i j
+
+/-- CCX wire-order: controls on qubits 0,1 and target on qubit 2 flip |011⟩↔|111⟩ (LSB = q0). -/
+theorem ccx8C_flips_011_111 :
+    ccx8C ⟨3, by decide⟩ ⟨7, by decide⟩ = 1 ∧
+      ccx8C ⟨7, by decide⟩ ⟨3, by decide⟩ = 1 ∧
+      ccx8C ⟨3, by decide⟩ ⟨3, by decide⟩ = 0 := by
+  refine ⟨?_, ?_, ?_⟩
+  · simp only [ccx8C, Matrix.of_apply, ccx8Entry]; rfl
+  · simp only [ccx8C, Matrix.of_apply, ccx8Entry]; rfl
+  · simp only [ccx8C, Matrix.of_apply, ccx8Entry]; rfl
 
 end QSpecBench.Quantum.ComplexGate

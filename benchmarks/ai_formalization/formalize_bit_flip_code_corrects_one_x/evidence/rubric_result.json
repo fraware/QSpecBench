@@ -2,19 +2,20 @@
   "score": 4,
   "reviewer_role": "QSpecBench Layer 3 reviewer (AI formalization track)",
   "assumptions": [
-    "Z-type stabilizers on adjacent qubit pairs",
-    "Commutation defined on Pauli support overlap",
+    "Declared single-X Pauli error model on three data qubits (exactly one of XII, IXI, IIX)",
+    "Syndrome bits from anticommutation with ZZI / IZZ generators; lookup correction restores identity",
+    "Syndrome-extraction circuit semantics and general decoder algorithms remain out of gold scope",
+    "Library theorem is the adjudicated gold; AI draft text remains untrusted",
     "[x] Source claim identified correctly",
-    "[x] Stabilizer generators named",
-    "[x] Commutation claim explicit",
+    "[x] Single-X correction claim explicit",
+    "[x] Lookup-table decoder model stated",
     "[x] Statement matches source under documented conventions",
-    "[x] Library-compatible statement shape"
+    "[x] Library-compatible statement shape",
+    "[x] Nearby weaker statements (stabilizer commutation only) rejected"
   ],
   "source_rubric": "notes\\semantic_rubric.md",
   "draft_lean": "artifacts\\draft.lean",
-  "syntactically_valid": null,
-  "lean_check": "skipped",
-  "lean_errors": [
-    "lean not in PATH"
-  ]
+  "syntactically_valid": true,
+  "lean_check": "parse_only",
+  "lean_errors": []
 }

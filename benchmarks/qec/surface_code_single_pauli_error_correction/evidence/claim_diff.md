@@ -1,6 +1,6 @@
 # Claim diff: surface_code_single_pauli_error_correction
 
-<!-- scope_fingerprint: 23d258ad404b8b9c79901faca6353c5fe032036cbc82f4e688ede4479bf081d4 -->
+<!-- scope_fingerprint: 07cbf7981ed19678ff055ccb90fab94acc503379d1008f360d43c0a5f4157ddc -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

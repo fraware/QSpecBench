@@ -1,0 +1,30 @@
+{
+  "benchmark_id": "teleportation_preserves_state_up_to_pauli_correction",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "artifacts/teleport_unitary_prefix.qasm"
+  ],
+  "commands_executed": [
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "unitary_fragment_matches_ordering",
+    "semantic_bridge"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_openqasm_dynamic_circuit_protocol",
+    "arbitrary_complex_state_transfer_normalized_h",
+    "alice_normed_povm_quarter"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem",
+  "proposition_id": "teleportation_preserves_state_up_to_pauli_correction_v2"
+}

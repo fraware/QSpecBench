@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: resource_contract_for_small_hamiltonian_simulation
 title: Resource Contract For Small Hamiltonian Simulation
 track: hamiltonian
@@ -6,8 +6,7 @@ domain: hamiltonian_simulation
 claim_type: hamiltonian_claim
 difficulty: intermediate
 informal_claim:
-  statement: 'Hamiltonian simulation claim: resource contract for small hamiltonian
-    simulation.'
+  statement: 'Hamiltonian simulation claim: resource contract for small hamiltonian simulation.'
   source: null
   reference_key: null
 semantic_level:
@@ -95,8 +94,7 @@ proof_obligations:
   notes: Contract declared; simulation not proved
 claim_scope:
   headline_claim_id: resource_contract_for_small_hamiltonian_simulation_headline
-  headline_claim_text: 'Hamiltonian simulation claim: resource contract for small
-    hamiltonian simulation.'
+  headline_claim_text: 'Hamiltonian simulation claim: resource contract for small hamiltonian simulation.'
   required_obligations:
   - resource_contract
 proved_scope:
@@ -107,6 +105,8 @@ proved_scope:
 headline_claim_status:
   status: unproved
   notes: null
+  not_checked_under:
+  - lean_kernel_proof
 formal_claims:
 - id: formal_lean_resource_contract
   evidence_id: lean_resource_contract
@@ -114,10 +114,10 @@ formal_claims:
   module: QSpecBench.Hamiltonian
   theorem: QSpecBench.declared_pauli_term_count_matches_artifact
   supports:
-  - lean_kernel_proof
-  does_not_support:
   - resource_contract
+  does_not_support:
   - formal_proof_of_claim
+  - lean_kernel_proof
   benchmark_anchor: resource_contract_for_small_hamiltonian_simulation
 hamiltonian_claim_scope:
   claim_class: declared_contract_claim
@@ -129,3 +129,6 @@ provenance:
   - path: artifacts/hamiltonian.json
     sha256: eea7d4a07939ac2deea2dd372113439cb72817188cc7454b998f77ff36295ba4
     role: source
+authorship:
+  author: fraware
+  merging_maintainer: fraware

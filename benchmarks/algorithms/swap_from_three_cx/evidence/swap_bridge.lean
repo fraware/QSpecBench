@@ -1,4 +1,5 @@
 import QSpecBench.Quantum.OpenQASM3
+import QSpecBench.Quantum.OpenQASM3Parser
 
 /- QSpecBench evidence:
 benchmark_id = "swap_from_three_cx"
@@ -10,3 +11,8 @@ gate_trace_sha256 = "fd0a1c25c003da3b501bc1049194492b29d4aec1c7145cf46b76f141122
 
 #check QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen
 #check QSpecBench.Quantum.OpenQASM3.bridge_swap_from_three_cx_codegen_denotes_artifact
+#check QSpecBench.Quantum.OpenQASM3.bridge_swap_source_target_exact
+#check QSpecBench.Quantum.OpenQASM3.bridge_swap_source_target_wire_order
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_swap_kernel_eq_generated_ops
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_swap_target_kernel_eq_generated_ops
+#check QSpecBench.Quantum.OpenQASM3Parser.bridge_swap_source_target_parse_and_denote

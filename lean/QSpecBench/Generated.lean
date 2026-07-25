@@ -3,6 +3,10 @@ import QSpecBench.Generated.HadamardConjugatesXToZ
 import QSpecBench.Generated.SingleQubitGateCancellation
 import QSpecBench.Generated.BellStatePreparation
 import QSpecBench.Generated.SwapFromThreeCx
+import QSpecBench.Generated.SwapFromThreeCxTarget
 import QSpecBench.Generated.ToffoliDecompositionEquivalence
 import QSpecBench.Generated.ToffoliDecompositionEquivalenceTarget
 import QSpecBench.Generated.CircuitIdentityAfterLayout
+import QSpecBench.Generated.TeleportationUnitaryPrefix
+import QSpecBench.Generated.CliffordSimplificationPreservesUnitary
+import QSpecBench.Generated.CliffordSimplificationPreservesUnitaryTarget

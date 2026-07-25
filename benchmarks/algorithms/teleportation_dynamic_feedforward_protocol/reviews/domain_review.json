@@ -1,0 +1,38 @@
+{
+  "benchmark_id": "teleportation_dynamic_feedforward_protocol",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "README.md",
+    "notes/scope.md",
+    "notes/dynamic_denotation_bridge_blocker.md",
+    "artifacts/teleportation_with_feedforward.qasm"
+  ],
+  "commands_executed": [
+    "qspecbench validate",
+    "qspecbench claim-diff benchmarks/algorithms/teleportation_dynamic_feedforward_protocol"
+  ],
+  "accepted_obligations": [
+    "dynamic_ast_fail_closed_mirror",
+    "dynamic_denotation_bridge_metadata",
+    "lean_dynamic_denotation_protocol",
+    "dynamic_denotation_bridge_verify"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_openqasm3_dynamic_circuit",
+    "hardware_semantics",
+    "matrix_kernel_bridge_dynamic_abrc",
+    "parent_unitary_prefix_abrc_unchanged"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Supersedes the prior domain_semantics_review filed against the AST-semantics framing. Confirmed writeZOutcome/ClassicalReg is the intended semantics for measure/if in this declared fragment (standard projective Z-measurement plus classically controlled Pauli feed-forward, matching the informal claim), that this is a strictly narrower and more specific claim than full dynamic-circuit operational semantics, and that matrix_match remaining false is correctly documented (measure/if is never claimed to be gate-matrix codegen)."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem-dynamic-denotation-abrc",
+  "proposition_id": "teleportation_dynamic_feedforward_protocol_v3"
+}

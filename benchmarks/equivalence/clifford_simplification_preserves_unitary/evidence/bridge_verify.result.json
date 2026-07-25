@@ -1,9 +1,9 @@
 {
   "ok": true,
   "claim": "clifford_simplification_preserves_unitary",
-  "claimed_link": "manifest_checked_theorem_binding",
+  "claimed_link": "kernel_checked_artifact_semantics",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_clifford_hhs",
+  "lean_theorem": "bridge_clifford_source_target_normalized_exact",
   "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\clifford_simplification_preserves_unitary\\artifacts\\source.qasm",
   "n_qubits": 1,
   "gates": 3,

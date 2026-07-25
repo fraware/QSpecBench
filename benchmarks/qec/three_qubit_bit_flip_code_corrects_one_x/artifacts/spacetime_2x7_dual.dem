@@ -1,0 +1,19 @@
+# Dual-syndrome 2x7 time-chain DEM (S0=D0..D6, S1=D7..D13).
+# Strictly beyond the S0-only Lean DeclaredSpacetimeMwpm fragment.
+# Not full spacetime MWPM for the 3-qubit bit-flip code (no data-qubit edges).
+error(0.1) D0 D1 L0
+error(0.1) D1 D2 L1
+error(0.1) D2 D3 L2
+error(0.1) D3 D4 L3
+error(0.1) D4 D5 L4
+error(0.1) D5 D6 L5
+error(0.01) D0 L6
+error(0.2) D6 L7
+error(0.1) D7 D8 L8
+error(0.1) D8 D9 L9
+error(0.1) D9 D10 L10
+error(0.1) D10 D11 L11
+error(0.1) D11 D12 L12
+error(0.1) D12 D13 L13
+error(0.01) D7 L14
+error(0.2) D13 L15

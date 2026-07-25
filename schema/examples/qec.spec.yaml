@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: three_qubit_bit_flip_code_corrects_one_x
 title: Bit flip
 track: qec
@@ -48,7 +48,7 @@ assumptions:
   unverified: []
 acceptable_evidence:
 - type: lean_proof
-  checker: "Lean 4 kernel"
+  checker: Lean 4 kernel
   path: null
   required_for_claim: false
   trust_level: checked
@@ -78,3 +78,6 @@ references: []
 qec_status:
   code_definition: complete
   decoder_claim: assumed
+authorship:
+  author: fraware
+  merging_maintainer: fraware

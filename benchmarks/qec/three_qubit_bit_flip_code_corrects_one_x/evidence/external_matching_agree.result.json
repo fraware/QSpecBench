@@ -1,0 +1,165 @@
+{
+  "schema": "qspecbench.external_matching_agree.v1",
+  "ok": true,
+  "stim_invoked": false,
+  "pymatching_invoked": true,
+  "full_spacetime_mwpm": false,
+  "pymatching_version": "2.4.0",
+  "command": "python -m qspecbench.pymatching_fixture_adapter --graph matching_graph_2x7_time_chain.json --table declared_decode_table_2x7.json",
+  "graph_sha256": "8a636ec38028d2014176da6c87c0beac77530190a5fe821dea23e8f0da8262cc",
+  "table_sha256": "a85cea4f2c4247bac6b742ccb527c911eb9cde30aa259dcfe678996495021307",
+  "agreed_faults": [
+    "none",
+    "fiveFlipS0_R0R1R2R3R4",
+    "quadFlipS0_R0R1R2R3"
+  ],
+  "disagreed_faults": [],
+  "outside_checked": [
+    "six_flipS0_R0R1R2R3R4R5"
+  ],
+  "outside_failed": [],
+  "case_details": [
+    {
+      "name": "none",
+      "kind": "in_model",
+      "syndrome_bits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pymatching_prediction": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "fiveFlipS0_R0R1R2R3R4",
+      "kind": "in_model",
+      "syndrome_bits": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "pymatching_prediction": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "agree": true
+    },
+    {
+      "name": "quadFlipS0_R0R1R2R3",
+      "kind": "in_model",
+      "syndrome_bits": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected_prediction": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "pymatching_prediction": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "agree": true
+    },
+    {
+      "name": "six_flipS0_R0R1R2R3R4R5",
+      "kind": "outside",
+      "syndrome_bits": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "expected_prediction": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "pymatching_prediction": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "agree": true
+    }
+  ],
+  "notes": "Blossom-backed PyMatching on declared fixture graph agrees with Lean decodeSpacetimeMwpm mirror table on the finite in-model set. Not Stim DEM; not full spacetime MWPM.",
+  "output_sha256": "96652c068bfffde1db6efce193b076ffd1a02a119012ed03e3f266609ffb29fe"
+}

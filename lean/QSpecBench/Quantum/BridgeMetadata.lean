@@ -83,15 +83,51 @@ def bridge_swap_metadata : BridgeMetadata := {
 }
 
 def bridge_toffoli_metadata : BridgeMetadata := {
+  benchmarkId := "native_ccx_artifact_denotes_toffoli_unitary"
+  claimedLink := "kernel_checked_artifact_semantics"
+  artifactSha256 := "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511"
+  astSha256 := "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795"
+  generatedLeanSha256 := "5b20b2248452752eb707da5c515a50912dddebde4bc66e893e3f63b5640c707a"
+  theoremIdentifierSha256 := "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d"
+  theoremSourceStatementHash := "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a"
+  theoremElaboratorHash := "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6"
+  packageLeanSha256 := "7f4007e3c454390a4c69274f95a49ae93a7dff1635c8bf0947380be14db46b3a"
+}
+
+def bridge_toffoli_pair_metadata : BridgeMetadata := {
   benchmarkId := "toffoli_decomposition_equivalence"
   claimedLink := "kernel_checked_artifact_semantics"
   artifactSha256 := "d37ec11fdd1ff70e5f8debf1d392b8bad04ac650f57f06a67248da503f665511"
   astSha256 := "c0b49ec233d0558ae59549dacd41593a724394a64d9feef218407baa50557795"
   generatedLeanSha256 := "d081179341f6d920f77a537a3c634f46906af642d68d38c34fb6d45a733a4809"
-  theoremIdentifierSha256 := "cac696170d47a44d717617f024fb31e44b38cdbd491d79ee9a5c87a9d60aca2d"
-  theoremSourceStatementHash := "1855f4e15c5e2886901262e73b9bcc6336c7a06e84c7e991a3b6a3ae5baf215a"
-  theoremElaboratorHash := "cc4952cf279c0b991de8b051148aaeba742f748f2f8fbd2fddcc8d70db7783a6"
+  theoremIdentifierSha256 := "490e177553421771aca85d50b38a707fbbce17a903c39d107cafe4923941a4ce"
+  theoremSourceStatementHash := "f00e3bb817902ee291bc017bfa9aad7897faed07dc9f7a26f89f62702a48b100"
+  theoremElaboratorHash := "e213fe8f4169874802ed34e5615ae9ab8d75ce1a40810d64d592656979193e74"
   packageLeanSha256 := "7f4007e3c454390a4c69274f95a49ae93a7dff1635c8bf0947380be14db46b3a"
+}
+
+def bridge_teleport_metadata : BridgeMetadata := {
+  benchmarkId := "teleportation_preserves_state_up_to_pauli_correction"
+  claimedLink := "kernel_checked_artifact_semantics"
+  artifactSha256 := "4dcc0c1b7fe0a92f3be82332241535377b8005cce5bad6dfa62941868f28c898"
+  astSha256 := "2dd1807377ae7ec0677c7deeee471d29e53041b3d78d397bfa762c348857aab3"
+  generatedLeanSha256 := "2d8c81ed223e8c9b7f40a11d2457945d84ea0548455016ba205d6a26faffb568"
+  theoremIdentifierSha256 := "b2f4d0df0c4ffad9cf822c70186821c80b56ca83695f21c51cc34216371270ef"
+  theoremSourceStatementHash := "d4ad77e9404633aee0e0c802b3b81841a9ab29b44b587044457ccc8e4d1c1786"
+  theoremElaboratorHash := "4f26fb4ce497c2f0deb5b42955a7b58f203751201de85671ec99560a50572074"
+  packageLeanSha256 := "a6edd501d38cf21bd7dbbe89c51257f1845b4aed7269c28ed57ddf257fbbc7c1"
+}
+
+def bridge_clifford_metadata : BridgeMetadata := {
+  benchmarkId := "clifford_simplification_preserves_unitary"
+  claimedLink := "kernel_checked_artifact_semantics"
+  artifactSha256 := "929766d92f5a9bb80e986776e5a74023f01deae1d78d0be0bbd78bc40cea7876"
+  astSha256 := "8d877bec8367c1b09dc280937365b1e3eeb8d957246b8a6806098dd3a0232123"
+  generatedLeanSha256 := "81c2803db29a8f1311ab6eebdc4d1514775016161e9d1874be8cfddb3d2a5c5c"
+  theoremIdentifierSha256 := "331a27fda0a9837a254c1976074984112760d45de25c773bc8f9280894ea5c4e"
+  theoremSourceStatementHash := "7e6ed8251e88cab400c15402e839b0db03aa1cc4097d81cf56586982a9275812"
+  theoremElaboratorHash := "aeabd1fbd8ee6dce934467594e8d3d5385e59eec4f0ceb85d06b8c54b6fec6e5"
+  packageLeanSha256 := "1248e66bba70d4634d4713613c3fa1095d6158e4c59ace8b8d45bc663eb29a30"
 }
 
 def allKernelBridgeMetadata : List BridgeMetadata := [
@@ -101,12 +137,85 @@ def allKernelBridgeMetadata : List BridgeMetadata := [
   bridge_bell_metadata,
   bridge_swap_metadata,
   bridge_toffoli_metadata,
+  bridge_toffoli_pair_metadata,
+  bridge_teleport_metadata,
+  bridge_clifford_metadata,
 ]
 
+/-! ## Dynamic (measure+if CanonicalAst) bridge metadata — not matrix `KERNEL_BRIDGE`.
+
+These pin the declared on-disk dynamic-fragment artifact + fail-closed CanonicalAst mirror
+hash, and the Lean theorem that anchors the claimed link. `DynamicAstBridgeMetadata` pins
+`kernel_checked_dynamic_ast_semantics` (structural AST binding only). -/
+structure DynamicAstBridgeMetadata where
+  benchmarkId : String
+  claimedLink : String
+  propositionId : String
+  dynamicArtifactSha256 : String
+  dynamicAstSha256 : String
+  leanTheorem : String
+  deriving Repr
+
+/-- `DynamicDenotationBridgeMetadata` pins the strictly stronger `kernel_checked_dynamic_denotation`
+link: the pinned theorem's on-disk statement must invoke `Measurement.writeZOutcome` /
+`ClassicalReg` denotation functions (checked separately by
+`qspecbench.bridge_metadata.verify_dynamic_denotation_bridge_metadata`), not just a bare
+CanonicalAst-hash equality. -/
+structure DynamicDenotationBridgeMetadata where
+  benchmarkId : String
+  claimedLink : String
+  propositionId : String
+  dynamicArtifactSha256 : String
+  dynamicAstSha256 : String
+  leanTheorem : String
+  deriving Repr
+
+/-- Parent-benchmark infrastructure anchor: `teleportation_preserves_state_up_to_pauli_correction`'s
+`dynamic_ast_bridge_metadata` proof obligation cites this pin (proposition v3 of the sibling
+dynamic-protocol ABRC), distinct from the sibling's own retained anchor below. -/
+def bridge_teleport_dynamic_ast_metadata : DynamicAstBridgeMetadata := {
+  benchmarkId := "teleportation_preserves_state_up_to_pauli_correction"
+  claimedLink := "kernel_checked_dynamic_ast_semantics"
+  propositionId := "teleportation_dynamic_feedforward_protocol_v3"
+  dynamicArtifactSha256 := "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024"
+  dynamicAstSha256 := "5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654"
+  leanTheorem := "QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked"
+}
+
+/-- `teleportation_dynamic_feedforward_protocol` sibling ABRC: retained AST-semantics anchor
+(supersedes into `bridge_teleport_dynamic_denotation_metadata` below as the benchmark's
+headline pin; kept as supporting evidence, not a fake/duplicate promotion). -/
+def bridge_teleport_dynamic_feedforward_abrc_metadata : DynamicAstBridgeMetadata := {
+  benchmarkId := "teleportation_dynamic_feedforward_protocol"
+  claimedLink := "kernel_checked_dynamic_ast_semantics"
+  propositionId := "teleportation_dynamic_feedforward_protocol_v3"
+  dynamicArtifactSha256 := "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024"
+  dynamicAstSha256 := "5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654"
+  leanTheorem := "QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked"
+}
+
+/-- `teleportation_dynamic_feedforward_protocol` sibling ABRC headline pin (2026-07-25
+promotion): the same theorem additionally composes `denoteCanonicalMeasures` /
+`canonicalControlsToStmts` (Measurement/ClassicalReg denotation), not a bare AST-hash pin. -/
+def bridge_teleport_dynamic_denotation_metadata : DynamicDenotationBridgeMetadata := {
+  benchmarkId := "teleportation_dynamic_feedforward_protocol"
+  claimedLink := "kernel_checked_dynamic_denotation"
+  propositionId := "teleportation_dynamic_feedforward_protocol_v3"
+  dynamicArtifactSha256 := "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024"
+  dynamicAstSha256 := "5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654"
+  leanTheorem := "QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked"
+}
+
 def bridgeMetadataHonestyNote : String :=
-  "theoremElaboratorHash is Lean #check export (v1 primary); theorem_source_statement_hash is syntactic secondary."
+  "theoremElaboratorHash is Lean #check export (v1 primary); theorem_source_statement_hash is syntactic secondary. \
+teleportation_dynamic_feedforward_protocol claims kernel_checked_dynamic_denotation via \
+bridge_teleport_dynamic_denotation_metadata (2026-07-25); the AST-semantics anchor is retained \
+as supporting evidence only, not the benchmark's headline."
 
 #check bridge_cnot_metadata
 #check bridgeMetadataHonestyNote
+#check bridge_teleport_dynamic_ast_metadata
+#check bridge_teleport_dynamic_feedforward_abrc_metadata
+#check bridge_teleport_dynamic_denotation_metadata
 
 end QSpecBench.Quantum.BridgeMetadata

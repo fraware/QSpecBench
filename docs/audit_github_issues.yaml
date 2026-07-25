@@ -1,0 +1,182 @@
+version: 1
+policy: 'Open and partial audit findings get stable stub IDs here. Remote GitHub Issues are created
+  only when a maintainer explicitly files one: set github_issue_number / github_issue_url here and
+  mirror the number into docs/audit_issues.yaml github_issue. Do not bulk-create remote issues.'
+index_of_record: docs/audit_issues.yaml
+issues:
+- stub_id: QSB-AUD-012
+  finding_id: F-012
+  severity: P2
+  status: closed
+  title: Matrix O(4^n) uncapped
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests:
+  - tests/test_resource_bounds.py
+  closure_evidence: QSPECBENCH_MAX_DENSE_QUBITS (default 8) + QSPECBENCH_MAX_PERM_QUBITS (default
+    24) + CircuitBackend; dense/perm still exponential inside the cap (accepted residual)
+  notes: '**Closed as designed (Wave 1)** — hard caps; exponential inside caps accepted'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-013
+  finding_id: F-013
+  severity: P2
+  status: closed
+  title: Duplicate bridge verify work
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests: []
+  closure_evidence: QSPECBENCH_RECOMPUTE_BRIDGE=0 on validate; bridge job + release recompute intentional
+  notes: '**Closed as designed (Wave 1)** — intentional PR skip vs release recompute'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-014
+  finding_id: F-014
+  severity: P2
+  status: closed
+  title: Redundant CI work
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests: []
+  closure_evidence: Single check-evidence; Evidence.All separate; pytest sliced (F-019); bridge intentional
+  notes: '**Closed as designed (Wave 1)** — remaining duplication is release honesty cost'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-015
+  finding_id: F-015
+  severity: P2
+  status: closed
+  title: Sequential evidence checks
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests:
+  - tests/test_resource_bounds.py
+  closure_evidence: evidence_runner per-class run_bounded; Lean workers=1; deterministic order
+  notes: '**Closed (Wave 1)**'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-016
+  finding_id: F-016
+  severity: P2
+  status: closed
+  title: Lean adapter overhead
+  owner_role: lean-evidence-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests:
+  - tests/test_wave1_ops_audit.py
+  closure_evidence: Cached elan + lake env probe; QSPECBENCH_LEAN_TOOLCHAIN / SKIP_LEAN_ENV_PROBE
+  notes: '**Closed (Wave 1)** — probe amortized; per-file compile remains'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-019
+  finding_id: F-019
+  severity: P2
+  status: closed
+  title: Slow pytest
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests: []
+  closure_evidence: Markers unit/lean/stim; validate slices; full suite on release
+  notes: '**Closed (Wave 1)**'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-026
+  finding_id: F-026
+  severity: P2
+  status: closed
+  title: Weak human-review gate
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests:
+  - tests/test_wave1_ops_audit.py
+  closure_evidence: Dual-review JSON gates ABRC/RC required_for_claim; heuristic cannot alone
+  notes: '**Closed by design (Wave 1)** — dual-review is the gate'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-027
+  finding_id: F-027-F-034
+  severity: P3
+  status: partial
+  title: Corpus / proof limitations
+  owner_role: schema-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests: []
+  closure_evidence: 'Wave 1 re-triage: F-027–F-033 honest residuals; F-034 superseded; no fake promotions'
+  notes: '**Re-triaged (Wave 1)** — practical residuals only'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-038
+  finding_id: F-038-F-041
+  severity: P3
+  status: partial
+  title: Maintainability / test skips
+  owner_role: tooling-trust-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests:
+  - tests/test_phase10_maintainability.py
+  closure_evidence: 'Wave 1: F-041 accepted skipif; F-038–F-040 practical tech-debt'
+  notes: '**Re-triaged (Wave 1)**'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'
+- stub_id: QSB-AUD-043
+  finding_id: F-043
+  severity: P2
+  status: closed
+  title: Cold lake build blocks lean evidence
+  owner_role: lean-evidence-maintainer
+  owner_github: to-be-assigned
+  github_issue_number: null
+  github_issue_url: null
+  acceptance_tests: []
+  closure_evidence: Evidence.All split + lake cache; cold build wall time accepted residual
+  notes: '**Closed as designed (Wave 1)**'
+  filing:
+    mode: local_stub
+    reason: Structured stub preferred over bulk remote issue creation; promote to a GitHub Issue when
+      a track maintainer picks this up.
+    created: '2026-07-24'

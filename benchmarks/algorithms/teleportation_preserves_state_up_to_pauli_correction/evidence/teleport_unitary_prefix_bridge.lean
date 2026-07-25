@@ -1,0 +1,16 @@
+import QSpecBench.Quantum.OpenQASM3
+import QSpecBench.Quantum.OpenQASM3Parser
+import QSpecBench.Quantum.BridgeMetadata
+
+/- QSpecBench evidence:
+benchmark_id = "teleportation_preserves_state_up_to_pauli_correction"
+obligation_id = "semantic_bridge"
+theorem = "QSpecBench.Quantum.OpenQASM3.bridge_teleport_unitary_prefix_codegen"
+artifact_sha256 = "4dcc0c1b7fe0a92f3be82332241535377b8005cce5bad6dfa62941868f28c898"
+gate_trace_sha256 = "64b65c94ef607fc233cdb1c22a98c87ddcdc25a6436d68ff42af98e42c970281"
+-/
+
+#check QSpecBench.Quantum.OpenQASM3.bridge_teleport_unitary_prefix_codegen
+#check QSpecBench.Quantum.OpenQASM3.bridge_teleport_unitary_prefix_wire_order
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_teleport_kernel_eq_generated_ops
+#check QSpecBench.Quantum.BridgeMetadata.bridge_teleport_metadata

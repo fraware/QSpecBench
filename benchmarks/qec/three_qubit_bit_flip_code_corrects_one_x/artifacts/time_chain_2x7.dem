@@ -1,0 +1,12 @@
+# Declared 2x7 S0 time-chain DetectorErrorModel (Stim format).
+# Detectors D0..D6 = rounds R0..R6. Observables L0..L7 label fault ids so
+# PyMatching.decode returns prediction vectors comparable to the fixture table.
+# Not full spacetime MWPM for the 3-qubit code.
+error(0.1) D0 D1 L0
+error(0.1) D1 D2 L1
+error(0.1) D2 D3 L2
+error(0.1) D3 D4 L3
+error(0.1) D4 D5 L4
+error(0.1) D5 D6 L5
+error(0.01) D0 L6
+error(0.2) D6 L7

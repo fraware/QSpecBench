@@ -3,7 +3,7 @@
   "$id": "https://qspecbench.org/schema/bridge_result.schema.json",
   "title": "QSpecBench verify-bridge result artifact",
   "type": "object",
-  "required": ["ok", "claim", "claimed_link", "matrix_match"],
+  "required": ["ok", "claim", "claimed_link"],
   "properties": {
     "ok": { "type": "boolean" },
     "claim": { "type": "string" },
@@ -14,8 +14,22 @@
         "python_denotation_consistency",
         "kernel_checked_codegen_trace",
         "kernel_checked_artifact_semantics",
+        "kernel_checked_dynamic_ast_semantics",
+        "kernel_checked_dynamic_denotation",
         "documented_not_proved"
       ]
+    },
+    "dynamic_ast_match": {
+      "type": "boolean",
+      "description": "Fail-closed dynamic CanonicalAst mirror matched (measure+if; not matrix)"
+    },
+    "dynamic_artifact_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "dynamic_ast_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
     },
     "lean_module": { "type": "string" },
     "lean_theorem": { "type": "string" },
@@ -23,9 +37,34 @@
     "n_qubits": { "type": "integer", "minimum": 1 },
     "gates": { "type": "integer", "minimum": 0 },
     "matrix_match": { "type": "boolean" },
+    "notes": { "type": "string" },
     "errors": {
       "type": "array",
       "items": { "type": "string" }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "claimed_link": {
+            "enum": [
+              "kernel_checked_dynamic_ast_semantics",
+              "kernel_checked_dynamic_denotation"
+            ]
+          }
+        },
+        "required": ["claimed_link"]
+      },
+      "then": {
+        "required": ["dynamic_ast_match"],
+        "properties": {
+          "matrix_match": { "const": false }
+        }
+      },
+      "else": {
+        "required": ["matrix_match"]
+      }
+    }
+  ]
 }

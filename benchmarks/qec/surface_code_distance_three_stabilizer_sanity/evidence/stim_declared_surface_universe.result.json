@@ -1,0 +1,36 @@
+{
+  "schema": "qspecbench.stim_declared_surface_universe.v1",
+  "ok": true,
+  "universe_id": "stim_surface_rotated_memory_d_eq_3_R_eq_3_p0p01",
+  "universe_description": "Stim Circ.generated surface_code:rotated_memory_z for d=3 (singleton declared universe; d<=3) with rounds=3 and after_clifford_depolarization=0.01; PyMatching Blossom agreement on declared generating-set tables per member.",
+  "unbounded_all_codes_mwpm": false,
+  "unbounded_all_codes_mwpm_status": "not_applicable",
+  "unbounded_all_codes_mwpm_note": "Open-ended code/distance/round family; only finite declared universes admit certificates. Distinct from the repetition-code declared universe.",
+  "full_spacetime_mwpm_surface": true,
+  "full_spacetime_mwpm_surface_scope": "stim_surface_rotated_memory_d_eq_3_R_eq_3_p0p01",
+  "members": [
+    {
+      "distance": 3,
+      "rounds": 3,
+      "circuit_kind": "surface_code:rotated_memory_z",
+      "label": "spacetime_mwpm_surface_d3_R3",
+      "ok": true,
+      "dem_num_detectors": 24,
+      "dem_sha256": "8a15415939c1824a529502982b0b09805e9c63604dea559bb482927dd1fa968c",
+      "table_sha256": "e7501c2592874fc425c17a6a47bce5c028a62856c233fad799a94a12e4ce55cd",
+      "output_sha256": "b8482615980ce2f154b628fdb99442bd4057642ba250f879a95c9897ab9a69eb",
+      "agreed_faults": [
+        "none",
+        "single_D0",
+        "single_D1",
+        "single_D2",
+        "single_D3",
+        "single_D4",
+        "single_D5",
+        "dual_D0D1"
+      ]
+    }
+  ],
+  "notes": "Declared-universe discharge of full_spacetime_mwpm_surface for stim_surface_rotated_memory_d_eq_3_R_eq_3_p0p01. Not unbounded all-codes / all-distances MWPM (permanently not_applicable); not the repetition-code declared universe (stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01).",
+  "output_sha256": "cc3b2c8f0bb33605d39cc711f3a7ac8ff2c7570f62e31dff0707d3a8625e9cf5"
+}

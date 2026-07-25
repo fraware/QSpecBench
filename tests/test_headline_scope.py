@@ -125,7 +125,9 @@ def _reference_claim_spec() -> dict:
         "formal_evidence_review": {"status": "approved", "reviewer": "test", "date": "2026-06-27"},
         "domain_semantics_review": {"status": "approved", "reviewer": "test", "date": "2026-06-27"},
     }
-    spec["formal_claims"] = [_formal_claim_for_lean()]
+    fc = _formal_claim_for_lean()
+    fc["supports"] = ["ob_a"]
+    spec["formal_claims"] = [fc]
     return spec
 
 

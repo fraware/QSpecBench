@@ -1,6 +1,6 @@
 # Claim diff: logical_state_preserved_up_to_pauli_frame
 
-<!-- scope_fingerprint: 691d4816243991ceb57e6e6e660c64c7fcfa51f44094e6bb472fde947f079574 -->
+<!-- scope_fingerprint: f18ddf35cd41920f54dc770cd93ff92b3e2c8f3f10ef8e682ed3738b6e1d84f3 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

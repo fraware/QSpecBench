@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: shor_code_stabilizer_commutation
 title: Shor code stabilizer commutation
 track: qec
@@ -103,8 +103,7 @@ proof_obligations:
 references: []
 claim_scope:
   headline_claim_id: shor_code_stabilizer_commutation_headline
-  headline_claim_text: Declared Shor-code stabilizer generators pairwise commute (scaffold
-    specification).
+  headline_claim_text: Declared Shor-code stabilizer generators pairwise commute (scaffold specification).
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -149,3 +148,6 @@ provenance:
   - path: artifacts/code.json
     sha256: 66415e2fc67eab3b94821348fc02c074f94cc15f952fd6761fbf8a0a5483af29
     role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware

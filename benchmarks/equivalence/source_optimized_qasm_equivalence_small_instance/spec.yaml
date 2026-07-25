@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: source_optimized_qasm_equivalence_small_instance
 title: Source Optimized Qasm Equivalence Small Instance
 track: equivalence
@@ -6,8 +6,7 @@ domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: intermediate
 informal_claim:
-  statement: An optimized QASM artifact is equivalent to its source under declared
-    relation.
+  statement: An optimized QASM artifact is equivalent to its source under declared relation.
   source: null
   reference_key: null
 semantic_level:
@@ -79,7 +78,7 @@ evidence:
   status: passing
   notes: Kernel-checked small-instance equivalence scaffold.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
@@ -116,11 +115,11 @@ acceptable_evidence:
   checker: Lean 4 kernel
   required_for_claim: false
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
   required_for_claim: false
-  trust_level: independently_checkable
+  trust_level: heuristic
 references: []
 proof_obligations:
 - id: lean_kernel_proof
@@ -131,8 +130,7 @@ proof_obligations:
   notes: python_denotation_consistency verify-bridge
 claim_scope:
   headline_claim_id: source_optimized_qasm_equivalence_small_instance_headline
-  headline_claim_text: An optimized QASM artifact is equivalent to its source under
-    declared relation.
+  headline_claim_text: An optimized QASM artifact is equivalent to its source under declared relation.
   required_obligations:
   - lean_kernel_proof
   - semantic_bridge
@@ -166,3 +164,6 @@ provenance:
     sha256: b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60
     role: target
 semantics_base: openqasm_fragment
+authorship:
+  author: fraware
+  merging_maintainer: fraware

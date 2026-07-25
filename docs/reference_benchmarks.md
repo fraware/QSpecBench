@@ -12,7 +12,7 @@ headline claim is still unproved. The headline claim is only considered proved a
 | `reference_contract` | Same, where the checked evidence is a declared contract (resource/error bound) rather than a proof of the bound. |
 | `reference_artifact` | Same, where the checked evidence is artifact-structural (e.g. stabilizer commutation). |
 | `reference_claim` | Headline claim fully proved (see requirements below). |
-| `artifact_bound_reference_claim` | Headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Six kernel-bridge pilots are assigned (see list below). |
+| `artifact_bound_reference_claim` | Headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Live pilots listed below. |
 
 ### `artifact_bound_reference_claim` promotion checklist
 
@@ -23,22 +23,26 @@ All items required before setting `status.maturity: artifact_bound_reference_cla
 | Dual named reviews (`formal_evidence_review`, `domain_semantics_review`) | Hard fail if missing or bootstrap-only |
 | `headline_claim_status.status: checked` | Hard fail |
 | Empty `proved_scope.unproved_obligations` | Hard fail |
-| `semantic_bridge.claimed_link: kernel_checked_codegen_trace` | Hard fail |
-| Bridge hash anchors (`artifact_sha256`, `gate_trace_sha256`, `ast_sha256`, `generated_lean_sha256`, `theorem_identifier_sha256`, `theorem_source_statement_hash`) | Hard fail |
-| Passing `bridge_verify` evidence | Hard fail |
-| Lean `BridgeMetadata` literals match manifest (Python cross-check) | CI test |
+| `semantic_bridge.claimed_link` one of `kernel_checked_codegen_trace`, `kernel_checked_artifact_semantics`, `kernel_checked_dynamic_ast_semantics`, or `kernel_checked_dynamic_denotation` | Hard fail |
+| Bridge hash anchors (artifact / gate-trace / Lean AST / generated Lean / theorem hashes; or dynamic AST anchors for the dynamic link) | Hard fail |
+| Passing `bridge_verify` or `dynamic_ast_bridge_verify` evidence | Hard fail |
+| Lean `BridgeMetadata` / `DynamicAstBridgeMetadata` literals match manifest (Python cross-check) | CI test |
 | README documents artifact binding scope | Maintainer review |
 
-**Assigned benchmarks (6):**
+**Assigned ABRC benchmarks (10 — regenerate via dashboard):**
 
-| Benchmark ID | Track |
-|---|---|
-| `cnot_self_inverse_cancellation` | equivalence |
-| `hadamard_conjugates_x_to_z` | equivalence |
-| `single_qubit_gate_cancellation` | equivalence |
-| `toffoli_decomposition_equivalence` | equivalence |
-| `bell_state_preparation` | algorithms |
-| `swap_from_three_cx` | algorithms |
+| Benchmark ID | Track | Scope note |
+|---|---|---|
+| `cnot_self_inverse_cancellation` | equivalence | codegen-trace / artifact semantics |
+| `hadamard_conjugates_x_to_z` | equivalence | codegen-trace |
+| `single_qubit_gate_cancellation` | equivalence | codegen-trace |
+| `clifford_simplification_preserves_unitary` | equivalence | normalized Clifford source vs. target denotation (`denotateOps1C_normalized`) |
+| `native_ccx_artifact_denotes_toffoli_unitary` | equivalence | native CCX denotation only |
+| `toffoli_decomposition_equivalence` | equivalence | normalized Clifford+T (`denotateOps3C_normalized`) |
+| `bell_state_preparation` | algorithms | codegen-trace |
+| `swap_from_three_cx` | algorithms | source–target exact denotation |
+| `teleportation_preserves_state_up_to_pauli_correction` | algorithms | unitary-prefix proposition v2 |
+| `teleportation_dynamic_feedforward_protocol` | algorithms | `kernel_checked_dynamic_denotation` sibling (promoted from `kernel_checked_dynamic_ast_semantics`) |
 
 ## Universal requirements (any scoped reference level)
 
@@ -64,7 +68,9 @@ All items required before setting `status.maturity: artifact_bound_reference_cla
 - OpenQASM artifact parses and matrix matches `QSpecBench.Quantum.OpenQASM3` denotation (for Python bridge links)
 - `python_denotation_consistency`: Python matrix vs denotation only
 - `manifest_checked_theorem_binding`: manifest entry + SHA256 anchors + structured Lean evidence anchor (see `cnot_self_inverse_cancellation`)
-- `kernel_checked_artifact_semantics`: six bridges with codegen AST + kernel proof + hash chain (see `cnot_self_inverse_cancellation`, `bell_state_preparation`, `swap_from_three_cx`, `toffoli_decomposition_equivalence`)
+- `kernel_checked_artifact_semantics` / `kernel_checked_codegen_trace`: ABRC hash chain + kernel proof (see pilots above)
+- `kernel_checked_dynamic_ast_semantics`: measure+if CanonicalAst ABRC; **never** matrix KERNEL_BRIDGE for dynamics
+- `kernel_checked_dynamic_denotation`: measure+if AST → Measurement/ClassicalReg denotation; matrix path fail-closed if measure/if would be dropped; parent unitary-prefix ABRC unchanged
 
 ## QEC claim scope (v0.2)
 
@@ -97,6 +103,7 @@ assumed lookup table); stabilizer commutation alone supports at most `reference_
 - `claimed_link: python_denotation_consistency` without passing verify-bridge
 - Reporting manifest bindings or Python consistency as kernel-checked artifact semantics
 - AI draft passing without independent kernel check and human review
+- Claiming unnormalized Toffoli pair equality or matrix KERNEL_BRIDGE for measure+if dynamics
 
 ## Promotion workflow
 
@@ -107,10 +114,16 @@ assumed lookup table); stabilizer commutation alone supports at most `reference_
 
 ## Current corpus (declared internal scope)
 
-- **`reference_claim`:** 4 benchmarks (see dashboard)
-- **`artifact_bound_reference_claim`:** 6 benchmarks (kernel-bridge pilots listed above)
-- **`manifest_checked_theorem_binding` bridges:** 11
-- **`python_denotation_consistency` bridges:** 2
-- **`kernel_checked_artifact_semantics`:** 6
-
 Regenerate counts: `qspecbench dashboard benchmarks/ --out docs/status.md`
+
+At last final sync (see [status.md](status.md)):
+
+- **`reference_claim`:** 9 benchmarks (includes 4 `ai_formalization` pilots: `formalize_bit_flip_code_corrects_one_x`,
+  `formalize_small_hamiltonian_hermiticity_statement`, `formalize_stabilizer_commutation_statement`,
+  `extract_teleportation_correctness_statement`)
+- **`artifact_bound_reference_claim`:** 10 benchmarks (listed above)
+- **`manifest_checked_theorem_binding` bridges:** see dashboard
+- **`python_denotation_consistency` bridges:** see dashboard
+- **`kernel_checked_artifact_semantics` / codegen-trace:** see dashboard
+
+DoD checklist: [definition_of_completion.md](definition_of_completion.md).

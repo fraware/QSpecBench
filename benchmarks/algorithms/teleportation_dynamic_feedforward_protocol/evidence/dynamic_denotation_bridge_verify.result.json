@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "claim": "teleportation_dynamic_feedforward_protocol",
+  "claimed_link": "kernel_checked_dynamic_denotation",
+  "dynamic_ast_match": true,
+  "denotation_match": true,
+  "matrix_match": false,
+  "lean_module": "QSpecBench.Teleportation",
+  "lean_theorem": "QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked",
+  "qasm": "benchmarks/algorithms/teleportation_dynamic_feedforward_protocol/artifacts/teleportation_with_feedforward.qasm",
+  "dynamic_artifact_sha256": "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024",
+  "dynamic_ast_sha256": "5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654",
+  "errors": [],
+  "notes": "Fail-closed CanonicalAst + Measurement/ClassicalReg denotation verify (measure+if). Not matrix KERNEL_BRIDGE; matrix_match is intentionally false."
+}

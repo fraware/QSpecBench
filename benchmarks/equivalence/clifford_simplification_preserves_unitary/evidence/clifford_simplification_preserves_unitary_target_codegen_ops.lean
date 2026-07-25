@@ -1,6 +1,11 @@
-/- QSpecBench bridge codegen (pilot): regenerate via `qspecbench bridge-codegen generate`. -/
+/- QSpecBench bridge codegen witness (hash must match package stub). -/
+/- benchmark_id = 'clifford_simplification_preserves_unitary_target' -/
 import QSpecBench.Quantum.QasmOp
+
+namespace QSpecBench.Generated.CliffordSimplificationPreservesUnitaryTarget
 
 open QSpecBench.Quantum.QasmOp
 
-def clifford_simplification_preserves_unitary_target_codegen_ops : List QasmOp := [.gate .S 0]
+def ops : List QasmOp := [.gate .S 0]
+
+end QSpecBench.Generated.CliffordSimplificationPreservesUnitaryTarget

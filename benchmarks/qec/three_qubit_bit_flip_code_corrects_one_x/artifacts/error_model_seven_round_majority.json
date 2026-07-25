@@ -1,0 +1,17 @@
+{
+  "schema": "qspecbench.error_model.v1",
+  "name": "DeclaredSevenRoundMajorityMatchingModel",
+  "max_declared_faults": 3,
+  "decode_rule": "majority_of_seven_rounds_threshold_4",
+  "in_model_faults": [
+    "none",
+    "dualFlipS0_R0R1",
+    "dualFlipS1_R0R1",
+    "tripleFlipS0_R0R1R2",
+    "tripleFlipS1_R0R1R2"
+  ],
+  "outside_negatives": [
+    "quad_flipS0_R0R1R2R3"
+  ],
+  "notes": "DeclaredSevenRoundMajorityMatchingModel: \u22654-of-7 majority corrects declared duals and five-round triple-flip hole; outside quadruple S0. Matching-style repetition on declared round graph \u2014 not full space-time MWPM."
+}

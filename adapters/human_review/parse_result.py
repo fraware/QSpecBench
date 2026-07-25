@@ -1,4 +1,10 @@
-"""Validate human-review markdown artifacts contain substantive review content."""
+"""Validate human-review markdown artifacts contain substantive review content.
+
+The adapter is a **heuristic** length/keyword check only. It must not be treated
+as sufficient to satisfy ``required_for_claim`` for ``artifact_bound_reference_claim``
+(ABRC) or ``reference_claim`` promotions — dual hash-bound review JSON
+(``status.reviews`` + ``review_artifact.schema.json``) is the authority (F-026).
+"""
 
 from __future__ import annotations
 
@@ -8,6 +14,11 @@ from pathlib import Path
 
 MIN_CHARS = 80
 KEYWORDS = ("proof", "claim", "theorem", "assume", "unitary", "state", "qubit", "formal")
+
+# Explicit: heuristic pass must not gate ABRC/RC required_for_claim (trust.py).
+CANNOT_SATISFY_REQUIRED_FOR_CLAIM_MATURITIES = frozenset(
+    {"artifact_bound_reference_claim", "reference_claim"}
+)
 
 
 def check(path: Path) -> dict:
@@ -19,6 +30,11 @@ def check(path: Path) -> dict:
             "adapter": "human_review",
             "path": str(path),
             "trust_level": "externally_trusted",
+            "satisfies_required_for_claim": False,
+            "notes": (
+                "heuristic length/keyword check only; ABRC/RC required_for_claim "
+                "requires dual hash-bound review JSON"
+            ),
             "errors": errors,
         }
 
@@ -34,6 +50,15 @@ def check(path: Path) -> dict:
         "adapter": "human_review",
         "path": str(path),
         "trust_level": "externally_trusted",
+        # F-026: never claim this adapter alone satisfies ABRC/RC required_for_claim.
+        "satisfies_required_for_claim": False,
+        "cannot_satisfy_required_for_claim_maturities": sorted(
+            CANNOT_SATISFY_REQUIRED_FOR_CLAIM_MATURITIES
+        ),
+        "notes": (
+            "heuristic length/keyword check only; ABRC/RC promotions require "
+            "dual hash-bound review JSON (reviews.py), not this adapter alone"
+        ),
         "errors": errors,
     }
 

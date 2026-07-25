@@ -22,6 +22,17 @@ def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _sha256_stream(stream, chunk_size: int = 1024 * 1024) -> str:
+    """Hash a file-like object in chunks (bounded memory)."""
+    h = hashlib.sha256()
+    while True:
+        chunk = stream.read(chunk_size)
+        if not chunk:
+            break
+        h.update(chunk)
+    return h.hexdigest()
+
+
 def _canonical_manifest_bytes(manifest: dict[str, Any]) -> bytes:
     payload = {k: v for k, v in manifest.items() if k != "bundle_manifest_sha256"}
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8") + b"\n"
@@ -175,6 +186,35 @@ def collect_sbom_summary() -> dict[str, Any]:
     }
 
 
+def _mathlib_commit() -> str | None:
+    lakefile = REPO_ROOT / "lean" / "lakefile.lean"
+    if not lakefile.is_file():
+        return None
+    text = lakefile.read_text(encoding="utf-8")
+    import re
+
+    match = re.search(
+        r'require\s+mathlib\s+from\s+git\s+"[^"]+"\s*@\s*"([^"]+)"',
+        text,
+        flags=re.I | re.S,
+    )
+    if match:
+        return match.group(1)
+    match = re.search(
+        r'require\s+mathlib\s+from\s+git[^\n]*\n\s*"[^"]+"\s*@\s*"([^"]+)"',
+        text,
+        flags=re.I,
+    )
+    if match:
+        return match.group(1)
+    match = re.search(r'rev\s*:=\s*"([0-9a-fA-Zv.][^"]*)"', text, flags=re.I)
+    return match.group(1) if match else None
+
+
+def _z3_version() -> str | None:
+    return _tool_version_from_path(["z3", "--version"])
+
+
 def collect_release_manifest(
     benchmarks_root: Path,
     *,
@@ -194,26 +234,38 @@ def collect_release_manifest(
             "path": str(claim_dir.relative_to(REPO_ROOT)),
         })
     metrics = collect_summary_metrics(benchmarks_root)
+    sbom = collect_sbom_summary()
+    external = sbom.get("external_tools") or {}
+    pinned = external.get("pinned") or {}
+    detected = external.get("detected_at_build") or {}
     repro: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "tooling_version": TOOLING_VERSION,
         "corpus_version": CORPUS_VERSION,
         "release_tag": RELEASE_TAG,
         "git_commit": _git_commit(),
+        "lean_version": pinned.get("lean_toolchain") or detected.get("lean_version"),
+        "mathlib_commit": _mathlib_commit(),
+        "qcec_version": pinned.get("qcec_pinned") or detected.get("qcec_version"),
+        "z3_version": _z3_version(),
+        "uv_lock_hash": sbom.get("uv_lock_sha256")
+        or (sbom.get("lock_file_hashes") or {}).get("uv_lock_sha256"),
     }
     ci_run = _ci_run_id(ci_run_id)
     if ci_run:
         repro["ci_run_id"] = ci_run
+        repro["workflow_run_id"] = ci_run
     ci_url = _ci_run_url(ci_run_url, ci_run)
     if ci_url:
         repro["ci_run_url"] = ci_url
+        repro["workflow_url"] = ci_url
     return finalize_manifest(
         {
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "benchmarks_root": str(benchmarks_root.relative_to(REPO_ROOT)),
             "benchmark_count": len(entries),
             "reproducibility": repro,
-            "sbom_summary": collect_sbom_summary(),
+            "sbom_summary": sbom,
             "summary": metrics,
             "benchmarks": sorted(entries, key=lambda e: e["id"]),
         }
@@ -221,7 +273,7 @@ def collect_release_manifest(
 
 
 def _bundle_dirs_for_spec(claim_dir: Path) -> tuple[str, ...]:
-    return ("artifacts", "expected", "evidence")
+    return ("artifacts", "expected", "evidence", "reviews")
 
 
 def _schema_files() -> list[Path]:
@@ -275,43 +327,54 @@ def write_release_bundle(
     ci_run_id: str | None = None,
     ci_run_url: str | None = None,
 ) -> dict[str, Any]:
-    """Write a tar.gz bundling specs, artifacts, evidence, provenance, and schema copies."""
+    """Write a tar.gz bundling specs, artifacts, evidence, provenance, and schema copies.
+
+    File contents are hashed and streamed from disk (or small in-memory payloads)
+    so peak RAM stays near the largest single member rather than the full archive.
+    """
     benchmarks_root = benchmarks_root.resolve()
     out_path = out_path.resolve()
     manifest = collect_release_manifest(
         benchmarks_root, ci_run_id=ci_run_id, ci_run_url=ci_run_url
     )
     file_hashes: dict[str, str] = {}
-    payloads: dict[str, bytes] = {}
+    # Path for on-disk members; bytes for small generated payloads.
+    sources: dict[str, Path | bytes] = {}
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def _add(arcname: str, payload: bytes) -> None:
+    def _add_bytes(arcname: str, payload: bytes) -> None:
         norm = arcname.replace("\\", "/")
-        payloads[norm] = payload
+        sources[norm] = payload
         file_hashes[norm] = _sha256_bytes(payload)
 
+    def _add_path(arcname: str, path: Path) -> None:
+        norm = arcname.replace("\\", "/")
+        sources[norm] = path
+        with path.open("rb") as handle:
+            file_hashes[norm] = _sha256_stream(handle)
+
     repro_bytes = json.dumps(manifest["reproducibility"], indent=2).encode("utf-8")
-    _add("reproducibility.json", repro_bytes)
+    _add_bytes("reproducibility.json", repro_bytes)
 
     if include_schemas:
         for schema_path in _schema_files():
-            _add(f"schema/{schema_path.name}", schema_path.read_bytes())
+            _add_path(f"schema/{schema_path.name}", schema_path)
 
     for spec_path in find_spec_files(benchmarks_root):
         claim_dir = spec_path.parent
-        rel_root = str(claim_dir.relative_to(benchmarks_root))
+        rel_root = str(claim_dir.relative_to(benchmarks_root)).replace("\\", "/")
 
         if include_specs:
             for rel in ("spec.yaml", "README.md"):
                 path = claim_dir / rel
                 if path.is_file():
-                    _add(f"{rel_root}/{rel}", path.read_bytes())
+                    _add_path(f"{rel_root}/{rel}", path)
 
         spec = load_spec(spec_path)
         prov = spec.get("provenance") or {}
         if prov:
             prov_bytes = json.dumps(prov, indent=2).encode("utf-8")
-            _add(f"{rel_root}/provenance.from_spec.json", prov_bytes)
+            _add_bytes(f"{rel_root}/provenance.from_spec.json", prov_bytes)
 
         for subdir in _bundle_dirs_for_spec(claim_dir):
             src = claim_dir / subdir
@@ -320,27 +383,42 @@ def write_release_bundle(
             for path in sorted(src.rglob("*")):
                 if path.is_file():
                     arcname = f"{rel_root}/{path.relative_to(claim_dir).as_posix()}"
-                    _add(arcname, path.read_bytes())
+                    _add_path(arcname, path)
 
     manifest["bundle_files"] = dict(sorted(file_hashes.items()))
     manifest["bundle_file_count"] = len(file_hashes)
     manifest = finalize_manifest(manifest)
     manifest_bytes = json.dumps(manifest, indent=2, sort_keys=True).encode("utf-8") + b"\n"
-    payloads["manifest.json"] = manifest_bytes
+    sources["manifest.json"] = manifest_bytes
 
     with tarfile.open(out_path, "w:gz") as tar:
-        for name in sorted(payloads):
-            payload = payloads[name]
+        for name in sorted(sources):
+            source = sources[name]
             info = tarfile.TarInfo(name=name)
-            info.size = len(payload)
-            tar.addfile(info, fileobj=BytesIO(payload))
+            if isinstance(source, bytes):
+                info.size = len(source)
+                tar.addfile(info, fileobj=BytesIO(source))
+            else:
+                info.size = source.stat().st_size
+                with source.open("rb") as handle:
+                    tar.addfile(info, fileobj=handle)
 
     manifest["bundle_path"] = str(out_path)
     return manifest
 
 
-def verify_release_bundle(bundle_path: Path) -> list[str]:
-    """Verify manifest.json integrity inside a release bundle tar.gz."""
+def verify_release_bundle(
+    bundle_path: Path,
+    *,
+    expected_commit: str | None = None,
+    require_review_artifacts: bool = False,
+) -> list[str]:
+    """Verify manifest.json integrity inside a release bundle tar.gz.
+
+    Uses streaming reads for file hashes (bounded memory). Optional
+    ``expected_commit`` rejects wrong-commit bundles. Optional
+    ``require_review_artifacts`` fails when promoted specs lack review JSON.
+    """
     bundle_path = bundle_path.resolve()
     errors: list[str] = []
     if not bundle_path.is_file():
@@ -350,7 +428,10 @@ def verify_release_bundle(bundle_path: Path) -> list[str]:
         names = {n.replace("\\", "/") for n in tar.getnames()}
         if "manifest.json" not in names:
             return ["manifest.json missing from bundle"]
-        raw = tar.extractfile("manifest.json").read()
+        manifest_member = tar.extractfile("manifest.json")
+        if manifest_member is None:
+            return ["manifest.json unreadable in bundle"]
+        raw = manifest_member.read()
         try:
             manifest = json.loads(raw.decode("utf-8"))
         except json.JSONDecodeError:
@@ -376,6 +457,13 @@ def verify_release_bundle(bundle_path: Path) -> list[str]:
         for key in ("schema_version", "tooling_version", "corpus_version"):
             if not repro.get(key):
                 errors.append(f"reproducibility.{key} missing")
+
+        if expected_commit:
+            got = repro.get("git_commit")
+            if got != expected_commit:
+                errors.append(
+                    f"git_commit mismatch (expected {expected_commit}, got {got!r})"
+                )
 
         sbom = manifest.get("sbom_summary") or {}
         if sbom.get("format", "").startswith("qspecbench-sbom-lite"):
@@ -406,12 +494,40 @@ def verify_release_bundle(bundle_path: Path) -> list[str]:
                 if norm not in names:
                     errors.append(f"bundle_files entry missing from archive: {norm}")
                     continue
-                on_disk = _sha256_bytes(tar.extractfile(norm).read())
+                member = tar.extractfile(norm)
+                if member is None:
+                    errors.append(f"bundle_files entry unreadable: {norm}")
+                    continue
+                on_disk = _sha256_stream(member)
                 if on_disk != expected_hash:
                     errors.append(
                         f"bundle file hash mismatch for {norm} "
                         f"(expected {expected_hash[:12]}…, got {on_disk[:12]}…)"
                     )
+
+        if require_review_artifacts:
+            for bench in benchmarks or []:
+                maturity = (bench.get("status") or {}).get("maturity") if isinstance(bench, dict) else None
+                # Manifest may store maturity at top level depending on collector.
+                maturity = maturity or bench.get("maturity") if isinstance(bench, dict) else None
+                bid = bench.get("id") if isinstance(bench, dict) else None
+                if maturity not in {
+                    "reference_claim",
+                    "artifact_bound_reference_claim",
+                }:
+                    continue
+                # Reviews may live under claim path in archive.
+                if not bid:
+                    continue
+                formal = f"benchmarks/{bid}/reviews/formal_review.json"
+                # Also search any path ending with reviews/formal_review.json for this id
+                has_formal = any(
+                    n.endswith(f"/{bid}/reviews/formal_review.json")
+                    or n.endswith(f"{bid}/reviews/formal_review.json")
+                    for n in names
+                )
+                if not has_formal and formal not in names:
+                    errors.append(f"missing review artifact for promoted benchmark {bid}")
 
         bridge_manifest_arc = "schema/bridge_theorem_manifest.json"
         if bridge_manifest_arc in names:

@@ -20,6 +20,8 @@ evidence supports it.
 | `manifest_checked_theorem_binding` | Manifest allowlist + SHA256 anchors + structured Lean `#check` evidence |
 | `kernel_checked_codegen_trace` | Codegen AST → generated Lean ops → kernel proof + hash chain (`ast_sha256`, `theorem_identifier_sha256`, `theorem_source_statement_hash`; legacy field `theorem_content_sha256`) |
 | `kernel_checked_artifact_semantics` | **Deprecated alias** — use only when generated-module import is kernel-proved |
+| `kernel_checked_dynamic_ast_semantics` | Fail-closed measure+if CanonicalAst ABRC; **never** matrix KERNEL_BRIDGE |
+| `kernel_checked_dynamic_denotation` | Measure+if AST bound to Measurement / ClassicalReg denotation (not gate-matrix); sibling of AST semantics |
 
 `manifest_checked_theorem_binding` is **not** a kernel-checked proof that the QASM artifact
 satisfies the named theorem end-to-end. It checks manifest membership, hash stability, and an

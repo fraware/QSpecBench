@@ -1,0 +1,13 @@
+adapter_name: zx
+supported_evidence_types:
+  - zx_certificate
+required_files:
+  - "*.json"
+check_command: "python parse_result.py {path}"
+success_condition: "exit code 0 with ok=true and input/output hashes"
+failure_condition: "nonzero exit, forged/bare success, or schema mismatch"
+trust_level: independently_checkable
+output_format: json
+notes: >
+  Machine-checkable ZX normal-form certificates only. Bare success strings are rejected.
+  Adapters exist; still not a complete FV standard — do not sole-ABRC on ZX alone.

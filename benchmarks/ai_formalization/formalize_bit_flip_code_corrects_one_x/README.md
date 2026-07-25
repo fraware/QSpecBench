@@ -2,39 +2,46 @@
 
 ## Claim
 
-Evaluate AI-assisted formalization faithfulness for `formalize_bit_flip_code_corrects_one_x`.
+The informal source claim that the three-qubit bit-flip code detects and corrects a single X error is faithfully formalized by the checked three-qubit bit-flip lookup-table decoder theorem under the frozen gold target (declared single-X Pauli model).
 
 ## Why this matters
 
-AI formalization track requires explicit untrusted labels and semantic rubric.
+AI formalization track requires an explicit untrusted AI draft, a frozen gold target, semantic rubric score, and dual independent reviews before `reference_claim`.
 
 ## Objects
 
-- `artifacts/source.txt`
+- `artifacts/source.txt` — informal source claim
+- `artifacts/draft.lean` — untrusted AI draft
+- `notes/semantic_rubric.md` — faithfulness rubric (score 4)
+- `evidence/kernel_checked_draft.lean` — `#check` of accepted library theorem
 
 ## Specification
 
-Relational faithfulness claim; rubric score 0–5.
+Relational faithfulness claim; gold package adjudicates the accepted formal statement.
 
 ## Evidence
 
-- See `spec.yaml` evidence block; seed benchmarks may have no checked proof.
+- Lean kernel anchor for `bit_flip_lookup_decoder_correct`
+- Human semantic rubric (score >= 4)
+- Dual hash-bound reviews under `reviews/`
 
 ## Trust boundary
 
-Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
+Explicit in `spec.yaml` trust_boundary. AI draft text remains untrusted; syndrome-extraction circuits and general decoders are not claimed.
 
 ## Status
 
-Current maturity: **reference_scaffold**.
+Current maturity: **reference_claim**.
 
 ## Known gaps
 
-Kernel-checked proof or stronger tool evidence may be required for reference maturity.
+- Full faithfulness of AI draft wording to source phrasing remains unproved
+- Syndrome-extraction circuit semantics remain out of scope for this AI gold package
 
 ## References
 
-- (add references when promoting beyond seed)
+- Sibling QEC claim: `three_qubit_bit_flip_code_corrects_one_x`
+
 ## Claim diff
 
-See evidence/claim_diff.md for declared vs checked obligation gap (Section C).
+See evidence/claim_diff.md for declared vs checked obligation gap.

@@ -1,6 +1,6 @@
 # Claim diff: no_cloning_negative_claim
 
-<!-- scope_fingerprint: e1e41532b453e18eecfdb9d751abffe888a35d7233043cb00c151dbfa0e81761 -->
+<!-- scope_fingerprint: daf9603f08e7c497b171916423af41b98463ea53658d0b82509b5cdac07612b3 -->
 
 **Maturity:** reference_scaffold
 **Headline status:** partially_checked

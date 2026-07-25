@@ -1,0 +1,15 @@
+{
+  "schema_version": "qspecbench.zx_certificate.v1",
+  "relation": "normal_form_equality",
+  "n_qubits": 1,
+  "source_normal_form": {
+    "generators": [
+      {"kind": "Z", "phase_pi_rational": [0, 1], "arity": 2}
+    ]
+  },
+  "target_normal_form": {
+    "generators": [
+      {"kind": "Z", "phase_pi_rational": [0, 1], "arity": 2}
+    ]
+  }
+}

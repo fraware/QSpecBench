@@ -29,7 +29,10 @@ QASM_ARTIFACT = CNOT_DIR / "artifacts" / "source.qasm"
 GENERATED_LEAN = REPO / "lean" / "QSpecBench" / "Generated" / "CnotSelfInverse.lean"
 HAS_LAKE = shutil.which("lake") is not None or (Path.home() / ".elan" / "bin" / "lake").is_file()
 
-pytestmark = pytest.mark.skipif(not HAS_LAKE, reason="Lean 4 / lake not installed")
+pytestmark = [
+    pytest.mark.lean,
+    pytest.mark.skipif(not HAS_LAKE, reason="Lean 4 / lake not installed"),
+]
 
 
 def _snapshot_generated_mtimes() -> dict[str, tuple[int, str]]:

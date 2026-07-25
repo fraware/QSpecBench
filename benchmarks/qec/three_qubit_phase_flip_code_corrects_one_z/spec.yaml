@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: three_qubit_phase_flip_code_corrects_one_z
 title: Three-qubit phase-flip code corrects one Z error
 track: qec
@@ -6,8 +6,8 @@ domain: quantum_error_correction
 claim_type: error_correction
 difficulty: intermediate
 informal_claim:
-  statement: The three-qubit phase-flip code corrects any single Z error under the
-    declared Pauli phase-flip error model.
+  statement: The three-qubit phase-flip code corrects any single Z error under the declared Pauli phase-flip
+    error model.
   source: null
   reference_key: null
 semantic_level:
@@ -125,8 +125,8 @@ proof_obligations:
   notes: Decoder assumed per trust boundary
 claim_scope:
   headline_claim_id: three_qubit_phase_flip_code_corrects_one_z_headline
-  headline_claim_text: The three-qubit phase-flip code corrects any single Z error
-    under the declared Pauli phase-flip error model.
+  headline_claim_text: The three-qubit phase-flip code corrects any single Z error under the declared
+    Pauli phase-flip error model.
   required_obligations:
   - stabilizer_commutation
 proved_scope:
@@ -178,3 +178,6 @@ provenance:
   - path: artifacts/correction_table.json
     sha256: 3a77fb704b3d0321ab0b8fb3b016df202c3b2a40bb40d816c1810cd832b5bba7
     role: reference
+authorship:
+  author: fraware
+  merging_maintainer: fraware

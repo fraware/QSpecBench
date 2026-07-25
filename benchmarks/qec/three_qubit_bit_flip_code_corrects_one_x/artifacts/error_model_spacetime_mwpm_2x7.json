@@ -1,0 +1,22 @@
+{
+  "schema": "qspecbench.error_model.v1",
+  "name": "DeclaredSpacetimeMwpmFragmentModel",
+  "max_declared_faults": 5,
+  "decode_rule": "declared_2x7_stim_compatible_dem_time_chain_table",
+  "graph_kind": "declared_2x7_stim_compatible_dem_mwpm_fragment",
+  "in_model_faults": [
+    "none",
+    "dualFlipS0_R0R1",
+    "dualFlipS1_R0R1",
+    "tripleFlipS0_R0R1R2",
+    "tripleFlipS1_R0R1R2",
+    "quadFlipS0_R0R1R2R3",
+    "quadFlipS1_R0R1R2R3",
+    "fiveFlipS0_R0R1R2R3R4",
+    "fiveFlipS1_R0R1R2R3R4"
+  ],
+  "outside_negatives": [
+    "six_flipS0_R0R1R2R3R4R5"
+  ],
+  "notes": "Stim-compatible declared DEM fragment: explicit time-chain matching table on 2x7 tape. Extends prior fragment by correcting five-flip. Not Stim/PyMatching Blossom; not full spacetime MWPM. Validate via qspecbench.stim_dem_adapter (hash + schema fail-closed)."
+}

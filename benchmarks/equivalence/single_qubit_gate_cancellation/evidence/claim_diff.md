@@ -1,6 +1,6 @@
 # Claim diff: single_qubit_gate_cancellation
 
-<!-- scope_fingerprint: b97cb4915de5a5cdc4d8b3a4205af8dcd8255dafc2c585ad453aabff1d1e678d -->
+<!-- scope_fingerprint: a99ecd37357c238c2fc214d9b8d61b07752d261cbda4fb0a638becc934e56327 -->
 
 **Maturity:** artifact_bound_reference_claim
 **Headline status:** checked

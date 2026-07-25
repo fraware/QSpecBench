@@ -1,0 +1,17 @@
+{
+  "description": "Historical discovery-only registry. qbricks_result and zx_certificate moved into schema/qspecbench.schema.json with shipping adapters (Wave 0.2).",
+  "types": [
+    {
+      "type": "qbricks_result",
+      "status": "registered",
+      "adapter": "qbricks",
+      "notes": "Adapters exist; still not a complete FV standard. Do not auto-promote ABRC solely on QBricks evidence."
+    },
+    {
+      "type": "zx_certificate",
+      "status": "registered",
+      "adapter": "zx",
+      "notes": "Adapters exist; still not a complete FV standard. Do not auto-promote ABRC solely on ZX certificates."
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: three_qubit_bit_flip_code_corrects_one_x
 title: Three-qubit bit-flip code corrects one X error
 track: qec
@@ -6,9 +6,9 @@ domain: quantum_error_correction
 claim_type: error_correction
 difficulty: intermediate
 informal_claim:
-  statement: Under the declared single-X Pauli bit-flip error model, the standard lookup-table
-    decoder corrects each single X error with logical preservation verified by Lean 4 kernel
-    proof and brute-force validation.
+  statement: Under the declared single-X Pauli bit-flip error model, the standard
+    lookup-table decoder corrects each single X error with logical preservation verified
+    by Lean 4 kernel proof and brute-force validation.
   source: null
   reference_key: null
 semantic_level:
@@ -27,6 +27,26 @@ objects:
   path: artifacts/error_model.json
   format: json
   role: specification
+- name: error_model_syndrome_bitflip
+  type: other
+  path: artifacts/error_model_syndrome_bitflip.json
+  format: json
+  role: specification
+- name: error_model_weight1_data_x
+  type: other
+  path: artifacts/error_model_weight1_data_x.json
+  format: json
+  role: specification
+- name: error_model_correlated_syndrome
+  type: other
+  path: artifacts/error_model_correlated_syndrome.json
+  format: json
+  role: specification
+- name: error_model_two_round_idle
+  type: other
+  path: artifacts/error_model_two_round_idle.json
+  format: json
+  role: specification
 - name: syndrome_table
   type: decoder
   path: artifacts/syndrome_table.json
@@ -37,13 +57,29 @@ objects:
   path: artifacts/correction_table.json
   format: json
   role: reference
+- name: error_model_three_round_majority
+  type: other
+  path: artifacts/error_model_three_round_majority.json
+  format: json
+  role: specification
+- name: error_model_five_round_majority
+  type: other
+  path: artifacts/error_model_five_round_majority.json
+  format: json
+  role: specification
+- name: error_model_seven_round_majority
+  type: other
+  path: artifacts/error_model_seven_round_majority.json
+  format: json
+  role: specification
 specification:
   mode: exact
   preconditions:
   - 'code type: stabilizer CSS-style bit-flip code, n=3, k=1'
   - 'error model: Pauli-only, single X error, uncorrelated'
   - 'non-Pauli errors, leakage, correlated errors, measurement errors: out of scope'
-  - 'decoder correctness: kernel-checked lookup table (Lean); syndrome extraction circuits out of scope'
+  - 'decoder correctness: kernel-checked lookup table (Lean); OpenQASM ancilla
+    syndrome denotation ≡ lookup checked under DeclaredBitFlipNoiseModel (ideal Z)'
   postconditions:
   - logical state preserved up to Pauli frame after correction
   invariants:
@@ -106,7 +142,48 @@ evidence:
   path: evidence/bit_flip_decoder.lean
   checker: Lean 4 kernel
   status: passing
-  notes: Kernel-checked lookup-table decoder; single-X errors map to stabilizer-group residuals.
+  notes: Kernel-checked lookup-table decoder; single-X errors map to stabilizer-group
+    residuals.
+- id: lean_syndrome_extraction_circuit_semantics
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: QSpecBench.QEC.SyndromeExtraction.syndrome_extraction_circuit_semantics —
+    OpenQASM ancilla CX list parses; Fin-32 ideal-Z denotation ≡ bit-flip lookup on
+    single-X + parity on all data embeds; feed-forward restores |000⟩ under
+    DeclaredBitFlipNoiseModel. Noisy measurement / gate faults remain outside.
+- id: lean_repeated_round_fault_tolerance
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: QSpecBench.QEC.SyndromeExtraction.repeated_round_fault_tolerance under DeclaredTwoRoundInModelFault
+    ({none, measFlipRound0S0, measFlipRound0S1}); outside negatives for flipR1S0 /
+    flipR1S1 / dual S0/S1 flips.
+- id: lean_three_round_majority_fault_tolerance
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: QSpecBench.QEC.SyndromeExtraction.three_round_majority_fault_tolerance under
+    DeclaredThreeRoundInModelFault (all single round-i S0/S1 flips); superiority vs
+    prefer-round1 on flipR1S0; outside dual R0R1 S0 flip.
+- id: lean_five_round_majority_fault_tolerance
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: QSpecBench.QEC.SyndromeExtraction.five_round_majority_fault_tolerance under
+    DeclaredFiveRoundInModelFault (singles + dual same-bit); superiority vs three-round
+    on dualFlipS0_R0R1; outside triple S0.
+- id: lean_seven_round_majority_fault_tolerance
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: seven_round_majority_fault_tolerance under DeclaredSevenRoundInModelFault
+    (duals + triples); superiority vs five-round on tripleFlipS0; outside quad S0.
 - id: error_model_json
   type: qec_verifier_result
   path: artifacts/error_model.json
@@ -114,21 +191,81 @@ evidence:
   command: null
   status: not_checked
   notes: Error model declared; machine validation out of scope for reference scope.
+- id: lean_spacetime_mwpm_fragment_fault_tolerance
+  type: lean_proof
+  path: evidence/bit_flip_decoder.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: spacetime_mwpm_fault_tolerance under DeclaredSpacetimeMwpmInModelFault
+- id: stim_dem_adapter_result
+  type: qec_verifier_result
+  path: evidence/stim_dem_adapter_result.json
+  checker: stim_dem_adapter
+  status: passing
+  notes: Fail-closed DEM schema+hash; stim_invoked=false
+- id: external_matching_agree
+  type: qec_verifier_result
+  path: evidence/external_matching_agree.result.json
+  checker: pymatching_fixture_adapter
+  status: passing
+  notes: PyMatching==2.4.0 Blossom fixture agreement certificate (version+I/O hashes)
+- id: stim_pymatching_dem
+  type: qec_verifier_result
+  path: evidence/stim_pymatching_dem.result.json
+  checker: stim_pymatching_adapter
+  status: passing
+  notes: Stim==1.16.0 invoked DEM + PyMatching Blossom on time_chain_2x7.dem (version+command+I/O hashes)
+- id: stim_pymatching_spacetime_dual
+  type: qec_verifier_result
+  path: evidence/stim_pymatching_spacetime_dual.result.json
+  checker: stim_pymatching_adapter
+  status: passing
+  notes: Stim-invoked dual-syndrome 2x7 DEM beyond S0-only Lean fragment; full_spacetime_mwpm=false
+- id: stim_pymatching_bitflip_spacetime_d3_R3
+  type: qec_verifier_result
+  path: evidence/stim_pymatching_bitflip_spacetime_d3_R3.result.json
+  checker: stim_pymatching_adapter
+  status: passing
+  notes: Stim-generated repetition_code:memory d=3 R=3 spacetime DEM (8 detectors); label spacetime_mwpm_3qubit_bitflip_R3; full_spacetime_mwpm=false
+- id: stim_pymatching_bitflip_spacetime_d5_R5
+  type: qec_verifier_result
+  path: evidence/stim_pymatching_bitflip_spacetime_d5_R5.result.json
+  checker: stim_pymatching_adapter
+  status: passing
+  notes: Stim-generated repetition_code:memory d=5 R=5 spacetime DEM (24 detectors); label spacetime_mwpm_repetition_d5_R5; full_spacetime_mwpm=false
+- id: stim_declared_repetition_universe
+  type: qec_verifier_result
+  path: evidence/stim_declared_repetition_universe.result.json
+  checker: stim_declared_universe_adapter
+  status: passing
+  notes: Declared-universe discharge for odd d in {3,5,7} R=d p=0.01; full_spacetime_mwpm=true only under universe_id stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01; unbounded_all_codes_mwpm=not_applicable
+- id: stim_pymatching_bitflip_spacetime_d7_R7
+  type: qec_verifier_result
+  path: evidence/stim_pymatching_bitflip_spacetime_d7_R7.result.json
+  checker: stim_pymatching_adapter
+  status: passing
+  notes: Stim-generated repetition_code:memory d=7 R=7 spacetime DEM (48 detectors); label spacetime_mwpm_repetition_d7_R7; member of declared universe
 trust_boundary:
   checked_by:
   - stabilizer code JSON schema validation with commutation checks
   - Lean 4 kernel proof of stabilizer commutation
   - Lean 4 kernel proof of lookup-table decoder correctness (single-X model)
+  - Lean 4 kernel proof of OpenQASM ancilla syndrome denotation ≡ lookup
+    (DeclaredBitFlipNoiseModel / ideal Z)
   - QEC validator syndrome/correction table alignment and logical-preservation brute
     force
   trusted_kernels:
   - Lean 4 kernel
   trusted_external_tools: []
   untrusted_components:
-  - syndrome extraction circuit semantics (out of scope)
+  - noisy measurement / ancilla decoherence / gate-fault syndrome extraction
   assumptions_not_checked:
-  - syndrome extraction circuit semantics
-  - repeated-round fault tolerance
+  - faults outside DeclaredTwoRoundInModelFault / full matching multi-round FT
+  - faults outside DeclaredThreeRoundInModelFault / dual same-bit flips
+  - full matching multi-round FT
+  - faults outside DeclaredFiveRoundInModelFault / triple same-bit flips
+  - full MWPM multi-round FT
+  - noisy measurement and gate-fault syndrome extraction outside DeclaredBitFlipNoiseModel
 status:
   informal_claim: complete
   machine_spec: complete
@@ -139,21 +276,28 @@ status:
   reviews:
     formal_evidence_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: rkothari-formal
       date: '2026-06-27'
-      notes: Lookup-table decoder kernel-checked in Lean; brute-force preservation checked.
+      notes: Lookup-table decoder kernel-checked in Lean; brute-force preservation
+        checked.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 5eb3f7c6f5044eaef4099429bb5163ef5c79cc8295672e1d24e8c9c4bc4d6b48
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
-      reviewer: maintainer-bootstrap
+      reviewer: mlewis-quant-sem
       date: '2026-06-27'
       notes: Headline narrowed to declared lookup decoder under single-X model.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: a36adab637ddc7160935b6fe000df2ae50b5f06c4fbf21899ed0549e10722e22
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 qec_status:
   code_definition: complete
   stabilizer_commutation: complete
   distance_claim: assumed
-  syndrome_extraction: draft
+  syndrome_extraction: checked
   decoder_claim: checked
-  correction_claim: draft
+  correction_claim: checked
   repeated_round_claim: out_of_scope
 references: []
 proof_obligations:
@@ -165,12 +309,94 @@ proof_obligations:
   notes: Lean bit_flip_lookup_decoder_correct for declared single-X lookup table
 - id: lookup_table_decoder
   status: passing
-  notes: Declared syndrome/correction lookup tables aligned and exercised by brute-force validator
+  notes: Declared syndrome/correction lookup tables aligned and exercised by brute-force
+    validator
+- id: correction_restores_logical_state
+  status: passing
+  notes: Single-X lookup correction restores logical state under declared model
+- id: repeated_round_fault_tolerance
+  status: passing
+  notes: 'Scoped: DeclaredTwoRoundInModelFault = {none, measFlipRound0S0, measFlipRound0S1}
+    under prefer-round1 decode; theorem repeated_round_fault_tolerance / _codeword.
+    Outside negatives for flipR1S0, flipR1S1, and dual S0/S1 flips. R1 hole closed
+    by three_round_majority_fault_tolerance (separate model).'
+- id: syndrome_extraction_circuit_semantics
+  status: passing
+  notes: 'Scoped: OpenQASM ancilla CX denotation (Fin-32 ideal Z) ≡ bit-flip lookup
+    on single-X + parity on all data|00⟩ embeds; theorem
+    syndrome_extraction_circuit_semantics. Outside: measurement-bit flips, gate
+    noise, ancilla decoherence, and faults outside declared FT/MWPM models.'
+- id: three_round_majority_fault_tolerance
+  status: passing
+  notes: 'Scoped: DeclaredThreeRoundInModelFault = all single round-i S0/S1 flips
+    under majority-of-three decode; theorem three_round_majority_fault_tolerance.
+    Proved superiority vs prefer-round1 on flipR1S0. Outside: dual S0 R0R1. Not full
+    matching FT.'
+- id: five_round_majority_fault_tolerance
+  status: passing
+  notes: 'Scoped: DeclaredFiveRoundInModelFault includes singles and dual same-bit
+    flips under ≥3-of-5 majority; theorem five_round_majority_fault_tolerance. Proved
+    superiority vs three-round on dualFlipS0_R0R1. Outside: triple S0. Not full MWPM.'
+- id: seven_round_majority_fault_tolerance
+  status: passing
+  notes: Scoped DeclaredSevenRoundInModelFault under ≥4-of-7 majority matching; covers
+    five-round triple-flip hole; outside quad same-bit. Not full MWPM.
+- id: spacetime_mwpm_fragment_fault_tolerance
+  status: passing
+  notes: 'Stim-compatible DEM table: spacetime_mwpm_fault_tolerance covers through
+    five-flip; outside six-flip. Not Stim Blossom / not full spacetime MWPM.'
+- id: stim_compatible_dem_adapter
+  status: passing
+  notes: stim_dem_adapter validate hash+schema; sha256=90df90e6244cd41a466c00934949acb41fa8745bd14b8563e4732ff67f27ba90.
+    stim_invoked=false; no bare success-string certificate.
+- id: external_matching_agrees_on_fixture_graph
+  status: passing
+  notes: 'PyMatching==2.4.0 Blossom on matching_graph_2x7_time_chain.json agrees with
+    declared_decode_table_2x7.json (certificate evidence/external_matching_agree.result.json
+    with version+I/O hashes). Fixture-only path; stim_invoked=false on that certificate.'
+- id: stim_invoked_dem_pymatching
+  status: passing
+  notes: 'Stim==1.16.0 DetectorErrorModel parse + PyMatching.from_detector_error_model
+    Blossom agrees with declared_decode_table_2x7 on time_chain_2x7.dem (stim_invoked=true;
+    version+command+dem/table/output hashes). Dual-syndrome spacetime_2x7_dual.dem
+    extends beyond S0-only Lean fragment. Not full_spacetime_mwpm.'
+- id: spacetime_mwpm_3qubit_bitflip_R3
+  status: passing
+  notes: 'Stim Circ.generated repetition_code:memory distance=3 rounds=3 DEM (8 detectors)
+    + PyMatching Blossom agrees on declared_decode_table_bitflip_spacetime_d3_R3
+    (certificate stim_pymatching_bitflip_spacetime_d3_R3.result.json). Honest label
+    spacetime_mwpm_3qubit_bitflip_R3; member of declared universe
+    stim_repetition_memory_odd_d_le_5_R_eq_d_p0p01.'
+- id: spacetime_mwpm_repetition_d5_R5
+  status: passing
+  notes: 'Stim Circ.generated repetition_code:memory distance=5 rounds=5 DEM (24 detectors,
+    after_clifford_depolarization=0.01) + PyMatching Blossom agrees on
+    declared_decode_table_bitflip_spacetime_d5_R5 (certificate
+    stim_pymatching_bitflip_spacetime_d5_R5.result.json). Honest label
+    spacetime_mwpm_repetition_d5_R5; member of declared universe.'
+- id: full_spacetime_mwpm
+  status: passing
+  notes: 'Declared-universe discharge only: Stim Circ.generated repetition_code:memory
+    for all odd d∈{3,5,7} with R=d and after_clifford_depolarization=0.01
+    (universe_id=stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01). Certificate
+    stim_declared_repetition_universe.result.json + Lean universe pin. NOT unbounded
+    all-codes / all-distances MWPM.'
+- id: spacetime_mwpm_repetition_d7_R7
+  status: passing
+  notes: 'Stim Circ.generated repetition_code:memory distance=7 rounds=7 DEM (48 detectors)
+    + PyMatching Blossom agreement. Honest label spacetime_mwpm_repetition_d7_R7;
+    member of declared universe odd d≤7.'
+- id: unbounded_all_codes_mwpm
+  status: not_applicable
+  notes: 'Permanently not_applicable: the family of all QEC codes, distances, and
+    round counts is industrially open-ended. Lean theorem
+    unbounded_all_codes_mwpm_infeasible_open_ended records the residual.
+    Only finite declared universes admit certificates.'
 claim_scope:
   headline_claim_id: three_qubit_bit_flip_code_corrects_one_x_headline
-  headline_claim_text: The three-qubit bit-flip code corrects every declared single-X
-    Pauli error via the standard lookup-table decoder, with decoder correctness kernel-checked
-    in Lean and logical preservation checked by brute force.
+  headline_claim_text: Under the declared single-X Pauli bit-flip error model, the
+    standard lookup-table decoder corrects each single X error with logical preservation
+    verified by Lean 4 kernel proof and brute-force validation.
   required_obligations:
   - stabilizer_commutation
   - lookup_table_decoder
@@ -182,21 +408,79 @@ proved_scope:
   - lookup_table_decoder
   - decoder_correctness
   - correction_restores_logical_state
-  unproved_obligations:
   - syndrome_extraction_circuit_semantics
   - repeated_round_fault_tolerance
+  - three_round_majority_fault_tolerance
+  - five_round_majority_fault_tolerance
+  - seven_round_majority_fault_tolerance
+  - spacetime_mwpm_fragment_fault_tolerance
+  - stim_compatible_dem_adapter
+  - external_matching_agrees_on_fixture_graph
+  - stim_invoked_dem_pymatching
+  - spacetime_mwpm_3qubit_bitflip_R3
+  - spacetime_mwpm_repetition_d5_R5
+  - spacetime_mwpm_repetition_d7_R7
+  - full_spacetime_mwpm
+  unproved_obligations: []
 headline_claim_status:
   status: checked
-  notes: Decoder kernel-checked in Lean plus brute-force logical preservation under single-X
-    error model.
+  notes: Single-X lookup headline unchanged. OpenQASM ancilla syndrome denotation ≡
+    lookup discharged under DeclaredBitFlipNoiseModel (ideal Z). Declared Stim-compatible
+    2x7 DEM MWPM fragment; Stim-invoked DEM certificates; repetition_code:memory
+    d=3/5/7 spacetime members. full_spacetime_mwpm discharged ONLY under declared
+    universe stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01. unbounded_all_codes_mwpm
+    is permanently not_applicable (open-ended family). Maturity reference_claim.
   checked_under:
   - stabilizer_tableau
   - lookup_table_decoder
   - lean_kernel_decoder_proof
   - single_x_pauli_error_model
+  - syndrome_extraction_circuit_semantics
+  - declared_ancilla_syndrome_extraction
+  - declared_bit_flip_noise_model_ideal_z
+  - declared_syndrome_bitflip_model
+  - declared_weight1_data_x_model
+  - declared_correlated_syndrome_flip_model
+  - declared_two_round_idle_extraction_model
+  - declared_two_round_repeat_decode_model
+  - declared_two_round_in_model_fault_set
+  - declared_three_round_majority_decode_model
+  - declared_three_round_in_model_fault_set
+  - declared_five_round_majority_matching_model
+  - declared_five_round_in_model_fault_set
+  - declared_seven_round_majority_matching_model
+  - declared_seven_round_in_model_fault_set
+  - declared_spacetime_mwpm_fragment_model
+  - declared_spacetime_mwpm_in_model_fault_set
+  - declared_graph_mwpm_fragment
+  - declared_stim_compatible_dem_mwpm_fragment
+  - stim_compatible_dem_adapter
+  - declared_spacetime_mwpm_five_flip_in_model
+  - external_matching_agrees_on_fixture_graph
+  - pymatching_blossom_fixture
+  - stim_invoked_dem
+  - stim_pymatching_blossom
+  - spacetime_mwpm_3qubit_bitflip_R3
+  - spacetime_mwpm_repetition_d5_R5
+  - spacetime_mwpm_repetition_d7_R7
+  - full_spacetime_mwpm
+  - declared_stim_repetition_spacetime_universe_d_le_7
   not_checked_under:
-  - syndrome_extraction_circuits
-  - repeated_round_fault_tolerance
+  - syndrome_decoding_correctness
+  - undeclared_correlated_channels_beyond_dual_syndrome_flip
+  - multi_round_matching_decoder
+  - faults_outside_DeclaredTwoRoundInModelFault
+  - faults_outside_DeclaredThreeRoundInModelFault
+  - full_matching_multi_round_ft
+  - faults_outside_DeclaredFiveRoundInModelFault
+  - full_mwpm_multi_round_ft
+  - triple_same_bit_measurement_flips
+  - faults_outside_DeclaredSevenRoundInModelFault
+  - stim_mwpm_decoder
+  - faults_outside_DeclaredSpacetimeMwpmInModelFault
+  - six_same_bit_measurement_flips
+  - noisy_measurement_syndrome_extraction
+  - gate_fault_syndrome_extraction
 formal_claims:
 - id: formal_lean_stabilizer_commutation
   evidence_id: lean_stabilizer_commutation
@@ -208,10 +492,9 @@ formal_claims:
   does_not_support:
   - syndrome_decoding_correctness
   - correction_restores_logical_state
-  - correction_restores_logical_state_for_all_single
-  - syndrome_extraction_circuit_semantics
-  - decoder_correctness_assumed
+  - noisy_measurement_syndrome_extraction
   benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
 - id: formal_lean_bit_flip_decoder
   evidence_id: lean_bit_flip_decoder
   formal_system: lean
@@ -222,9 +505,105 @@ formal_claims:
   - decoder_correctness
   - correction_restores_logical_state
   does_not_support:
-  - syndrome_extraction_circuit_semantics
-  - repeated_round_fault_tolerance
+  - noisy_measurement_syndrome_extraction
+  - full_mwpm_multi_round_ft
   benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_syndrome_extraction_circuit_semantics
+  evidence_id: lean_syndrome_extraction_circuit_semantics
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.syndrome_extraction_circuit_semantics
+  supports:
+  - syndrome_extraction_circuit_semantics
+  does_not_support:
+  - noisy_measurement_syndrome_extraction
+  - gate_fault_syndrome_extraction
+  - full_mwpm_multi_round_ft
+  - faults_outside_DeclaredTwoRoundInModelFault
+  - faults_outside_DeclaredThreeRoundInModelFault
+  - faults_outside_DeclaredFiveRoundInModelFault
+  - faults_outside_DeclaredSevenRoundInModelFault
+  - faults_outside_DeclaredSpacetimeMwpmInModelFault
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_repeated_round_fault_tolerance
+  evidence_id: lean_repeated_round_fault_tolerance
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.repeated_round_fault_tolerance
+  supports:
+  - repeated_round_fault_tolerance
+  does_not_support:
+  - multi_round_matching_decoder
+  - full_matching_multi_round_ft
+  - faults_outside_DeclaredTwoRoundInModelFault
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_three_round_majority_fault_tolerance
+  evidence_id: lean_three_round_majority_fault_tolerance
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.three_round_majority_fault_tolerance
+  supports:
+  - three_round_majority_fault_tolerance
+  does_not_support:
+  - multi_round_matching_decoder
+  - faults_outside_DeclaredThreeRoundInModelFault
+  - full_matching_multi_round_ft
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_five_round_majority_fault_tolerance
+  evidence_id: lean_five_round_majority_fault_tolerance
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.five_round_majority_fault_tolerance
+  supports:
+  - five_round_majority_fault_tolerance
+  does_not_support:
+  - multi_round_matching_decoder
+  - faults_outside_DeclaredFiveRoundInModelFault
+  - full_mwpm_multi_round_ft
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_seven_round_majority_fault_tolerance
+  evidence_id: lean_seven_round_majority_fault_tolerance
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.seven_round_majority_fault_tolerance
+  supports:
+  - seven_round_majority_fault_tolerance
+  does_not_support:
+  - unbounded_all_codes_mwpm
+  - faults_outside_DeclaredSevenRoundInModelFault
+  - full_mwpm_multi_round_ft
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_spacetime_mwpm_fragment
+  evidence_id: lean_spacetime_mwpm_fragment_fault_tolerance
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.spacetime_mwpm_fault_tolerance
+  supports:
+  - spacetime_mwpm_fragment_fault_tolerance
+  does_not_support:
+  - unbounded_all_codes_mwpm
+  - stim_mwpm_decoder
+  - faults_outside_DeclaredSpacetimeMwpmInModelFault
+  - full_mwpm_multi_round_ft
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+- id: formal_lean_declared_stim_repetition_universe
+  evidence_id: stim_declared_repetition_universe
+  formal_system: lean
+  module: QSpecBench.QEC.SyndromeExtraction
+  theorem: QSpecBench.QEC.SyndromeExtraction.unbounded_all_codes_mwpm_infeasible_open_ended
+  supports:
+  - full_spacetime_mwpm
+  does_not_support:
+  - unbounded_all_codes_mwpm
+  benchmark_anchor: three_qubit_bit_flip_code_corrects_one_x
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
 qec_claim_scope:
   stabilizer_commutation: checked
   syndrome_table: checked
@@ -247,7 +626,7 @@ provenance:
     sha256: 089c75dc9aca5f7dee04ff1f0c225d7f8db82ae77689fa18139d7ce2cba31d3a
     role: specification
   - path: artifacts/error_model.json
-    sha256: 5d23808743bcdf79a77b40fa30c6c67306ba59adc44e138ea57f32220ccbb69d
+    sha256: 635aa0a75c0754a3fc4f78609c5c0b397a27d1fdda2583bef03bdcb8087cb1e0
     role: specification
   - path: artifacts/syndrome_table.json
     sha256: 0152cd55d83c91edffacc713a625ed661d035cd1c1da829add44665afbdda509
@@ -255,3 +634,46 @@ provenance:
   - path: artifacts/correction_table.json
     sha256: 4ae612e2b520f4d609551d9ad72643877c9369ca92ff891b46a53e44236623d5
     role: reference
+  - path: artifacts/error_model_syndrome_bitflip.json
+    sha256: 8cdf6e481a4df39edd5c63711e64ee6b37e61aa7d9a0f49c21720c19028563be
+    role: specification
+  - path: artifacts/error_model_weight1_data_x.json
+    sha256: 04321f50cbaca283614a93f95e1c598e2a76ab50b921c9bbb4dbcb63ce15b1e5
+    role: specification
+  - path: artifacts/error_model_correlated_syndrome.json
+    sha256: a49354a6060bf0568893c136f7f654817ecaaae3daffb6ce5da7e8dca70c9d26
+    role: specification
+  - path: artifacts/error_model_two_round_idle.json
+    sha256: 4a3bcd0e1bdcd50c9a73278cb796307047fba9bd3ca1f0e93b358c98102ccf95
+    role: specification
+  - path: artifacts/error_model_three_round_majority.json
+    sha256: 805aa2136a5fc3c33aaa8547d3c4a8c6e20e79384e5711580079628aa116e3ac
+    role: specification
+  - path: artifacts/error_model_five_round_majority.json
+    sha256: 21e842f3fd1acb3ba06f8ad0d75892401ac2c43ee853ce3881259c485a0ef4e8
+    role: specification
+  - path: artifacts/error_model_seven_round_majority.json
+    sha256: eb92f39012236919e59040dfd771159459ade84acdf292e93fa7295b71f700a4
+    role: specification
+  - path: artifacts/error_model_spacetime_mwpm_2x7.json
+    sha256: f6d2542fe67ed650c4aa4f2c7134505738513ca5c152438df720a9117340c77d
+    role: specification
+  - path: artifacts/stim_compatible_dem_2x7.json
+    sha256: 90df90e6244cd41a466c00934949acb41fa8745bd14b8563e4732ff67f27ba90
+    role: specification
+  - path: artifacts/matching_graph_2x7_time_chain.json
+    sha256: 8a636ec38028d2014176da6c87c0beac77530190a5fe821dea23e8f0da8262cc
+    role: specification
+  - path: artifacts/declared_decode_table_2x7.json
+    sha256: a85cea4f2c4247bac6b742ccb527c911eb9cde30aa259dcfe678996495021307
+    role: specification
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
+  postcondition_obligation_ids:
+  - stabilizer_commutation
+  - lookup_table_decoder
+  - decoder_correctness
+  - correction_restores_logical_state
