@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: superdense_coding_decodes_two_classical_bits
 title: Superdense Coding Decodes Two Classical Bits
 track: algorithm
@@ -6,8 +6,8 @@ domain: quantum_algorithm
 claim_type: protocol_correctness
 difficulty: introductory
 informal_claim:
-  statement: A shared Bell pair and one qubit transmission let Bob decode two classical
-    bits after a Bell measurement and Pauli correction.
+  statement: A shared Bell pair and one qubit transmission let Bob decode two classical bits after a Bell
+    measurement and Pauli correction.
   source: null
   reference_key: null
 semantic_level:
@@ -107,8 +107,8 @@ proof_obligations:
   notes: Two-bit decoding not kernel-checked
 claim_scope:
   headline_claim_id: superdense_coding_decodes_two_classical_bits_headline
-  headline_claim_text: A shared Bell pair and one qubit transmission let Bob decode
-    two classical bits after a Bell measurement and Pauli correction.
+  headline_claim_text: A shared Bell pair and one qubit transmission let Bob decode two classical bits
+    after a Bell measurement and Pauli correction.
   required_obligations:
   - bell_pair_prep
   - decoding_relation
@@ -142,3 +142,6 @@ provenance:
   - path: artifacts/circuit.qasm
     sha256: 55c1ab9397db6ee9c301c64502029d7a07ae5e1d2a414e0e8ec9e762897fb53f
     role: source
+authorship:
+  author: fraware
+  merging_maintainer: fraware
