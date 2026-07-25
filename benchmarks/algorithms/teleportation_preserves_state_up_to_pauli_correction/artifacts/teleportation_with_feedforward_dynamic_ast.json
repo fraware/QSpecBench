@@ -1,0 +1,58 @@
+{
+  "canonical_ast_version": "0.1",
+  "controls": [
+    {
+      "cIdx": 1,
+      "op": "x",
+      "qubits": [
+        2
+      ]
+    },
+    {
+      "cIdx": 0,
+      "op": "z",
+      "qubits": [
+        2
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "op": "h",
+      "qubits": [
+        1
+      ]
+    },
+    {
+      "op": "cx",
+      "qubits": [
+        1,
+        2
+      ]
+    },
+    {
+      "op": "cx",
+      "qubits": [
+        0,
+        1
+      ]
+    },
+    {
+      "op": "h",
+      "qubits": [
+        0
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "cIdx": 0,
+      "qIdx": 0
+    },
+    {
+      "cIdx": 1,
+      "qIdx": 1
+    }
+  ],
+  "n_qubits": 3
+}

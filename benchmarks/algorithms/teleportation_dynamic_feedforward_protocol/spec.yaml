@@ -1,0 +1,257 @@
+qspecbench_version: '0.3'
+id: teleportation_dynamic_feedforward_protocol
+title: Teleportation dynamic feedforward protocol
+track: algorithm
+domain: quantum_algorithms
+claim_type: dynamic_protocol_denotation
+difficulty: advanced
+informal_claim:
+  statement: The on-disk teleportation-with-feedforward QASM CanonicalAst measure and if AST nodes (gates, measurements, and classical controls) are bound to the Lean Measurement.writeZOutcome / ClassicalReg feed-forward denotation under kernel-checked dynamic denotation semantics.
+  source: null
+  reference_key: null
+claim_identity:
+  proposition_id: teleportation_dynamic_feedforward_protocol_v3
+  postcondition_obligation_ids:
+  - dynamic_ast_fail_closed_mirror
+  - dynamic_denotation_bridge_metadata
+  - lean_dynamic_denotation_protocol
+  - dynamic_denotation_bridge_verify
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+semantic_level:
+  primary: circuit
+  secondary:
+  - protocol
+objects:
+- name: feedforward
+  type: circuit
+  path: artifacts/teleportation_with_feedforward.qasm
+  format: qasm3
+  role: source
+specification:
+  mode: exact
+  preconditions:
+  - 'declared feedforward artifact: measure assignments + if-controlled Pauli corrections'
+  - 'Lean ClassicalReg denotation model for the declared fragment'
+  postconditions:
+  - The on-disk teleportation-with-feedforward QASM CanonicalAst measure and if AST nodes
+    are bound to the Lean Measurement.writeZOutcome / ClassicalReg feed-forward denotation
+    under kernel-checked dynamic denotation semantics.
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - CanonicalAst measurements/controls denote ClassicalReg writeZOutcome + if-controlled Pauli
+  physical: []
+  tool:
+  - fail-closed Python dynamic AST mirror matches Lean parse subset
+  artifact:
+  - on-disk teleportation_with_feedforward.qasm is the declared dynamic fragment
+  unverified:
+  - full OpenQASM3 dynamic circuit semantics
+  - hardware execution semantics
+  - matrix KERNEL_BRIDGE for measure+if
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: complete
+  ci: passing
+  maturity: artifact_bound_reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-25'
+      notes: Denotation-bound ABRC path — supersedes the prior AST-semantics review; confirms
+        the on-disk theorem statement invokes denoteCanonicalMeasures/ClassicalReg (not a bare
+        AST-hash pin), DynamicDenotationBridgeMetadata pin, dynamic_denotation_bridge_verify
+        certificate; matrix_match intentionally false.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 652f0316ed2bb46f573d9f088d255022c2a279545e29d98bd85474d58cdb9973
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-25'
+      notes: Denotation-bound sibling ABRC — supersedes the prior AST-semantics review; confirms
+        writeZOutcome/ClassicalReg is the intended measure/if semantics for this fragment;
+        parent unitary-prefix ABRC unchanged; never claims matrix KERNEL_BRIDGE covers measure+if.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: 11ff00e8306bfb39c401932aa0d3a240c3e681265232accdec3bc4d4c977ae3d
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+references: []
+acceptable_evidence:
+- type: qasm_parse
+  checker: dynamic AST mirror
+  path: null
+  required_for_claim: true
+  trust_level: checked
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: true
+  trust_level: checked
+- type: internal_denotation_consistency
+  checker: verify-dynamic-denotation-bridge CLI
+  path: null
+  required_for_claim: true
+  trust_level: heuristic
+- type: internal_denotation_consistency
+  checker: verify-dynamic-ast-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: heuristic
+evidence:
+- id: qasm_dynamic_feedforward
+  type: qasm_parse
+  path: artifacts/teleportation_with_feedforward.qasm
+  checker: dynamic AST mirror
+  status: passing
+  notes: Fail-closed CanonicalAst retains measure+if; dynamic_ast_sha256=5bf411e1…
+- id: lean_dynamic_feedforward
+  type: lean_proof
+  path: evidence/dynamic_denotation_bridge.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: teleport_dynamic_feedforward_artifact_protocol_linked composes denoteCanonicalMeasures
+    + canonicalControlsToStmts (Measurement/ClassicalReg denotation) + DynamicDenotationBridgeMetadata
+    ABRC pin. evidence/dynamic_feedforward_bridge.lean retains the prior AST-semantics anchor.
+- id: dynamic_denotation_bridge_verify
+  type: internal_denotation_consistency
+  path: evidence/dynamic_denotation_bridge_verify.result.json
+  checker: verify-dynamic-denotation-bridge CLI
+  status: passing
+  notes: denotation_match true; dynamic_ast_match true; matrix_match false (not matrix KERNEL_BRIDGE)
+- id: dynamic_ast_bridge_verify
+  type: internal_denotation_consistency
+  path: evidence/dynamic_ast_bridge_verify.result.json
+  checker: verify-dynamic-ast-bridge CLI
+  status: passing
+  notes: Retained supporting evidence for the weaker AST-semantics baseline (dynamic_ast_match
+    true; matrix_match false); not the acceptable_evidence entry for this benchmark's
+    (stronger) denotation-bound headline.
+- id: hardware_isa_abstraction
+  type: internal_denotation_consistency
+  path: evidence/hardware_isa_abstraction.result.json
+  checker: hardware_isa_adapter
+  status: passing
+  notes: Fail-closed ISA profile abstraction; hardware_abstraction_isa_layer=true; hardware_semantics_checked=false; no device fidelity
+proof_obligations:
+- id: dynamic_ast_fail_closed_mirror
+  status: passing
+  notes: Python build_lean_mirror_dynamic_canonical_ast fail-closed; dynamic_ast_sha256 pinned
+- id: dynamic_denotation_bridge_metadata
+  status: passing
+  notes: bridge_teleport_dynamic_denotation_metadata pins claimed_link kernel_checked_dynamic_denotation;
+    verify_dynamic_denotation_bridge_metadata confirms the pinned Lean theorem statement
+    references denoteCanonicalMeasures/ClassicalReg (not a bare CanonicalAst hash pin)
+- id: lean_dynamic_denotation_protocol
+  status: passing
+  notes: teleport_dynamic_feedforward_artifact_protocol_linked composes measure+if
+    Measurement.writeZOutcome/ClassicalReg denotation + renormalized recovery
+- id: dynamic_denotation_bridge_verify
+  status: passing
+  notes: verify_dynamic_denotation_bridge certificate with I/O hashes and denotation_match=true; never matrix_match
+- id: hardware_abstraction_isa_layer
+  status: passing
+  notes: Software CanonicalAst ISA layer (openqasm3_hardware_abstraction_isa_layer + offline
+    ISA profile adapter). Distinct from hardware_semantics / device fidelity.
+claim_scope:
+  headline_claim_id: teleportation_dynamic_feedforward_protocol_headline
+  headline_claim_text: The on-disk teleportation-with-feedforward QASM CanonicalAst measure
+    and if AST nodes (gates, measurements, and classical controls) are bound to the Lean
+    Measurement.writeZOutcome / ClassicalReg feed-forward denotation under kernel-checked
+    dynamic denotation semantics.
+  required_obligations:
+  - dynamic_ast_fail_closed_mirror
+  - dynamic_denotation_bridge_metadata
+  - lean_dynamic_denotation_protocol
+  - dynamic_denotation_bridge_verify
+proved_scope:
+  checked_obligations:
+  - dynamic_ast_fail_closed_mirror
+  - dynamic_denotation_bridge_metadata
+  - lean_dynamic_denotation_protocol
+  - dynamic_denotation_bridge_verify
+  - hardware_abstraction_isa_layer
+  unproved_obligations: []
+headline_claim_status:
+  status: checked
+  notes: Sibling dynamic ABRC promoted from kernel_checked_dynamic_ast_semantics to the
+    stronger kernel_checked_dynamic_denotation framing under a dedicated, independently
+    hash-bound dual review evaluating the denotation binding specifically (see
+    notes/dynamic_denotation_bridge_blocker.md for the resolved promotion history). Parent
+    teleport unitary-prefix ABRC unchanged. Matrix KERNEL_BRIDGE never claimed for measure+if.
+    Profile supports if/else, nested brace if/else, bounded for/while[N]; sibling on-disk
+    artifact remains measure+if (ABRC claim_scope invariants unchanged). Checked
+    hardware_abstraction_isa_layer (software ISA); hardware_semantics remains not_checked
+    (no device fidelity).
+  checked_under:
+  - kernel_checked_dynamic_denotation
+  - kernel_checked_dynamic_ast_semantics
+  - fail_closed_dynamic_ast_mirror
+  - bridge_teleport_dynamic_denotation_metadata
+  - bridge_teleport_dynamic_feedforward_abrc_metadata
+  - teleport_dynamic_feedforward_artifact_protocol_linked
+  - hardware_abstraction_isa_layer
+  not_checked_under:
+  - full_openqasm3_dynamic_circuit
+  - hardware_semantics
+  - matrix_kernel_bridge_dynamic_abrc
+  - parent_unitary_prefix_replaced
+  - bare_while_loops
+  - deeper_nested_blocks
+  - device_fidelity
+  - pulse_schedule_semantics
+formal_claims:
+- id: formal_lean_dynamic_feedforward_abrc
+  evidence_id: lean_dynamic_feedforward
+  formal_system: lean
+  module: QSpecBench.Teleportation
+  theorem: QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked
+  supports:
+  - lean_dynamic_denotation_protocol
+  - dynamic_ast_fail_closed_mirror
+  - dynamic_denotation_bridge_metadata
+  - dynamic_denotation_bridge_verify
+  does_not_support:
+  - matrix_kernel_bridge_dynamic_abrc
+  - full_openqasm3_dynamic_circuit
+  benchmark_anchor: teleportation_dynamic_feedforward_protocol
+  proposition_id: teleportation_dynamic_feedforward_protocol_v3
+trust_boundary:
+  checked_by:
+  - fail-closed Python dynamic CanonicalAst mirror
+  - verify-dynamic-denotation-bridge (denotation_match; matrix_match false)
+  - Lean teleport_dynamic_feedforward_artifact_protocol_linked (denoteCanonicalMeasures/ClassicalReg)
+  - DynamicDenotationBridgeMetadata ABRC pin
+  trusted_kernels:
+  - Lean 4 kernel
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - full OpenQASM3 dynamic circuit semantics
+  - hardware execution semantics / device fidelity / pulse schedules
+  - matrix KERNEL_BRIDGE for measure+if
+openqasm_profile: qspecbench.openqasm3.dynamic_canonical_ast.v1
+provenance:
+  generated_at: '2026-07-24T00:00:00+00:00'
+  artifacts:
+  - path: artifacts/teleportation_with_feedforward.qasm
+    sha256: 250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024
+    role: source

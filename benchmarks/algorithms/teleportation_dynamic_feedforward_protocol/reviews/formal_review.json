@@ -1,0 +1,39 @@
+{
+  "benchmark_id": "teleportation_dynamic_feedforward_protocol",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "rkothari-formal",
+  "reviewer_role": "formal_evidence",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "expected/semantic_bridge.json",
+    "evidence/dynamic_denotation_bridge_verify.result.json",
+    "evidence/dynamic_denotation_bridge.lean",
+    "lean/QSpecBench/Teleportation.lean",
+    "lean/QSpecBench/Quantum/BridgeMetadata.lean"
+  ],
+  "commands_executed": [
+    "qspecbench validate",
+    "python -m qspecbench.verify_dynamic_ast_bridge",
+    "lake build QSpecBench.Evidence.All"
+  ],
+  "accepted_obligations": [
+    "dynamic_ast_fail_closed_mirror",
+    "dynamic_denotation_bridge_metadata",
+    "lean_dynamic_denotation_protocol",
+    "dynamic_denotation_bridge_verify"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "full_openqasm3_dynamic_circuit",
+    "hardware_semantics",
+    "matrix_kernel_bridge_dynamic_abrc"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Supersedes the prior formal_evidence_review filed against the AST-semantics framing (claimed_link kernel_checked_dynamic_ast_semantics). This review evaluates the stronger denotation-bound framing specifically: confirmed that QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked's on-disk theorem statement invokes denoteCanonicalMeasures and ClassicalReg (not a bare CanonicalAst hash equality), that verify_dynamic_denotation_bridge_metadata's structural marker check (DYNAMIC_DENOTATION_REQUIRED_MARKERS) passes against the theorem source, and that dynamic_denotation_bridge_verify.result.json reports denotation_match=true with matrix_match=false."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-rkothari-formal-dynamic-denotation-abrc",
+  "proposition_id": "teleportation_dynamic_feedforward_protocol_v3"
+}

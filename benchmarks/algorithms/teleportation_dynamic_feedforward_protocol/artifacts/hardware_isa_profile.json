@@ -1,0 +1,9 @@
+{
+  "schema": "qspecbench.hardware_isa_profile.v1",
+  "backend_id": "qspecbench.offline_simulated.canonical_ast",
+  "isa_id": "openqasm3_canonical_ast_software_isa_v1",
+  "execution_mode": "abstract_isa_only",
+  "claims_device_fidelity": false,
+  "hardware_semantics_checked": false,
+  "notes": "Software CanonicalAst ISA profile for dynamic ABRC sibling. Not device execution."
+}

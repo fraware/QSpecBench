@@ -1,0 +1,24 @@
+{
+  "artifact_gate_model": "openqasm3_dynamic_canonical_ast",
+  "lean_module": "QSpecBench.Teleportation",
+  "lean_theorem": "QSpecBench.teleport_dynamic_feedforward_artifact_protocol_linked",
+  "normalization": {
+    "measurements": "canonical_ast_retained",
+    "classical_controls": "canonical_ast_retained",
+    "matrix_denotation": "excluded_dynamic_abrc",
+    "denotation_target": "measurement_writeZOutcome_classicalReg"
+  },
+  "claimed_link": "kernel_checked_dynamic_denotation",
+  "artifact_bound_category": "kernel_checked_dynamic_denotation",
+  "qasm_artifact": "artifacts/teleportation_with_feedforward.qasm",
+  "bridge_evidence_id": "dynamic_denotation_bridge_verify",
+  "gate_model": "qspecbench.openqasm3.dynamic_canonical_ast.v1",
+  "dynamic_artifact_sha256": "250860b2db62ab8a992f79a761f49c627087272b90265aad3c926b8ecf383024",
+  "dynamic_ast_sha256": "5bf411e14ed8898bf1af2367911f75ebd46fa659b3dd156500744f7ec2f18654",
+  "wire_order": {
+    "model": "legacy_kron_order",
+    "checked_against": "lean"
+  },
+  "proposition_id": "teleportation_dynamic_feedforward_protocol_v3",
+  "ast_authority": "lean_mirror"
+}

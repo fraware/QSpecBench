@@ -2,3 +2,9 @@ import QSpecBench.Teleportation
 
 #check QSpecBench.teleportation_unitary_fragment_checked
 #check QSpecBench.teleportCorrectionLabel
+#check QSpecBench.teleport_measure_correct_arbitrary_complex_amps
+#check QSpecBench.teleport_normed_alice_povm_prob_quarter
+#check QSpecBench.teleport_measure_correct_normed_renormalized
+#check QSpecBench.teleportPrefixCNormed_eq_half
+#check QSpecBench.teleport_feedforward_eq_measure_correct_normed
+#check QSpecBench.applyTeleportFeedForward_eq_pauliCorrection8C

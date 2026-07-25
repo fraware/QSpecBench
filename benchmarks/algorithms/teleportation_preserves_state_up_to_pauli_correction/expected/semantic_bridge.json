@@ -1,20 +1,33 @@
 {
-  "artifact_gate_model": "openqasm3_1q2q_clifford",
+  "artifact_gate_model": "openqasm3_complex_unitary",
   "lean_module": "QSpecBench.Quantum.OpenQASM3",
-  "lean_theorem": "bridge_teleportation_scaffold",
+  "lean_theorem": "bridge_teleport_unitary_prefix_codegen",
   "normalization": {
     "hadamard": "unnormalized_int_model",
     "measurements": "excluded_from_matrix"
   },
-  "claimed_link": "python_denotation_consistency",
-  "gate_set": "openqasm3_1q2q_clifford",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "artifact_parse_theorem": "parseQasmSource_teleport_kernel_eq_generated_ops",
+  "qasm_artifact": "artifacts/teleport_unitary_prefix.qasm",
   "bridge_evidence_id": "bridge_verify",
-  "qasm_artifact": "artifacts/bell_prep_scaffold.qasm",
   "gate_model": "qspecbench.openqasm3.int_scaffold.v0",
-  "artifact_sha256": "93869a92d474eaf8005bee65bd302e929abc93bc4a5cae85a93e4c156e3154ce",
-  "gate_trace_sha256": "aadc7cef7d1187e3968ad43f4f624fcdcbdce440bc1a8bcbf4b7108c48cc811f",
+  "artifact_sha256": "4dcc0c1b7fe0a92f3be82332241535377b8005cce5bad6dfa62941868f28c898",
+  "gate_trace_sha256": "64b65c94ef607fc233cdb1c22a98c87ddcdc25a6436d68ff42af98e42c970281",
+  "ast_sha256": "2dd1807377ae7ec0677c7deeee471d29e53041b3d78d397bfa762c348857aab3",
+  "generated_lean_sha256": "2d8c81ed223e8c9b7f40a11d2457945d84ea0548455016ba205d6a26faffb568",
+  "theorem_sha256": "b2f4d0df0c4ffad9cf822c70186821c80b56ca83695f21c51cc34216371270ef",
   "wire_order": {
     "model": "legacy_kron_order",
-    "checked_against": "python_operational"
-  }
+    "checked_against": "lean"
+  },
+  "wire_order_bridge_theorem": "bridge_teleport_unitary_prefix_wire_order",
+  "theorem_identifier_sha256": "b2f4d0df0c4ffad9cf822c70186821c80b56ca83695f21c51cc34216371270ef",
+  "theorem_content_sha256": "d4ad77e9404633aee0e0c802b3b81841a9ab29b44b587044457ccc8e4d1c1786",
+  "package_lean_sha256": "a6edd501d38cf21bd7dbbe89c51257f1845b4aed7269c28ed57ddf257fbbc7c1",
+  "theorem_source_statement_hash": "d4ad77e9404633aee0e0c802b3b81841a9ab29b44b587044457ccc8e4d1c1786",
+  "theorem_elaborator_hash": "4f26fb4ce497c2f0deb5b42955a7b58f203751201de85671ec99560a50572074",
+  "lean_ast_sha256": "2dd1807377ae7ec0677c7deeee471d29e53041b3d78d397bfa762c348857aab3",
+  "ast_authority": "lean_mirror",
+  "proposition_id": "teleportation_preserves_state_up_to_pauli_correction_v2",
+  "artifact_bound_category": "kernel_checked_codegen_trace"
 }
