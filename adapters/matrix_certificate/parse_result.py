@@ -7,7 +7,6 @@ certificate relating two declared matrices under an exact or global-phase relati
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 from typing import Any
 

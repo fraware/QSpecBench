@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 from pathlib import Path
 
-import pytest
 import yaml
 
 from qspecbench.reviews import validate_promotion_reviews
 from qspecbench.schema_dialect import validate_schema_dialect
-from qspecbench.validate import load_spec, validate_spec_dict
+from qspecbench.validate import load_spec
 
 REPO = Path(__file__).resolve().parents[1]
 EXAMPLES = REPO / "schema" / "examples"

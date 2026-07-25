@@ -9,10 +9,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from pathlib import Path
 from typing import Any
 
-from qspecbench.bridge_codegen import KERNEL_BRIDGE_IDS, kernel_checked_theorem_name
 from qspecbench.bridge_metadata import BRIDGE_METADATA_LEAN, KERNEL_BRIDGE_METADATA
 from qspecbench.bridge_manifest import load_manifest
 from qspecbench.schema import REPO_ROOT

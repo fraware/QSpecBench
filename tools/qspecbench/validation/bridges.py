@@ -13,7 +13,6 @@ from qspecbench.bridge_codegen import (
     LEGACY_KERNEL_CHECKED_LINK,
     DYNAMIC_CHECKED_LINK,
     DYNAMIC_CHECKED_LINKS,
-    DYNAMIC_DENOTATION_LINK,
     AST_AUTHORITY_FIELD,
     AST_AUTHORITY_LEAN_MIRROR,
     is_kernel_checked_link,
@@ -535,8 +534,8 @@ def _validate_reference_claim_bridge(spec: dict[str, Any], bridge: dict[str, Any
     if is_dynamic_ast_checked_link(bridge.get("claimed_link")):
         if not any(link in checked_under for link in DYNAMIC_CHECKED_LINKS):
             errors.append(
-                f"reference_claim dynamic AST bridge requires headline_claim_status.checked_under "
-                f"to include a dynamic measure+if claimed_link"
+                "reference_claim dynamic AST bridge requires headline_claim_status.checked_under "
+                "to include a dynamic measure+if claimed_link"
             )
         for required in (
             "full_openqasm3_dynamic_circuit",

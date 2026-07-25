@@ -171,7 +171,6 @@ def test_bridge_metadata_verify_does_not_rewrite(tmp_path):
     after = lean.read_text(encoding="utf-8")
     assert hashlib.sha256(after.encode()).hexdigest() == before_hash
     # Corruption must fail without rewrite
-    corrupted = before.replace("theoremElaboratorHash", "theoremElaboratorHash", 1)
     # Flip one hex digit in first hash literal if present
     import re
 
