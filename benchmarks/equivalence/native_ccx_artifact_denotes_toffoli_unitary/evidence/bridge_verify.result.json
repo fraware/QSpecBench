@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "claim": "native_ccx_artifact_denotes_toffoli_unitary",
+  "claimed_link": "kernel_checked_artifact_semantics",
+  "lean_module": "QSpecBench.Quantum.OpenQASM3",
+  "lean_theorem": "bridge_toffoli_codegen_ccx",
+  "qasm": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\equivalence\\native_ccx_artifact_denotes_toffoli_unitary\\artifacts\\source.qasm",
+  "n_qubits": 3,
+  "gates": 1,
+  "matrix_match": true,
+  "errors": []
+}

@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: toffoli_decomposition_equivalence
 title: Toffoli decomposition equivalence
 track: equivalence
@@ -6,10 +6,24 @@ domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: intermediate
 informal_claim:
-  statement: A standard Toffoli decomposition using H, T, CX matches native CCX on
-    three qubits.
+  statement: Under the normalized Clifford+T denotation (LSB wires, algebraic H/T), the
+    declared H/T/CX decomposition and native CCX artifact have identical denotations
+    (exact equality; global phase φ = 0).
   source: null
   reference_key: null
+claim_identity:
+  proposition_id: toffoli_decomposition_equivalence_v1
+  postcondition_obligation_ids:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
 semantic_level:
   primary: circuit
   secondary:
@@ -28,10 +42,11 @@ objects:
 specification:
   mode: exact
   preconditions:
-  - 'equivalence relation: exact unitary equality'
-  - q[2] target for CCX
+  - 'equivalence relation: ExactDenotationEq under denotateOps3C_normalized'
+  - q[2] target for CCX; qubit 0 = LSB
   postconditions:
-  - decomposed circuit equals CCX
+  - Under the normalized Clifford+T denotation (LSB wires, algebraic H/T), the declared H/T/CX
+    decomposition and native CCX artifact have identical denotations (exact equality; global phase φ = 0).
   invariants: []
   approximation:
     enabled: false
@@ -49,7 +64,8 @@ specification:
     other: []
 assumptions:
   mathematical:
-  - standard unitary semantics
+  - denotateOps3C_normalized is the trusted composition semantics for this claim
+  - gate atoms H/T/Tdg match ComplexGate normalized / Complex.exp matrices
   physical: []
   tool: []
   artifact: []
@@ -65,13 +81,21 @@ status:
     formal_evidence_review:
       status: approved
       reviewer: rkothari-formal
-      date: '2026-06-29'
-      notes: Source CCX artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
+      date: '2026-07-23'
+      notes: Elaborator-bound bridge_toffoli_decomposition_normalized_exact + BridgeMetadata
+        pin + seven obligation formal_claims verified under CT normalized LSB model.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 96a5dae66114580858c5bd5b54a1808d231d8a0183b6c0b78490c72ef8817321
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
       reviewer: mlewis-quant-sem
-      date: '2026-06-29'
-      notes: Source-side native CCX artifact scope only; decomposition pair equivalence in not_checked_under.
+      date: '2026-07-23'
+      notes: Declared semantics narrowed to denotateOps3C_normalized; φ=0 phase policy and
+        LSB wire-order discharged; unnormalized denotateOps3C / default Python Kron not claimed.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: aae77704b845ad93af52ae931c55ba31ba01670c64f628ba4233e33fef4a2bd8
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 acceptable_evidence:
 - type: qasm_parse
@@ -87,13 +111,13 @@ acceptable_evidence:
 - type: lean_proof
   checker: Lean 4 kernel
   path: null
-  required_for_claim: false
+  required_for_claim: true
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
-  required_for_claim: false
-  trust_level: independently_checkable
+  required_for_claim: true
+  trust_level: heuristic
 evidence:
 - id: qasm_parse_source
   type: qasm_parse
@@ -113,87 +137,181 @@ evidence:
   secondary_path: artifacts/target.qasm
   checker: QCEC equivalence tool
   status: passing
-  notes: External equivalence check on declared QASM pair.
-- id: lean_toffoli_bridge
+  notes: External supporting evidence; Lean CT denotation is the kernel headline.
+- id: lean_toffoli_pair_bridge
   type: lean_proof
-  path: evidence/toffoli_bridge.lean
+  path: evidence/toffoli_pair_bridge.lean
   checker: Lean 4 kernel
   status: passing
-  notes: bridge_toffoli_codegen_ccx kernel-checked anchor on source CCX codegen trace
+  notes: Normalized CT source–target equality, parse bounds, phase/wire policy, gate-atom bridges.
 - id: bridge_verify
-  type: python_denotation_consistency_check
+  type: internal_denotation_consistency
   path: evidence/bridge_verify.result.json
   checker: verify-bridge CLI
   status: passing
-  notes: kernel_checked_codegen_trace verify-bridge on native CCX artifact
-- id: lean_toffoli_pair_scaffold
-  type: lean_proof
-  path: evidence/source_target_pair_open.lean
-  checker: Lean 4 kernel
-  status: passing
-  notes: Scoped C2 pair bridge + open denotation gap documented; see notes/pair_equivalence_policy.md
+  notes: kernel_checked_artifact_semantics verify-bridge on source CCX artifact.
 trust_boundary:
   checked_by:
-  - QASM syntax parse
-  - Lean 4 kernel CCX denotation anchor
-  - verify-bridge matrix match on source CCX
+  - QASM syntax parse on source and target
+  - Lean 4 kernel normalized CT pair denotation
+  - verify-bridge matrix match on source artifact
   trusted_kernels:
   - Lean 4 kernel
+  - denotateOps3C_normalized (Clifford+T Array fold)
   trusted_external_tools:
   - QCEC
   untrusted_components: []
   assumptions_not_checked:
-  - decomposition circuit phase semantics beyond QCEC
+  - unnormalized denotateOps3C exact pair equality
+  - default Python qasm_matrix legacy Kron on 3-qubit single-qubit embeds
+  - full_openqasm3
+  - hardware_semantics
 proof_obligations:
-- id: lean_kernel_proof
+- id: source_artifact_parse
   status: passing
-  notes: bridge_toffoli_codegen_ccx anchor on source artifact
-- id: semantic_bridge
+  notes: parseQasmSource_toffoli_kernel_eq_generated_ops
+- id: target_artifact_parse
   status: passing
-  notes: python_denotation_consistency verify-bridge
-- id: decomposition_equivalence
+  notes: parseQasmSource_toffoli_target_kernel_eq_generated_ops
+- id: source_denotation
   status: passing
-  notes: QCEC on source/target pair (supplementary; not required for source artifact_bound headline)
-- id: decomposition_pair_denotation
-  status: partial
-  notes: Scoped pair bridge kernel-checked; denotateOps3C source = target (exact or global phase) open
+  notes: denotateOps3C_normalized source = ccx8C
+- id: target_denotation
+  status: passing
+  notes: denotateOps3C_normalized target = ccx8C
+- id: source_target_equivalence
+  status: passing
+  notes: bridge_toffoli_decomposition_normalized_exact
+- id: global_phase_policy
+  status: passing
+  notes: ExactDenotationEq implies EquivUpToGlobalPhase with φ = 0
+- id: wire_order_alignment
+  status: passing
+  notes: LSB pair wire-order; both sides equal ccx8C
 claim_scope:
   headline_claim_id: toffoli_decomposition_equivalence_headline
-  headline_claim_text: Native CCX on the declared three-qubit source QASM artifact denotes
-    the standard Toffoli unitary under kernel-checked artifact semantics.
+  headline_claim_text: Under the normalized Clifford+T denotation (LSB wires, algebraic H/T), the
+    declared H/T/CX decomposition and native CCX artifact have identical denotations
+    (exact equality; global phase φ = 0).
   required_obligations:
-  - lean_kernel_proof
-  - semantic_bridge
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
 proved_scope:
   checked_obligations:
-  - lean_kernel_proof
-  - semantic_bridge
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
   unproved_obligations: []
 headline_claim_status:
   status: checked
-  notes: Source CCX artifact bound via kernel_checked_artifact_semantics; H/T/CX decomposition
-    pair equivalence is supplementary (QCEC) and not part of this headline.
+  notes: Headline checked under denotateOps3C_normalized with elaborator-bound kernel bridge
+    and BridgeMetadata pin.
   checked_under:
-  - qspecbench.openqasm3.int_scaffold.v0
-  - finite_matrix_model
+  - qspecbench.openqasm3.clifford_t_normalized.v1
+  - denotateOps3C_normalized
+  - openqasm_little_endian_wire_order
   - kernel_checked_artifact_semantics
   - lean_parseQasmSource_on_artifact_file
+  - lean_source_target_denotation_equality
+  - exact_equality_global_phase_zero
   not_checked_under:
+  - unnormalized_denotateOps3C_pair_equality
+  - default_python_qasm_matrix_legacy_kron_3qubit
   - full_openqasm3
   - hardware_semantics
-  - decomposition_target_equivalence
-  - decomposition_circuit_phase_semantics_beyond_qcec
 formal_claims:
-- id: formal_lean_toffoli_bridge
-  evidence_id: lean_toffoli_bridge
+- id: formal_lean_source_parse
+  evidence_id: lean_toffoli_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3Parser
+  theorem: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_toffoli_kernel_eq_generated_ops
+  supports:
+  - source_artifact_parse
+  does_not_support:
+  - source_target_equivalence
+  - unnormalized_denotateOps3C_pair_equality
+  benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
+- id: formal_lean_target_parse
+  evidence_id: lean_toffoli_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3Parser
+  theorem: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_toffoli_target_kernel_eq_generated_ops
+  supports:
+  - target_artifact_parse
+  does_not_support:
+  - source_target_equivalence
+  - unnormalized_denotateOps3C_pair_equality
+  benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
+- id: formal_lean_source_denotation
+  evidence_id: lean_toffoli_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.CliffordTAlg
+  theorem: QSpecBench.Quantum.CliffordTAlg.toffoli_source_denotateOps3C_normalized_eq_ccx8C
+  supports:
+  - source_denotation
+  does_not_support:
+  - source_target_equivalence
+  - unnormalized_denotateOps3C_pair_equality
+  benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
+- id: formal_lean_target_denotation
+  evidence_id: lean_toffoli_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.CliffordTAlg
+  theorem: QSpecBench.Quantum.CliffordTAlg.toffoli_target_denotateOps3C_normalized_eq_ccx8C
+  supports:
+  - target_denotation
+  does_not_support:
+  - unnormalized_denotateOps3C_pair_equality
+  benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
+- id: formal_lean_pair_equivalence
+  evidence_id: lean_toffoli_pair_bridge
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: QSpecBench.Quantum.OpenQASM3.bridge_toffoli_codegen_ccx
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_toffoli_decomposition_normalized_exact
   supports:
-  - lean_kernel_proof
+  - source_target_equivalence
   does_not_support:
-  - decomposition_circuit_phase_semantics_beyond_qce
+  - unnormalized_denotateOps3C_pair_equality
+  - default_python_qasm_matrix_legacy_kron_3qubit
+  - full_openqasm3
+  - hardware_semantics
   benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
+- id: formal_lean_global_phase_policy
+  evidence_id: lean_toffoli_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.ToffoliDecomposition
+  theorem: QSpecBench.Quantum.ToffoliDecomposition.toffoli_normalized_global_phase_policy
+  supports:
+  - global_phase_policy
+  does_not_support:
+  - unnormalized_denotateOps3C_pair_equality
+  benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
+- id: formal_lean_wire_order
+  evidence_id: lean_toffoli_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_toffoli_decomposition_wire_order_lsb
+  supports:
+  - wire_order_alignment
+  does_not_support:
+  - default_python_qasm_matrix_legacy_kron_3qubit
+  benchmark_anchor: toffoli_decomposition_equivalence
+  proposition_id: toffoli_decomposition_equivalence_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.834935+00:00'
   artifacts:
@@ -204,3 +322,4 @@ provenance:
     sha256: 6a3c0d66d83bbe92e0ca8832ceba358aa09f4be4e7d3fc068d80076a11e7a07c
     role: target
 semantics_base: openqasm_fragment
+openqasm_profile: qspecbench.openqasm3.unitary.v1

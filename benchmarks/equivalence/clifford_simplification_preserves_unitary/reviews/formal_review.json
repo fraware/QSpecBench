@@ -1,0 +1,39 @@
+{
+  "benchmark_id": "clifford_simplification_preserves_unitary",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "rkothari-formal",
+  "reviewer_role": "formal_evidence",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "expected/semantic_bridge.json",
+    "evidence/clifford_pair_bridge.lean"
+  ],
+  "commands_executed": [
+    "lake build QSpecBench.Quantum.OpenQASM3Parser QSpecBench.Quantum.OpenQASM3 QSpecBench.Quantum.BridgeMetadata",
+    "python scripts/export_theorem_types.py",
+    "qspecbench validate"
+  ],
+  "accepted_obligations": [
+    "source_artifact_parse",
+    "target_artifact_parse",
+    "source_denotation",
+    "target_denotation",
+    "source_target_equivalence",
+    "global_phase_policy",
+    "wire_order_alignment"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "unnormalized_denotateOps1C_pair_equality",
+    "full_openqasm3",
+    "hardware_semantics"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Corpus-pattern formal reviewer identity (rkothari-formal); author is fraware."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-rkothari-formal",
+  "proposition_id": "clifford_simplification_preserves_unitary_v1"
+}

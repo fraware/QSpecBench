@@ -4,30 +4,36 @@
 
 | Model | H gate | Source HHS vs target S |
 |-------|--------|------------------------|
-| `qasm_matrix` (manifest) | Unnormalized integers `(1,1;1,-1)` | `denotateOps1C source = 2 · denotateOps1C target` |
-| Physical unitary (QCEC) | Includes `1/√2` per H | Equivalent up to global phase (external) |
-| `hadamardC_normalized` (Lean) | `H / √2` per gate | Exact matrix equality (see `hadamardC_normalized_mul_self`) |
+| `qasm_matrix` (unnormalized manifest legacy) | Unnormalized integers `(1,1;1,-1)` | `denotateOps1C source = 2 * denotateOps1C target` |
+| Physical unitary (QCEC) | Includes `1/sqrt(2)` per H | Equivalent up to global phase (external) |
+| `hadamardC_normalized` (Lean, headline) | `H / sqrt(2)` per gate | Exact matrix equality (see `hadamardC_normalized_mul_self`) |
 
-## Chosen kernel policy
+## Chosen kernel policy (promoted)
 
-**`compiler_trace_scaled` (factor 2):** under the complex denotation matching Python
-`qasm_matrix`, the simplification pass relates source and target by a scalar factor of 2
-because `H·H = 2·I` in the unnormalized model.
+**`normalized_source_target_exact`:** under `denotateOps1C_normalized` (the physical-unitary
+Hadamard, matching the Python `qasm_matrix` extraction used by `verify-bridge`), the source
+trace `H H S` and target trace `S` denote the *same* matrix exactly. `H . H = I` under the
+normalized model, so the two Hadamards on the source cancel and the residual `S` gate is
+identical to the target circuit.
 
-Kernel theorem: `QSpecBench.Quantum.OpenQASM3.bridge_clifford_source_target_scaled`.
+Kernel theorem: `QSpecBench.Quantum.OpenQASM3.bridge_clifford_source_target_normalized_exact`.
 
-Exact entry-wise equality `denotateOps1C clifford_hhs = denotateOps1C clifford_s_single` is
-**false** in the unnormalized model; QCEC certifies physical unitary equivalence externally.
+The legacy unnormalized relation `denotateOps1C clifford_hhs = 2 * denotateOps1C clifford_s_single`
+(`bridge_clifford_source_target_scaled`, `H . H = 2 * I` in the unnormalized integer model)
+remains kernel-checked as a documented, non-headline fact; it is **not** claimed as the
+compiler-equivalence headline.
 
-## Dual-manifest status
+## Dual-manifest status (closed)
 
-Target-side codegen hashes are pinned (`target_lean_theorem`, `target_gate_trace_sha256`).
-`pair_lean_theorem` = `bridge_clifford_source_target_scaled` is kernel-checked under the factor-2
-policy above. **Not earned:** `kernel_checked_codegen_trace` dual-manifest verify-bridge on both
-artifacts under one normalized gate model (exact matrix equality is false in the unnormalized model).
+Both source and target codegen hashes are pinned (`target_lean_theorem`,
+`target_gate_trace_sha256`, `target_artifact_parse_theorem`). `verify-bridge` runs on the source
+artifact against the same normalized (physical-unitary) gate model used by the Lean kernel
+theorem; `bridge-codegen verify` cross-checks both manifest entries against on-disk artifact and
+AST hashes.
 
 ## Promotion
 
-`claimed_link` remains `manifest_checked_theorem_binding` (dual-manifest source anchor + scaled
-pair theorem). Maturity stays **reference_scaffold** until normalized dual-manifest verify-bridge
-closes the compiler headline gap.
+`claimed_link` is `kernel_checked_artifact_semantics` (dual-manifest source/target codegen +
+elaborator-bound normalized pair theorem + BridgeMetadata pin). Maturity is
+**artifact_bound_reference_claim**. Residual not-checked labels: unnormalized `denotateOps1C`
+exact pair equality (factor 2), `full_openqasm3`, `hardware_semantics`.

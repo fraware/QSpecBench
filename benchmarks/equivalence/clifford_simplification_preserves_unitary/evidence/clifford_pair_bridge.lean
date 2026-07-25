@@ -1,0 +1,21 @@
+import QSpecBench.Quantum.OpenQASM3
+import QSpecBench.Quantum.OpenQASM3Parser
+import QSpecBench.Quantum.ComplexGate
+
+/- QSpecBench evidence:
+benchmark_id = "clifford_simplification_preserves_unitary"
+obligation_id = "semantic_bridge"
+theorem = "QSpecBench.Quantum.OpenQASM3.bridge_clifford_source_target_normalized_exact"
+artifact_sha256 = "929766d92f5a9bb80e986776e5a74023f01deae1d78d0be0bbd78bc40cea7876"
+gate_trace_sha256 = "8804cd386c5179b088ed07b9aa6d83143a11687ad2bb309e068173df5ac2fe1e"
+-/
+
+#check QSpecBench.Quantum.OpenQASM3.bridge_clifford_source_target_normalized_exact
+#check QSpecBench.Quantum.OpenQASM3.clifford_normalized_pair_wire_order_trivial
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_clifford_kernel_eq_generated_ops
+#check QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_clifford_target_kernel_eq_generated_ops
+#check QSpecBench.Quantum.OpenQASM3.clifford_source_denotateOps1C_normalized_eq_sGate
+#check QSpecBench.Quantum.OpenQASM3.clifford_target_denotateOps1C_normalized_eq_sGate
+#check QSpecBench.Quantum.OpenQASM3.clifford_normalized_global_phase_policy_exact
+#check QSpecBench.Quantum.ComplexGate.hadamardC_normalized
+#check QSpecBench.Quantum.ComplexGate.sGate

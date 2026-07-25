@@ -26,7 +26,7 @@ QASM parse (syntax only), QCEC results, SAT-style certificates, kernel-checked s
 | ID | Difficulty | Maturity | Notes |
 |----|------------|----------|-------|
 | circuit_identity_after_layout | introductory | reference_scaffold | Auto-synced from spec.yaml |
-| clifford_simplification_preserves_unitary | advanced | reference_scaffold | Auto-synced from spec.yaml |
+| clifford_simplification_preserves_unitary | advanced | artifact_bound_reference_claim | Auto-synced from spec.yaml |
 | cnot_self_inverse_cancellation | introductory | artifact_bound_reference_claim | Auto-synced from spec.yaml |
 | hadamard_conjugates_x_to_z | intermediate | artifact_bound_reference_claim | Auto-synced from spec.yaml |
 | phase_polynomial_equivalence_small_instance | intermediate | reference_scaffold | Auto-synced from spec.yaml |

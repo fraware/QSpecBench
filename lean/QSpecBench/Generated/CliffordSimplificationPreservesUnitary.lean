@@ -1,5 +1,4 @@
-/- QSpecBench bridge codegen witness (hash must match package stub). -/
-/- benchmark_id = 'clifford_simplification_preserves_unitary' -/
+/- QSpecBench bridge codegen: regenerate via `qspecbench bridge-codegen generate`. -/
 import QSpecBench.Quantum.QasmOp
 
 namespace QSpecBench.Generated.CliffordSimplificationPreservesUnitary

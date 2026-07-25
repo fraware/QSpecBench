@@ -1,4 +1,4 @@
-qspecbench_version: '0.2'
+qspecbench_version: '0.3'
 id: clifford_simplification_preserves_unitary
 title: Clifford Simplification Preserves Unitary
 track: equivalence
@@ -6,13 +6,28 @@ domain: circuit_equivalence
 claim_type: unitary_equivalence
 difficulty: advanced
 informal_claim:
-  statement: A Clifford simplification pass preserves the circuit unitary on declared
-    registers.
+  statement: Clifford simplification of the declared H-H-S source trace to the S-only
+    target circuit preserves the unitary exactly under the normalized 1-qubit complex
+    denotation (algebraic H = H/√2; global phase φ = 0).
   source: null
   reference_key: null
+claim_identity:
+  proposition_id: clifford_simplification_preserves_unitary_v1
+  postcondition_obligation_ids:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
+authorship:
+  author: fraware
+  merging_maintainer: fraware
 semantic_level:
   primary: circuit
-  secondary: []
+  secondary:
+  - compiler
 objects:
 - name: source
   type: circuit
@@ -27,9 +42,12 @@ objects:
 specification:
   mode: exact
   preconditions:
-  - declared qubit ordering
+  - 'equivalence relation: ExactDenotationEq under denotateOps1C_normalized'
+  - single declared qubit q[0]; no wire-permutation ambiguity
   postconditions:
-  - simplified circuit unitary equals original
+  - Clifford simplification of the declared H-H-S source trace to the S-only target
+    circuit preserves the unitary exactly under the normalized 1-qubit complex denotation
+    (algebraic H = H/√2; global phase φ = 0).
   invariants: []
   approximation:
     enabled: false
@@ -47,129 +65,252 @@ specification:
     other: []
 assumptions:
   mathematical:
-  - standard finite-dimensional quantum semantics
+  - denotateOps1C_normalized is the trusted composition semantics for this claim
+  - gate atoms H/S match ComplexGate normalized Hadamard / algebraic S matrices
   physical: []
   tool: []
   artifact: []
   unverified: []
-evidence:
-- id: qasm_parse_source
-  type: qasm_parse
-  path: artifacts/source.qasm
-  checker: qasm parser adapter
-  status: passing
-  notes: Syntax only; semantic claim not verified.
-- id: qasm_parse_target
-  type: qasm_parse
-  path: artifacts/target.qasm
-  checker: qasm parser adapter
-  status: passing
-  notes: Syntax only; semantic claim not verified.
-- id: qcec_equivalence
-  type: qcec_result
-  path: artifacts/source.qasm
-  secondary_path: artifacts/target.qasm
-  checker: QCEC equivalence tool
-  status: passing
-  notes: External equivalence check on declared QASM pair.
-- id: lean_clifford_anchor
-  type: lean_proof
-  path: evidence/clifford_anchor.lean
-  checker: Lean 4 kernel
-  status: passing
-  notes: Kernel-checked OpenQASM3 complex denotation anchor for Clifford source gate
-    trace (H H S).
-- id: bridge_verify
-  type: python_denotation_consistency_check
-  path: evidence/bridge_verify.result.json
-  checker: verify-bridge CLI
-  status: passing
-  notes: QASM matrix matches OpenQASM3 complex denotation (manifest_checked_theorem_binding
-    bridge).
-- id: lean_clifford_pair_scaffold
-  type: lean_proof
-  path: evidence/source_target_equivalence_open.lean
-  checker: Lean 4 kernel
-  status: passing
-  notes: Scaled pair relation bridge_clifford_source_target_scaled (factor 2); not exact matrix
-    equality; see notes/normalized_unitary_policy.md.
-trust_boundary:
-  checked_by:
-  - QASM syntax parse
-  - Lean 4 kernel OpenQASM3 denotation anchor
-  - verify-bridge matrix match
-  trusted_kernels:
-  - Lean 4 kernel
-  trusted_external_tools:
-  - QCEC
-  untrusted_components: []
-  assumptions_not_checked:
-  - semantic correctness of circuit vs claim
 status:
   informal_claim: complete
   machine_spec: complete
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_scaffold
+  maturity: artifact_bound_reference_claim
+  reviews:
+    formal_evidence_review:
+      status: approved
+      reviewer: rkothari-formal
+      date: '2026-07-25'
+      notes: Elaborator-bound bridge_clifford_source_target_normalized_exact + BridgeMetadata
+        pin + seven obligation formal_claims verified under the normalized 1-qubit model.
+      review_artifact_path: reviews/formal_review.json
+      review_artifact_sha256: 726235d854aacd8592395b5ae981e26c414f4649fb7c18e215fd3599402465da
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+    domain_semantics_review:
+      status: approved
+      reviewer: mlewis-quant-sem
+      date: '2026-07-25'
+      notes: Declared semantics narrowed to denotateOps1C_normalized; φ=0 phase
+        policy and trivial single-qubit wire-order discharged; unnormalized denotateOps1C
+        pair equality (factor 2) not claimed.
+      review_artifact_path: reviews/domain_review.json
+      review_artifact_sha256: b0eab18f4ba4ae2eb81b384b02a684eddfd85aa8c0fa5b883eb6c0fefb108ec9
+      review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
+references: []
 acceptable_evidence:
 - type: qasm_parse
   checker: qasm parser adapter
+  path: null
   required_for_claim: false
   trust_level: externally_trusted
 - type: qcec_result
   checker: QCEC equivalence tool
+  path: null
   required_for_claim: false
   trust_level: externally_trusted
 - type: lean_proof
   checker: Lean 4 kernel
-  required_for_claim: false
+  path: null
+  required_for_claim: true
   trust_level: checked
-- type: python_denotation_consistency_check
+- type: internal_denotation_consistency
   checker: verify-bridge CLI
   path: null
-  required_for_claim: false
-  trust_level: independently_checkable
-references: []
+  required_for_claim: true
+  trust_level: heuristic
+evidence:
+- id: qasm_parse_source
+  type: qasm_parse
+  path: artifacts/source.qasm
+  checker: qasm parser adapter
+  status: passing
+  notes: Syntax only.
+- id: qasm_parse_target
+  type: qasm_parse
+  path: artifacts/target.qasm
+  checker: qasm parser adapter
+  status: passing
+  notes: Syntax only.
+- id: qcec_equivalence
+  type: qcec_result
+  path: artifacts/source.qasm
+  secondary_path: artifacts/target.qasm
+  checker: QCEC equivalence tool
+  status: passing
+  notes: External supporting evidence; Lean normalized denotation is the kernel headline.
+- id: lean_clifford_pair_bridge
+  type: lean_proof
+  path: evidence/clifford_pair_bridge.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Normalized source-target equality, parse bounds, phase/wire policy, gate-atom
+    bridges.
+- id: bridge_verify
+  type: internal_denotation_consistency
+  path: evidence/bridge_verify.result.json
+  checker: verify-bridge CLI
+  status: passing
+  notes: kernel_checked_artifact_semantics verify-bridge on source H-H-S artifact.
+trust_boundary:
+  checked_by:
+  - QASM syntax parse on source and target
+  - Lean 4 kernel normalized 1-qubit pair denotation
+  - verify-bridge matrix match on source artifact
+  trusted_kernels:
+  - Lean 4 kernel
+  - denotateOps1C_normalized (1-qubit complex fold)
+  trusted_external_tools:
+  - QCEC
+  untrusted_components: []
+  assumptions_not_checked:
+  - unnormalized denotateOps1C exact pair equality (scaled by factor 2)
+  - full_openqasm3
+  - hardware_semantics
 proof_obligations:
-- id: lean_kernel_proof
+- id: source_artifact_parse
   status: passing
-  notes: Clifford simplification anchor
-- id: semantic_bridge
+  notes: parseQasmSource_clifford_kernel_eq_generated_ops
+- id: target_artifact_parse
   status: passing
-  notes: manifest_checked_theorem_binding verify-bridge with complex S gate model
-- id: compiler_source_target_denotation
-  status: partial
-  notes: Scaled pair theorem kernel-checked (factor 2); exact matrix equality and normalized
-    dual-manifest verify-bridge open
+  notes: parseQasmSource_clifford_target_kernel_eq_generated_ops
+- id: source_denotation
+  status: passing
+  notes: denotateOps1C_normalized source = sGate
+- id: target_denotation
+  status: passing
+  notes: denotateOps1C_normalized target = sGate
+- id: source_target_equivalence
+  status: passing
+  notes: bridge_clifford_source_target_normalized_exact
+- id: global_phase_policy
+  status: passing
+  notes: ExactDenotationEq implies EquivUpToGlobalPhase1 with φ = 0
+- id: wire_order_alignment
+  status: passing
+  notes: single-qubit register; both sides equal sGate (no permutation ambiguity)
 claim_scope:
   headline_claim_id: clifford_simplification_preserves_unitary_headline
-  headline_claim_text: A Clifford simplification pass preserves the circuit unitary
-    on declared registers.
+  headline_claim_text: Clifford simplification of the declared H-H-S source trace to the
+    S-only target circuit preserves the unitary exactly under the normalized 1-qubit complex
+    denotation (algebraic H = H/√2; global phase φ = 0).
   required_obligations:
-  - lean_kernel_proof
-  - semantic_bridge
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
 proved_scope:
   checked_obligations:
-  - lean_kernel_proof
-  - semantic_bridge
-  unproved_obligations:
-  - semantic_correctness_of_circuit_vs_claim
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
+  unproved_obligations: []
 headline_claim_status:
-  status: partially_checked
-  notes: Source manifest + scaled pair theorem checked; exact compiler unitary headline open
-    (semantic_correctness_of_circuit_vs_claim).
+  status: checked
+  notes: Headline checked under denotateOps1C_normalized with elaborator-bound kernel
+    bridge and BridgeMetadata pin.
+  checked_under:
+  - qspecbench.openqasm3.complex_unitary.v1
+  - denotateOps1C_normalized
+  - kernel_checked_artifact_semantics
+  - lean_parseQasmSource_on_artifact_file
+  - lean_source_target_denotation_equality
+  - exact_equality_global_phase_zero
+  not_checked_under:
+  - unnormalized_denotateOps1C_pair_equality
+  - full_openqasm3
+  - hardware_semantics
 formal_claims:
-- id: formal_lean_clifford_anchor
-  evidence_id: lean_clifford_anchor
+- id: formal_lean_source_parse
+  evidence_id: lean_clifford_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3Parser
+  theorem: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_clifford_kernel_eq_generated_ops
+  supports:
+  - source_artifact_parse
+  does_not_support:
+  - source_target_equivalence
+  - unnormalized_denotateOps1C_pair_equality
+  benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
+- id: formal_lean_target_parse
+  evidence_id: lean_clifford_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3Parser
+  theorem: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSource_clifford_target_kernel_eq_generated_ops
+  supports:
+  - target_artifact_parse
+  does_not_support:
+  - source_target_equivalence
+  - unnormalized_denotateOps1C_pair_equality
+  benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
+- id: formal_lean_source_denotation
+  evidence_id: lean_clifford_pair_bridge
   formal_system: lean
   module: QSpecBench.Quantum.OpenQASM3
-  theorem: QSpecBench.Quantum.OpenQASM3.bridge_clifford_hhs
+  theorem: QSpecBench.Quantum.OpenQASM3.clifford_source_denotateOps1C_normalized_eq_sGate
   supports:
-  - lean_kernel_proof
+  - source_denotation
   does_not_support:
-  - semantic_correctness_of_circuit_vs_claim
+  - source_target_equivalence
+  - unnormalized_denotateOps1C_pair_equality
   benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
+- id: formal_lean_target_denotation
+  evidence_id: lean_clifford_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.clifford_target_denotateOps1C_normalized_eq_sGate
+  supports:
+  - target_denotation
+  does_not_support:
+  - unnormalized_denotateOps1C_pair_equality
+  benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
+- id: formal_lean_pair_equivalence
+  evidence_id: lean_clifford_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.bridge_clifford_source_target_normalized_exact
+  supports:
+  - source_target_equivalence
+  does_not_support:
+  - unnormalized_denotateOps1C_pair_equality
+  - full_openqasm3
+  - hardware_semantics
+  benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
+- id: formal_lean_global_phase_policy
+  evidence_id: lean_clifford_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.clifford_normalized_global_phase_policy_exact
+  supports:
+  - global_phase_policy
+  does_not_support:
+  - unnormalized_denotateOps1C_pair_equality
+  benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
+- id: formal_lean_wire_order
+  evidence_id: lean_clifford_pair_bridge
+  formal_system: lean
+  module: QSpecBench.Quantum.OpenQASM3
+  theorem: QSpecBench.Quantum.OpenQASM3.clifford_normalized_pair_wire_order_trivial
+  supports:
+  - wire_order_alignment
+  does_not_support:
+  - unnormalized_denotateOps1C_pair_equality
+  benchmark_anchor: clifford_simplification_preserves_unitary
+  proposition_id: clifford_simplification_preserves_unitary_v1
 provenance:
   generated_at: '2026-06-27T17:18:29.359375+00:00'
   artifacts:
@@ -179,4 +320,5 @@ provenance:
   - path: artifacts/target.qasm
     sha256: b64706e2d1603b550ad1f7702914aac884098448a61977baa881d3e7bc90e6f4
     role: target
-semantics_base: complex_matrix
+semantics_base: openqasm_fragment
+openqasm_profile: qspecbench.openqasm3.unitary.v1

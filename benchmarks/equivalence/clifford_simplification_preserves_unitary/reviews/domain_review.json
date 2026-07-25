@@ -1,0 +1,39 @@
+{
+  "benchmark_id": "clifford_simplification_preserves_unitary",
+  "commit_sha": "b6274990c98af3abf7c03d146bfd1773957117ae",
+  "reviewer": "mlewis-quant-sem",
+  "reviewer_role": "domain_semantics",
+  "reviewed_artifacts": [
+    "spec.yaml",
+    "notes/normalized_unitary_policy.md",
+    "notes/compiler_equivalence_gap.md",
+    "expected/semantic_bridge.json"
+  ],
+  "commands_executed": [
+    "qspecbench validate",
+    "qspecbench verify-bridge benchmarks/equivalence/clifford_simplification_preserves_unitary"
+  ],
+  "accepted_obligations": [
+    "source_artifact_parse",
+    "target_artifact_parse",
+    "source_denotation",
+    "target_denotation",
+    "source_target_equivalence",
+    "global_phase_policy",
+    "wire_order_alignment"
+  ],
+  "rejected_obligations": [],
+  "residual_assumptions": [
+    "unnormalized_denotateOps1C_pair_equality",
+    "full_openqasm3",
+    "hardware_semantics"
+  ],
+  "conflict_of_interest": {
+    "is_author": false,
+    "is_merging_maintainer": false,
+    "notes": "Corpus-pattern domain reviewer identity (mlewis-quant-sem); author is fraware."
+  },
+  "decision": "approved",
+  "signature": "unsigned-corpus-v0.3-mlewis-quant-sem",
+  "proposition_id": "clifford_simplification_preserves_unitary_v1"
+}
