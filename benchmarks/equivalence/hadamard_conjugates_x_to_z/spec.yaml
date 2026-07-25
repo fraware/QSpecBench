@@ -133,7 +133,7 @@ status:
       date: '2026-06-29'
       notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: 0ef469eb549741fb80d831fbee305d533f989919f90ff614732e007cfd9c5dab
+      review_artifact_sha256: 7f0779e8f0abcebfca5a17e43541c7c1cce9cd1fc0d01463ea201481271d4d77
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -141,7 +141,7 @@ status:
       date: '2026-06-29'
       notes: H-X-H conjugation scope; H normalization documented in not_checked_under.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: ab3d72e56ac888504db2e5cf9ccbd9b79bb2cc55535f58c09a0d04bdf9f82482
+      review_artifact_sha256: 4e9b7e3b47f1fd2895b8c374e58a12e7b2ef5f38d45b24bcfafb3dd93d0940f9
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:

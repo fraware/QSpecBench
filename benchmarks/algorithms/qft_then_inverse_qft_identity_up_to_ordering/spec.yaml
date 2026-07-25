@@ -90,7 +90,7 @@ status:
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: 6df625a892909d7c94a443b42a34910ff63b95c9d4e7712c1375c8ff172095d9
+      review_artifact_sha256: ef5874c9a021277606a26825c3b77b55a2cc264365d10fef9245bd4b2e954e3a
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -98,7 +98,7 @@ status:
       date: '2026-06-27'
       notes: Corpus bootstrap dual review recorded at P1 governance gate.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: f609502c7936a53b87a2d99100d398cd0da3da0621da2ca7867d4c158247c91b
+      review_artifact_sha256: bc10258dfb5bb1720b4ad679a8cdb538e7631632124aa4ac56e5c05fba263cdc
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 acceptable_evidence:
 - type: qasm_parse

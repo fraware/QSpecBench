@@ -108,7 +108,7 @@ status:
       date: '2026-06-29'
       notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: 7f8ba04725dba3f4643825bab0287dce3854c9b71a1eddc17248f9888e81b369
+      review_artifact_sha256: 62db374bdbd16f6db9b4bbd60b44d2e0d9b7685ce04ed3ac64dc9bcde06194e5
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -116,7 +116,7 @@ status:
       date: '2026-06-29'
       notes: Bell |Phi+> preparation scope; global phase and H normalization documented in not_checked_under.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: 4c28741e41228d1987d785502f3aadddb3a1874f665ad2c372c0b539a3d50992
+      review_artifact_sha256: f2298b54aef5f8c4229f4c46451cb6387d62f58877543d8245e5c68f7084e2e0
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:

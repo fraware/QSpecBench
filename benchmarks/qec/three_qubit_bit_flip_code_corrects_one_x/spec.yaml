@@ -281,7 +281,7 @@ status:
       notes: Lookup-table decoder kernel-checked in Lean; brute-force preservation
         checked.
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: 24bb6a664fec28fd288fbeb7e4179a9319a5857ab7b866d643277f8495cc69fa
+      review_artifact_sha256: 5eb3f7c6f5044eaef4099429bb5163ef5c79cc8295672e1d24e8c9c4bc4d6b48
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -289,7 +289,7 @@ status:
       date: '2026-06-27'
       notes: Headline narrowed to declared lookup decoder under single-X model.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: 858072afec414d652d8c07c73637ef64d1c014b5bf80453e18848e6c549c90ec
+      review_artifact_sha256: a36adab637ddc7160935b6fe000df2ae50b5f06c4fbf21899ed0549e10722e22
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 qec_status:
   code_definition: complete
@@ -347,7 +347,7 @@ proof_obligations:
     five-flip; outside six-flip. Not Stim Blossom / not full spacetime MWPM.'
 - id: stim_compatible_dem_adapter
   status: passing
-  notes: stim_dem_adapter validate hash+schema; sha256=8d264334c44db414bb7d5c08fa0a6b911f464ac338e2367499adbaa31e4900b1.
+  notes: stim_dem_adapter validate hash+schema; sha256=90df90e6244cd41a466c00934949acb41fa8745bd14b8563e4732ff67f27ba90.
     stim_invoked=false; no bare success-string certificate.
 - id: external_matching_agrees_on_fixture_graph
   status: passing
@@ -647,19 +647,19 @@ provenance:
     sha256: 4a3bcd0e1bdcd50c9a73278cb796307047fba9bd3ca1f0e93b358c98102ccf95
     role: specification
   - path: artifacts/error_model_three_round_majority.json
-    sha256: 7a24c87b9ac188fe800bd13f112bde1577da0b3b4da9f6c10e8a62814414b81c
+    sha256: 805aa2136a5fc3c33aaa8547d3c4a8c6e20e79384e5711580079628aa116e3ac
     role: specification
   - path: artifacts/error_model_five_round_majority.json
-    sha256: 2e626a54683fbc6fc7e0340473c96d3a87c2df7ad7d9047bb6ce977d740bf867
+    sha256: 21e842f3fd1acb3ba06f8ad0d75892401ac2c43ee853ce3881259c485a0ef4e8
     role: specification
   - path: artifacts/error_model_seven_round_majority.json
-    sha256: a78ab25baa572f90f1840cf03115049436bef4ef2b0b48534868c5d4618ade54
+    sha256: eb92f39012236919e59040dfd771159459ade84acdf292e93fa7295b71f700a4
     role: specification
   - path: artifacts/error_model_spacetime_mwpm_2x7.json
-    sha256: 13c20233f5cd4989db6fe7122d436a44f6f67e22359f82c50460813ac237058c
+    sha256: f6d2542fe67ed650c4aa4f2c7134505738513ca5c152438df720a9117340c77d
     role: specification
   - path: artifacts/stim_compatible_dem_2x7.json
-    sha256: 8d264334c44db414bb7d5c08fa0a6b911f464ac338e2367499adbaa31e4900b1
+    sha256: 90df90e6244cd41a466c00934949acb41fa8745bd14b8563e4732ff67f27ba90
     role: specification
   - path: artifacts/matching_graph_2x7_time_chain.json
     sha256: 8a636ec38028d2014176da6c87c0beac77530190a5fe821dea23e8f0da8262cc

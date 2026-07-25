@@ -185,7 +185,7 @@ status:
       notes: 'Unitary-prefix ABRC pins attested: BridgeMetadata, elaborator/ast/generated_lean,
         kernel_checked_artifact_semantics, wire_order lean.'
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: 3a5fc6e199b4479c329c0499a2ebf6db2bb86073636180aa1c6cd0de81461c7e
+      review_artifact_sha256: b2dffcda5f9c0603c0a75c6c99691cfed57b643e9efd946289e9e5f3a4fa9346
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -194,7 +194,7 @@ status:
       notes: Headline narrowed to measure-free teleport_unitary_prefix.qasm denotation;
         full dynamic protocol / POVM recovery explicitly out of ABRC scope.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: f1f7703921c7c5f3c801d1a79ec0dd3eb3235a49e5e00dfbc13402dcde13cc74
+      review_artifact_sha256: da6370c2efd5dc6e82705b188c4f7b9700bdffee792c90b7648d4abd4f1990a0
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references:
 - key: nielsen_chuang_teleportation

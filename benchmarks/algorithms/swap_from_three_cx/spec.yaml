@@ -66,7 +66,7 @@ status:
       date: '2026-06-29'
       notes: Artifact hash chain + Lean parseQasmSource + BridgeMetadata pins verified in CI.
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: 9a97d1e84fa448f6fdda015b7da6425d9f3ab0016f95f23cf0b724fd18f827cc
+      review_artifact_sha256: 14530a11baf1f0b5b6f826e701b9ba8a78432a72c45daf00abf17dbf699c5a67
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -74,7 +74,7 @@ status:
       date: '2026-06-29'
       notes: Three-CX SWAP on source artifact; gate-subset limits in not_checked_under.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: 93161f0f26c785d013a79ba43041b36a3770a5d7ffc5216d462990d004483ce7
+      review_artifact_sha256: 1f6293b25321977328abf48bca997714410555b9e7e2b9800e6616d76201fabd
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 acceptable_evidence:

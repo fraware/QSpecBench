@@ -204,7 +204,7 @@ provenance:
     sha256: 90439ac0de1563bef750320e835c71b48137e31f3dbb2a7f8580a3ea863ad31f
     role: specification
   - path: artifacts/declared_decode_table_surface_spacetime_d3_R3.json
-    sha256: e7501c2592874fc425c17a6a47bce5c028a62856c233fad799a94a12e4ce55cd
+    sha256: 6be851b0a7fa00e142a744f14e4b74087e78ca3ec37059ab2145d6a744d990c4
     role: reference
 authorship:
   author: fraware

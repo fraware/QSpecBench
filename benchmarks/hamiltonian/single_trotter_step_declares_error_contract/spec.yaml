@@ -168,7 +168,7 @@ status:
         an operator-norm/unbounded-N result nor a measure-theoretic Haar-integral
         proof.
       review_artifact_path: reviews/formal_review.json
-      review_artifact_sha256: a73e306f3bbcb3c915db7e8a18d67be2e40445543154d59989cba76a4c30514a
+      review_artifact_sha256: 675e413f8e94b70eaa55bd5585b4410587055c8f0be575d4e1303ce5958ff90b
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
     domain_semantics_review:
       status: approved
@@ -182,7 +182,7 @@ status:
         side obligations; residual scope (operator-norm composition, unbounded N,
         measure-theoretic Haar integral) explicitly not restored as checked.
       review_artifact_path: reviews/domain_review.json
-      review_artifact_sha256: 0458eeb2901f7c19195431984bc7720a44fa014ad1578068c19defc534f89623
+      review_artifact_sha256: 1b4097fe26dde8ec7f0d19012b460f6c1ac414bbe56d490884dac55034e00cfd
       review_commit: b6274990c98af3abf7c03d146bfd1773957117ae
 references: []
 proof_obligations:
