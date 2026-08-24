@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/adapter_request.schema.json",
+  "title": "QSpecBench Adapter Request",
+  "type": "object",
+  "required": ["schema", "adapter_id", "adapter_version", "benchmark_id", "proposition_id", "semantic_profile_id", "inputs", "requested_obligations"],
+  "properties": {
+    "schema": {"const": "qspecbench.adapter_request.v1"},
+    "adapter_id": {"type": "string", "pattern": "^[a-z0-9_.-]+$"},
+    "adapter_version": {"type": "string", "minLength": 1},
+    "benchmark_id": {"type": "string", "minLength": 1},
+    "proposition_id": {"type": "string", "minLength": 1},
+    "semantic_profile_id": {"type": "string", "minLength": 1},
+    "tool": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": ["string", "null"]},
+        "digest": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "role": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "requested_obligations": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "config": {"type": "object"},
+    "limits": {
+      "type": "object",
+      "properties": {
+        "timeout_seconds": {"type": "integer", "minimum": 1},
+        "memory_mb": {"type": "integer", "minimum": 1},
+        "cpu_seconds": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
