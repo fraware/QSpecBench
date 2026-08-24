@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/semantic_profile.schema.json",
+  "title": "QSpecBench generic semantic profile",
+  "type": "object",
+  "required": ["schema", "id", "profile_kind", "profile_version", "interpretation", "unsupported_behavior"],
+  "properties": {
+    "schema": {"const": "qspecbench.semantic_profile.v1"},
+    "id": {"type": "string", "pattern": "^qspecbench\\.[a-z0-9_.-]+$"},
+    "profile_kind": {
+      "type": "string",
+      "enum": ["ai_formalization", "dynamic_quantum", "hamiltonian", "qec", "mathematical", "other"]
+    },
+    "profile_version": {"type": "string", "minLength": 1},
+    "upstream": {
+      "type": ["object", "null"],
+      "properties": {
+        "standard": {"type": ["string", "null"]},
+        "version": {"type": ["string", "null"]},
+        "repository": {"type": ["string", "null"]},
+        "commit": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "interpretation": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": ["string", "number", "boolean", "null", "array", "object"]}
+    },
+    "parser_or_interpreter": {
+      "type": ["object", "null"],
+      "properties": {
+        "implementation": {"type": ["string", "null"]},
+        "version": {"type": ["string", "null"]},
+        "trust_role": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "unsupported_behavior": {
+      "type": "string",
+      "enum": ["fail_closed", "explicit_out_of_scope", "not_applicable"]
+    },
+    "notes": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
