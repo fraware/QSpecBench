@@ -14,6 +14,8 @@ from typing import Any
 import jsonschema
 import yaml
 
+from qspecbench.validation.review_attestations import validate_review_attestations
+
 PROMOTED_MATURITIES = {"reference_claim", "artifact_bound_reference_claim"}
 GRAPH_FILENAME = "assurance_graph.yaml"
 GRAPH_SCHEMA = "schema/assurance_graph.schema.json"
@@ -187,5 +189,9 @@ def validate_assurance_graph_rules(
             "legacy spec.openqasm_profile differs from assurance graph semantic profile; "
             "the sidecar is the migration target and spec field must be reconciled before v0.4"
         )
+
+    review_errors, review_warnings = validate_review_attestations(spec, claim_dir, graph)
+    errors.extend(review_errors)
+    warnings.extend(review_warnings)
 
     return errors, warnings
