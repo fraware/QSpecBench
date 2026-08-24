@@ -8,7 +8,7 @@
   "measurement_support": "none",
   "reset_support": "none",
   "wire_order_convention": "openqasm_little_endian_wire_order",
-  "global_phase_policy": "exact_global_phase_zero",
+  "global_phase_policy": "exact",
   "unsupported_syntax_behavior": "fail_closed",
   "notes": "Normalized Clifford+T profile used by the Toffoli source-target denotation proof. This profile is intentionally distinct from the legacy unitary profile and pins OpenQASM 3.0 syntax, LSB wire ordering, and exact phase-zero equality."
 }
