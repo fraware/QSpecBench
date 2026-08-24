@@ -1,0 +1,18 @@
+{
+  "schema": "qspecbench.semantic_profile.v1",
+  "id": "qspecbench.hamiltonian.finite_dim_operator.v1",
+  "profile_kind": "hamiltonian",
+  "profile_version": "1",
+  "upstream": null,
+  "interpretation": {
+    "space": "explicit finite-dimensional complex Hilbert space",
+    "hamiltonian": "Hermitian linear operator/matrix under declared basis ordering",
+    "evolution": "matrix/operator exponential exp(-i t H)",
+    "approximation_metric": "operator norm unless a benchmark explicitly declares a stronger/different metric",
+    "product_formula": "composition order, time normalization, and step count are proposition data",
+    "artifact_mapping": "source Hamiltonian, decomposition, and emitted circuit must be separate checked obligations"
+  },
+  "parser_or_interpreter": null,
+  "unsupported_behavior": "fail_closed",
+  "notes": "Target profile for publication-grade Hamiltonian approximation claims; numerical entry-wise error is not automatically an operator-norm guarantee."
+}
