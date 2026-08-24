@@ -19,7 +19,8 @@ from qspecbench.validation.review_attestations import validate_review_attestatio
 PROMOTED_MATURITIES = {"reference_claim", "artifact_bound_reference_claim"}
 GRAPH_FILENAME = "assurance_graph.yaml"
 GRAPH_SCHEMA = "schema/assurance_graph.schema.json"
-PROFILE_SCHEMA = "schema/openqasm_profile.schema.json"
+OPENQASM_PROFILE_SCHEMA = "schema/openqasm_profile.schema.json"
+GENERIC_PROFILE_SCHEMA = "schema/semantic_profile.schema.json"
 
 
 def _repo_root(start: Path) -> Path:
@@ -47,36 +48,59 @@ def _validate_profile(graph: dict[str, Any], root: Path) -> list[str]:
 
     try:
         profile_doc = _load_json(profile_path)
-        jsonschema.validate(profile_doc, _load_json(root / PROFILE_SCHEMA))
+        schema_name = (
+            OPENQASM_PROFILE_SCHEMA
+            if str(profile_id).startswith("qspecbench.openqasm3.")
+            else GENERIC_PROFILE_SCHEMA
+        )
+        jsonschema.validate(profile_doc, _load_json(root / schema_name))
     except (OSError, json.JSONDecodeError, jsonschema.ValidationError) as exc:
         return [f"assurance graph semantic profile invalid: {profile_id}: {exc}"]
 
     if profile_doc.get("id") != profile_id:
         errors.append(f"semantic profile id mismatch: expected {profile_id}")
 
-    graph_wire = profile.get("wire_order")
-    profile_wire = profile_doc.get("wire_order_convention")
-    if graph_wire != profile_wire:
-        errors.append(
-            "assurance graph wire-order contradicts registered semantic profile: "
-            f"graph={graph_wire!r}, profile={profile_wire!r}"
-        )
-
-    graph_phase = profile.get("global_phase_policy")
-    profile_phase = profile_doc.get("global_phase_policy")
-    if graph_phase != profile_phase:
-        errors.append(
-            "assurance graph phase policy contradicts registered semantic profile: "
-            f"graph={graph_phase!r}, profile={profile_phase!r}"
-        )
-
-    graph_unsupported = profile.get("unsupported_behavior")
-    profile_unsupported = profile_doc.get("unsupported_syntax_behavior")
-    if graph_unsupported != profile_unsupported:
-        errors.append(
-            "assurance graph unsupported-syntax behavior contradicts registered semantic profile: "
-            f"graph={graph_unsupported!r}, profile={profile_unsupported!r}"
-        )
+    if str(profile_id).startswith("qspecbench.openqasm3."):
+        graph_standard = profile.get("upstream_standard")
+        if graph_standard is not None and graph_standard != profile_doc.get("upstream_standard"):
+            errors.append(
+                "assurance graph upstream standard contradicts registered semantic profile: "
+                f"graph={graph_standard!r}, profile={profile_doc.get('upstream_standard')!r}"
+            )
+        graph_version = profile.get("upstream_version")
+        if graph_version is not None and graph_version != profile_doc.get("upstream_version"):
+            errors.append(
+                "assurance graph upstream version contradicts registered semantic profile: "
+                f"graph={graph_version!r}, profile={profile_doc.get('upstream_version')!r}"
+            )
+        graph_wire = profile.get("wire_order")
+        if graph_wire is not None and graph_wire != profile_doc.get("wire_order_convention"):
+            errors.append(
+                "assurance graph wire-order contradicts registered semantic profile: "
+                f"graph={graph_wire!r}, profile={profile_doc.get('wire_order_convention')!r}"
+            )
+        graph_phase = profile.get("global_phase_policy")
+        if graph_phase is not None and graph_phase != profile_doc.get("global_phase_policy"):
+            errors.append(
+                "assurance graph phase policy contradicts registered semantic profile: "
+                f"graph={graph_phase!r}, profile={profile_doc.get('global_phase_policy')!r}"
+            )
+        graph_unsupported = profile.get("unsupported_behavior")
+        if (
+            graph_unsupported is not None
+            and graph_unsupported != profile_doc.get("unsupported_syntax_behavior")
+        ):
+            errors.append(
+                "assurance graph unsupported-syntax behavior contradicts registered semantic profile: "
+                f"graph={graph_unsupported!r}, profile={profile_doc.get('unsupported_syntax_behavior')!r}"
+            )
+    else:
+        graph_unsupported = profile.get("unsupported_behavior")
+        if graph_unsupported is not None and graph_unsupported != profile_doc.get("unsupported_behavior"):
+            errors.append(
+                "assurance graph unsupported behavior contradicts registered semantic profile: "
+                f"graph={graph_unsupported!r}, profile={profile_doc.get('unsupported_behavior')!r}"
+            )
     return errors
 
 
