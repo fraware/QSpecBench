@@ -1,0 +1,9 @@
+{
+  "schema": "qspecbench.evidence_adapter_bindings.v1",
+  "benchmark_id": "teleportation_dynamic_feedforward_protocol",
+  "bindings": {
+    "dynamic_denotation_bridge_verify": "qspecbench.bridge.dynamic_denotation.v1",
+    "dynamic_ast_bridge_verify": "qspecbench.bridge.dynamic_ast.v1",
+    "hardware_isa_abstraction": "qspecbench.bridge.hardware_isa.v1"
+  }
+}
