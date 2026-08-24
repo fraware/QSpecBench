@@ -6,6 +6,11 @@
 # the interim sole owner on every path. Replace the interim handle per-role when assignees
 # land — do not invent fake GitHub users.
 #
+# IMPORTANT: CODEOWNERS expresses repository ownership, not independent scientific review.
+# A sole interim owner is not sufficient to satisfy community-grade governance or promotion
+# independence. New reference_claim / artifact_bound_reference_claim promotions remain
+# governance-blocked until independent reviewer identities are verifiable.
+#
 # Role map (see GOVERNANCE.md § Maintainer assignment):
 #   schema-maintainer      → /schema/**
 #   lean-evidence-maintainer → /lean/**, /adapters/**
@@ -14,7 +19,7 @@
 #   ai-formalization-track-maintainer → /benchmarks/ai_formalization/**
 #   algorithms-track-maintainer → /benchmarks/algorithms/** (default + algorithms)
 #   equivalence-track-maintainer → /benchmarks/equivalence/**
-#   tooling-trust-maintainer → reviews/trust/claim_coherence
+#   tooling-trust-maintainer → reviews/trust/claim_coherence/assurance graph/adapter protocol
 
 # Default: schema + tooling (interim sole owner)
 *                                       @fraware
@@ -37,7 +42,7 @@
 # Lean kernel proofs and generated bridges — role: lean-evidence-maintainer (TBA)
 /lean/**                                @fraware
 
-# Schema dialect and contract surface — role: schema-maintainer (interim: @fraware)
+# Schema dialect, semantic profiles, assurance graph and adapter contracts
 /schema/**                              @fraware
 
 # Evidence adapters (fail-closed execution paths) — role: lean-evidence-maintainer (TBA)
@@ -47,3 +52,7 @@
 /tools/qspecbench/reviews.py            @fraware
 /tools/qspecbench/trust.py              @fraware
 /tools/qspecbench/claim_coherence.py    @fraware
+/tools/qspecbench/validation/assurance.py @fraware
+
+# Typed assurance-graph sidecars are trust-critical artifacts.
+/benchmarks/**/assurance_graph.yaml     @fraware
