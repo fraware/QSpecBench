@@ -1,0 +1,17 @@
+adapter_name: lean_qec
+status: integration_scaffold
+registered: false
+protocol: qspecbench.adapter_request.v1_to_adapter_result.v1
+supported_evidence_types:
+  - qec_verifier_result
+trust_ceiling: independently_checkable
+activation_requirements:
+  - pinned_upstream_repository_commit
+  - pinned_upstream_lean_toolchain
+  - exported_theorem_or_certificate_sha256
+  - deterministic_checker
+  - typed_obligation_support
+  - conformance_tests
+notes: >-
+  Not a shipping evidence adapter and must not be treated as passing evidence.
+  Issue #18 tracks activation against a concrete Lean-QEC export.
