@@ -172,7 +172,9 @@ def validate_assurance_graph_rules(
     relation = proposition.get("relation_to_source")
     if spec.get("track") == "ai_formalization":
         ai_status = spec.get("ai_formalization_status") or {}
-        if ai_status.get("kernel_status") == "checked_faithful" and relation not in {
+        gold_target = ai_status.get("gold_target") or {}
+        kernel_status = ai_status.get("kernel_status") or gold_target.get("kernel_status")
+        if kernel_status == "checked_faithful" and relation not in {
             "equivalent",
             "not_applicable",
         }:
