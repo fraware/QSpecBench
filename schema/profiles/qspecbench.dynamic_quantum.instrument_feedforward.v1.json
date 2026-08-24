@@ -1,0 +1,19 @@
+{
+  "schema": "qspecbench.semantic_profile.v1",
+  "id": "qspecbench.dynamic_quantum.instrument_feedforward.v1",
+  "profile_kind": "dynamic_quantum",
+  "profile_version": "1",
+  "upstream": null,
+  "interpretation": {
+    "state_model": "finite-dimensional density operators or explicitly related pure-state specialization",
+    "measurement": "projective measurement/instrument with explicit probabilities and post-measurement states",
+    "classical_state": "explicit classical registers updated by measurement outcomes",
+    "feedforward": "branch semantics conditioned on classical-register values",
+    "discard": "explicit subsystem discard/partial-trace semantics when used",
+    "reset": "must be declared and proved when used",
+    "branch_completeness": "all possible declared measurement outcomes are part of the proposition"
+  },
+  "parser_or_interpreter": null,
+  "unsupported_behavior": "fail_closed",
+  "notes": "Target semantic profile for arbitrary-input dynamic protocol flagships. It does not imply hardware/device semantics."
+}
