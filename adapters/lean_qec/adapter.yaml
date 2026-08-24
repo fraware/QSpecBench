@@ -1,17 +1,24 @@
 adapter_name: lean_qec
-status: integration_scaffold
-registered: false
+adapter_id: qspecbench.lean_qec.distance.v1
+adapter_version: 1.0.0
+status: executable_version_isolated
+registered: true
 protocol: qspecbench.adapter_request.v1_to_adapter_result.v1
 supported_evidence_types:
   - qec_verifier_result
-trust_ceiling: independently_checkable
-activation_requirements:
-  - pinned_upstream_repository_commit
-  - pinned_upstream_lean_toolchain
-  - exported_theorem_or_certificate_sha256
-  - deterministic_checker
-  - typed_obligation_support
-  - conformance_tests
+trust_ceiling: kernel_checked
+implementation: parse_result.py
+network_policy: explicit_opt_in_only
+activation_environment: QSPECBENCH_LEAN_QEC_VERIFY=1
+scope:
+  supports:
+    - qec_distance_lower_bound
+  does_not_support:
+    - syndrome_extraction_circuit_semantics
+    - physical_noise_model
+    - decoder_correctness
+    - correction_logical_preservation
+    - repeated_round_fault_tolerance
 notes: >-
-  Not a shipping evidence adapter and must not be treated as passing evidence.
-  Issue #18 tracks activation against a concrete Lean-QEC export.
+  Executes the pinned upstream Lean-QEC project in its own exact toolchain. Normal
+  corpus checks return a structured skip unless explicit verification mode is enabled.
