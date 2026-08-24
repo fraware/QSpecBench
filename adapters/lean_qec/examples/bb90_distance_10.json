@@ -1,0 +1,21 @@
+{
+  "schema": "qspecbench.lean_qec_import.v1",
+  "adapter_id": "qspecbench.lean_qec.distance.v1",
+  "upstream_repository": "https://github.com/VerifiedQC/Lean-QEC.git",
+  "upstream_commit": "e0b90148694cf6b9c8482b21dbd911f2d8f13493",
+  "lean_toolchain": "leanprover/lean4:v4.30.0-rc2",
+  "source_path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean",
+  "source_git_blob_sha": "8414ff1fb50f888998188f6e53020e95eb7891ca",
+  "module": "LeanQEC.Stabilizer.Examples.BB.BB90",
+  "theorem": "BB90_dist_10",
+  "theorem_statement_fragment": "theorem BB90_dist_10 : 10 ≤ BB90_css.toBSM.distance",
+  "proposition_relation": "equivalent",
+  "supported_obligations": ["qec_distance_lower_bound"],
+  "not_supported_obligations": [
+    "syndrome_extraction_circuit_semantics",
+    "physical_noise_model",
+    "decoder_correctness",
+    "correction_logical_preservation",
+    "repeated_round_fault_tolerance"
+  ]
+}
