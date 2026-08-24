@@ -22,6 +22,7 @@ class TypedAdapterSpec:
 
 _TYPED: tuple[TypedAdapterSpec, ...] = (
     TypedAdapterSpec("qspecbench.lean.kernel.v1", "1.0.0", "lean/parse_result.py", "kernel_checked", ("lean_proof", "proof_assistant_proof")),
+    TypedAdapterSpec("qspecbench.lean_qec.distance.v1", "1.0.0", "lean_qec/parse_result.py", "kernel_checked", ("qec_verifier_result",)),
     TypedAdapterSpec("qspecbench.coq.kernel.v1", "1.0.0", "coq/parse_result.py", "kernel_checked", ("coq_proof",)),
     TypedAdapterSpec("qspecbench.rocq.kernel.v1", "1.0.0", "rocq/parse_result.py", "kernel_checked", ("rocq_proof",)),
     TypedAdapterSpec("qspecbench.isabelle.kernel.v1", "1.0.0", "isabelle/parse_result.py", "kernel_checked", ("isabelle_proof",)),
@@ -47,7 +48,8 @@ _TYPED: tuple[TypedAdapterSpec, ...] = (
 TYPED_ADAPTERS: dict[str, TypedAdapterSpec] = {item.adapter_id: item for item in _TYPED}
 
 # Defaults exist only for the repository-wide ordinary interpretation of an evidence type.
-# Dynamic bridge and Stim/PyMatching cases override these defaults with an explicit typed id.
+# Dynamic bridge, Stim/PyMatching, and external Lean-QEC distance cases override these defaults
+# with an explicit typed id.
 DEFAULT_TYPED_ADAPTER_BY_EVIDENCE_TYPE: dict[str, str] = {
     "lean_proof": "qspecbench.lean.kernel.v1",
     "proof_assistant_proof": "qspecbench.lean.kernel.v1",
