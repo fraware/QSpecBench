@@ -13,6 +13,7 @@ REGISTERED_ADAPTERS: frozenset[str] = frozenset(
         "python",
         "ai_formalization",
         "lean",
+        "lean_qec",
         "coq",
         "rocq",
         "isabelle",
@@ -29,7 +30,6 @@ REGISTERED_ADAPTERS: frozenset[str] = frozenset(
 )
 
 # Evidence types without a shipping adapter: fail closed if used as passing evidence.
-# (Empty after Wave 0.2 registered qbricks_result / zx_certificate; kept for defense-in-depth.)
 UNSUPPORTED_EVIDENCE_TYPES: frozenset[str] = frozenset()
 
 EVIDENCE_TYPE_ADAPTERS: dict[str, str] = {
@@ -75,7 +75,11 @@ def adapter_for_evidence_type(evidence_type: str) -> str | None:
 
 
 def validate_evidence_adapter_binding(spec: dict[str, Any]) -> list[str]:
-    """Reject unsupported or unregistered adapter bindings on evidence entries."""
+    """Reject unsupported evidence types and ensure an ordinary adapter exists.
+
+    Stable typed adapter identity is validated separately. This legacy registry intentionally
+    does not use the descriptive ``checker`` field and does not override explicit typed bindings.
+    """
     errors: list[str] = []
     for entry in spec.get("evidence", []) or []:
         etype = entry.get("type")
