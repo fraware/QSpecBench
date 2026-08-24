@@ -1,0 +1,7 @@
+{
+  "schema": "qspecbench.evidence_adapter_bindings.v1",
+  "benchmark_id": "surface_code_distance_three_stabilizer_sanity",
+  "bindings": {
+    "stim_declared_surface_universe": "qspecbench.qec.stim_matching.v1"
+  }
+}

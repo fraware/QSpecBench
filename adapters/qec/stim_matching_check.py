@@ -2,39 +2,43 @@
 
 ``qec_verifier_result`` evidence in this corpus covers several distinct
 checker-specific verifiers beyond the generic stabilizer-code JSON validator in
-``adapters/qec/parse_result.py`` (that adapter validates ``code.json``-shaped
-stabilizer codes -- it does not know how to invoke Stim or PyMatching). This
-wrapper re-dispatches to the correct already-implemented, already-tested
-verifier function based on the on-disk (corpus-trusted, reviewed) evidence
-result JSON's own ``schema``/``command`` fields, so ``check-evidence`` exercises
-the same function the review/promotion relied on instead of silently
-mis-routing to the wrong checker.
+``adapters/qec/parse_result.py``. This wrapper dispatches by the on-disk result
+JSON's declared schema/command and invokes only registered verifier functions.
 
-Input artifact filenames (``--dem``/``--table``/``--graph``) are recovered from
-the existing result JSON's self-recorded ``command`` string -- never from
-untrusted external input -- and are then resolved and path-jailed under the
-claim's ``artifacts/`` directory before use. Nothing here is executed as a
-shell command; only the imported Python verifier functions are called
-directly. Any failure (including a verifier raising its own fail-closed error)
-is reported as ``ok: false`` -- never silently swallowed.
+Historical result files may contain host-specific absolute artifact paths. Such
+paths are never trusted for replay. When a portable claim-relative path is not
+available, the wrapper resolves the artifact from the claim's ``artifacts/``
+directory by the result's recorded SHA-256 and requires exactly one match. This
+keeps replay content-addressed and independent of the machine that produced the
+historical result.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 _DEM_RE = re.compile(r"--dem\s+(\S+)")
 _TABLE_RE = re.compile(r"--table\s+(\S+)")
 _GRAPH_RE = re.compile(r"--graph\s+(\S+)")
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class StimMatchingCheckError(ValueError):
     pass
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def _safe_artifact_path(claim_dir: Path, filename: str) -> Path:
@@ -48,6 +52,62 @@ def _safe_artifact_path(claim_dir: Path, filename: str) -> Path:
     if not path.is_file():
         raise StimMatchingCheckError(f"artifact missing: {rel}")
     return path
+
+
+def _resolve_recorded_artifact(existing: dict, claim_dir: Path) -> tuple[Path, str]:
+    """Resolve a historical result's artifact without trusting host-specific paths.
+
+    A portable relative path is accepted only if it stays inside the claim and its
+    bytes match the recorded SHA-256. Absolute POSIX/Windows paths are ignored for
+    replay and resolved by content hash under ``artifacts/`` instead. Hash fallback
+    requires exactly one matching file, preventing ambiguous rebinding.
+    """
+    from qspecbench.artifacts import resolve_claim_path
+
+    digest = str(existing.get("sha256") or "")
+    if _SHA256_RE.fullmatch(digest) is None:
+        raise StimMatchingCheckError("historical DEM result must record a lowercase SHA-256")
+
+    raw = str(existing.get("path") or "")
+    is_host_absolute = bool(raw) and (Path(raw).is_absolute() or PureWindowsPath(raw).is_absolute())
+    if raw and not is_host_absolute:
+        try:
+            candidate = resolve_claim_path(claim_dir, raw)
+        except ValueError as exc:
+            raise StimMatchingCheckError(str(exc)) from exc
+        if candidate.is_file():
+            actual = _sha256_file(candidate)
+            if actual != digest:
+                raise StimMatchingCheckError(
+                    f"recorded artifact SHA-256 mismatch: expected {digest}, got {actual}"
+                )
+            return candidate, digest
+
+    artifacts_root = (claim_dir / "artifacts").resolve()
+    if not artifacts_root.is_dir():
+        raise StimMatchingCheckError("claim artifacts directory is missing")
+
+    matches: list[Path] = []
+    for item in sorted(artifacts_root.rglob("*")):
+        if not item.is_file():
+            continue
+        resolved = item.resolve()
+        if not resolved.is_relative_to(artifacts_root):
+            continue
+        if _sha256_file(resolved) == digest:
+            matches.append(resolved)
+
+    if not matches:
+        raise StimMatchingCheckError(
+            f"no claim artifact matches recorded SHA-256 {digest}"
+        )
+    if len(matches) != 1:
+        rels = [str(path.relative_to(claim_dir.resolve())) for path in matches]
+        raise StimMatchingCheckError(
+            "recorded SHA-256 resolves ambiguously to multiple claim artifacts: "
+            + ", ".join(rels)
+        )
+    return matches[0], digest
 
 
 def _check(evidence_path: Path) -> tuple[bool, str, list[str]]:
@@ -96,20 +156,11 @@ def _check(evidence_path: Path) -> tuple[bool, str, list[str]]:
         result = verify_declared_surface_universe(claim_dir / "artifacts")
         return bool(result.get("ok", False)), "stim_declared_universe_adapter", []
 
-    # Fall back to the fail-closed DEM schema+hash validator (no Stim/PyMatching
-    # invocation): re-validate the same on-disk artifact this evidence pins.
+    # Historical DEM result: replay the content-addressed artifact under this claim.
     from qspecbench.stim_dem_adapter import validate_stim_compatible_dem
 
-    artifact = Path(existing.get("path") or "")
-    if not artifact.is_absolute():
-        artifact = claim_dir / artifact
-    try:
-        artifact.relative_to(claim_dir.resolve())
-    except ValueError as exc:
-        raise StimMatchingCheckError(f"DEM artifact path escapes claim dir: {artifact}") from exc
-    if not artifact.is_file():
-        raise StimMatchingCheckError(f"stim DEM artifact missing: {artifact}")
-    result = validate_stim_compatible_dem(artifact)
+    artifact, expected_sha256 = _resolve_recorded_artifact(existing, claim_dir)
+    result = validate_stim_compatible_dem(artifact, expected_sha256=expected_sha256)
     return bool(result.get("ok", False)), "stim_dem_adapter", []
 
 
