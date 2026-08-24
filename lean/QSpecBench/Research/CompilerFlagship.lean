@@ -1,5 +1,4 @@
 import Mathlib.Tactic.FinCases
-import Mathlib.Tactic.Ring
 import QSpecBench.Generated.SourceOptimizedCompilerPair
 import QSpecBench.Quantum.OpenQASM3
 import QSpecBench.Quantum.OpenQASM3Parser
@@ -59,15 +58,50 @@ theorem target_artifact_fail_closed_parse :
       | .error _ => false) = true := by
   native_decide
 
-/-- On these artifacts, the gate projection agrees with the compiler-generated source IR. -/
-theorem source_artifact_ops_bound :
-    parseQasmSourceToOps sourceArtifact = some sourceOps := by
+/-- Gate lines extracted from the generated source artifact. String-list equality is decidable
+without requiring equality on the full `QasmOp` type (whose RX case carries real parameters). -/
+def compilerSourceGateLines : List String :=
+  ["h q[0];", "x q[0];", "x q[0];"]
+
+theorem gateLinesFromCompilerSource :
+    filterGateLines (sourceArtifact.splitOn "\n" |>.map (·.trimRight)) =
+      compilerSourceGateLines := by
   native_decide
 
-/-- On these artifacts, the gate projection agrees with the compiler-generated target IR. -/
+/-- The parsed source gate lines agree definitionally with the compiler-generated IR. -/
+theorem parseLines_compiler_source_eq_generated_ops :
+    parseLines compilerSourceGateLines = sourceOps := by
+  unfold compilerSourceGateLines sourceOps
+  simp [parseLines, parseLineQasmOp_bell_h, parseLineQasmOp_x]
+
+/-- Gate lines extracted from the compiler-emitted target artifact. -/
+def compilerTargetGateLines : List String :=
+  ["h q[0];"]
+
+theorem gateLinesFromCompilerTarget :
+    filterGateLines (targetArtifact.splitOn "\n" |>.map (·.trimRight)) =
+      compilerTargetGateLines := by
+  native_decide
+
+/-- The parsed target gate lines agree definitionally with the compiler-generated IR. -/
+theorem parseLines_compiler_target_eq_generated_ops :
+    parseLines compilerTargetGateLines = targetOps := by
+  unfold compilerTargetGateLines targetOps
+  simp [parseLines, parseLineQasmOp_bell_h]
+
+/-- On this artifact, the gate projection agrees with the compiler-generated source IR. -/
+theorem source_artifact_ops_bound :
+    parseQasmSourceToOps sourceArtifact = some sourceOps := by
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromCompilerSource, parseLines_compiler_source_eq_generated_ops]
+  rfl
+
+/-- On this artifact, the gate projection agrees with the compiler-generated target IR. -/
 theorem target_artifact_ops_bound :
     parseQasmSourceToOps targetArtifact = some targetOps := by
-  native_decide
+  unfold parseQasmSourceToOps gateLinesFromSource
+  rw [gateLinesFromCompilerTarget, parseLines_compiler_target_eq_generated_ops]
+  rfl
 
 /-- The actual compiler source and target traces have identical normalized complex denotations.
 
@@ -80,8 +114,7 @@ theorem source_target_normalized_complex_denotation_eq :
   fin_cases i <;> fin_cases j <;>
     simp [sourceOps, targetOps, denotateOps1C_normalized, denotateGateC_normalized,
       mul2C, pauliXC, pauliXEntry, hadamardC_normalized, hadamardC_normalizedEntry,
-      hadamardEntry, identityGate, identityEntry, Matrix.of_apply, Matrix.one_apply] <;>
-    ring
+      hadamardEntry, identityGate, identityEntry, Matrix.of_apply, Matrix.one_apply]
 
 /-- End-to-end formal package for the concrete compiler transformation.
 

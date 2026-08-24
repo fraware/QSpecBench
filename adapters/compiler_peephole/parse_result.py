@@ -36,7 +36,7 @@ def main() -> int:
     target_bytes = target_path.read_bytes()
     try:
         source = source_bytes.decode("utf-8")
-        target = target_bytes.decode("utf-8")
+        target_bytes.decode("utf-8")
     except UnicodeDecodeError as exc:
         print(json.dumps({"ok": False, "error": f"artifacts must be UTF-8: {exc}"}))
         return 1
