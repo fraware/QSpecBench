@@ -27,6 +27,7 @@ from qspecbench.validation.evidence import (
     validate_evidence_rules,
 )
 from qspecbench.validation.layout import validate_layout_rules
+from qspecbench.validation.profile_conformance import validate_assurance_profile_conformance
 from qspecbench.validation.provenance import validate_provenance_rules
 from qspecbench.validation.qec import (  # noqa: F401 — re-export for tests
     infer_qec_witness_claim_kind,
@@ -65,6 +66,7 @@ def validate_spec_dict(
     assurance_errors, assurance_warnings = validate_assurance_graph_rules(spec, claim_dir)
     errors.extend(assurance_errors)
     warnings.extend(assurance_warnings)
+    errors.extend(validate_assurance_profile_conformance(spec, claim_dir))
     warnings.extend(validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_qec_witness_file(claim_dir, spec))
