@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from qspecbench.compiler_pair_codegen import GENERATED_PATH, render_compiler_pair
 from qspecbench.reference_compiler import ReferenceCompilerError, compile_qasm
 from qspecbench.typed_adapter_registry import get_typed_adapter
 
@@ -21,8 +22,14 @@ def test_reference_compiler_reproduces_declared_target_exactly() -> None:
     result = compile_qasm(source)
     assert result.output == target
     assert result.transformations == ("cancel_x_pair:q[0]",)
+    assert result.source_ops == (("h", 0), ("x", 0), ("x", 0))
+    assert result.target_ops == (("h", 0),)
     assert result.source_sha256 == "ef022773134724a54f86931c3e90bebd416e5a0e8ccd30367433d2f59ede40d9"
     assert result.target_sha256 == "b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60"
+
+
+def test_reference_compiler_generated_lean_pair_is_fresh() -> None:
+    assert GENERATED_PATH.read_text(encoding="utf-8") == render_compiler_pair()
 
 
 def test_reference_compiler_fails_closed_on_unsupported_gate() -> None:

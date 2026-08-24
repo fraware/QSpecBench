@@ -10,3 +10,4 @@ import QSpecBench.Generated.CircuitIdentityAfterLayout
 import QSpecBench.Generated.TeleportationUnitaryPrefix
 import QSpecBench.Generated.CliffordSimplificationPreservesUnitary
 import QSpecBench.Generated.CliffordSimplificationPreservesUnitaryTarget
+import QSpecBench.Generated.SourceOptimizedCompilerPair

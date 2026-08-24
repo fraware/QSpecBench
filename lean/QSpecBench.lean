@@ -13,6 +13,7 @@ import QSpecBench.Quantum.ToffoliDecomposition
 import QSpecBench.Quantum.StabilizerTableau
 import QSpecBench.Teleportation
 import QSpecBench.Research.DynamicTeleportation
+import QSpecBench.Research.CompilerFlagship
 import QSpecBench.NoCloning
 import QSpecBench.Hamiltonian
 import QSpecBench.QECDistant
@@ -27,8 +28,9 @@ Default `lake build QSpecBench` does **not** import `QSpecBench.Evidence.All`.
 That aggregate `#check` surface previously caused `std::bad_alloc` when Lean merged
 the full environment into this root.
 
-The root does import focused research theorems whose dependencies are already present, such as
-`QSpecBench.Research.DynamicTeleportation`, so ordinary library CI compiles those claims directly.
+The root does import focused research theorems whose dependencies are already present, including
+the dynamic teleportation and concrete compiler-equivalence flagships, so ordinary library CI
+compiles those claims directly.
 
 Build the evidence aggregate separately:
 

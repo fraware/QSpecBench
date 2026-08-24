@@ -18,6 +18,8 @@ COMPILER_VERSION = "1.0.0"
 _SINGLE_GATE = re.compile(r"^(?P<gate>[hx])\s+q\[(?P<qubit>[0-9]+)\];$")
 _QUBIT_DECL = re.compile(r"^qubit\[(?P<width>[1-9][0-9]*)\]\s+q;$")
 
+GateOp = tuple[str, int]
+
 
 class ReferenceCompilerError(ValueError):
     """Raised when the source is outside the explicitly supported compiler subset."""
@@ -29,6 +31,8 @@ class CompileResult:
     transformations: tuple[str, ...]
     source_sha256: str
     target_sha256: str
+    source_ops: tuple[GateOp, ...]
+    target_ops: tuple[GateOp, ...]
 
 
 def _sha256(text: str) -> str:
@@ -60,7 +64,8 @@ def compile_qasm(source: str) -> CompileResult:
         raise ReferenceCompilerError("expected exactly one qubit[N] q declaration")
     width = int(decl.group("width"))
 
-    optimized: list[tuple[str, int]] = []
+    source_ops: list[GateOp] = []
+    optimized: list[GateOp] = []
     transformations: list[str] = []
     for line_no, line in enumerate(raw_lines[3:], start=4):
         match = _SINGLE_GATE.fullmatch(line)
@@ -74,11 +79,14 @@ def compile_qasm(source: str) -> CompileResult:
             raise ReferenceCompilerError(
                 f"qubit index {qubit} out of range for declared width {width}"
             )
-        if gate == "x" and optimized and optimized[-1] == ("x", qubit):
+
+        op = (gate, qubit)
+        source_ops.append(op)
+        if gate == "x" and optimized and optimized[-1] == op:
             optimized.pop()
             transformations.append(f"cancel_x_pair:q[{qubit}]")
         else:
-            optimized.append((gate, qubit))
+            optimized.append(op)
 
     output_lines = raw_lines[:3] + [f"{gate} q[{qubit}];" for gate, qubit in optimized]
     output = "\n".join(output_lines) + "\n"
@@ -87,4 +95,6 @@ def compile_qasm(source: str) -> CompileResult:
         transformations=tuple(transformations),
         source_sha256=_sha256(source),
         target_sha256=_sha256(output),
+        source_ops=tuple(source_ops),
+        target_ops=tuple(optimized),
     )
