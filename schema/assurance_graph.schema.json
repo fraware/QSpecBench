@@ -25,18 +25,18 @@
     },
     "semantic_profile": {
       "type": "object",
-      "required": ["id", "upstream_standard", "upstream_version", "wire_order", "global_phase_policy", "unsupported_behavior"],
+      "required": ["id"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
-        "upstream_standard": {"type": "string", "minLength": 1},
-        "upstream_version": {"type": "string", "minLength": 1},
-        "wire_order": {"type": "string", "minLength": 1},
-        "global_phase_policy": {"type": "string", "minLength": 1},
+        "upstream_standard": {"type": ["string", "null"]},
+        "upstream_version": {"type": ["string", "null"]},
+        "wire_order": {"type": ["string", "null"]},
+        "global_phase_policy": {"type": ["string", "null"]},
         "measurement_semantics": {"type": ["string", "null"]},
         "reset_semantics": {"type": ["string", "null"]},
         "control_flow_semantics": {"type": ["string", "null"]},
         "parser": {"type": ["string", "null"]},
-        "unsupported_behavior": {"type": "string", "enum": ["fail_closed", "explicit_skip"]}
+        "unsupported_behavior": {"type": ["string", "null"], "enum": ["fail_closed", "explicit_skip", "explicit_out_of_scope", "not_applicable", null]}
       },
       "additionalProperties": false
     },
