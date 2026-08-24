@@ -22,6 +22,7 @@ REGISTERED_ADAPTERS: frozenset[str] = frozenset(
         "qcec",
         "human_review",
         "bridge",
+        "compiler_peephole",
         "dynamic_simulation",
         "matrix_certificate",
         "qbricks",
