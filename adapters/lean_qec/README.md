@@ -1,38 +1,53 @@
-# Lean-QEC version-isolated adapter
+# Lean-QEC version-isolated distance adapter
 
-Status: **integration contract/scaffold only; not passing evidence.**
+This adapter verifies a theorem from an **exact upstream Lean-QEC commit in its own Lean toolchain**.
+It does not import Lean-QEC into QSpecBench's Lean 4.14 environment and it does not reinterpret a
+distance theorem as syndrome-extraction, decoder, correction, or fault-tolerance evidence.
 
-This adapter is the planned boundary between QSpecBench and external Lean-QEC theorem/certificate exports. It deliberately avoids forcing the external project into QSpecBench's Lean toolchain before compatibility is established.
+## Concrete pilot
 
-## Required imported identity
+The checked integration manifest pins:
 
-A usable import must bind:
-- upstream repository URL;
-- exact upstream commit SHA;
-- upstream Lean toolchain / dependency lock identity;
-- theorem or certificate identifier;
-- exported theorem/certificate bytes and SHA-256;
-- QSpecBench benchmark/proposition ID;
-- proposition relation (`equivalent`, `strict_weakening`, `instance`, etc.);
-- semantic assumptions;
-- exact obligation IDs supported;
-- trust class and checker path.
+- repository: `https://github.com/VerifiedQC/Lean-QEC.git`;
+- commit: `e0b90148694cf6b9c8482b21dbd911f2d8f13493`;
+- upstream toolchain: `leanprover/lean4:v4.30.0-rc2`;
+- source: `LeanQEC/Stabilizer/Examples/BB/BB90.lean`;
+- source Git blob: `8414ff1fb50f888998188f6e53020e95eb7891ca`;
+- theorem: `BB90_dist_10`;
+- proposition supported: the BB90 CSS-code distance lower bound `10 ≤ distance`.
 
-## QEC scope discipline
+At the pinned source, the theorem is proved by two SAT distance obligations (`BB90_dist_z` and
+`BB90_dist_x`) using LRAT-backed `bv_check`, followed by the verified SAT-to-distance translation.
 
-An imported distance/certificate result may support only the obligations it actually proves. It must not automatically discharge:
+## Execution
+
+Normal corpus `check-evidence` does not silently perform a network build. Without explicit
+activation, the adapter returns a structured skip. To execute the external kernel check:
+
+```bash
+QSPECBENCH_LEAN_QEC_VERIFY=1 \
+  python adapters/lean_qec/parse_result.py \
+  adapters/lean_qec/examples/bb90_distance_10.json
+```
+
+Verification mode:
+
+1. creates an isolated temporary checkout;
+2. fetches only the exact upstream commit;
+3. checks the commit, toolchain, source Git blob identity, and theorem declaration;
+4. runs `lake exe cache get` in the upstream repository;
+5. builds the exact module `LeanQEC.Stabilizer.Examples.BB.BB90`;
+6. emits structured JSON binding all verified identities.
+
+## Scope discipline
+
+A successful result can support only a **distance lower-bound** obligation. It does not support:
+
 - syndrome-extraction circuit semantics;
 - physical noise-model adequacy;
 - decoder implementation correctness;
 - correction/logical-state preservation;
 - repeated-round/fault-tolerance behavior.
 
-Those remain separate assurance-graph edges.
-
-## Typed protocol
-
-The final executable adapter must consume `qspecbench.adapter_request.v1` and produce `qspecbench.adapter_result.v1`. A passing result must bind exact input hashes and enumerate the supported obligations.
-
-## Activation criterion
-
-Do not register this directory as a passing primary-corpus adapter until there is a concrete imported Lean-QEC export, a deterministic checker, pinned upstream identity, tests, and a benchmark assurance graph that uses it without overstating scope. See issue #18.
+Those remain separate assurance-graph edges. This is an interoperability adapter, not the excluded
+external reproduction program.
