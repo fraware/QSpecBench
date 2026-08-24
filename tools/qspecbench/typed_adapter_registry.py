@@ -34,6 +34,7 @@ _TYPED: tuple[TypedAdapterSpec, ...] = (
     TypedAdapterSpec("qspecbench.sat.certificate.v1", "1.0.0", "sat_certificate/parse_result.py", "independently_checkable", ("sat_certificate",)),
     TypedAdapterSpec("qspecbench.smt.certificate.v1", "1.0.0", "smt/parse_result.py", "independently_checkable", ("smt_certificate",)),
     TypedAdapterSpec("qspecbench.mqt.qcec.v1", "1.0.0", "qcec/parse_result.py", "externally_trusted", ("qcec_result",)),
+    TypedAdapterSpec("qspecbench.compiler.peephole.v1", "1.0.0", "compiler_peephole/parse_result.py", "independently_checkable", ("internal_denotation_consistency",)),
     TypedAdapterSpec("qspecbench.bridge.verify.v1", "1.0.0", "bridge/parse_result.py", "heuristic", ("bridge_verify", "python_denotation_consistency_check", "internal_denotation_consistency")),
     TypedAdapterSpec("qspecbench.bridge.dynamic_ast.v1", "1.0.0", "bridge/dynamic_ast_check.py", "kernel_checked", ("internal_denotation_consistency",)),
     TypedAdapterSpec("qspecbench.bridge.dynamic_denotation.v1", "1.0.0", "bridge/dynamic_denotation_check.py", "kernel_checked", ("internal_denotation_consistency",)),
@@ -48,8 +49,8 @@ _TYPED: tuple[TypedAdapterSpec, ...] = (
 TYPED_ADAPTERS: dict[str, TypedAdapterSpec] = {item.adapter_id: item for item in _TYPED}
 
 # Defaults exist only for the repository-wide ordinary interpretation of an evidence type.
-# Dynamic bridge, Stim/PyMatching, and external Lean-QEC distance cases override these defaults
-# with an explicit typed id.
+# Dynamic bridge, compiler provenance, Stim/PyMatching, and external Lean-QEC distance cases
+# override these defaults with an explicit typed id.
 DEFAULT_TYPED_ADAPTER_BY_EVIDENCE_TYPE: dict[str, str] = {
     "lean_proof": "qspecbench.lean.kernel.v1",
     "proof_assistant_proof": "qspecbench.lean.kernel.v1",
