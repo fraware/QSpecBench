@@ -1,5 +1,10 @@
 {
   "id": "qspecbench.openqasm3.clifford_t_normalized.v1",
+  "upstream_standard": "OpenQASM",
+  "upstream_version": "3.0",
+  "parser_implementation": "QSpecBench.Quantum.OpenQASM3Parser.parseQasmSourceE + denotateOps3C_normalized",
+  "parser_version": "qspecbench-openqasm-fragment-0.1",
+  "include_policy": "skipped_not_interpreted",
   "accepted_headers": ["OPENQASM 3.0", "OPENQASM 3", "include"],
   "accepted_declarations": ["qubit", "qubit[]"],
   "gate_set": ["h", "t", "tdg", "cx", "ccx"],
@@ -10,5 +15,5 @@
   "wire_order_convention": "openqasm_little_endian_wire_order",
   "global_phase_policy": "exact",
   "unsupported_syntax_behavior": "fail_closed",
-  "notes": "Normalized Clifford+T profile used by the Toffoli source-target denotation proof. This profile is intentionally distinct from the legacy unitary profile and pins OpenQASM 3.0 syntax, LSB wire ordering, and exact phase-zero equality."
+  "notes": "Normalized Clifford+T profile used by the Toffoli source-target denotation proof. It pins OpenQASM 3.0 syntax, LSB wire ordering, exact equality/global phase zero, and the normalized H/T/Tdg/CX/CCX denotation. Include lines are skipped, not semantically interpreted."
 }
