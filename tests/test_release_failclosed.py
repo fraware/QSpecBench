@@ -1,10 +1,12 @@
-"""Release bundle fail-closed regressions (hash/commit/review/streaming)."""
+"""Release bundle and workflow fail-closed regressions."""
 
 from __future__ import annotations
 
 import json
 import tarfile
 from pathlib import Path
+
+import yaml
 
 from qspecbench.release_bundle import verify_release_bundle, write_release_bundle
 
@@ -14,7 +16,6 @@ REPO = Path(__file__).resolve().parents[1]
 def test_bundle_hash_drift_fails(tmp_path):
     out = tmp_path / "bundle.tar.gz"
     write_release_bundle(REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation", out)
-    # Corrupt one archived file while keeping manifest hashes stale.
     corrupt = tmp_path / "corrupt.tar.gz"
     with tarfile.open(out, "r:gz") as src, tarfile.open(corrupt, "w:gz") as dst:
         for member in src.getmembers():
@@ -56,9 +57,6 @@ def test_wrong_commit_fails(tmp_path):
 
 
 def test_missing_review_artifact_fails_when_required(tmp_path):
-    # Scaffold without reviews should fail when require_review_artifacts is set
-    # and maturity is promoted. Build a mini bundle from a promoted claim and
-    # strip review paths from the archive.
     claim = REPO / "benchmarks/equivalence/cnot_self_inverse_cancellation"
     out = tmp_path / "bundle.tar.gz"
     write_release_bundle(claim, out)
@@ -107,3 +105,17 @@ def test_cli_require_review_artifacts_flag(tmp_path):
     )
     assert result.exit_code != 0
     assert "missing review artifact" in result.stdout
+
+
+def test_report_pipelines_use_fail_closed_shell() -> None:
+    for relative in (".github/workflows/validate.yml", ".github/workflows/release.yml"):
+        workflow = yaml.safe_load((REPO / relative).read_text(encoding="utf-8"))
+        shell = workflow.get("defaults", {}).get("run", {}).get("shell", "")
+        assert "pipefail" in shell, f"{relative} must propagate failures through report pipelines"
+        tee_steps = [
+            str(step.get("run"))
+            for job in workflow.get("jobs", {}).values()
+            for step in job.get("steps", [])
+            if isinstance(step, dict) and "| tee" in str(step.get("run", ""))
+        ]
+        assert tee_steps, f"{relative} regression test expects at least one report pipeline"

@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash --noprofile --norc -eo pipefail {0}
+
 concurrency:
   group: release-${{ github.sha }}
   cancel-in-progress: false
@@ -89,10 +93,10 @@ jobs:
           import json, pathlib
           text = pathlib.Path("artifacts/release/validation-report.txt").read_text(encoding="utf-8")
           ok = text.count("\nOK ") + (1 if text.startswith("OK ") else 0)
-          # Count FAIL lines
           failed = [ln for ln in text.splitlines() if ln.startswith("FAIL ")]
           payload = {
               "ok": not failed,
+              "ok_count": ok,
               "fail_count": len(failed),
               "failures": failed,
               "git_commit": __import__("os").environ.get("RELEASE_COMMIT"),
