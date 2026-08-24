@@ -6,6 +6,9 @@ from pathlib import Path
 
 REQUIRED_DIRS = ("artifacts", "evidence", "expected", "notes")
 FORBIDDEN_ROOT_ARTIFACTS = {".qasm", ".py", ".json", ".lean", ".v", ".smt2"}
+# Claim-level metadata sidecars are not evidence artifacts. Keep this allowlist exact so an
+# arbitrary JSON result/certificate still cannot be placed at the claim root.
+ALLOWED_ROOT_METADATA_FILES = frozenset({"evidence_adapters.json"})
 
 
 def find_spec_files(root: Path) -> list[Path]:
@@ -56,6 +59,8 @@ def check_layout(claim_dir: Path) -> list[str]:
             errors.append(f"Missing required directory: {claim_dir / name}")
     for child in claim_dir.iterdir():
         if not child.is_file():
+            continue
+        if child.name in ALLOWED_ROOT_METADATA_FILES:
             continue
         if child.suffix.lower() in FORBIDDEN_ROOT_ARTIFACTS:
             errors.append(f"Artifact/evidence file must not live in claim root: {child}")

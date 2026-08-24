@@ -35,6 +35,21 @@ def test_all_benchmarks_have_required_dirs():
         assert not errors, f"{claim_dir}: {errors}"
 
 
+def test_layout_allows_only_declared_root_metadata_json(tmp_path: Path):
+    claim_dir = tmp_path / "claim"
+    claim_dir.mkdir()
+    for name in ("artifacts", "evidence", "expected", "notes"):
+        (claim_dir / name).mkdir()
+
+    (claim_dir / "evidence_adapters.json").write_text("{}\n", encoding="utf-8")
+    assert check_layout(claim_dir) == []
+
+    unclassified = claim_dir / "result.json"
+    unclassified.write_text("{}\n", encoding="utf-8")
+    errors = check_layout(claim_dir)
+    assert errors == [f"Artifact/evidence file must not live in claim root: {unclassified}"]
+
+
 def test_minimum_corpus_size():
     specs = find_spec_files(REPO / "benchmarks")
     assert len(specs) >= 34
