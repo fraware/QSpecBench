@@ -1,109 +1,113 @@
 # Definition of completion
 
-Single checklist for when QSpecBench may honestly be called a **community-grade**
-benchmark and evidence infrastructure with selected checked claims — not a complete
-quantum FV standard.
+QSpecBench must not use one checklist to collapse engineering readiness, governance independence, scientific depth, and the long-term full vision. These are different claims and have different evidence requirements.
 
-Until every box that is marked **required** is met, public language stays:
-**scoped research benchmark and evidence infrastructure with selected checked claims.**
+Until the relevant level below is actually satisfied, public language should remain scoped. A passing theorem, a valid schema, or a populated CODEOWNERS file cannot substitute for independent review or scientific adequacy.
 
-Regenerate live counts with:
+Regenerate live corpus counts with:
 
 ```bash
 qspecbench dashboard benchmarks/ --out docs/status.md
 ```
 
-Cross-check maturity with `rg "maturity:" benchmarks/**/spec.yaml` (exclude `_template`).
+The dependency-ordered full-vision gates are documented in [full_vision_execution.md](full_vision_execution.md).
 
 ---
 
-## Truth (required)
+## Level A — engineering release-ready
 
-| # | Criterion | How verified | Status |
-|---|-----------|--------------|--------|
-| T1 | Dashboard / README maturity counts match live `spec.yaml` | `docs/status.md` + validate drift gate (`git diff --exit-code docs/status.md`) | Met (regenerate on corpus change) |
-| T2 | GOVERNANCE ABRC / RC lists match corpus | [GOVERNANCE.md](../GOVERNANCE.md), [reference_benchmarks.md](reference_benchmarks.md) | Synced to 10 ABRC / 9 RC |
-| T3 | No `maintainer-bootstrap` reviewers on checked headlines | `rg maintainer-bootstrap benchmarks/**/spec.yaml` empty; `tools/qspecbench/reviews.py` | Met (F-010 closed) |
-| T4 | Dual hash-bound reviews on every ABRC / `reference_claim` | `schema/review_artifact.schema.json` + `qspecbench validate` | Met for current ABRC/RC pilots |
-| T5 | AI formalization: ≥1 gold + real dual reviews before `reference_claim` | [ai_formalization_track.md](ai_formalization_track.md); `benchmarks/ai_formalization/TRACK.md` | **Met** (4 of 7 benchmarks promoted with frozen gold + dual reviews); remaining 3 stay `reference_scaffold`/`usable` |
-| T6 | Claim identity stable on promotions (`proposition_id`, obligation lists) | `claim_identity` in each promoted `spec.yaml` | Process requirement (ongoing) |
+| # | Criterion | How verified | Current status |
+|---|-----------|--------------|----------------|
+| A1 | Schema/layout/trust validation passes on exact release commit | `.github/workflows/validate.yml` | Implemented gate; exact current PR/head result must be verified before merge/release |
+| A2 | Lean evidence aggregate builds on exact release commit | `lake build QSpecBench.Evidence.All` in CI | Implemented gate; exact current PR/head result must be verified |
+| A3 | Evidence checks execute under pinned dependencies and fail closed | `qspecbench check-evidence`, lockfiles/workflows | Implemented machinery; exact current PR/head result must be verified |
+| A4 | Release bundle is built from and verifies against the exact commit | `.github/workflows/release.yml`, release-bundle verifier | Implemented machinery; no new release is claimed merely by editing metadata |
+| A5 | Promotion state is derivable from explicit obligation→evidence closure | `assurance_graph.yaml` + validator | **In migration** — PR #11 establishes the contract/pilot; issue #13 tracks corpus-wide migration |
+| A6 | Semantic profile is authoritative and cross-consistent | registered profiles + assurance validator | **In migration** — issue #14 |
+| A7 | Adapter results bind proposition/semantics/input hashes/obligations | typed AdapterRequest/AdapterResult | **In migration** — issue #15 |
+| A8 | Generated documentation cannot drift from corpus state | generated status/dashboard drift test | **In progress** |
 
----
-
-## Technical (required for trustworthy tags)
-
-| # | Criterion | How verified | Status |
-|---|-----------|--------------|--------|
-| K1 | Schema validate + evidence + bridge gates in CI | `.github/workflows/validate.yml` | Met |
-| K2 | Hard pyright (no soft-fail) on trust surface | `.github/workflows/lint.yml` | **Met** (Phase B) |
-| K3 | `lake build QSpecBench.Evidence.All` in CI as separate job (never imported into root `QSpecBench.lean`) | [lean/QSpecBench.lean](../lean/QSpecBench.lean); release/validate workflows | **Met** (OOM split; separate Evidence.All job) |
-| K4 | Release bundle with `--require-review-artifacts` | `tools/qspecbench/release_bundle.py`; `.github/workflows/release.yml` | **Met** (Phase B) |
-| K5 | Stim / `qec-matching` extras installed where Stim evidence is claimed | `pyproject.toml` extra `qec-matching` + CI | **Met** (Phase B) |
-| K6 | Meaningful coverage floor on promotion/reviews/bridges | pytest-cov / lint workflows | **Met** (F-046; `--cov-fail-under=55` on trust surface) |
+Engineering readiness is not community-grade governance.
 
 ---
 
-## Research (required scientific leftovers)
+## Level B — community-grade governance
 
-| # | Criterion | Spec / obligation | Status |
-|---|-----------|-------------------|--------|
-| R1 | General CB for arbitrary CPTP, or honest permanent narrowing | `general_cb_arbitrary_cptp_mathlib` on Hamiltonian Trotter / CB benchmarks | **Closed (permanent N/A, v3):** proved subclass `qubit_cptp_cb_proved_subclass_mathlib`; obligation `not_applicable` |
-| R2 | Syndrome-extraction circuit semantics for bit-flip QEC | `syndrome_extraction_circuit_semantics` on `three_qubit_bit_flip_code_corrects_one_x` | **Met** (`checked`; `unproved_obligations: []`) |
-| R3 | AI formalization gold freeze + dual reviews (≥1 bench) | Four benches at `reference_claim`; see T5 and `benchmarks/ai_formalization/TRACK.md` | **Met** (4 RC benches with gold + dual reviews each) |
+| # | Criterion | How verified | Current status |
+|---|-----------|--------------|----------------|
+| B1 | Real maintainers/reviewers exist beyond the author/merger | CODEOWNERS + public GitHub identities | **Not met** — current trust-critical ownership is interim `@fraware`; role vacancies remain TBA |
+| B2 | Trust-critical branch protection and required code-owner review are enabled | GitHub repository settings | **Not independently verified / not claimed** |
+| B3 | Promoted claims cannot be self-reviewed or self-promoted | governance rule + protected branch + validation | **Not met end-to-end** |
+| B4 | Every promoted claim has two authenticated, independent review attestations | `review_attestation_v2` + public review event | **Not met** — legacy reviewer strings/hash-bound artifacts are not equivalent to authenticated identity; issue #12 |
+| B5 | Open audit findings are represented by actual public GitHub issues | GitHub issues | **Partially met** — local `QSB-AUD-*` stubs alone do not satisfy this criterion |
+| B6 | Contribution and second-kernel policies are explicit | CONTRIBUTING/GOVERNANCE/adapter docs | Met as documentation, but does not satisfy B1–B5 |
 
-Required research boxes R1–R3 are closed. Optional deeper research (not DoD-blocking
-unless claimed): multi-step Trotter composition, matrix KERNEL_BRIDGE for dynamic measure+if,
-surface-code MWPM beyond declared universe, Grover `amplitude_lift`, general n-qubit
-Clifford source→target kernel proof beyond the declared H-H-S instance, bytes→AST Lean
-parser, second proof assistant in default CI, gold-target freezes for the three
-remaining `ai_formalization` benchmarks.
+**QSpecBench must not currently be called community-grade on the basis of the old C1/C2 checklist.** Named role labels with a sole interim owner are not independent maintainers, and local audit IDs are not public issue tracking.
 
 ---
 
-## Community (required for “community-grade”)
+## Level C — scientific reference suite
 
-| # | Criterion | Where | Status |
-|---|-----------|-------|--------|
-| C1 | Named track maintainers in CODEOWNERS (not placeholders only) | `.github/CODEOWNERS` + GOVERNANCE assignment table | **Met** (roles named; interim sole owner `@fraware`; vacancies explicit TBA) |
-| C2 | Open audit findings have GitHub issue IDs | [audit_issues.yaml](audit_issues.yaml) + [audit_github_issues.yaml](audit_github_issues.yaml) | **Met** (stable `QSB-AUD-*` stubs; remote issues on-demand) |
-| C3 | Second-kernel policy explicit (Lean-primary vs Coq in default CI) | GOVERNANCE § Second-kernel policy | **Met** (Lean-primary; Coq/Rocq/Isabelle discovery/opt-in) |
-| C4 | Contributor path: pre-commit + schema 0.3 migration + ABRC checklist | CONTRIBUTING, `.pre-commit-config.yaml`, [schema_migration_0.3.md](schema_migration_0.3.md) | **Met** |
-| C5 | This DoD document kept current with [research_tracks.md](research_tracks.md) + README permanent residuals | docs | Met (Phase A + Phase D) |
+The repository contains selected real checked claims, but the full scientific reference-suite target is stronger than the previous R1–R3 checklist.
 
----
+| # | Criterion | Required scientific result | Current status |
+|---|-----------|----------------------------|----------------|
+| C1 | Real compiler transformation | Compiler/version/config-bound source→target artifacts with exact semantic equivalence and independent supporting checker | **Not yet met as flagship** — issue #17 |
+| C2 | Full dynamic protocol | Arbitrary-input protocol with formal measurement/instrument, classical-register/feed-forward, and final subsystem correctness | **Not yet met as flagship** — current dynamic work is deliberately narrower; issue #17 |
+| C3 | QEC assurance chain | Keep code/family validity, distance, syndrome extraction, decoder contract, correction/logical preservation and repeated rounds distinct; include non-toy certificate path | **Partially met** — small-code work is substantive; external/family integration issue #18 |
+| C4 | Operator-level Hamiltonian approximation | Formally checked product-formula error in operator norm or stronger declared metric, meaningfully parameterized in time/step count | **Not yet met as flagship** — current entry-modulus/numerical proxies remain narrower; issue #17 |
+| C5 | Semantically adjudicated AI formalization | Explicit source→formal relation; kernel-valid strict weakening cannot score as semantic equivalence | **Not yet met corpus-wide** — issue #16 |
 
-## Permanent residuals (never block DoD by faking them)
-
-**Community-grade ≠ complete quantum FV standard.** Meeting this DoD means a
-scoped research benchmark and evidence infrastructure with selected checked
-claims under declared universes — not unbounded industrial coverage, device
-pulse fidelity, or every informal headline.
-
-These items are **trust-boundary documentation**, not unfinished promotions.
-Do not reopen them as “almost done” research or rename them into checked scope.
-
-| Item | Disposition |
-|------|-------------|
-| `unbounded_all_codes_mwpm` | Keep `not_applicable`. Lean surfaces the impossibility note: `unbounded_all_codes_mwpm_infeasible_open_ended` / `unboundedAllCodesMwpmImpossibilityNote` in [`lean/QSpecBench/QEC/SyndromeExtraction.lean`](../lean/QSpecBench/QEC/SyndromeExtraction.lean) (also `#check`’d from `Evidence.All`). Open-ended code/distance/round family admits no finite certificate. |
-| Device `hardware_semantics` / `device_fidelity` / `pulse_schedule_semantics` | Remain `not_checked` until a real device evidence path exists. Checked **`hardware_abstraction_isa_layer`** (software CanonicalAst ISA + fail-closed offline profile) is a **separate** obligation — never rename ISA-layer checks as device/pulse fidelity. |
-| Unnormalized `denotateOps3C` Toffoli equality | Permanently out of scope (wrong semantics for the decomposition claim). Honest ABRC uses normalized Clifford+T denotation / native-CCX denotation. |
-| QBricks / ZX | Adapters exist (`adapters/qbricks/`, `adapters/zx/`); still not a complete FV standard. Never sole-ABRC on them. |
-| Rocq / Isabelle skip stubs | Never checked evidence; excluded from default maturity counts; optional/opt-in only (audit F-049). |
-| Corpus-executed Python/SAT evidence | Trust-the-corpus model; constrained runner (timeout, claim-dir cwd jail, stripped network env, OS limits where available) reduces foot-guns — **not** a sandbox product (audit F-021). |
-| Full industrial Stim/Blossom for all codes | Outside declared universe `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01`. Do not rename declared-universe MWPM discharge as all-codes industrial coverage. |
-
-Canonical copy also lives in [research_tracks.md](research_tracks.md) (Permanent N/A) and the [README](../README.md) permanent-residuals section. Trust-boundary field vocabulary: [trust_boundaries.md](trust_boundaries.md).
+Existing checked results should retain their exact scopes. This table does not demote valid narrow theorems; it prevents those theorems from being rhetorically expanded into stronger reference-suite claims.
 
 ---
 
-## Live corpus snapshot (regenerate; do not hand-edit)
+## Level D — full vision
 
-Source of truth: [status.md](status.md). At last final sync:
+Required:
 
-- **ABRC (`artifact_bound_reference_claim`):** 10
-- **`reference_claim`:** 9 (includes 4 `ai_formalization` pilots — see `benchmarks/ai_formalization/TRACK.md`)
-- **Total benchmarks (excl. `_template`):** 50
+1. Proposition identity and proposition relations are first-class, immutable/versioned objects.
+2. Semantic profiles are executable, standard-version-pinned, fail-closed, and cross-consistent with parsers/bridges/artifacts.
+3. Required obligations form a typed graph.
+4. Every required obligation has at least one explicit passing evidence edge with a declared trust class.
+5. Adapter requests/results are typed and bind exact proposition, semantics, inputs, tool identity, scope, and outputs.
+6. Maturity/checked scope is derived from graph closure, not manually asserted runtime fields.
+7. Human review is authenticated and bound to exact propositions/artifacts/commits.
+8. Heterogeneous proof/checker ecosystems interoperate without collapsing their trust boundaries.
+9. Releases are immutable, citable and reproducible from exact commits, with theorem exports, lockfiles, attestations and archived bundles.
+10. Scientific flagships satisfy Level C.
 
-Promotion rules: [reference_benchmarks.md](reference_benchmarks.md), [GOVERNANCE.md](../GOVERNANCE.md).
-Roadmap / phase history: [roadmap.md](roadmap.md).
-Audit ledger: [audit_issues.yaml](audit_issues.yaml) (markdown summarizes).
+The external reproduction program is explicitly excluded from the current execution request and is not silently counted as completed here.
+
+---
+
+## Permanent residuals and scope discipline
+
+The following principles are permanent even after Levels A–D improve:
+
+- Device `hardware_semantics`, pulse schedules, and fidelity are not implied by a software ISA abstraction.
+- A finite Stim/PyMatching declared universe is not all-code fault tolerance.
+- A distance certificate is not syndrome-extraction-circuit correctness.
+- A QCEC result is externally trusted supporting evidence unless its trust model is strengthened; it does not by itself define the semantic proposition.
+- A kernel-checked theorem establishes the formal theorem under its assumptions, not the faithfulness of the theorem to a natural-language source claim.
+- Entry-wise numerical error, finite sampling, or `N * epsilon` bookkeeping is not an operator-level Hamiltonian approximation theorem.
+- QBricks/ZX/Coq/Rocq/Isabelle adapters or stubs are not badges of completeness; trust depends on the actual executed evidence path.
+- Corpus-executed code uses constrained execution paths but is not a general sandbox product.
+
+Never resolve a missing guarantee by renaming it into checked scope. Narrow the proposition or leave the obligation open.
+
+---
+
+## Live corpus snapshot
+
+Source of truth remains the generated dashboard/status tooling. The audited Aug. 24, 2026 snapshot was:
+
+- `artifact_bound_reference_claim`: 10
+- `reference_claim`: 9
+- total benchmarks excluding template: 50
+- checked headlines: 19
+- benchmarks with some checked evidence: 46
+
+These counts are descriptive corpus state. They do **not** establish Level B community governance or Level C scientific-reference-suite completion.
+
+Public implementation blockers and migration work are tracked in issues #12–#18 and draft PR #11.
