@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/assurance_graph.schema.json",
+  "title": "QSpecBench Assurance Graph",
+  "type": "object",
+  "required": ["schema", "benchmark_id", "proposition", "semantic_profile", "obligations", "evidence_edges"],
+  "properties": {
+    "schema": {"const": "qspecbench.assurance_graph.v1"},
+    "benchmark_id": {"type": "string", "minLength": 1},
+    "proposition": {
+      "type": "object",
+      "required": ["id", "version", "text", "relation_to_source"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "version": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1},
+        "source_claim_id": {"type": ["string", "null"]},
+        "relation_to_source": {
+          "type": "string",
+          "enum": ["equivalent", "strict_weakening", "strict_strengthening", "instance", "incomparable", "ambiguous", "not_applicable"]
+        },
+        "relation_notes": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "semantic_profile": {
+      "type": "object",
+      "required": ["id", "upstream_standard", "upstream_version", "wire_order", "global_phase_policy", "unsupported_behavior"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "upstream_standard": {"type": "string", "minLength": 1},
+        "upstream_version": {"type": "string", "minLength": 1},
+        "wire_order": {"type": "string", "minLength": 1},
+        "global_phase_policy": {"type": "string", "minLength": 1},
+        "measurement_semantics": {"type": ["string", "null"]},
+        "reset_semantics": {"type": ["string", "null"]},
+        "control_flow_semantics": {"type": ["string", "null"]},
+        "parser": {"type": ["string", "null"]},
+        "unsupported_behavior": {"type": "string", "enum": ["fail_closed", "explicit_skip"]}
+      },
+      "additionalProperties": false
+    },
+    "obligations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "required": {"type": "boolean"},
+          "statement": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "supports", "trust_class"],
+        "properties": {
+          "evidence_id": {"type": "string", "minLength": 1},
+          "supports": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "trust_class": {"type": "string", "enum": ["kernel_checked", "independently_checkable", "externally_trusted", "simulation", "human_review", "heuristic"]},
+          "adapter_id": {"type": ["string", "null"]},
+          "result_path": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_attestations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "additionalProperties": false
+}
