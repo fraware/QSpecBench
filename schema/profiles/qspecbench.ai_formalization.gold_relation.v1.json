@@ -1,0 +1,17 @@
+{
+  "schema": "qspecbench.semantic_profile.v1",
+  "id": "qspecbench.ai_formalization.gold_relation.v1",
+  "profile_kind": "ai_formalization",
+  "profile_version": "1",
+  "upstream": null,
+  "interpretation": {
+    "source_object": "immutable natural-language claim artifact",
+    "target_object": "accepted formal theorem or theorem set",
+    "relation_taxonomy": "equivalent|strict_weakening|strict_strengthening|instance|incomparable|ambiguous",
+    "kernel_validity_axis": "separate from semantic relation",
+    "faithfulness_rule": "non-equivalent relations cannot pass semantic-equivalence faithfulness solely because the target theorem checks"
+  },
+  "parser_or_interpreter": null,
+  "unsupported_behavior": "fail_closed",
+  "notes": "Semantic adjudication profile for AI formalization. Reviewer disagreement and residual assumptions remain explicit evidence/review data."
+}
