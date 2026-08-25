@@ -40,6 +40,7 @@ def test_schema_0_2_with_artifact_bound_rejected():
 def test_toffoli_title_source_only_mismatch_rejected(tmp_path):
     claim = REPO / "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary"
     spec = load_spec(claim / "spec.yaml")
+    spec.setdefault("status", {})["maturity"] = "reference_claim"
     spec["title"] = "Completely Unrelated Classical Sorting Claim"
     spec["informal_claim"]["statement"] = (
         "The declared native CCX artifact denotes the standard three-qubit Toffoli "
@@ -52,6 +53,7 @@ def test_toffoli_title_source_only_mismatch_rejected(tmp_path):
 def test_postcondition_claim_scope_mismatch_rejected():
     claim = REPO / "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary"
     spec = load_spec(claim / "spec.yaml")
+    spec.setdefault("status", {})["maturity"] = "reference_claim"
     spec["claim_scope"]["headline_claim_text"] = "A different headline proposition entirely."
     errors = validate_claim_coherence(spec, claim)
     assert any("headline_claim_text diverges" in e for e in errors)
@@ -60,6 +62,7 @@ def test_postcondition_claim_scope_mismatch_rejected():
 def test_weaker_theorem_cannot_discharge_stronger_obligation():
     claim = REPO / "benchmarks/equivalence/native_ccx_artifact_denotes_toffoli_unitary"
     spec = load_spec(claim / "spec.yaml")
+    spec.setdefault("status", {})["maturity"] = "reference_claim"
     # Move the only supported required obligation into does_not_support.
     for fc in spec["formal_claims"]:
         fc["does_not_support"] = list(

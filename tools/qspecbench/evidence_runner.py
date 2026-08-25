@@ -183,8 +183,14 @@ def _adapter_command(
 
 
 def _default_adapter_id(evidence_type: str, artifact_path: Path) -> str | None:
-    if evidence_type == "simulation" and artifact_path.suffix.lower() == ".json":
-        return "qspecbench.dynamic_simulation.v1"
+    if evidence_type == "simulation":
+        name = artifact_path.name
+        if name.endswith(".result.json"):
+            script = artifact_path.with_name(name[: -len(".result.json")] + ".py")
+            if script.is_file():
+                return "qspecbench.python.simulation.v1"
+        if artifact_path.suffix.lower() == ".json":
+            return "qspecbench.dynamic_simulation.v1"
     typed = default_typed_adapter(evidence_type)
     return typed.adapter_id if typed is not None else None
 

@@ -136,6 +136,7 @@ evidence:
 - id: dynamic_basis_check
   type: simulation
   path: evidence/dynamic_simulation_basis_check.json
+  adapter: qspecbench.dynamic_simulation.v1
   checker: dynamic-simulate CLI (operational, not kernel-checked)
   status: passing
   notes: Branch-enumeration basis check; all_ok true under operational wire model

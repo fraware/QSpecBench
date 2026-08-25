@@ -76,4 +76,5 @@ def test_lean_qec_adapter_default_mode_is_structured_non_claiming_skip(monkeypat
     assert payload["ok"] is True
     assert payload["skipped"] is True
     assert payload["supported_obligations"] == ["qec_distance_lower_bound"]
-    assert payload.get("kernel_checked") is None
+    # Default path is an honest non-claiming skip: not kernel-checked.
+    assert payload.get("kernel_checked") is False

@@ -64,8 +64,8 @@ evidence_edges:
 - evidence_id: dynamic_basis_check
   supports:
   - semantic_bridge
-  trust_class: heuristic
-  adapter_id: qspecbench.python.simulation.v1
+  trust_class: simulation
+  adapter_id: qspecbench.dynamic_simulation.v1
   result_path: evidence/dynamic_simulation_basis_check.json
 - evidence_id: lean_measurement_scaffold
   supports:

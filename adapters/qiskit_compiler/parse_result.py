@@ -3,11 +3,28 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
 
 from qspecbench.qiskit_compiler import QiskitCompilerError, compile_hxx_with_optimize_1q_gates
+
+
+def _claim_dir(provenance_path: Path) -> Path:
+    """Provenance JSON lives at ``<claim>/artifacts/compiler_provenance.json``."""
+    return provenance_path.resolve().parent.parent
+
+
+def _resolve_qasm(provenance_path: Path, declared: object | None, default_name: str) -> Path:
+    """Resolve claim-relative QASM paths against the claim root, not process cwd."""
+    claim = _claim_dir(provenance_path)
+    if declared:
+        candidate = Path(str(declared))
+        if candidate.is_absolute():
+            return candidate
+        return (claim / candidate).resolve()
+    return (provenance_path.resolve().parent / default_name).resolve()
 
 
 def main() -> int:
@@ -21,12 +38,11 @@ def main() -> int:
         print(json.dumps({"ok": False, "error": str(exc)}))
         return 1
 
-    source = Path(payload.get("source_path") or path.parent.parent / "artifacts" / "source.qasm")
-    target = Path(payload.get("target_path") or path.parent.parent / "artifacts" / "target.qasm")
+    source = _resolve_qasm(path, payload.get("source_path"), "source.qasm")
+    target = _resolve_qasm(path, payload.get("target_path"), "target.qasm")
     if not source.is_file() or not target.is_file():
         print(json.dumps({"ok": False, "error": "source/target QASM missing"}))
         return 1
-    import hashlib
 
     def digest(p: Path) -> str:
         return hashlib.sha256(p.read_bytes()).hexdigest()

@@ -104,6 +104,7 @@ evidence:
 - id: haar_monte_carlo_cert
   type: simulation
   path: evidence/haar_monte_carlo_cert.result.json
+  adapter: qspecbench.python.simulation.v1
   checker: haar_monte_carlo_cert.py
   status: passing
   notes: 'Hashed numerical certificate (never bare success): 256 Haar-sampled qubit

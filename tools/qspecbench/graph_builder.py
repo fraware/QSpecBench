@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 from typing import Any
 
@@ -90,7 +89,18 @@ def _adapter_for(entry: dict[str, Any], claim_dir: Path) -> str | None:
         bound = None
     if bound:
         return bound
-    typed = default_typed_adapter(str(entry.get("type") or ""))
+    evidence_type = str(entry.get("type") or "")
+    rel = str(entry.get("path") or "")
+    # Mirror evidence_runner defaults: JSON simulation reports use dynamic_simulation
+    # unless a sibling Python certificate script exists for ``*.result.json``.
+    if evidence_type == "simulation" and rel.lower().endswith(".json"):
+        if rel.endswith(".result.json"):
+            cert = claim_dir / rel
+            script = cert.with_name(cert.name[: -len(".result.json")] + ".py")
+            if script.is_file():
+                return "qspecbench.python.simulation.v1"
+        return "qspecbench.dynamic_simulation.v1"
+    typed = default_typed_adapter(evidence_type)
     return typed.adapter_id if typed else None
 
 

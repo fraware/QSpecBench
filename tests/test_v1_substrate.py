@@ -246,3 +246,57 @@ def test_qiskit_adapter_rejects_mutated_target_hash(tmp_path: Path) -> None:
     )
     assert result.returncode != 0
     assert "hashes do not match" in result.stdout or "hashes do not match" in result.stderr
+
+
+def test_qiskit_adapter_resolves_claim_relative_qasm_paths() -> None:
+    import os
+    import subprocess
+    import sys
+
+    provenance = (
+        REPO
+        / "benchmarks/equivalence/qiskit_optimize_1q_gates_hxx_identity/artifacts/compiler_provenance.json"
+    )
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO / "tools")
+    # cwd is intentionally the repo root (CI evidence_runner cwd), not the claim dir.
+    result = subprocess.run(
+        [sys.executable, str(REPO / "adapters/qiskit_compiler/parse_result.py"), str(provenance)],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(REPO),
+        env=env,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout.strip().splitlines()[-1])
+    assert payload.get("ok") is True
+
+
+def test_python_simulation_adapter_runs_sibling_script_for_result_json(tmp_path: Path) -> None:
+    import subprocess
+    import sys
+
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    script = evidence / "demo_cert.py"
+    script.write_text(
+        "import json\nprint(json.dumps({'ok': True, 'marker': 'from-script'}))\n",
+        encoding="utf-8",
+    )
+    cert = evidence / "demo_cert.result.json"
+    cert.write_text(json.dumps({"schema": "test", "ok": True}) + "\n", encoding="utf-8")
+    before = cert.read_text(encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(REPO / "adapters/python/parse_result.py"), str(cert)],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=str(REPO),
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout.strip().splitlines()[-1])
+    assert payload.get("ok") is True
+    assert "from-script" in payload.get("stdout", "")
+    # Hashed certificate must not be overwritten by the adapter sidecar.
+    assert cert.read_text(encoding="utf-8") == before

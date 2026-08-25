@@ -1,0 +1,19 @@
+adapter_name: qiskit_compiler
+adapter_id: qspecbench.qiskit.optimize_1q_gates.v1
+adapter_version: 1.0.0
+supported_evidence_types:
+  - internal_denotation_consistency
+required_files:
+  - provenance_json
+  - source_qasm
+  - target_qasm
+check_command: "python parse_result.py {path}"
+success_condition: "committed source/target hashes match provenance; optional Qiskit regeneration matches target"
+failure_condition: "missing QASM, hash mismatch, or regeneration drift"
+trust_level: independently_checkable
+output_format: json
+scope:
+  supports:
+    - compiler_provenance
+  does_not_support:
+    - source_target_semantic_equivalence
