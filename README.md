@@ -19,7 +19,7 @@
 [![Lint](https://github.com/fraware/QSpecBench/actions/workflows/lint.yml/badge.svg)](https://github.com/fraware/QSpecBench/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Benchmarks](https://img.shields.io/badge/benchmarks-50-green.svg)](docs/status.md)
+[![Benchmarks](https://img.shields.io/badge/benchmarks-52-green.svg)](docs/status.md)
 
 [Quick start](#quick-start) · [Contribute](#contribute) · [Tracks](#tracks) · [Dashboard](docs/status.md) · [Docs](#documentation)
 
@@ -120,6 +120,34 @@ qspecbench dashboard benchmarks/ --out docs/status.md
 pytest
 ```
 
+### Exact-head validation (release candidates)
+
+```bash
+# Strict corpus + assurance-graph validation
+python -m qspecbench validate benchmarks/ --strict-all --audit-graph
+
+# Regenerate metrics docs (commit the diffs when counts change)
+qspecbench dashboard benchmarks/ --out docs/status.md
+python -c "from pathlib import Path; from qspecbench.generated_status import write_status_snapshot; write_status_snapshot(Path('benchmarks'), Path('docs/generated_status.md'))"
+python scripts/sync_readme_maturity.py
+
+# Candidate SHA gate (does not tag a release)
+python scripts/release_verify.py --candidate-sha "$(git rev-parse HEAD)"
+```
+
+Lean-QEC distance interoperability (`BB90_dist_10`) is **opt-in** and **honestly not green** until cold native acceptance succeeds on a host with enough disk:
+
+```bash
+export QSPECBENCH_LEAN_QEC_VERIFY=1
+export QSPECBENCH_LEAN_QEC_WORKDIR=artifacts/lean-qec/work
+export QSPECBENCH_LEAN_QEC_LOG_DIR=artifacts/lean-qec/logs
+python adapters/lean_qec/parse_result.py adapters/lean_qec/examples/bb90_distance_10.json
+```
+
+(Windows PowerShell: `$env:QSPECBENCH_LEAN_QEC_VERIFY='1'` and likewise for the other variables.)
+
+Independent third-party cold-host reproduction is issue #9 and is out of v1 scope.
+
 **Lean proofs** (optional, for contributors adding machine-checked theorems):
 
 ```bash
@@ -156,11 +184,12 @@ Maturity is **scoped**: it separates "this benchmark has some checked evidence" 
 | **reference_scaffold** | At least one meaningful checked-evidence obligation, but the headline claim is only partially checked |
 | **reference_contract** | Checked evidence is a declared contract (e.g. resource/error contract), not a proof of a stronger bound |
 | **reference_artifact** | Checked evidence is artifact-structural rather than proof of the headline claim |
-| **reference_claim** | Full declared headline scope is closed by required evidence under its stated semantics and review requirements |
-| **artifact_bound_reference_claim** | `reference_claim`-level scope with explicit binding from the checked proposition/semantics to concrete artifact identity; schema-0.4 migration additionally targets total assurance-graph closure |
+| **experimental_closed** | Machine-closed under declared semantics and assurance-graph obligations **without** authenticated independent review; not gold |
+| **reference_claim** | Full declared headline scope closed by required evidence **and** authentic independent review (unreachable on the v1 path; see [promotion freeze](docs/promotion_freeze.md)) |
+| **artifact_bound_reference_claim** | `reference_claim`-level scope with explicit artifact-identity binding; also frozen for v1 without real reviewers |
 | **deprecated** | Retained for history; README explains why |
 
-Promotion is documented in [reference benchmarks](docs/reference_benchmarks.md), [GOVERNANCE.md](GOVERNANCE.md), and the corrected [definition of completion](docs/definition_of_completion.md). During the full-vision migration, new high-maturity promotions should not bypass issues #12–#15 (authenticated review, total evidence closure, semantic profiles, typed adapters).
+Promotion rules: [reference benchmarks](docs/reference_benchmarks.md), [GOVERNANCE.md](GOVERNANCE.md), [definition of completion](docs/definition_of_completion.md). On the v1 path, gold/RC/ABRC labels stay empty by owner decision; machine-closed packages use `experimental_closed`. Do not bypass issues #12–#15 for high-maturity promotions.
 
 ### Other ways to help
 
@@ -184,7 +213,7 @@ QSpecBench versions the schema, the tooling, and the benchmark corpus separately
 | **Corpus** (benchmark suite) | 0.2.0 |
 | **Release tag** | v0.2.3 |
 
-**Release honesty:** tag `v0.2.3` is historical and predates the current working tree. The current corpus has expanded ABRC/RC coverage (see [generated status](docs/generated_status.md) and [dashboard](docs/status.md)). Historical dual hash-bound review artifacts are retained as recorded evidence; they must not be described as authenticated independent reviewer identity until migrated to review-attestation v2 under issue #12. A current branch/head is not called release-reproduced until exact-head CI and bundle verification are observed.
+**Release honesty:** tag `v0.2.3` is historical and predates this working tree. The v1 completion branch demotes the former gold inventory: **RC/ABRC count is 0**; machine-closed packages are `experimental_closed` (see [generated status](docs/generated_status.md), [release audit](docs/release_audit_v1.md), [promotion freeze](docs/promotion_freeze.md)). Historical dual hash-bound review artifacts may remain as `unauthenticated_legacy_review`; they are **not** authenticated independent reviewer identity (issue #12). Lean-QEC distance interoperability remains honestly not green until cold native acceptance on an exact head. Independent third-party cold-host reproduction (issue #9) is out of v1 scope. Do not call a branch release-reproduced without exact-head CI and bundle verification.
 
 ### Permanent residuals (not a complete FV standard)
 
@@ -202,19 +231,21 @@ QSpecBench remains a **scoped research benchmark and assurance infrastructure**,
 Details: [research_tracks.md](docs/research_tracks.md), [definition_of_completion.md](docs/definition_of_completion.md).
 
 <!-- qspecbench-status-begin -->
-Audited corpus snapshot (Aug. 24, 2026; generated source of truth: [docs/generated_status.md](docs/generated_status.md)):
+Audited corpus snapshot (generated source of truth: [docs/generated_status.md](docs/generated_status.md)):
 
 | | |
 |---|---|
-| **Benchmarks** | 50 across 5 tracks |
-| **`reference_claim`** | 9 |
-| **`artifact_bound_reference_claim`** | 10 |
-| **With headline claim checked under declared scope** | 19 |
-| **With any checked evidence** | 46 |
+| **Benchmarks** | 52 across 5 tracks |
+| **`experimental_closed`** (machine closure, no independent review) | 21 |
+| **`reference_claim`** | 0 |
+| **`artifact_bound_reference_claim`** | 0 |
+| **Gold promoted inventory** | 0 |
+| **With headline claim checked under declared scope** | 21 |
+| **With any checked evidence** | 48 |
 | **QEC small-code certificate level** | 12 |
 | **QEC external-certificate level** | 1 |
 
-These are descriptive corpus counts, not evidence that community-grade governance or the full scientific reference suite is complete. Exact current CI state must be read from the workflow run for the exact commit, not from authored `status.ci` fields.
+These are descriptive corpus counts, not evidence that independent review, community-grade governance, or the full scientific reference suite is complete. Exact current CI state must be read from the workflow run for the exact commit, not from authored `status.ci` fields.
 
 Details and per-benchmark breakdown: **[dashboard](docs/status.md)**.
 <!-- qspecbench-status-end -->
@@ -229,8 +260,12 @@ Details and per-benchmark breakdown: **[dashboard](docs/status.md)**.
 | Full-vision architecture and exit gates | [Full-vision execution](docs/full_vision_execution.md) |
 | Typed adapter protocol | [Adapter protocol](docs/adapter_protocol.md) |
 | Authenticated review | [Review attestations](docs/review_attestations.md) |
+| Promotion freeze (v1) | [Promotion freeze](docs/promotion_freeze.md) |
 | Interoperability/version isolation | [Interoperability matrix](docs/interoperability_matrix.md) |
+| v1 release audit (ship/revise) | [Release audit v1](docs/release_audit_v1.md) |
 | v1 release contract | [v1 release criteria](docs/release_v1_criteria.md) |
+| Governance verification | [Governance verification](docs/governance_verification.md) |
+| Docs index | [Documentation index](docs/index.md) |
 | `spec.yaml` fields | [Schema reference](docs/schema_reference.md) |
 | Evidence types and checkers | [Evidence model](docs/evidence_model.md) |
 | What is proved vs assumed | [Trust boundaries](docs/trust_boundaries.md) |
