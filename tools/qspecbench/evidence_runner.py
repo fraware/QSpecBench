@@ -1,8 +1,8 @@
 """Run declared evidence checks for a benchmark claim.
 
 Execution routing is deliberately independent of the human-readable ``checker`` field.
-A stable typed adapter id, when present, selects the implementation.  Evidence types with one
-ordinary repository-wide interpretation may use the typed default registry.  Legacy directory
+A stable typed adapter id, when present, selects the implementation. Evidence types with one
+ordinary repository-wide interpretation may use the typed default registry. Legacy directory
 adapter names remain accepted only as a compatibility surface while specs migrate.
 """
 
@@ -15,8 +15,14 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from qspecbench.adapter_registry import validate_adapter_name
+from qspecbench.adapter_runtime import (
+    AdapterRuntimeError,
+    build_adapter_request,
+    normalize_adapter_result,
+)
 from qspecbench.artifacts import claim_path_escape_error, resolve_claim_path
 from qspecbench.evidence_adapter_bindings import bound_adapter_id
 from qspecbench.evidence_sandbox import run_sandboxed, uses_evidence_sandbox
@@ -45,6 +51,8 @@ class EvidenceRunResult:
     skipped: bool = False
     skip_reason: str = ""
     errors: list[str] = field(default_factory=list)
+    adapter_request: dict[str, Any] | None = None
+    adapter_result: dict[str, Any] | None = None
 
     @property
     def ok(self) -> bool:
@@ -173,6 +181,13 @@ def _adapter_command(
     return cmd
 
 
+def _default_adapter_id(evidence_type: str, artifact_path: Path) -> str | None:
+    if evidence_type == "simulation" and artifact_path.suffix.lower() == ".json":
+        return "qspecbench.dynamic_simulation.v1"
+    typed = default_typed_adapter(evidence_type)
+    return typed.adapter_id if typed is not None else None
+
+
 def _default_adapter_command(
     evidence_type: str,
     artifact_path: Path,
@@ -180,13 +195,7 @@ def _default_adapter_command(
     adapter_override: str | None = None,
     secondary: Path | None = None,
 ) -> str | None:
-    adapter_name = adapter_override
-    if adapter_name is None:
-        if evidence_type == "simulation" and artifact_path.suffix.lower() == ".json":
-            adapter_name = "qspecbench.dynamic_simulation.v1"
-        else:
-            typed = default_typed_adapter(evidence_type)
-            adapter_name = typed.adapter_id if typed is not None else None
+    adapter_name = adapter_override or _default_adapter_id(evidence_type, artifact_path)
     if not adapter_name:
         return None
     return _adapter_command(
@@ -208,7 +217,11 @@ def _resolve_secondary_path(entry: dict, claim_dir: Path) -> Path | None:
 
 def _evidence_timeout(evidence_type: str, cmd: list[str]) -> int:
     cmd_text = " ".join(cmd)
-    if evidence_type == "lean_proof" or "adapters/lean" in cmd_text or "adapters\\lean" in cmd_text:
+    if (
+        evidence_type == "lean_proof"
+        or "adapters/lean" in cmd_text
+        or "adapters\\lean" in cmd_text
+    ):
         return 600
     if evidence_type == "coq_proof" or "adapters/coq" in cmd_text or "adapters\\coq" in cmd_text:
         return 300
@@ -258,18 +271,43 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
 
     raw_command = entry.get("command")
     try:
-        adapter_name = bound_adapter_id(entry, claim_dir)
+        explicit_adapter = bound_adapter_id(entry, claim_dir)
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         return _result_error(eid, rel_path, f"typed adapter binding: {exc}")
-    evidence_type = str(entry.get("type", ""))
-    command: str | None = None
 
-    if adapter_name and artifact:
+    evidence_type = str(entry.get("type", ""))
+    execution_adapter = explicit_adapter
+    if execution_adapter is None and artifact is not None and entry.get("status") == "passing":
+        execution_adapter = _default_adapter_id(evidence_type, artifact)
+
+    if (claim_dir / "assurance_graph.yaml").is_file() and raw_command and execution_adapter is None:
+        return _result_error(
+            eid,
+            rel_path,
+            "assurance-backed evidence cannot execute an untyped raw command",
+            str(raw_command),
+        )
+
+    runtime_request: dict[str, Any] | None = None
+    if execution_adapter is not None:
+        try:
+            runtime_request = build_adapter_request(
+                entry,
+                claim_dir,
+                adapter_id=str(execution_adapter),
+                artifact=artifact,
+                secondary=secondary,
+            )
+        except AdapterRuntimeError as exc:
+            return _result_error(eid, rel_path, f"adapter request: {exc}")
+
+    command: str | None = None
+    if execution_adapter and artifact:
         try:
             command = _default_adapter_command(
                 evidence_type,
                 artifact,
-                adapter_override=str(adapter_name),
+                adapter_override=str(execution_adapter),
                 secondary=secondary,
             )
         except ValueError as exc:
@@ -283,13 +321,9 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
                 command=str(raw_command),
                 exit_code=1,
                 errors=raw_errors + ["warning: raw commands are a maintainer escape hatch only"],
+                adapter_request=runtime_request,
             )
         command = str(raw_command)
-    elif artifact and entry.get("status") == "passing":
-        try:
-            command = _default_adapter_command(evidence_type, artifact, secondary=secondary)
-        except ValueError as exc:
-            return _result_error(eid, rel_path, str(exc))
 
     if not command:
         return EvidenceRunResult(
@@ -299,6 +333,7 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             exit_code=None,
             skipped=True,
             skip_reason="no adapter or command declared",
+            adapter_request=runtime_request,
         )
 
     if entry.get("status") in ("draft", "not_checked"):
@@ -309,6 +344,7 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             exit_code=None,
             skipped=True,
             skip_reason=f"status is {entry.get('status')}",
+            adapter_request=runtime_request,
         )
 
     try:
@@ -323,6 +359,7 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             command=" ".join(cmd),
             exit_code=0,
             stdout="(dry run)",
+            adapter_request=runtime_request,
         )
 
     try:
@@ -347,6 +384,7 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             exit_code=proc.returncode,
             stdout=proc.stdout.strip(),
             stderr=proc.stderr.strip(),
+            adapter_request=runtime_request,
         )
         if proc.returncode != 0:
             result.errors.append(f"command failed with exit {proc.returncode}")
@@ -357,6 +395,30 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
         except json.JSONDecodeError as exc:
             result.errors.append(f"adapter stdout is not valid JSON: {exc}")
             result.exit_code = 1
+            return result
+
+        if runtime_request is not None:
+            try:
+                typed_result = normalize_adapter_result(
+                    payload,
+                    claim_dir,
+                    request=runtime_request,
+                )
+            except AdapterRuntimeError as exc:
+                result.errors.append(f"adapter result: {exc}")
+                result.exit_code = 1
+                return result
+            result.adapter_result = typed_result
+            typed_status = typed_result.get("status")
+            if typed_status == "not_checked":
+                result.skipped = True
+                result.skip_reason = (
+                    payload.get("notes") or payload.get("skip_reason") or "adapter skipped"
+                )
+                result.exit_code = 0
+            elif typed_status != "passing":
+                result.errors.append(f"typed adapter result status is {typed_status!r}")
+                result.exit_code = 1
             return result
 
         if payload.get("skipped"):
