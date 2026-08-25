@@ -1,0 +1,141 @@
+qspecbench_version: '0.3'
+id: xz_product_formula_frobenius_majorant_at_pi4
+title: XZ product-formula Frobenius majorant at pi/4
+track: hamiltonian
+domain: hamiltonian_simulation
+claim_type: hamiltonian_claim
+difficulty: advanced
+informal_claim:
+  statement: >-
+    For Pauli X and Z on C^2 at t = pi/4, the first-order product-formula error has
+    positive entry modulus dominated by the Frobenius mass of the difference. This is
+    a concrete matrix-norm instance, not a general operator-norm Lie-Trotter theorem.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: mathematical
+  secondary: []
+objects:
+- name: hamiltonian
+  type: hamiltonian
+  path: artifacts/hamiltonian.json
+  format: json
+  role: source
+specification:
+  mode: approximate
+  preconditions:
+  - Pauli X and Z on C^2
+  - evolution time t = pi/4
+  postconditions:
+  - product-formula error entry modulus is positive and dominated by the Frobenius mass
+  invariants:
+  - not a general operator-norm O(t^2/n) theorem
+  approximation:
+    enabled: true
+    metric: entry_modulus
+    bound: frobenius_majorant_at_pi4
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - finite-dimensional complex matrix semantics on C^2
+  physical: []
+  tool: []
+  artifact:
+  - artifacts/hamiltonian.json records the X+Z instance
+  unverified:
+  - general operator-norm first-order Lie-Trotter bound for arbitrary Hermitian A,B
+acceptable_evidence:
+- type: lean_proof
+  checker: Lean 4 kernel
+  path: null
+  required_for_claim: true
+  trust_level: checked
+evidence:
+- id: lean_frobenius_majorant
+  type: lean_proof
+  path: evidence/frobenius_majorant.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: HamiltonianFlagship.xz_product_formula_frobenius_majorant_at_pi4
+trust_boundary:
+  checked_by:
+  - Lean 4 kernel instance theorem on Pauli X,Z at t=pi/4
+  trusted_kernels:
+  - Lean 4 kernel
+  trusted_external_tools: []
+  untrusted_components: []
+  assumptions_not_checked:
+  - general operator-norm first-order Lie-Trotter bound for arbitrary Hermitian A,B
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: complete
+  ci: passing
+  maturity: experimental_closed
+references: []
+proof_obligations:
+- id: frobenius_majorant_instance
+  status: passing
+  notes: Kernel-checked Frobenius majorant of entry modulus at t=pi/4
+claim_scope:
+  headline_claim_id: xz_product_formula_frobenius_majorant_at_pi4_headline
+  headline_claim_text: >-
+    For Pauli X and Z on C^2 at t = pi/4, the first-order product-formula error has
+    positive entry modulus dominated by the Frobenius mass of the difference. This is
+    a concrete matrix-norm instance, not a general operator-norm Lie-Trotter theorem.
+  required_obligations:
+  - frobenius_majorant_instance
+proved_scope:
+  checked_obligations:
+  - frobenius_majorant_instance
+  unproved_obligations: []
+headline_claim_status:
+  status: checked
+  notes: Machine-closed experimental package; not independently reviewed; not a general Lie-Trotter theorem.
+  checked_under:
+  - pauli_xz_c2
+  - t_pi_over_4
+  - frobenius_majorant_of_entry_modulus
+  not_checked_under:
+  - general_operator_norm_lie_trotter
+  - arbitrary_hermitian_A_B
+  - unbounded_step_count
+formal_claims:
+- id: formal_lean_frobenius_majorant
+  evidence_id: lean_frobenius_majorant
+  formal_system: lean
+  module: QSpecBench.Research.HamiltonianFlagship
+  theorem: QSpecBench.Research.HamiltonianFlagship.xz_product_formula_frobenius_majorant_at_pi4
+  supports:
+  - frobenius_majorant_instance
+  does_not_support:
+  - general_operator_norm_lie_trotter
+  benchmark_anchor: xz_product_formula_frobenius_majorant_at_pi4
+  proposition_id: xz_product_formula_frobenius_majorant_at_pi4_v1
+hamiltonian_claim_scope:
+  claim_class: analytic_error_bound_claim
+  derivation_status: checked
+provenance:
+  generated_at: '2026-08-25T00:00:00+00:00'
+  artifacts:
+  - path: artifacts/hamiltonian.json
+    sha256: 73ebc5dd46e15841b59501a43b8cc485f51fd23a56eab75e76194610b1a64cff
+    role: source
+semantics_base: hamiltonian_operator
+authorship:
+  author: fraware
+  merging_maintainer: fraware
+claim_identity:
+  proposition_id: xz_product_formula_frobenius_majorant_at_pi4_v1
+  postcondition_obligation_ids:
+  - frobenius_majorant_instance

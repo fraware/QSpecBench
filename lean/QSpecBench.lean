@@ -14,6 +14,7 @@ import QSpecBench.Quantum.StabilizerTableau
 import QSpecBench.Teleportation
 import QSpecBench.Research.DynamicTeleportation
 import QSpecBench.Research.CompilerFlagship
+import QSpecBench.Research.HamiltonianFlagship
 import QSpecBench.NoCloning
 import QSpecBench.Hamiltonian
 import QSpecBench.QECDistant
