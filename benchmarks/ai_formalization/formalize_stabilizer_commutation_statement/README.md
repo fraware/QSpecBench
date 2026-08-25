@@ -6,7 +6,9 @@ The informal source claim that all stabilizer generators of a stabilizer code pa
 
 ## Why this matters
 
-AI formalization track requires an explicit untrusted AI draft, a frozen gold target, semantic rubric score, and dual independent reviews before `reference_claim`.
+AI formalization track requires an explicit untrusted AI draft, a frozen AI gold *target*
+(accepted formal statement), semantic rubric score, and dual reviews before any future
+`reference_claim`. Gold maturity is frozen for v1; this package is `experimental_closed`.
 
 ## Objects
 
@@ -31,7 +33,7 @@ Explicit in `spec.yaml` trust_boundary. AI draft text remains untrusted; all-pai
 
 ## Status
 
-Current maturity: **reference_claim**.
+Current maturity: **experimental_closed**.
 
 ## Known gaps
 

@@ -1,8 +1,8 @@
 # Claim diff: formalize_small_hamiltonian_hermiticity_statement
 
-<!-- scope_fingerprint: 997945998b745192a57c947189c994d72ef85b77b287e49ade340b0878afaf07 -->
+<!-- scope_fingerprint: 54f5e221ea71e2f0f45c036b4bc43ecd273524ff39ed2043dfdd3f0777f45d94 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

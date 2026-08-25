@@ -124,7 +124,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_claim
+  maturity: experimental_closed
   reviews:
     formal_evidence_review:
       status: approved
@@ -242,7 +242,13 @@ ai_formalization_status:
     - Arbitrary-superposition transfer is out of gold scope (see full-protocol sibling benchmark)
     reviewer_disagreement_record: []
     faithfulness_score: 4
-    kernel_status: checked_faithful
+    kernel_status: kernel_valid_strict_weakening
+    source_relation: strict_weakening
+    faithfulness_status: strict_weakening
+    formal_status: kernel_valid
+    source_relation: strict_weakening
+    faithfulness_status: strict_weakening
+    formal_status: kernel_valid
     external_domain_review_required: true
 semantics_base: int_scaffold
 provenance:

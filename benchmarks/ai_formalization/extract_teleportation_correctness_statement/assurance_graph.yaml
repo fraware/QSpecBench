@@ -1,0 +1,62 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: extract_teleportation_correctness_statement
+proposition:
+  id: extract_teleportation_correctness_statement_v1
+  version: 1
+  text: The informal source claim that quantum teleportation transfers an unknown
+    qubit state to a remote party up to Pauli corrections is faithfully formalized
+    — for the declared computational-basis inputs zero and one, over all four Alice
+    measurement outcomes — by the checked measure-and-correct recovery theorems under
+    the frozen gold target; general-state transfer for an arbitrary superposition
+    remains outside this gold target.
+  source_claim_id: null
+  relation_to_source: strict_weakening
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.ai_formalization.gold_relation.v1
+  content_sha256: 124a0c308abd9320a1691661ab31f6774c0eb3b38e57850717586c1e956fb90c
+  content_version: '1'
+  parser: null
+  unsupported_behavior: fail_closed
+  upstream_standard: null
+  upstream_version: null
+  wire_order: null
+  global_phase_policy: null
+  measurement_semantics: null
+  reset_semantics: null
+  control_flow_semantics: null
+obligations:
+- id: kernel_anchor
+  required: true
+  statement: kernel_anchor
+- id: gold_target_faithfulness
+  required: true
+  statement: gold_target_faithfulness
+evidence_edges:
+- evidence_id: lean_kernel_check
+  supports:
+  - kernel_anchor
+  - gold_target_faithfulness
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/kernel_checked_draft.lean
+- evidence_id: rubric_review
+  supports:
+  - gold_target_faithfulness
+  trust_class: externally_trusted
+  adapter_id: qspecbench.human_review.v1
+  result_path: notes/semantic_rubric.md
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: 1144299c124b
+  status: out_of_scope
+  statement: full faithfulness of AI draft text to source phrasing
+- id: 304b73df2089
+  status: out_of_scope
+  statement: general-state teleportation for an arbitrary superposition beyond the
+    declared computational-basis inputs
+derived_maturity: experimental_closed

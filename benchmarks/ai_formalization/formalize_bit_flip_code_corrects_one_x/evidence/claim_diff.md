@@ -1,8 +1,8 @@
 # Claim diff: formalize_bit_flip_code_corrects_one_x
 
-<!-- scope_fingerprint: da4cdca1deac9a002c2d10a268876836871fc4d3e352283417eec1d3c40b2487 -->
+<!-- scope_fingerprint: 77e47dd8b1c44c741d12d299096628b6c408177faa8f9e5b05d91b6de4c32c49 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)
