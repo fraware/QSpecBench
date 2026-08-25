@@ -20,7 +20,7 @@ def _write_repo(tmp_path: Path, graph: dict) -> Path:
         "upstream_version": "3.0",
         "parser_implementation": "test parser",
         "parser_version": "1.0.0",
-        "include_policy": "rejected",
+        "include_policy": "skipped_not_interpreted",
         "accepted_headers": ["OPENQASM 3.0"],
         "accepted_declarations": ["qubit"],
         "gate_set": ["x"],
@@ -33,11 +33,17 @@ def _write_repo(tmp_path: Path, graph: dict) -> Path:
         "unsupported_syntax_behavior": "fail_closed",
         "notes": None,
     }
+    import hashlib
     import json
 
+    canonical = json.dumps(profile, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    digest = hashlib.sha256(canonical).hexdigest()
     (tmp_path / "schema" / "profiles" / "qspecbench.openqasm3.test.v1.json").write_text(
         json.dumps(profile), encoding="utf-8"
     )
+    graph.setdefault("semantic_profile", {})
+    graph["semantic_profile"].setdefault("content_sha256", digest)
+    graph["semantic_profile"].setdefault("content_version", "1.0.0")
     claim_dir = tmp_path / "benchmarks" / "equivalence" / "demo"
     claim_dir.mkdir(parents=True)
     (claim_dir / "assurance_graph.yaml").write_text(yaml.safe_dump(graph), encoding="utf-8")
@@ -51,7 +57,7 @@ def _spec() -> dict:
         "claim_identity": {"proposition_id": "demo_v1"},
         "claim_scope": {"required_obligations": ["parse", "equivalence"]},
         "proved_scope": {"checked_obligations": ["parse", "equivalence"]},
-        "status": {"maturity": "reference_claim"},
+        "status": {"maturity": "experimental_closed"},
         "evidence": [
             {"id": "lean", "status": "passing"},
             {"id": "external", "status": "passing"},

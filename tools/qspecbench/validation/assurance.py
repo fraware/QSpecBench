@@ -14,9 +14,13 @@ from typing import Any
 import jsonschema
 import yaml
 
+from qspecbench.maturity_policy import EXPERIMENTAL_CLOSED, cached_maturity_errors, derive_maturity
+from qspecbench.semantic_profiles import cross_consistency_errors
+from qspecbench.typed_adapter_registry import get_typed_adapter
 from qspecbench.validation.review_attestations import validate_review_attestations
 
 PROMOTED_MATURITIES = {"reference_claim", "artifact_bound_reference_claim"}
+GRAPH_REQUIRED_MATURITIES = PROMOTED_MATURITIES | {EXPERIMENTAL_CLOSED}
 GRAPH_FILENAME = "assurance_graph.yaml"
 GRAPH_SCHEMA = "schema/assurance_graph.schema.json"
 OPENQASM_PROFILE_SCHEMA = "schema/openqasm_profile.schema.json"
@@ -35,7 +39,12 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _validate_profile(graph: dict[str, Any], root: Path) -> list[str]:
+def _validate_profile(
+    graph: dict[str, Any],
+    root: Path,
+    *,
+    require_digest: bool = False,
+) -> list[str]:
     errors: list[str] = []
     profile = graph.get("semantic_profile") or {}
     profile_id = profile.get("id")
@@ -59,6 +68,20 @@ def _validate_profile(graph: dict[str, Any], root: Path) -> list[str]:
 
     if profile_doc.get("id") != profile_id:
         errors.append(f"semantic profile id mismatch: expected {profile_id}")
+
+    import hashlib
+    import json as json_lib
+
+    actual_digest = hashlib.sha256(
+        json_lib.dumps(profile_doc, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    declared_digest = profile.get("content_sha256") or profile.get("sha256")
+    if declared_digest and declared_digest != actual_digest:
+        errors.append("assurance graph semantic profile content_sha256 does not match registered profile")
+    if require_digest and not declared_digest:
+        errors.append("experimental_closed/promoted graphs must bind semantic profile content_sha256")
+    if str(profile_id).startswith("qspecbench.openqasm3."):
+        errors.extend(cross_consistency_errors(profile_doc))
 
     if str(profile_id).startswith("qspecbench.openqasm3."):
         graph_standard = profile.get("upstream_standard")
@@ -118,7 +141,11 @@ def validate_assurance_graph_rules(
     maturity = (spec.get("status") or {}).get("maturity")
 
     if not graph_path.is_file():
-        if maturity in PROMOTED_MATURITIES:
+        if maturity in GRAPH_REQUIRED_MATURITIES:
+            errors.append(
+                f"{maturity} requires assurance_graph.yaml with total required-obligation closure"
+            )
+        elif maturity in PROMOTED_MATURITIES:
             warnings.append(
                 "promoted claim has no assurance_graph.yaml; migrate before v0.4 promotion rules become mandatory"
             )
@@ -186,6 +213,21 @@ def validate_assurance_graph_rules(
                 f"assurance graph edge {evidence_id} is untrusted and cannot discharge obligations"
             )
             continue
+        adapter_id = edge.get("adapter_id")
+        if adapter_id:
+            typed = get_typed_adapter(str(adapter_id))
+            if typed is None:
+                errors.append(f"assurance graph edge {evidence_id} uses unknown adapter {adapter_id!r}")
+            elif edge.get("trust_class") and edge.get("trust_class") != typed.trust_ceiling:
+                if not (
+                    edge.get("trust_class") == "proof_assistant_native_checked"
+                    and typed.trust_ceiling == "kernel_checked"
+                ):
+                    errors.append(
+                        f"assurance graph edge {evidence_id} trust_class "
+                        f"{edge.get('trust_class')!r} exceeds/mismatches registry "
+                        f"{typed.trust_ceiling!r}"
+                    )
         supported.update(edge_supports)
 
     orphaned = sorted(graph_required - supported)
@@ -213,15 +255,44 @@ def validate_assurance_graph_rules(
                 "ai_formalization kernel_status=checked_faithful is incompatible with a non-equivalent source relation"
             )
 
-    errors.extend(_validate_profile(graph, root))
+    errors.extend(
+        _validate_profile(
+            graph,
+            root,
+            require_digest=maturity in GRAPH_REQUIRED_MATURITIES,
+        )
+    )
+
+    for item in graph.get("assumptions") or []:
+        status = str(item.get("status") or "")
+        if status == "evidence_required" and maturity in GRAPH_REQUIRED_MATURITIES:
+            errors.append(
+                f"assumption {item.get('id')!r} is evidence_required and cannot remain on a closed claim"
+            )
 
     legacy_profile = spec.get("openqasm_profile")
     graph_profile = (graph.get("semantic_profile") or {}).get("id")
-    if legacy_profile and graph_profile and legacy_profile != graph_profile:
-        warnings.append(
-            "legacy spec.openqasm_profile differs from assurance graph semantic profile; "
-            "the sidecar is the migration target and spec field must be reconciled before v0.4"
+    if (
+        legacy_profile
+        and graph_profile
+        and legacy_profile != graph_profile
+        and str(legacy_profile).startswith("qspecbench.openqasm3.")
+        and str(graph_profile).startswith("qspecbench.openqasm3.")
+    ):
+        errors.append(
+            "spec.openqasm_profile must equal assurance graph semantic_profile.id "
+            f"(spec={legacy_profile!r}, graph={graph_profile!r})"
         )
+
+    try:
+        eligibility = derive_maturity(
+            spec,
+            graph,
+            profile_resolved=not any("semantic profile" in err for err in errors),
+        )
+        errors.extend(cached_maturity_errors(spec, eligibility))
+    except (TypeError, ValueError) as exc:
+        errors.append(f"derived maturity: {exc}")
 
     review_errors, review_warnings = validate_review_attestations(spec, claim_dir, graph)
     errors.extend(review_errors)
