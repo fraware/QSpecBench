@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from adapters.lean_qec.parse_result import _diagnostics, _verify_lfs_pointers
+
 REPO = Path(__file__).resolve().parents[1]
 SCRIPT = REPO / "adapters" / "lean_qec" / "parse_result.py"
 MANIFEST = REPO / "adapters" / "lean_qec" / "examples" / "bb90_distance_10.json"
@@ -30,6 +32,23 @@ def _run_manifest(path: Path) -> subprocess.CompletedProcess[str]:
 def _payload(proc: subprocess.CompletedProcess[str]) -> dict:
     assert proc.stdout.strip(), proc.stderr
     return json.loads(proc.stdout.splitlines()[-1])
+
+
+def _write_lfs_pointers(root: Path, objects: list[dict]) -> None:
+    for item in objects:
+        path = root / item["path"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "\n".join(
+                [
+                    "version https://git-lfs.github.com/spec/v1",
+                    f"oid sha256:{item['sha256']}",
+                    f"size {item['size']}",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
 
 def test_lean_qec_manifest_pins_all_bb90_lrat_dependencies() -> None:
@@ -63,6 +82,9 @@ def test_lean_qec_manifest_pins_all_bb90_lrat_dependencies() -> None:
     assert proc.returncode == 0, payload
     assert payload["ok"] is True
     assert payload["skipped"] is True
+    assert payload["verification_mode"] == "cold_root_project_olean_build"
+    assert payload["project_build_cache_restored"] is False
+    assert payload["build_target"] == "+LeanQEC.Stabilizer.Examples.BB.BB90:olean"
     assert payload["required_lfs_objects"] == objects
 
 
@@ -106,3 +128,35 @@ def test_lean_qec_manifest_rejects_malformed_lfs_hash(tmp_path: Path) -> None:
     assert payload["ok"] is False
     assert "required LFS sha256" in payload["error"]
     assert "64-character lowercase hexadecimal digest" in payload["error"]
+
+
+def test_lfs_pointer_metadata_is_checked_before_materialization(tmp_path: Path) -> None:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    _write_lfs_pointers(tmp_path, manifest["required_lfs_objects"])
+
+    verified, error = _verify_lfs_pointers(manifest, tmp_path)
+    assert error is None
+    assert verified == manifest["required_lfs_objects"]
+
+    first = tmp_path / manifest["required_lfs_objects"][0]["path"]
+    first.write_text("materialized proof bytes\n", encoding="utf-8")
+    verified, error = _verify_lfs_pointers(manifest, tmp_path)
+    assert verified == []
+    assert error is not None
+    assert "Git LFS pointer metadata mismatch" in error["error"]
+
+
+def test_diagnostics_preserve_middle_fatal_context() -> None:
+    stdout_lines = [*("noise" for _ in range(100)), "PANIC: synthetic"]
+    stdout_lines.extend("tail" for _ in range(100))
+    proc = subprocess.CompletedProcess(
+        args=["lean"],
+        returncode=1,
+        stdout="\n".join(stdout_lines),
+        stderr="error: build failed\n",
+    )
+    diagnostics = _diagnostics(proc, limit=200)
+    assert len(diagnostics["stdout_head"]) <= 100
+    assert len(diagnostics["stdout_tail"]) <= 100
+    assert any("PANIC: synthetic" in line for line in diagnostics["diagnostic_context"])
+    assert any("error: build failed" in line for line in diagnostics["diagnostic_context"])

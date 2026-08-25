@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,13 @@ from typing import Any
 SCHEMA = "qspecbench.lean_qec_import.v1"
 ADAPTER_ID = "qspecbench.lean_qec.distance.v1"
 VERIFY_ENV = "QSPECBENCH_LEAN_QEC_VERIFY"
+LOG_DIR_ENV = "QSPECBENCH_LEAN_QEC_LOG_DIR"
+VERIFICATION_MODE = "cold_root_project_olean_build"
+_FATAL_PATTERN = re.compile(
+    r"(?i)(error:|panic|fatal|stack overflow|out of memory|memory exhausted|"
+    r"segmentation fault|killed|uncaught exception|internal error|maximum recursion|"
+    r"lean exited with code)"
+)
 
 
 def _fail(message: str, **extra: Any) -> int:
@@ -31,10 +39,15 @@ def _run(
     cmd: list[str],
     cwd: Path,
     timeout: int = 1800,
+    env_overrides: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    if env_overrides:
+        env.update(env_overrides)
     return subprocess.run(
         cmd,
         cwd=cwd,
+        env=env,
         text=True,
         capture_output=True,
         check=False,
@@ -50,11 +63,44 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(path.resolve())
+
+
+def _persist_process_logs(
+    stage: str,
+    proc: subprocess.CompletedProcess[str],
+) -> dict[str, Any]:
+    configured = os.environ.get(LOG_DIR_ENV)
+    if not configured:
+        return {}
+    log_dir = Path(configured)
+    if not log_dir.is_absolute():
+        log_dir = Path.cwd() / log_dir
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    stdout_path = log_dir / f"{stage}.stdout.log"
+    stderr_path = log_dir / f"{stage}.stderr.log"
+    stdout_path.write_text(proc.stdout, encoding="utf-8")
+    stderr_path.write_text(proc.stderr, encoding="utf-8")
+    return {
+        f"{stage}_stdout_log": _display_path(stdout_path),
+        f"{stage}_stdout_sha256": _sha256(stdout_path),
+        f"{stage}_stdout_bytes": stdout_path.stat().st_size,
+        f"{stage}_stderr_log": _display_path(stderr_path),
+        f"{stage}_stderr_sha256": _sha256(stderr_path),
+        f"{stage}_stderr_bytes": stderr_path.stat().st_size,
+    }
+
+
 def _diagnostics(
     proc: subprocess.CompletedProcess[str],
     limit: int = 4000,
 ) -> dict[str, Any]:
-    """Keep bounded head and tail diagnostics so the first error is not discarded."""
+    """Keep bounded endpoints and fatal-context lines from the complete process output."""
 
     def bound(text: str) -> tuple[str, str]:
         if len(text) <= limit:
@@ -64,12 +110,28 @@ def _diagnostics(
 
     stdout_head, stdout_tail = bound(proc.stdout)
     stderr_head, stderr_tail = bound(proc.stderr)
+
+    tagged_lines: list[tuple[str, str]] = []
+    tagged_lines.extend(("stdout", line) for line in proc.stdout.splitlines())
+    tagged_lines.extend(("stderr", line) for line in proc.stderr.splitlines())
+    selected: set[int] = set()
+    for idx, (_stream, line) in enumerate(tagged_lines):
+        if _FATAL_PATTERN.search(line):
+            selected.update(range(max(0, idx - 2), min(len(tagged_lines), idx + 3)))
+    selected_indices = sorted(selected)[:80]
+    diagnostic_context = [
+        f"{tagged_lines[idx][0]}: {tagged_lines[idx][1]}" for idx in selected_indices
+    ]
+
     return {
         "returncode": proc.returncode,
         "stdout_head": stdout_head,
         "stdout_tail": stdout_tail,
         "stderr_head": stderr_head,
         "stderr_tail": stderr_tail,
+        "stdout_bytes": len(proc.stdout.encode("utf-8")),
+        "stderr_bytes": len(proc.stderr.encode("utf-8")),
+        "diagnostic_context": diagnostic_context,
     }
 
 
@@ -103,7 +165,11 @@ def _validate_lfs_objects(payload: object) -> list[dict[str, Any]]:
             raise ValueError(f"duplicate required LFS path: {rel!r}")
         seen_paths.add(rel)
 
-        sha = _validate_sha(item["sha256"], field=f"required LFS sha256 for {rel!r}", length=64)
+        sha = _validate_sha(
+            item["sha256"],
+            field=f"required LFS sha256 for {rel!r}",
+            length=64,
+        )
         size = item["size"]
         if not isinstance(size, int) or isinstance(size, bool) or size <= 0:
             raise ValueError(f"invalid required LFS size for {rel!r}")
@@ -154,9 +220,13 @@ def _load_manifest(path: Path) -> dict[str, Any]:
 
 
 def _base_result(manifest: dict[str, Any]) -> dict[str, Any]:
+    build_target = f"+{manifest['module']}:olean"
     return {
         "adapter_id": ADAPTER_ID,
         "adapter_version": "1.0.0",
+        "verification_mode": VERIFICATION_MODE,
+        "project_build_cache_restored": False,
+        "build_target": build_target,
         "upstream_repository": manifest["upstream_repository"],
         "upstream_commit": manifest["upstream_commit"],
         "lean_toolchain": manifest["lean_toolchain"],
@@ -171,11 +241,27 @@ def _base_result(manifest: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _verify_checkout(manifest: dict[str, Any], repo: Path) -> tuple[dict[str, str], dict[str, Any] | None]:
+def _verify_checkout(
+    manifest: dict[str, Any],
+    repo: Path,
+) -> tuple[dict[str, str], dict[str, Any] | None]:
     base = _base_result(manifest)
     init = _run(["git", "init", "-q"], repo, timeout=60)
     if init.returncode != 0:
         return {}, {"ok": False, "error": "git init failed", **_diagnostics(init), **base}
+
+    lfs_install = _run(
+        ["git", "lfs", "install", "--local", "--skip-smudge"],
+        repo,
+        timeout=60,
+    )
+    if lfs_install.returncode != 0:
+        return {}, {
+            "ok": False,
+            "error": "git-lfs local skip-smudge configuration failed",
+            **_diagnostics(lfs_install),
+            **base,
+        }
 
     remote = _run(
         ["git", "remote", "add", "origin", str(manifest["upstream_repository"])],
@@ -189,6 +275,7 @@ def _verify_checkout(manifest: dict[str, Any], repo: Path) -> tuple[dict[str, st
         ["git", "fetch", "--depth=1", "origin", str(manifest["upstream_commit"])],
         repo,
         timeout=600,
+        env_overrides={"GIT_LFS_SKIP_SMUDGE": "1"},
     )
     if fetch.returncode != 0:
         return {}, {
@@ -198,7 +285,12 @@ def _verify_checkout(manifest: dict[str, Any], repo: Path) -> tuple[dict[str, st
             **base,
         }
 
-    checkout = _run(["git", "checkout", "--detach", "FETCH_HEAD"], repo, timeout=600)
+    checkout = _run(
+        ["git", "checkout", "--detach", "FETCH_HEAD"],
+        repo,
+        timeout=600,
+        env_overrides={"GIT_LFS_SKIP_SMUDGE": "1"},
+    )
     if checkout.returncode != 0:
         return {}, {"ok": False, "error": "checkout failed", **_diagnostics(checkout), **base}
 
@@ -249,14 +341,57 @@ def _verify_checkout(manifest: dict[str, Any], repo: Path) -> tuple[dict[str, st
     }, None
 
 
-def _materialize_lfs(
+def _verify_lfs_pointers(
     manifest: dict[str, Any],
     repo: Path,
 ) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
     base = _base_result(manifest)
+    verified: list[dict[str, Any]] = []
+    for item in manifest["required_lfs_objects"]:
+        rel = str(item["path"])
+        pointer_path = repo / rel
+        if not pointer_path.is_file():
+            return verified, {
+                "ok": False,
+                "error": f"required Git LFS pointer missing before materialization: {rel}",
+                **base,
+            }
+        if pointer_path.stat().st_size > 1024:
+            return verified, {
+                "ok": False,
+                "error": f"required LFS path materialized before explicit pull: {rel}",
+                **base,
+            }
+        lines = pointer_path.read_text(encoding="utf-8").splitlines()
+        expected = [
+            "version https://git-lfs.github.com/spec/v1",
+            f"oid sha256:{item['sha256']}",
+            f"size {item['size']}",
+        ]
+        if lines != expected:
+            return verified, {
+                "ok": False,
+                "error": f"required Git LFS pointer metadata mismatch: {rel}",
+                "actual_pointer_lines": lines,
+                "expected_pointer_lines": expected,
+                **base,
+            }
+        verified.append({"path": rel, "sha256": item["sha256"], "size": item["size"]})
+    return verified, None
+
+
+def _materialize_lfs(
+    manifest: dict[str, Any],
+    repo: Path,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any] | None]:
+    base = _base_result(manifest)
+    verified_pointers, pointer_error = _verify_lfs_pointers(manifest, repo)
+    if pointer_error is not None:
+        return verified_pointers, [], pointer_error
+
     lfs_version = _run(["git", "lfs", "version"], repo, timeout=60)
     if lfs_version.returncode != 0:
-        return [], {
+        return verified_pointers, [], {
             "ok": False,
             "error": "git-lfs is required to materialize proof certificates",
             **_diagnostics(lfs_version),
@@ -268,21 +403,22 @@ def _materialize_lfs(
         ["git", "lfs", "pull", f"--include={','.join(paths)}", "--exclude="],
         repo,
         timeout=1800,
+        env_overrides={"GIT_LFS_SKIP_SMUDGE": "1"},
     )
     if lfs_pull.returncode != 0:
-        return [], {
+        return verified_pointers, [], {
             "ok": False,
             "error": "required proof-certificate LFS pull failed",
             **_diagnostics(lfs_pull),
             **base,
         }
 
-    verified: list[dict[str, Any]] = []
+    verified_objects: list[dict[str, Any]] = []
     for item in manifest["required_lfs_objects"]:
         rel = str(item["path"])
         cert_path = repo / rel
         if not cert_path.is_file():
-            return verified, {
+            return verified_pointers, verified_objects, {
                 "ok": False,
                 "error": f"required proof certificate missing after LFS pull: {rel}",
                 **base,
@@ -290,15 +426,15 @@ def _materialize_lfs(
         actual_size = cert_path.stat().st_size
         actual_sha = _sha256(cert_path)
         if actual_size != item["size"] or actual_sha != item["sha256"]:
-            return verified, {
+            return verified_pointers, verified_objects, {
                 "ok": False,
                 "error": f"required proof certificate integrity mismatch: {rel}",
                 "actual_size": actual_size,
                 "actual_sha256": actual_sha,
                 **base,
             }
-        verified.append({"path": rel, "size": actual_size, "sha256": actual_sha})
-    return verified, None
+        verified_objects.append({"path": rel, "size": actual_size, "sha256": actual_sha})
+    return verified_pointers, verified_objects, None
 
 
 def verify_manifest(manifest_path: Path) -> tuple[int, dict[str, Any]]:
@@ -321,28 +457,41 @@ def verify_manifest(manifest_path: Path) -> tuple[int, dict[str, Any]]:
         if checkout_error is not None:
             return 1, checkout_error
 
-        verified_lfs, lfs_error = _materialize_lfs(manifest, repo)
+        verified_pointers, verified_lfs, lfs_error = _materialize_lfs(manifest, repo)
         if lfs_error is not None:
-            return 1, {**lfs_error, **checkout_identity}
+            return 1, {
+                **lfs_error,
+                "verified_lfs_pointers": verified_pointers,
+                **checkout_identity,
+            }
 
         cache = _run(["lake", "exe", "cache", "get"], repo, timeout=1200)
+        cache_logs = _persist_process_logs("mathlib-cache", cache)
         if cache.returncode != 0:
             return 1, {
                 "ok": False,
                 "error": "upstream lake cache fetch failed",
                 **_diagnostics(cache),
+                **cache_logs,
+                "verified_lfs_pointers": verified_pointers,
                 "verified_lfs_objects": verified_lfs,
                 **checkout_identity,
                 **base,
             }
 
-        build = _run(["lake", "build", str(manifest["module"])], repo, timeout=3600)
+        build_target = str(base["build_target"])
+        build_command = ["lake", "build", build_target]
+        build = _run(build_command, repo, timeout=3600)
+        build_logs = _persist_process_logs("bb90-olean-build", build)
         if build.returncode != 0:
             return 1, {
                 "ok": False,
-                "error": "upstream Lean module build failed",
+                "error": "upstream Lean OLean build failed",
                 **_diagnostics(build),
+                **build_logs,
+                "verified_lfs_pointers": verified_pointers,
                 "verified_lfs_objects": verified_lfs,
+                "build_command": build_command,
                 **checkout_identity,
                 **base,
             }
@@ -351,8 +500,10 @@ def verify_manifest(manifest_path: Path) -> tuple[int, dict[str, Any]]:
             "ok": True,
             "skipped": False,
             "kernel_checked": True,
+            "verified_lfs_pointers": verified_pointers,
             "verified_lfs_objects": verified_lfs,
-            "build_command": ["lake", "build", str(manifest["module"])],
+            "build_command": build_command,
+            **build_logs,
             **checkout_identity,
             **base,
         }

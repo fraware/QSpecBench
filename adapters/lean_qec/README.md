@@ -34,18 +34,27 @@ QSPECBENCH_LEAN_QEC_VERIFY=1 \
   adapters/lean_qec/examples/bb90_distance_10.json
 ```
 
+Verification mode is `cold_root_project_olean_build`. It deliberately does not restore a Lean-QEC
+project `.lake` cache. It may fetch the ordinary Mathlib dependency cache before rebuilding the
+pinned root-project module's OLean artifact from source. A successful cached upstream project CI run
+is therefore useful provenance but is not substituted for this cold root-project proof check.
+
 Verification mode:
 
-1. creates an isolated temporary checkout;
+1. creates an isolated temporary checkout and configures repository-local Git LFS with smudging disabled;
 2. fetches only the exact upstream commit;
 3. checks the commit, toolchain, source Git blob identity, and theorem declaration;
-4. materializes only the four manifest-declared LRAT Git-LFS objects and verifies each exact SHA-256 and byte size;
-5. runs `lake exe cache get` in the upstream repository;
-6. builds the exact module `LeanQEC.Stabilizer.Examples.BB.BB90`;
-7. emits structured JSON binding all verified identities and materialized proof-certificate hashes.
+4. verifies that each required proof path is still the exact Git-LFS pointer committed by upstream;
+5. materializes only the four manifest-declared LRAT objects and verifies each SHA-256 and byte size;
+6. runs `lake exe cache get` for dependency artifacts without restoring an upstream project build cache;
+7. builds `+LeanQEC.Stabilizer.Examples.BB.BB90:olean`;
+8. emits structured JSON binding all verified identities, pointer metadata, materialized certificate hashes, and the exact build target.
 
-Failure diagnostics preserve bounded output from both the beginning and end of stdout/stderr so a
-large Lean stack trace cannot silently displace the first causal error.
+When `QSPECBENCH_LEAN_QEC_LOG_DIR` is set, the adapter also persists full cache/build stdout and
+stderr with SHA-256 digests. Structured failure diagnostics retain the output endpoints plus fatal
+context extracted from the complete logs, so a long stack trace cannot silently displace the first
+causal error. A failed cold build is reported as a failed reproduction attempt; it is not evidence
+that the mathematical theorem is false.
 
 ## Scope discipline
 

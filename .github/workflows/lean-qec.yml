@@ -42,6 +42,7 @@ jobs:
       - name: Verify pinned BB90 distance theorem in upstream toolchain
         env:
           QSPECBENCH_LEAN_QEC_VERIFY: "1"
+          QSPECBENCH_LEAN_QEC_LOG_DIR: "artifacts/lean-qec/logs"
         run: |
           set -euo pipefail
           mkdir -p artifacts/lean-qec
@@ -62,6 +63,9 @@ jobs:
           assert result.get("skipped") is False, result
           assert result.get("kernel_checked") is True, result
           assert result.get("adapter_id") == "qspecbench.lean_qec.distance.v1", result
+          assert result.get("verification_mode") == "cold_root_project_olean_build", result
+          assert result.get("project_build_cache_restored") is False, result
+          assert result.get("build_target") == "+LeanQEC.Stabilizer.Examples.BB.BB90:olean", result
           assert result.get("upstream_commit") == "e0b90148694cf6b9c8482b21dbd911f2d8f13493", result
           assert result.get("actual_commit") == result.get("upstream_commit"), result
           assert result.get("lean_toolchain") == "leanprover/lean4:v4.30.0-rc2", result
@@ -70,15 +74,17 @@ jobs:
           assert result.get("actual_source_git_blob_sha") == result.get("source_git_blob_sha"), result
           assert result.get("theorem") == "BB90_dist_10", result
           assert result.get("supported_obligations") == ["qec_distance_lower_bound"], result
+          assert result.get("verified_lfs_pointers") == result.get("required_lfs_objects"), result
+          assert result.get("verified_lfs_objects") == result.get("required_lfs_objects"), result
           assert "syndrome_extraction_circuit_semantics" in result.get("not_supported_obligations", []), result
-          print("Lean-QEC BB90 distance-only kernel check verified")
+          print("Lean-QEC BB90 distance-only cold OLean kernel check verified")
           PY
 
       - name: Upload Lean-QEC verification result
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: lean-qec-bb90-${{ github.sha }}
+          name: lean-qec-bb90-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/lean-qec/
           if-no-files-found: warn
           retention-days: 14
