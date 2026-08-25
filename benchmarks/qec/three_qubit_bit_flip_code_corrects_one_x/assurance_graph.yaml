@@ -1,0 +1,122 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: three_qubit_bit_flip_code_corrects_one_x
+proposition:
+  id: three_qubit_bit_flip_code_corrects_one_x_v1
+  version: 1
+  text: Under the declared single-X Pauli bit-flip error model, the standard lookup-table
+    decoder corrects each single X error with logical preservation verified by Lean
+    4 kernel proof and brute-force validation.
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.qec.assurance_chain.v1
+  content_sha256: 2253c66c0a58f4904ef6134248eb06bcd0187fbda9ccb94b8412ae34db064451
+  content_version: '1'
+  parser: null
+  unsupported_behavior: fail_closed
+  upstream_standard: null
+  upstream_version: null
+  wire_order: null
+  global_phase_policy: null
+  measurement_semantics: null
+  reset_semantics: null
+  control_flow_semantics: null
+obligations:
+- id: code_definition
+  required: true
+  statement: Code/algebra identity for the three-qubit bit-flip code.
+- id: stabilizer_commutation
+  required: true
+  statement: Stabilizer generators commute on the declared code.
+- id: syndrome_extraction_circuit_semantics
+  required: true
+  statement: Syndrome-extraction circuit denotes the declared lookup under the bit-flip model.
+- id: lookup_table_decoder
+  required: true
+  statement: Lookup-table decoder maps syndromes to declared corrections.
+- id: decoder_correctness
+  required: true
+  statement: Decoder behavior on the declared single-X universe.
+- id: correction_restores_logical_state
+  required: true
+  statement: Correction restores the logical state on that universe.
+- id: qec_distance_lower_bound
+  required: false
+  statement: Small-code combinatorial distance; not Lean-QEC BB90.
+- id: bounded_noise_universe
+  required: false
+  statement: Declared fault/noise universe only.
+- id: repeated_round_fault_tolerance
+  required: false
+  statement: Repeated-round FT is supporting, not headline-required.
+evidence_edges:
+- evidence_id: code_json_valid
+  supports:
+  - code_definition
+  trust_class: externally_trusted
+  adapter_id: qspecbench.qec.generic.v1
+  result_path: artifacts/code.json
+- evidence_id: lean_stabilizer_commutation
+  supports:
+  - stabilizer_commutation
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/bit_flip_stabilizers.lean
+- evidence_id: lean_syndrome_extraction_circuit_semantics
+  supports:
+  - syndrome_extraction_circuit_semantics
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/bit_flip_decoder.lean
+- evidence_id: lean_bit_flip_decoder
+  supports:
+  - lookup_table_decoder
+  - decoder_correctness
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/bit_flip_decoder.lean
+- evidence_id: qec_full_validation
+  supports:
+  - correction_restores_logical_state
+  trust_class: externally_trusted
+  adapter_id: qspecbench.qec.generic.v1
+  result_path: evidence/qec_verifier_result.json
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: bounded_noise_declared_universe
+  status: accepted_hypothesis
+  statement: Headline closure is only under the declared single-X Pauli bit-flip
+    universe. error_model_json is not a discharging edge.
+- id: bb90_not_in_this_package
+  status: out_of_scope
+  statement: Lean-QEC BB90 distance is a separate interoperability claim and does
+    not close this flagship.
+- id: repeated_round_headline
+  status: out_of_scope
+  statement: Repeated-round fault tolerance is out of the headline required-obligation
+    set.
+- id: 9a3007bc97ea
+  status: out_of_scope
+  statement: faults outside DeclaredTwoRoundInModelFault / full matching multi-round
+    FT
+- id: 94b0cf1730ea
+  status: out_of_scope
+  statement: faults outside DeclaredThreeRoundInModelFault / dual same-bit flips
+- id: 58d1829cbe10
+  status: out_of_scope
+  statement: full matching multi-round FT
+- id: 4226e1812658
+  status: out_of_scope
+  statement: faults outside DeclaredFiveRoundInModelFault / triple same-bit flips
+- id: a8e1a1d3ad64
+  status: out_of_scope
+  statement: full MWPM multi-round FT
+- id: 2d38db035a53
+  status: out_of_scope
+  statement: noisy measurement and gate-fault syndrome extraction outside DeclaredBitFlipNoiseModel
+derived_maturity: experimental_closed
