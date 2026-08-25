@@ -4,9 +4,12 @@ Local process checklist for remaining-landscape Wave 0.4. **Do not commit or pus
 from this note alone** — these are dry-run commands and a commit-message draft for
 when a maintainer chooses to cut a commit.
 
-Public posture (unchanged; see confirmation below): QSpecBench is
-**community-grade scoped research infrastructure with selected checked claims** —
-not a complete quantum FV standard.
+Public posture (see [definition_of_completion.md](definition_of_completion.md) and
+[release_audit_v1.md](release_audit_v1.md)): QSpecBench is **scoped research
+benchmark infrastructure** with selected machine-checked claims under declared
+universes. It is **not** currently community-grade (Level B unmet), **not** a
+complete quantum FV standard, and **not** a gold/reference suite (RC/ABRC inventory
+empty under the v1 promotion freeze).
 
 ---
 
