@@ -67,3 +67,10 @@ def test_adapter_result_must_bind_exact_input_hashes() -> None:
     result["input_hashes"] = ["b" * 64]
     errors = validate_adapter_result(result, Path("."), request=request)
     assert any("input_hashes do not exactly match" in error for error in errors)
+
+
+def test_adapter_result_can_represent_untrusted_evidence() -> None:
+    request = _request()
+    result = _result()
+    result["trust_class"] = "untrusted"
+    assert validate_adapter_result(result, Path("."), request=request) == []
