@@ -7,7 +7,7 @@
   "include_policy": "skipped_not_interpreted",
   "accepted_headers": ["OPENQASM 3.0", "OPENQASM 3", "include"],
   "accepted_declarations": ["qubit", "qubit[]"],
-  "gate_set": ["i", "x", "y", "z", "h", "s", "sdg", "t", "tdg", "cx", "ccx", "rx"],
+  "gate_set": ["i", "x", "y", "z", "h", "s", "sdg", "t", "tdg", "cx", "ccx", "rx", "swap"],
   "angle_grammar": "pi_rational",
   "control_flow_support": "none",
   "measurement_support": "none",

@@ -56,7 +56,6 @@ def _validate_qasm_text(text: str, path: str, profile: dict[str, Any]) -> list[s
         lower = stripped.lower()
         if (
             lower.startswith("openqasm")
-            or lower.startswith("include")
             or lower.startswith("qubit")
             or lower.startswith("bit")
             or lower.startswith("creg")
@@ -64,6 +63,18 @@ def _validate_qasm_text(text: str, path: str, profile: dict[str, Any]) -> list[s
             or lower.startswith("barrier")
             or stripped in {"{", "}"}
         ):
+            continue
+        if lower.startswith("include"):
+            include_policy = profile.get("include_policy")
+            if include_policy == "rejected":
+                errors.append(f"{path}: include is rejected by this profile")
+            elif include_policy == "skipped_not_interpreted":
+                continue
+            else:
+                errors.append(
+                    f"{path}: include is not interpreted by the subset parser "
+                    "(include_policy must be skipped_not_interpreted or rejected)"
+                )
             continue
         if "measure" in lower:
             if measurement == "none":
