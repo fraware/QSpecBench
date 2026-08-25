@@ -28,7 +28,8 @@ Proved packaging for the noncommuting X+Z product formula:
 
 Headline required obligations are the entry-modulus contract (discharged).
 Fidelity 1e-6 remains historical proved-negative only. Maturity is
-`reference_claim` under dual hash-bound reviews.
+`experimental_closed` (formerly `reference_claim` as of v0.2.x under dual hash-bound
+reviews; demoted for v1 — not gold / independently reviewed).
 
 ## Multi-step Trotter composition (side obligation)
 

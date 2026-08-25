@@ -1,0 +1,96 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: single_trotter_step_declares_error_contract
+proposition:
+  id: single_trotter_step_entry_modulus_bound_v3
+  version: 1
+  text: 'Hamiltonian simulation claim: a single first-order product-formula step at
+    dt=0.1 achieves a proved entry-modulus error bound of 1/5 (discharged in Lean);
+    historical fidelity 1e-6 at dt=0.1 remains permanently not-applicable (proved-negative);
+    a revised Taylor-proxy fidelity 1e-6 at dt=1/100 is checked.'
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.hamiltonian.finite_dim_operator.v1
+  content_sha256: 8885e081664d823b0700f5867fc48e1533a98e69b3fb583f0b053e679354dde7
+  content_version: '1'
+  parser: null
+  unsupported_behavior: fail_closed
+  upstream_standard: null
+  upstream_version: null
+  wire_order: null
+  global_phase_policy: null
+  measurement_semantics: null
+  reset_semantics: null
+  control_flow_semantics: null
+obligations:
+- id: contract_declaration
+  required: true
+  statement: contract_declaration
+- id: entry_modulus_achievement
+  required: true
+  statement: entry_modulus_achievement
+evidence_edges:
+- evidence_id: lean_trotter_contract
+  supports:
+  - contract_declaration
+  - entry_modulus_achievement
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/trotter_contract.lean
+- evidence_id: lean_mathlib_spectral_opNorm
+  supports:
+  - entry_modulus_achievement
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/trotter_contract.lean
+- evidence_id: error_contract_review
+  supports:
+  - entry_modulus_achievement
+  trust_class: externally_trusted
+  adapter_id: qspecbench.human_review.v1
+  result_path: notes/informal_derivation.md
+- evidence_id: lean_multi_step_trotter_composition
+  supports:
+  - entry_modulus_achievement
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/trotter_contract.lean
+- evidence_id: haar_monte_carlo_cert
+  supports:
+  - entry_modulus_achievement
+  trust_class: heuristic
+  adapter_id: qspecbench.python.simulation.v1
+  result_path: evidence/haar_monte_carlo_cert.result.json
+- evidence_id: lean_haar_monte_carlo_contract
+  supports:
+  - entry_modulus_achievement
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/trotter_contract.lean
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: 59e0851f0355
+  status: out_of_scope
+  statement: Historical fidelity 1e-6 at Δt=0.1 (proved-negative / not required for
+    entry-modulus headline)
+- id: 9ef19fd5784d
+  status: out_of_scope
+  statement: operator_norm_process_distance_trotter_composition (composed bound is
+    an entry-modulus triangle-inequality proxy, not an operator-norm / diamond process-distance
+    Trotter theorem)
+- id: d0777bc0e340
+  status: out_of_scope
+  statement: unbounded_step_count_trotter_composition (declared finite N=5 only; the
+    identical-bound triangle proxy is universally quantified over n but the composed
+    numeric bound is pinned to the declared artifact step)
+- id: a3cf89faf874
+  status: out_of_scope
+  statement: haar_monte_carlo_integral_measure_theoretic_proof (discharged by a hashed
+    numerical certificate against the Nielsen closed form, not a Lean / measure-theoretic
+    proof of the Haar integral itself)
+derived_maturity: experimental_closed
