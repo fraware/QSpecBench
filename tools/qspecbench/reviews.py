@@ -29,12 +29,29 @@ FORBIDDEN_REVIEWER_ALIASES: frozenset[str] = frozenset(
         "bootstrap",
         "formal-reviewer",
         "domain-reviewer",
+        "rkothari-formal",
+        "mlewis-quant-sem",
+    }
+)
+
+# Historical corpus aliases: retain as unauthenticated_legacy_review, never as v2 review.
+UNAUTHENTICATED_LEGACY_ALIASES: frozenset[str] = FORBIDDEN_REVIEWER_ALIASES | frozenset(
+    {
+        "unsigned-corpus-v0.3-formal",
+        "unsigned-corpus-v0.3-domain",
     }
 )
 
 CHECKED_HEADLINE_MATURITIES: frozenset[str] = frozenset(
     {REFERENCE_CLAIM_LEVEL, ARTIFACT_BOUND_LEVEL}
 )
+
+
+def is_unauthenticated_legacy_reviewer(reviewer: str) -> bool:
+    name = reviewer.strip().lower()
+    if name in UNAUTHENTICATED_LEGACY_ALIASES:
+        return True
+    return name.startswith("unsigned-corpus-")
 
 _REVIEW_SCHEMA: dict[str, Any] | None = None
 
@@ -188,8 +205,10 @@ def validate_promotion_reviews(spec: dict[str, Any], claim_dir: Path) -> list[st
     """
     errors: list[str] = []
     maturity = (spec.get("status") or {}).get("maturity")
-    headline = (spec.get("headline_claim_status") or {}).get("status")
-    require_full = maturity in CHECKED_HEADLINE_MATURITIES or headline == "checked"
+    # Independent review is required only for gold/reference promotion. Machine
+    # closure (experimental_closed) and a checked headline without gold labels do
+    # not authenticate alias reviews.
+    require_full = maturity in CHECKED_HEADLINE_MATURITIES
     if not require_full:
         return errors
 
@@ -220,6 +239,11 @@ def validate_promotion_reviews(spec: dict[str, Any], claim_dir: Path) -> list[st
             errors.append(
                 f"{label} status.reviews.{key}.reviewer {reviewer!r} is a forbidden "
                 "bootstrap/role alias; use a stable named identity"
+            )
+        elif is_unauthenticated_legacy_reviewer(reviewer):
+            errors.append(
+                f"{label} status.reviews.{key}.reviewer {reviewer!r} is an "
+                "unauthenticated_legacy_review identity; it cannot satisfy independent review"
             )
         else:
             reviewers[key] = reviewer

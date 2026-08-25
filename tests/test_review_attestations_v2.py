@@ -59,11 +59,11 @@ def _attestation(claim_dir: Path, login: str, user_id: int, role: str) -> dict:
 def test_two_distinct_authenticated_review_roles_pass(tmp_path: Path) -> None:
     claim_dir, graph, spec = _setup(tmp_path)
     (claim_dir / "reviews/formal.json").write_text(
-        json.dumps(_attestation(claim_dir, "formal-reviewer", 1, "formal_evidence")),
+        json.dumps(_attestation(claim_dir, "alice-formal", 1, "formal_evidence")),
         encoding="utf-8",
     )
     (claim_dir / "reviews/domain.json").write_text(
-        json.dumps(_attestation(claim_dir, "domain-reviewer", 2, "domain_semantics")),
+        json.dumps(_attestation(claim_dir, "bob-domain", 2, "domain_semantics")),
         encoding="utf-8",
     )
     errors, _warnings = validate_review_attestations(spec, claim_dir, graph)
@@ -90,20 +90,34 @@ def test_author_cannot_be_independent_reviewer(tmp_path: Path) -> None:
         json.dumps(_attestation(claim_dir, "author", 1, "formal_evidence")), encoding="utf-8"
     )
     (claim_dir / "reviews/domain.json").write_text(
-        json.dumps(_attestation(claim_dir, "domain-reviewer", 2, "domain_semantics")),
+        json.dumps(_attestation(claim_dir, "bob-domain", 2, "domain_semantics")),
         encoding="utf-8",
     )
     errors, _warnings = validate_review_attestations(spec, claim_dir, graph)
     assert any("author/merging maintainer" in error for error in errors)
 
 
+def test_alias_reviewer_cannot_satisfy_independence(tmp_path: Path) -> None:
+    claim_dir, graph, spec = _setup(tmp_path)
+    (claim_dir / "reviews/formal.json").write_text(
+        json.dumps(_attestation(claim_dir, "rkothari-formal", 11, "formal_evidence")),
+        encoding="utf-8",
+    )
+    (claim_dir / "reviews/domain.json").write_text(
+        json.dumps(_attestation(claim_dir, "mlewis-quant-sem", 12, "domain_semantics")),
+        encoding="utf-8",
+    )
+    errors, _warnings = validate_review_attestations(spec, claim_dir, graph)
+    assert any("unauthenticated" in error or "alias" in error for error in errors)
+
+
 def test_reviewed_artifact_hash_is_bound(tmp_path: Path) -> None:
     claim_dir, graph, spec = _setup(tmp_path)
-    formal = _attestation(claim_dir, "formal-reviewer", 1, "formal_evidence")
+    formal = _attestation(claim_dir, "alice-formal", 1, "formal_evidence")
     formal["reviewed_artifacts"][0]["sha256"] = "0" * 64
     (claim_dir / "reviews/formal.json").write_text(json.dumps(formal), encoding="utf-8")
     (claim_dir / "reviews/domain.json").write_text(
-        json.dumps(_attestation(claim_dir, "domain-reviewer", 2, "domain_semantics")),
+        json.dumps(_attestation(claim_dir, "bob-domain", 2, "domain_semantics")),
         encoding="utf-8",
     )
     errors, _warnings = validate_review_attestations(spec, claim_dir, graph)

@@ -185,8 +185,14 @@ correction evidence** for `reference_claim`. An assumed decoder/lookup table sup
 ### `artifact_bound_reference_claim` (ABRC)
 
 This maturity tier is defined in schema v0.2+. Tag **v0.2.3** (`49e8899`) shipped the first six
-kernel-bridge ABRC pilots. The **live corpus** (see [docs/status.md](docs/status.md)) currently has
-**ten** ABRC benchmarks:
+kernel-bridge ABRC pilots historically.
+
+**v1 completion branch:** gold ABRC/RC inventory is **empty** by owner decision
+([docs/promotion_freeze.md](docs/promotion_freeze.md)). Former ABRC pilots were demoted to
+`experimental_closed` (machine closure without authenticated independent review). Do not cite the
+historical table below as live gold inventory.
+
+Historical ABRC pilots at the pre-demotion sync (for migration context only):
 
 | Benchmark | Track | Claimed link / scope note |
 |-----------|-------|---------------------------|
@@ -199,21 +205,22 @@ kernel-bridge ABRC pilots. The **live corpus** (see [docs/status.md](docs/status
 | `bell_state_preparation` | algorithms | codegen-trace bridge |
 | `swap_from_three_cx` | algorithms | source–target exact denotation |
 | `teleportation_preserves_state_up_to_pauli_correction` | algorithms | unitary-prefix proposition v2 (not full dynamic matrix KERNEL_BRIDGE) |
-| `teleportation_dynamic_feedforward_protocol` | algorithms | sibling ABRC via `kernel_checked_dynamic_denotation` (promoted from `kernel_checked_dynamic_ast_semantics`) |
+| `teleportation_dynamic_feedforward_protocol` | algorithms | sibling via `kernel_checked_dynamic_denotation` |
 
-Do not set `status.maturity: artifact_bound_reference_claim` without meeting every requirement;
-`qspecbench validate` fails closed (including `qspecbench bridge-metadata verify` for BridgeMetadata pins).
+Do not set `status.maturity: artifact_bound_reference_claim` while the promotion freeze is active.
+When unfrozen, `qspecbench validate` fails closed unless every ABRC requirement is met
+(including `qspecbench bridge-metadata verify` for BridgeMetadata pins).
 
-**Promotion checklist (all required):**
+**Promotion checklist (all required, once gold is unfrozen):**
 
-1. Dual review — both `formal_evidence_review` and `domain_semantics_review` at `approved` with named non-bootstrap reviewers
+1. Dual review — both `formal_evidence_review` and `domain_semantics_review` at `approved` with **authenticated** distinct public reviewer identities (review-attestation v2; aliases/bootstrap forbidden)
 2. `headline_claim_status.status: checked` with honest `checked_under` / `not_checked_under`
 3. `proved_scope.unproved_obligations` empty
 4. `semantic_bridge.claimed_link` one of:
    - `kernel_checked_codegen_trace` or `kernel_checked_artifact_semantics` with anchors:
      `artifact_sha256`, `gate_trace_sha256`, `lean_ast_sha256`, `ast_authority: lean_mirror`, `generated_lean_sha256`,
      `theorem_identifier_sha256`, `theorem_elaborator_hash`, `theorem_source_statement_hash`
-   - **or** `kernel_checked_dynamic_ast_semantics` (measure+if CanonicalAst+protocol ABRC) with anchors:
+   - **or** `kernel_checked_dynamic_ast_semantics` (measure+if CanonicalAst+protocol) with anchors:
      `dynamic_artifact_sha256`, `dynamic_ast_sha256`, fail-closed mirror verify (`dynamic_ast_match: true`,
      `matrix_match: false`), and Lean `DynamicAstBridgeMetadata` pin — **never** matrix KERNEL_BRIDGE for dynamics
 5. Passing bridge verify evidence (`bridge_verify` or `dynamic_ast_bridge_verify`) and matching Lean metadata pins
@@ -230,5 +237,5 @@ Breaking schema changes require a version bump and migration notes in `docs/sche
 Schema changes must be versioned, documented, and justified by real benchmark needs. Schema, tooling,
 and corpus are versioned separately; see [docs/versioning.md](docs/versioning.md).
 
-**Tagged release:** `v0.2.3` (commit `49e8899`) — first six ABRC kernel bridges + elaborator/AST authority (schema 0.3).
-**Working tree (post-tag):** regenerate [docs/status.md](docs/status.md) for live counts (currently **10** ABRC, **9** `reference_claim`); see latest git tag / release notes when cutting the next corpus tag. CI: [validate workflow](https://github.com/fraware/QSpecBench/actions/workflows/validate.yml) on `main`.
+**Tagged release:** `v0.2.3` (commit `49e8899`) — historical first ABRC kernel bridges + elaborator/AST authority (schema 0.3).
+**Working tree (v1 completion):** gold/RC/ABRC inventory is **empty** by owner decision; machine-closed packages use `experimental_closed`. Regenerate [docs/generated_status.md](docs/generated_status.md) and [docs/status.md](docs/status.md) for live counts. See [docs/promotion_freeze.md](docs/promotion_freeze.md) and [docs/release_audit_v1.md](docs/release_audit_v1.md). CI: [validate workflow](https://github.com/fraware/QSpecBench/actions/workflows/validate.yml) on `main`.

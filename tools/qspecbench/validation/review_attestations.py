@@ -105,6 +105,15 @@ def validate_review_attestations(
             errors.append(
                 f"review attestation {rel_path}: author/merging maintainer cannot satisfy independent review"
             )
+        from qspecbench.reviews import FORBIDDEN_REVIEWER_ALIASES, is_unauthenticated_legacy_reviewer
+
+        if login in {alias.lower() for alias in FORBIDDEN_REVIEWER_ALIASES} or is_unauthenticated_legacy_reviewer(
+            login
+        ):
+            errors.append(
+                f"review attestation {rel_path}: reviewer {login!r} is an unauthenticated "
+                "alias and cannot satisfy independent review"
+            )
         roles.add(str(payload.get("role") or ""))
 
         accepted = set(payload.get("accepted_obligations") or [])
