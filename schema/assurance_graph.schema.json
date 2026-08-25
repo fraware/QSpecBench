@@ -36,7 +36,9 @@
         "reset_semantics": {"type": ["string", "null"]},
         "control_flow_semantics": {"type": ["string", "null"]},
         "parser": {"type": ["string", "null"]},
-        "unsupported_behavior": {"type": ["string", "null"], "enum": ["fail_closed", "explicit_skip", "explicit_out_of_scope", "not_applicable", null]}
+        "unsupported_behavior": {"type": ["string", "null"], "enum": ["fail_closed", "explicit_skip", "explicit_out_of_scope", "not_applicable", null]},
+        "content_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "content_version": {"type": ["string", "null"]}
       },
       "additionalProperties": false
     },
@@ -72,6 +74,26 @@
     "review_attestations": {
       "type": "array",
       "items": {"type": "string", "minLength": 1}
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "statement"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {
+            "type": "string",
+            "enum": ["accepted_hypothesis", "evidence_required", "discharged", "out_of_scope", "unresolved"]
+          },
+          "statement": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "derived_maturity": {
+      "type": ["string", "null"],
+      "enum": ["scaffold", "usable", "experimental_closed", "reference_claim", "artifact_bound_reference_claim", null]
     }
   },
   "additionalProperties": false
