@@ -5,6 +5,11 @@
   "type": "object",
   "required": [
     "id",
+    "upstream_standard",
+    "upstream_version",
+    "parser_implementation",
+    "parser_version",
+    "include_policy",
     "accepted_headers",
     "accepted_declarations",
     "gate_set",
@@ -21,6 +26,31 @@
       "type": "string",
       "pattern": "^qspecbench\\.openqasm3\\.[a-z0-9_.]+$",
       "description": "Profile identifier referenced by benchmarks as openqasm_profile"
+    },
+    "upstream_standard": {
+      "type": "string",
+      "const": "OpenQASM",
+      "description": "Upstream language whose syntax this profile subsets"
+    },
+    "upstream_version": {
+      "type": "string",
+      "pattern": "^3\\.[0-9]+$",
+      "description": "Exact upstream OpenQASM specification version targeted by the profile"
+    },
+    "parser_implementation": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Concrete parser/AST implementation used by the profile"
+    },
+    "parser_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of the parser/profile implementation, not the upstream standard"
+    },
+    "include_policy": {
+      "type": "string",
+      "enum": ["skipped_not_interpreted", "rejected", "declared_allowlist"],
+      "description": "How include statements are treated; skipped_not_interpreted is not library semantic validation"
     },
     "accepted_headers": {
       "type": "array",

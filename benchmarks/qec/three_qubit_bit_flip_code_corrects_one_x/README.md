@@ -34,7 +34,7 @@ round-i S0/S1 flips; five-round majority matching covers declared dual same-bit 
 
 ## Status
 
-Current maturity: **reference_claim** (lookup-table scope under single-X model).
+Current maturity: **experimental_closed** (lookup-table scope under single-X model).
 
 ## Known gaps
 

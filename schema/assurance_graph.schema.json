@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/assurance_graph.schema.json",
+  "title": "QSpecBench Assurance Graph",
+  "type": "object",
+  "required": ["schema", "benchmark_id", "proposition", "semantic_profile", "obligations", "evidence_edges"],
+  "properties": {
+    "schema": {"const": "qspecbench.assurance_graph.v1"},
+    "benchmark_id": {"type": "string", "minLength": 1},
+    "proposition": {
+      "type": "object",
+      "required": ["id", "version", "text", "relation_to_source"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "version": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1},
+        "source_claim_id": {"type": ["string", "null"]},
+        "relation_to_source": {
+          "type": "string",
+          "enum": ["equivalent", "strict_weakening", "strict_strengthening", "instance", "incomparable", "ambiguous", "not_applicable"]
+        },
+        "relation_notes": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "semantic_profile": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "upstream_standard": {"type": ["string", "null"]},
+        "upstream_version": {"type": ["string", "null"]},
+        "wire_order": {"type": ["string", "null"]},
+        "global_phase_policy": {"type": ["string", "null"]},
+        "measurement_semantics": {"type": ["string", "null"]},
+        "reset_semantics": {"type": ["string", "null"]},
+        "control_flow_semantics": {"type": ["string", "null"]},
+        "parser": {"type": ["string", "null"]},
+        "unsupported_behavior": {"type": ["string", "null"], "enum": ["fail_closed", "explicit_skip", "explicit_out_of_scope", "not_applicable", null]},
+        "content_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "content_version": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "obligations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "required"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "required": {"type": "boolean"},
+          "statement": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "supports", "trust_class"],
+        "properties": {
+          "evidence_id": {"type": "string", "minLength": 1},
+          "supports": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "trust_class": {"type": "string", "enum": ["kernel_checked", "independently_checkable", "externally_trusted", "simulation", "human_review", "heuristic", "untrusted"]},
+          "adapter_id": {"type": ["string", "null"]},
+          "result_path": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_attestations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "statement"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {
+            "type": "string",
+            "enum": ["accepted_hypothesis", "evidence_required", "discharged", "out_of_scope", "unresolved"]
+          },
+          "statement": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "derived_maturity": {
+      "type": ["string", "null"],
+      "enum": ["scaffold", "usable", "experimental_closed", "reference_claim", "artifact_bound_reference_claim", null]
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,8 +1,8 @@
 # Claim diff: small_fermionic_hamiltonian_is_hermitian
 
-<!-- scope_fingerprint: 5a75a5a5f3062ecd34ce3d6c3cb1a156423d4313b2e362e553d57d4d8f374614 -->
+<!-- scope_fingerprint: fb269bde20d6dae365d5560b9b498604653441ba376da4cfa184f81a85ccf7f2 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

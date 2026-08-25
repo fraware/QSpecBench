@@ -19,7 +19,7 @@
 [![Lint](https://github.com/fraware/QSpecBench/actions/workflows/lint.yml/badge.svg)](https://github.com/fraware/QSpecBench/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Benchmarks](https://img.shields.io/badge/benchmarks-50-green.svg)](docs/status.md)
+[![Benchmarks](https://img.shields.io/badge/benchmarks-52-green.svg)](docs/status.md)
 
 [Quick start](#quick-start) · [Contribute](#contribute) · [Tracks](#tracks) · [Dashboard](docs/status.md) · [Docs](#documentation)
 
@@ -33,6 +33,8 @@ Quantum software makes bold promises: *this circuit is equivalent to that one*, 
 
 **QSpecBench gives everyone the same vocabulary.** Each benchmark is a small, reviewable package: what you claim, what would count as success, the files to check, and what evidence exists today — including what is still assumed or unverified.
 
+The long-term architecture is an assurance graph: proposition → semantic profile → concrete artifacts → proof obligations → typed evidence edges → authenticated review → scoped maturity. The schema-0.3 corpus is migrating toward that architecture; see [full-vision execution gates](docs/full_vision_execution.md).
+
 ---
 
 ## What you get in every benchmark
@@ -44,15 +46,18 @@ Quantum software makes bold promises: *this circuit is equivalent to that one*, 
 | **Artifacts** | Circuits, Hamiltonians, code tables, source text | `artifacts/` |
 | **Evidence** | Checker output, proofs, simulations, review notes | `evidence/` + `notes/` |
 | **Trust boundary** | What is proved, what is trusted, what is still open | `README.md` + `spec.yaml` |
+| **Assurance graph** | Migration sidecar binding proposition, semantics, obligations and evidence edges | `assurance_graph.yaml` when migrated |
 
-Nothing is labeled "verified" unless a declared checker passed and the trust boundary says so.
+Nothing is labeled "verified" merely because a tool ran. The exact proposition, semantic assumptions, evidence scope, and residual trust boundary matter.
 
 ```mermaid
 flowchart LR
-  C["Claim\n(README)"] --> S["Specification\n(spec.yaml)"]
-  S --> A["Artifacts\n(circuits, models)"]
-  A --> E["Evidence\n(proofs, tools, review)"]
-  E --> T["Trust boundary\n(honest status)"]
+  C["Proposition"] --> S["Semantic profile"]
+  S --> A["Concrete artifacts"]
+  A --> O["Proof obligations"]
+  O --> E["Typed evidence edges"]
+  E --> R["Authenticated review"]
+  R --> T["Scoped maturity / trust boundary"]
 ```
 
 ---
@@ -80,13 +85,13 @@ We separate *what you checked* from *what you hope to check later*. Common evide
 | Type | Meaning |
 |------|---------|
 | **Proof assistant** | Theorem checked by the Lean 4 kernel (CI runs `lake build`) |
-| **Equivalence checker** | Circuits compared with tools such as QCEC |
+| **Equivalence checker** | Circuits compared with tools such as QCEC; external-tool trust remains explicit |
 | **Solver certificate** | SAT/SMT output verified by a certificate checker |
-| **Simulation** | Numerical or stochastic check — supportive, not a proof |
-| **Human review** | Expert review of derivations or rubrics |
+| **Simulation** | Numerical or stochastic check over a declared regime — supportive, not a universal proof |
+| **Human review** | Expert judgment; promotion target requires authenticated reviewer identity and exact artifact/commit binding |
 | **AI draft** | Model-generated content — always untrusted until independently checked |
 
-Simulation and LLM output can inform a benchmark; they do not by themselves make a claim proved.
+Simulation and LLM output can inform a benchmark; they do not by themselves make a claim proved. A kernel-checked theorem proves the formal theorem under its assumptions; it does not by itself establish that the theorem is semantically equivalent to the intended source claim.
 
 ---
 
@@ -115,6 +120,34 @@ qspecbench dashboard benchmarks/ --out docs/status.md
 pytest
 ```
 
+### Exact-head validation (release candidates)
+
+```bash
+# Strict corpus + assurance-graph validation
+python -m qspecbench validate benchmarks/ --strict-all --audit-graph
+
+# Regenerate metrics docs (commit the diffs when counts change)
+qspecbench dashboard benchmarks/ --out docs/status.md
+python -c "from pathlib import Path; from qspecbench.generated_status import write_status_snapshot; write_status_snapshot(Path('benchmarks'), Path('docs/generated_status.md'))"
+python scripts/sync_readme_maturity.py
+
+# Candidate SHA gate (does not tag a release)
+python scripts/release_verify.py --candidate-sha "$(git rev-parse HEAD)"
+```
+
+Lean-QEC distance interoperability (`BB90_dist_10`) is **opt-in** and **honestly not green** until cold native acceptance succeeds on a host with enough disk:
+
+```bash
+export QSPECBENCH_LEAN_QEC_VERIFY=1
+export QSPECBENCH_LEAN_QEC_WORKDIR=artifacts/lean-qec/work
+export QSPECBENCH_LEAN_QEC_LOG_DIR=artifacts/lean-qec/logs
+python adapters/lean_qec/parse_result.py adapters/lean_qec/examples/bb90_distance_10.json
+```
+
+(Windows PowerShell: `$env:QSPECBENCH_LEAN_QEC_VERIFY='1'` and likewise for the other variables.)
+
+Independent third-party cold-host reproduction is issue #9 and is out of v1 scope.
+
 **Lean proofs** (optional, for contributors adding machine-checked theorems):
 
 ```bash
@@ -131,7 +164,7 @@ We welcome benchmarks, better evidence, documentation fixes, and new checker ada
 
 1. Read [Adding a benchmark](docs/adding_a_benchmark.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 2. Copy [`benchmarks/_template/`](benchmarks/_template/) into the right track folder.
-3. Use a nearby **reference scaffold** as a style guide (each demonstrates the format; none yet proves its full headline claim):
+3. Use a nearby benchmark as a structural style guide, but copy its maturity/evidence claims only when your own obligations genuinely satisfy them. Current examples span multiple maturity levels:
    - Algorithms → [`teleportation_preserves_state_up_to_pauli_correction`](benchmarks/algorithms/teleportation_preserves_state_up_to_pauli_correction/)
    - Equivalence → [`cnot_self_inverse_cancellation`](benchmarks/equivalence/cnot_self_inverse_cancellation/)
    - QEC → [`three_qubit_bit_flip_code_corrects_one_x`](benchmarks/qec/three_qubit_bit_flip_code_corrects_one_x/)
@@ -142,41 +175,36 @@ We welcome benchmarks, better evidence, documentation fixes, and new checker ada
 
 ### Maturity levels
 
-Maturity is **scoped**: it separates "this benchmark has some checked evidence" from "the full
-informal headline claim is proved".
+Maturity is **scoped**: it separates "this benchmark has some checked evidence" from "the full declared headline claim is checked under its stated semantics and trust boundary".
 
 | Level | What we expect |
 |-------|----------------|
 | **seed** | Claim, spec, and trust boundary — proof optional |
-| **usable** | Complete card, runnable artifacts, evidence path, CI green |
-| **reference_scaffold** | Passing CI plus at least one checked-evidence obligation, but the headline claim is only partially checked. Demonstrates the evidence format and trust-boundary discipline. |
-| **reference_contract** | Like `reference_scaffold`, for benchmarks whose checked evidence is a declared contract (e.g. a resource or error-bound contract) rather than a proof of the bound itself. |
-| **reference_artifact** | Like `reference_scaffold`, where the checked evidence is artifact-structural (e.g. stabilizer commutation) rather than a proof of the headline claim. |
-| **reference_claim** | The headline claim is fully proved: every required obligation passes, all required evidence exists and passes, and `headline_claim_status` is `checked`. |
-| **deprecated** | Retained for history; README explains why. |
+| **usable** | Complete card, runnable artifacts, evidence path; observed CI state is separate from authored metadata |
+| **reference_scaffold** | At least one meaningful checked-evidence obligation, but the headline claim is only partially checked |
+| **reference_contract** | Checked evidence is a declared contract (e.g. resource/error contract), not a proof of a stronger bound |
+| **reference_artifact** | Checked evidence is artifact-structural rather than proof of the headline claim |
+| **experimental_closed** | Machine-closed under declared semantics and assurance-graph obligations **without** authenticated independent review; not gold |
+| **reference_claim** | Full declared headline scope closed by required evidence **and** authentic independent review (unreachable on the v1 path; see [promotion freeze](docs/promotion_freeze.md)) |
+| **artifact_bound_reference_claim** | `reference_claim`-level scope with explicit artifact-identity binding; also frozen for v1 without real reviewers |
+| **deprecated** | Retained for history; README explains why |
 
-Most current entries are **reference scaffolds**: they demonstrate the QSpecBench evidence format and
-trust-boundary discipline, but they do not yet prove the full informal headline claim. A benchmark is
-only `reference_claim` when its `claim_scope` / `proved_scope` obligations are all checked.
-
-Promotion is documented in [reference benchmarks](docs/reference_benchmarks.md) and reviewed per
-[GOVERNANCE.md](GOVERNANCE.md).
+Promotion rules: [reference benchmarks](docs/reference_benchmarks.md), [GOVERNANCE.md](GOVERNANCE.md), [definition of completion](docs/definition_of_completion.md). On the v1 path, gold/RC/ABRC labels stay empty by owner decision; machine-closed packages use `experimental_closed`. Do not bypass issues #12–#15 for high-maturity promotions.
 
 ### Other ways to help
 
 - Improve an existing benchmark's evidence or documentation
 - Add or extend [adapters](adapters/) for new checkers
 - Extend the Lean library under [`lean/QSpecBench/`](lean/QSpecBench/)
-- Fix issues labeled `good first issue`
+- Fix open trust/scientific issues
 
-Be precise about verification claims: say what was checked and with which tool.
+Be precise about verification claims: say what proposition was checked, under which semantics, with which artifact and tool, and what remains assumed.
 
 ---
 
 ## Versions
 
-QSpecBench versions the schema, the tooling, and the benchmark corpus separately so that a change in
-one does not imply maturity in the others. See [versioning](docs/versioning.md).
+QSpecBench versions the schema, the tooling, and the benchmark corpus separately so that a change in one does not imply maturity in the others. See [versioning](docs/versioning.md).
 
 | Component | Version |
 |---|---|
@@ -185,48 +213,41 @@ one does not imply maturity in the others. See [versioning](docs/versioning.md).
 | **Corpus** (benchmark suite) | 0.2.0 |
 | **Release tag** | v0.2.3 |
 
-**Release honesty (v0.2.3):** tag `v0.2.3` (`49e8899`) delivered the first six `artifact_bound_reference_claim`
-kernel bridges with dual named reviews and hash anchor chain, schema **0.3** (elaborator/AST authority fields), and
-`ast_authority: lean_mirror` on kernel-checked codegen-trace bridges. The working tree has since expanded ABRC
-(see status block / [docs/status.md](docs/status.md)); most benchmarks remain **reference scaffolds**.
-Only `reference_claim` and `artifact_bound_reference_claim` entries assert a checked headline under declared scope.
-See [versioning.md](docs/versioning.md) and [definition_of_completion.md](docs/definition_of_completion.md).
+**Release honesty:** tag `v0.2.3` is historical and predates this working tree. The v1 completion branch demotes the former gold inventory: **RC/ABRC count is 0**; machine-closed packages are `experimental_closed` (see [generated status](docs/generated_status.md), [release audit](docs/release_audit_v1.md), [promotion freeze](docs/promotion_freeze.md)). Historical dual hash-bound review artifacts may remain as `unauthenticated_legacy_review`; they are **not** authenticated independent reviewer identity (issue #12). Lean-QEC distance interoperability remains honestly not green until cold native acceptance on an exact head. Independent third-party cold-host reproduction (issue #9) is out of v1 scope. Do not call a branch release-reproduced without exact-head CI and bundle verification.
 
 ### Permanent residuals (not a complete FV standard)
 
-Even when the [definition of completion](docs/definition_of_completion.md) is met,
-QSpecBench remains a **scoped research benchmark** — not a complete quantum formal-verification
-standard. The following are permanent trust boundaries; they are not unfinished promotions:
+QSpecBench remains a **scoped research benchmark and assurance infrastructure**, not a complete quantum formal-verification standard. Permanent trust boundaries include:
 
 | Item | Disposition |
 |------|-------------|
-| `unbounded_all_codes_mwpm` | `not_applicable`; Lean impossibility note (`unbounded_all_codes_mwpm_infeasible_open_ended`) |
+| `unbounded_all_codes_mwpm` | `not_applicable`; finite evidence cannot certify an open-ended all-code family |
 | Device `hardware_semantics` / `device_fidelity` / `pulse_schedule_semantics` | Stay `not_checked`; ISA-layer checks are separate |
-| Unnormalized `denotateOps3C` Toffoli equality | Out of scope (wrong semantics) |
-| QBricks / ZX | Adapters exist; still not a complete FV standard |
+| Unnormalized `denotateOps3C` Toffoli equality | Out of scope for the normalized Clifford+T decomposition proposition |
+| QBricks / ZX | Adapters exist; trust remains tied to the actual executed evidence/certificate |
 | Rocq / Isabelle skip stubs | Never counted as checked evidence |
-| Full industrial Stim/Blossom all-codes | Outside declared universe `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01` |
+| `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01` | Declared finite Stim/PyMatching repetition-code universe only; not an all-codes or unbounded fault-tolerance claim |
 
 Details: [research_tracks.md](docs/research_tracks.md), [definition_of_completion.md](docs/definition_of_completion.md).
 
 <!-- qspecbench-status-begin -->
-Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **9**
-benchmarks are `reference_claim` and **10**
-are `artifact_bound_reference_claim` under declared scope.
+Audited corpus snapshot (generated source of truth: [docs/generated_status.md](docs/generated_status.md)):
 
 | | |
 |---|---|
-| **Benchmarks** | 50 across 5 tracks |
-| **Reference scaffolds** (any scoped reference level) | 42 |
-| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | 19 |
-| **With any checked evidence** | 46 |
-| **Manifest-checked theorem bindings** | 4 |
-| **Python denotation consistency checks** | 1 |
-| **Kernel-checked codegen-trace bridges** | 1 |
-| **Coq/Rocq/Isabelle (optional CI)** | excluded from default maturity counts |
-| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, bridge-metadata verify, circuit equivalence (QCEC) |
+| **Benchmarks** | 52 across 5 tracks |
+| **`experimental_closed`** (machine closure, no independent review) | 21 |
+| **`reference_claim`** | 0 |
+| **`artifact_bound_reference_claim`** | 0 |
+| **Gold promoted inventory** | 0 |
+| **With headline claim checked under declared scope** | 21 |
+| **With any checked evidence** | 48 |
+| **QEC small-code certificate level** | 12 |
+| **QEC external-certificate level** | 1 |
 
-Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`).
+These are descriptive corpus counts, not evidence that independent review, community-grade governance, or the full scientific reference suite is complete. Exact current CI state must be read from the workflow run for the exact commit, not from authored `status.ci` fields.
+
+Details and per-benchmark breakdown: **[dashboard](docs/status.md)**.
 <!-- qspecbench-status-end -->
 
 ---
@@ -236,14 +257,22 @@ Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate
 | Topic | Guide |
 |-------|-------|
 | Core concepts | [Claim model](docs/claim_model.md) |
+| Full-vision architecture and exit gates | [Full-vision execution](docs/full_vision_execution.md) |
+| Typed adapter protocol | [Adapter protocol](docs/adapter_protocol.md) |
+| Authenticated review | [Review attestations](docs/review_attestations.md) |
+| Promotion freeze (v1) | [Promotion freeze](docs/promotion_freeze.md) |
+| Interoperability/version isolation | [Interoperability matrix](docs/interoperability_matrix.md) |
+| v1 release audit (ship/revise) | [Release audit v1](docs/release_audit_v1.md) |
+| v1 release contract | [v1 release criteria](docs/release_v1_criteria.md) |
+| Governance verification | [Governance verification](docs/governance_verification.md) |
+| Docs index | [Documentation index](docs/index.md) |
 | `spec.yaml` fields | [Schema reference](docs/schema_reference.md) |
 | Evidence types and checkers | [Evidence model](docs/evidence_model.md) |
 | What is proved vs assumed | [Trust boundaries](docs/trust_boundaries.md) |
-| When “community-grade” applies | [Definition of completion](docs/definition_of_completion.md) |
-| Scientific leftovers + permanent N/A | [Research tracks](docs/research_tracks.md) |
+| Completion levels | [Definition of completion](docs/definition_of_completion.md) |
+| Scientific targets / residuals | [Research tracks](docs/research_tracks.md) |
 | Lean setup | [Lean setup](docs/lean_setup.md) |
-| Schema v0.3 migration (active) | [Migration guide](docs/schema_migration_0.3.md) |
-| Schema v0.2 migration (historical) | [Migration guide](docs/schema_migration_0.2.md) |
+| Schema v0.3 migration | [Migration guide](docs/schema_migration_0.3.md) |
 
 ---
 

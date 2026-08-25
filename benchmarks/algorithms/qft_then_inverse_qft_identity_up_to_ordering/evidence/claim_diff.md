@@ -1,8 +1,8 @@
 # Claim diff: qft_then_inverse_qft_identity_up_to_ordering
 
-<!-- scope_fingerprint: 11adbd6907fc60322ef34e00dcfd6b88f68603413462f58b9d306fab4912c1a5 -->
+<!-- scope_fingerprint: 8bb5a63ba6252b2fc2a0e7cf8ce6424012c31255043f43161f37f0146d325610 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

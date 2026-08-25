@@ -1,12 +1,20 @@
 # QSpecBench Full Repository Audit Findings
 
+> **Historical ledger — not live gold inventory.** This document records the 2026-07-02 audit
+> and later Wave 1 reconcile. Corpus maturity counts and gold/RC/ABRC claims below may
+> predate the v1 demotion. As of v1: **0** `reference_claim` / `artifact_bound_reference_claim`
+> / gold promoted; former pilots are `experimental_closed` (machine closure only). For live
+> public language use [generated_status.md](generated_status.md),
+> [release_audit_v1.md](release_audit_v1.md), and [promotion_freeze.md](promotion_freeze.md).
+> Do not skim “9 ABRC / 5 RC” or “live ABRC pilots” rows as current status.
+
 **Audit date:** 2026-07-02  
 **Repository:** `c:\Users\mateo\QSpecBench`  
 **Branch audited:** local `HEAD` aligned with `origin/main` at `c34ddfc` (PR #5 merged 2026-07-02)  
 **Methodology:** Six-phase full runtime audit per plan `qspecbench_full_audit_145faf00.plan.md`
 
 > **Status: superseded by the Wave 1 reconcile (2026-07-25).** [`docs/audit_issues.yaml`](audit_issues.yaml)
-> is the authoritative, current ledger. As of Wave 1, every P0/P1/P2 finding below is
+> is the authoritative, current ledger for finding IDs. As of Wave 1, every P0/P1/P2 finding below is
 > **closed** (fixed, or closed-by-design/closed-as-designed with documented residuals such as
 > exponential cost inside resource caps, or trust-the-corpus evidence execution). Only two
 > grouped P3 items remain genuinely open: **F-027–F-034** (honest corpus/proof-scope residuals —
@@ -63,7 +71,9 @@ Re-triaged partial: F-027–F-033, F-038–F-040. Wave 1 closed: F-012–F-016, 
 ### Confirmed P1 still open
 
 None. **F-010 closed** — `rg maintainer-bootstrap benchmarks/**/spec.yaml` returns no matches;
-corpus ABRC/RC pilots use named reviewers (`rkothari-formal` / `mlewis-quant-sem`).
+as of the Wave 1 window, former ABRC/RC pilots used named reviewer aliases
+(`rkothari-formal` / `mlewis-quant-sem`). Those packages were later demoted for v1; alias
+YAML is not authentic independent review (see [promotion_freeze.md](promotion_freeze.md)).
 
 ### Key P2 items still open
 
@@ -87,7 +97,7 @@ corpus ABRC/RC pilots use named reviewers (`rkothari-formal` / `mlewis-quant-sem
 | F-002 | P0 | Stale `validate_out.txt` | **Fixed** | File absent |
 | F-003 | P0 | Coq smoke blocked validate CI | **Fixed** | No Coq steps in `.github/workflows/validate.yml` |
 | F-004 | P1 | README version drift | **Fixed** | README schema 0.3 / v0.2.3 |
-| F-005 | P1 | `reference_benchmarks.md` stale | **Fixed** | Lists live ABRC pilots (Phase A: 9) |
+| F-005 | P1 | `reference_benchmarks.md` stale | **Fixed** (historical) | As of Phase A: listed 9 ABRC pilots; **superseded by v1 demotion** (live inventory 0) |
 | F-006 | P1 | TRACK maturity tables stale | **Fixed** | Tables auto-synced from `spec.yaml` |
 | F-006b | P1 | TRACK “Good first claims” prose stale | **Fixed** | `c865d4c` — e.g. `rx_gate` → `reference_scaffold`, `shor_code` → `reference_scaffold` |
 | F-007 | P1 | Orphan teleportation `.result.json` | **Fixed** | File not found on disk |
@@ -197,7 +207,8 @@ Prior pre-remediation runs (#28587458525 validate, #28587458586 lint) failed on 
 **Closure evidence:**
 ```powershell
 rg "maintainer-bootstrap" benchmarks/**/spec.yaml
-# No matches. Named reviewers on ABRC/RC; reviews.py forbids maintainer-bootstrap.
+# No matches. Named reviewer aliases existed on then-ABRC/RC packages; reviews.py
+# forbids maintainer-bootstrap. Those gold labels were demoted for v1.
 ```
 
 Ledger: `docs/audit_issues.yaml` status `closed`.
@@ -453,7 +464,8 @@ PR #5 merged audit remediation; merge-push Validate run #28600140701 green (48/4
 - **docker/qcec README:** Matches CI (uv dev dep, not Docker build) (F-053 fixed).
 - **README badges:** Validate + Lint (F-047 fixed).
 - **Phase A (2026-07-24):** GOVERNANCE / roadmap / status / reference_benchmarks / research_tracks /
-  definition_of_completion synced to live **9 ABRC / 5 RC**; audit markdown ↔ yaml reconciled.
+  definition_of_completion synced to then-live **9 ABRC / 5 RC** (historical); **superseded by
+  v1 demotion** → regenerate status for live **0** gold; audit markdown ↔ yaml reconciled.
 
 ---
 

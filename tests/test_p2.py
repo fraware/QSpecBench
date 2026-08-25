@@ -35,7 +35,7 @@ def test_cnot_artifact_bound_validates():
     results = validate_path(claim)
     assert results and results[0].ok
     spec = yaml.safe_load((claim / "spec.yaml").read_text(encoding="utf-8"))
-    assert spec["status"]["maturity"] == "artifact_bound_reference_claim"
+    assert spec["status"]["maturity"] == "experimental_closed"
     assert spec["headline_claim_status"]["status"] == "checked"
 
 

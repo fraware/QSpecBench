@@ -1,0 +1,14 @@
+{
+  "schema": "qspecbench.evidence_adapter_bindings.v1",
+  "benchmark_id": "three_qubit_bit_flip_code_corrects_one_x",
+  "bindings": {
+    "stim_dem_adapter_result": "qspecbench.qec.stim_matching.v1",
+    "external_matching_agree": "qspecbench.qec.stim_matching.v1",
+    "stim_pymatching_dem": "qspecbench.qec.stim_matching.v1",
+    "stim_pymatching_spacetime_dual": "qspecbench.qec.stim_matching.v1",
+    "stim_pymatching_bitflip_spacetime_d3_R3": "qspecbench.qec.stim_matching.v1",
+    "stim_pymatching_bitflip_spacetime_d5_R5": "qspecbench.qec.stim_matching.v1",
+    "stim_declared_repetition_universe": "qspecbench.qec.stim_matching.v1",
+    "stim_pymatching_bitflip_spacetime_d7_R7": "qspecbench.qec.stim_matching.v1"
+  }
+}

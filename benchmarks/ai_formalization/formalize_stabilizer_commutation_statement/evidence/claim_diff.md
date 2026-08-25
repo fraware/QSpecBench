@@ -1,8 +1,8 @@
 # Claim diff: formalize_stabilizer_commutation_statement
 
-<!-- scope_fingerprint: 0beb4d764f7ceb722548093e63ad7d1694b49a81827fb56798631d8be832b378 -->
+<!-- scope_fingerprint: aca0bc47667252c4531160cb87f0f72cf441e3c359893843bae80427d7b42370 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

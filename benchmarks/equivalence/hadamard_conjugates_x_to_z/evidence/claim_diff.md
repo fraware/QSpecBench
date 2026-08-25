@@ -1,8 +1,8 @@
 # Claim diff: hadamard_conjugates_x_to_z
 
-<!-- scope_fingerprint: dffc083e435266e11f96b7c3112223f7b5873bf8a6aec06f0d44ab366e0f23f9 -->
+<!-- scope_fingerprint: 1e8fc2407bb00bd96e188b325dea05eb64e2be83533b07e611369f5f1ed42105 -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

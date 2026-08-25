@@ -16,7 +16,7 @@ BENCHMARKS = REPO / "benchmarks"
 MATURITY_RE = re.compile(
     r"(Current maturity:\s*\*\*)("
     r"seed|usable|reference_scaffold|reference_contract|reference_artifact|"
-    r"reference_claim|artifact_bound_reference_claim|deprecated"
+    r"experimental_closed|reference_claim|artifact_bound_reference_claim|deprecated"
     r")(\*\*)",
     re.IGNORECASE,
 )
@@ -120,26 +120,31 @@ def sync_track_md(track_path: Path) -> bool:
 
 
 def _status_block(metrics: dict[str, int]) -> str:
-    rc = metrics["reference_claim"]
-    abrc = metrics.get("artifact_bound_reference_claim", 0)
-    headline = rc + abrc
-    return f"""Honest status: most entries are **reference scaffolds** demonstrating the evidence format. **{rc}**
-benchmark{'s' if rc != 1 else ''} {'are' if rc != 1 else 'is'} `reference_claim` and **{abrc}**
-{'are' if abrc != 1 else 'is'} `artifact_bound_reference_claim` under declared scope.
+    from qspecbench.metrics import collect_v1_metrics
+    from pathlib import Path as _Path
+
+    # Prefer v1 metrics when the caller passed dashboard metrics only.
+    v1 = metrics if "experimental_closed" in metrics else collect_v1_metrics(_Path("benchmarks"))
+    rc = v1.get("reference_claim", metrics.get("reference_claim", 0))
+    abrc = v1.get("artifact_bound_reference_claim", metrics.get("artifact_bound_reference_claim", 0))
+    experimental = v1.get("experimental_closed", 0)
+    return f"""Audited corpus snapshot (generated source of truth: [docs/generated_status.md](docs/generated_status.md)):
 
 | | |
 |---|---|
-| **Benchmarks** | {metrics['total_benchmarks']} across 5 tracks |
-| **Reference scaffolds** (any scoped reference level) | {metrics['reference_scaffolds_any_level']} |
-| **With headline claim checked** (`reference_claim` + `artifact_bound_reference_claim`) | {headline} |
-| **With any checked evidence** | {metrics['with_checked_evidence']} |
-| **Manifest-checked theorem bindings** | {metrics['manifest_checked_theorem_binding']} |
-| **Python denotation consistency checks** | {metrics['python_denotation_consistency']} |
-| **Kernel-checked codegen-trace bridges** | {metrics['kernel_checked_codegen_trace']} |
-| **Coq/Rocq/Isabelle (optional CI)** | excluded from default maturity counts |
-| **CI** | Schema validation, evidence checks, Lean proofs, verify-bridge, bridge-metadata verify, circuit equivalence (QCEC) |
+| **Benchmarks** | {v1.get('total_benchmarks', metrics['total_benchmarks'])} across 5 tracks |
+| **`experimental_closed`** (machine closure, no independent review) | {experimental} |
+| **`reference_claim`** | {rc} |
+| **`artifact_bound_reference_claim`** | {abrc} |
+| **Gold promoted inventory** | {v1.get('gold_promoted', rc + abrc)} |
+| **With headline claim checked under declared scope** | {v1.get('headline_checked', metrics.get('headline_checked', 0))} |
+| **With any checked evidence** | {v1.get('with_checked_evidence', metrics['with_checked_evidence'])} |
+| **QEC small-code certificate level** | {v1.get('qec_small_code_checked', metrics.get('qec_small_code_checked', 0))} |
+| **QEC external-certificate level** | {v1.get('qec_external_certificate_checked', metrics.get('qec_external_certificate_checked', 0))} |
 
-Details and per-benchmark breakdown: **[dashboard](docs/status.md)** (regenerate with `qspecbench dashboard benchmarks/ --out docs/status.md`)."""
+These are descriptive corpus counts, not evidence that independent review, community-grade governance, or the full scientific reference suite is complete. Exact current CI state must be read from the workflow run for the exact commit, not from authored `status.ci` fields.
+
+Details and per-benchmark breakdown: **[dashboard](docs/status.md)**."""
 
 
 def sync_root_readme_status(readme_path: Path, metrics: dict[str, int]) -> bool:
@@ -179,6 +184,12 @@ def main() -> int:
             print(f"updated {track_path.relative_to(REPO)}")
 
     metrics = collect_summary_metrics(BENCHMARKS)
+    try:
+        from qspecbench.metrics import collect_v1_metrics
+
+        metrics = collect_v1_metrics(BENCHMARKS)
+    except Exception:
+        pass
     root_readme = REPO / "README.md"
     if sync_root_readme_status(root_readme, metrics):
         changed += 1

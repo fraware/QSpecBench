@@ -1,0 +1,614 @@
+[
+  {
+    "benchmark_id": "bell_state_preparation",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Hadamard on q[0] followed by CNOT prepares the Bell state |Phi+> on two qubits.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "algorithm"
+  },
+  {
+    "benchmark_id": "clifford_simplification_preserves_unitary",
+    "closed_obligations": [
+      "source_artifact_parse",
+      "target_artifact_parse",
+      "source_denotation",
+      "target_denotation",
+      "source_target_equivalence",
+      "global_phase_policy",
+      "wire_order_alignment"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Clifford simplification of the declared H-H-S source trace to the S-only target circuit preserves the unitary exactly under the normalized 1-qubit complex denotation (algebraic H = H/\u221a2; global phase \u03c6 = 0).",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "source_artifact_parse",
+      "target_artifact_parse",
+      "source_denotation",
+      "target_denotation",
+      "source_target_equivalence",
+      "global_phase_policy",
+      "wire_order_alignment"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  },
+  {
+    "benchmark_id": "cnot_self_inverse_cancellation",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result",
+      "sat_certificate"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Two consecutive CNOT gates on the same control-target pair implement the identity on the declared two-qubit register.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  },
+  {
+    "benchmark_id": "extract_teleportation_correctness_statement",
+    "closed_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "ai_draft",
+      "human_review",
+      "lean_proof"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.ai_formalization.gold_relation.v1",
+    "profile_sha256": "124a0c308abd9320a1691661ab31f6774c0eb3b38e57850717586c1e956fb90c",
+    "proposition": "The informal source claim that quantum teleportation transfers an unknown qubit state to a remote party up to Pauli corrections is faithfully formalized \u2014 for the declared computational-basis inputs zero and one, over all four Alice measurement outcomes \u2014 by the checked measure-and-correct recovery theorems under the frozen gold target; general-state transfer for an arbitrary superposition remains outside this gold target.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "ai_formalization"
+  },
+  {
+    "benchmark_id": "formalize_bit_flip_code_corrects_one_x",
+    "closed_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "ai_draft",
+      "human_review",
+      "lean_proof"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.ai_formalization.gold_relation.v1",
+    "profile_sha256": "124a0c308abd9320a1691661ab31f6774c0eb3b38e57850717586c1e956fb90c",
+    "proposition": "The informal source claim that the three-qubit bit-flip code detects and corrects a single X error is faithfully formalized by the checked three-qubit bit-flip lookup-table decoder theorem under the frozen gold target (declared single-X Pauli model).",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "ai_formalization"
+  },
+  {
+    "benchmark_id": "formalize_small_hamiltonian_hermiticity_statement",
+    "closed_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "ai_draft",
+      "human_review",
+      "lean_proof"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.ai_formalization.gold_relation.v1",
+    "profile_sha256": "124a0c308abd9320a1691661ab31f6774c0eb3b38e57850717586c1e956fb90c",
+    "proposition": "The informal source claim that a small Pauli-decomposed Hamiltonian with real coefficients represents a Hermitian operator is faithfully formalized by the checked small-fermionic-Hamiltonian Hermiticity theorem under the frozen gold target (declared 2-qubit Pauli-term artifact).",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "ai_formalization"
+  },
+  {
+    "benchmark_id": "formalize_stabilizer_commutation_statement",
+    "closed_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "ai_draft",
+      "human_review",
+      "lean_proof"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.ai_formalization.gold_relation.v1",
+    "profile_sha256": "124a0c308abd9320a1691661ab31f6774c0eb3b38e57850717586c1e956fb90c",
+    "proposition": "The informal source claim that all stabilizer generators of a stabilizer code pairwise commute under Pauli multiplication is faithfully formalized \u2014 for the declared six-generator Steane Z-chain scaffold's five adjacent generator pairs \u2014 by the checked Steane stabilizer-commutation theorem under the frozen gold target; full all-pairs commutation for a general stabilizer code remains outside this gold target.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "kernel_anchor",
+      "gold_target_faithfulness"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "ai_formalization"
+  },
+  {
+    "benchmark_id": "hadamard_conjugates_x_to_z",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Conjugating Pauli X by H yields Pauli Z up to global phase on one qubit.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  },
+  {
+    "benchmark_id": "native_ccx_artifact_denotes_toffoli_unitary",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "The declared native CCX artifact denotes the standard three-qubit Toffoli unitary under the declared finite matrix semantics.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  },
+  {
+    "benchmark_id": "qft_inverse_qft_small_instance",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result",
+      "sat_certificate"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "QFT and inverse QFT circuits are mutual inverses on a fixed two-qubit scaffold.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  },
+  {
+    "benchmark_id": "qft_then_inverse_qft_identity_up_to_ordering",
+    "closed_obligations": [
+      "qft_inverse_identity",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Applying QFT followed by inverse QFT yields the identity on the declared register up to bit-ordering conventions.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "qft_inverse_identity",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "algorithm"
+  },
+  {
+    "benchmark_id": "single_qubit_gate_cancellation",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Consecutive inverse single-qubit gates on the same wire cancel to identity.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  },
+  {
+    "benchmark_id": "single_trotter_step_declares_error_contract",
+    "closed_obligations": [
+      "contract_declaration",
+      "entry_modulus_achievement",
+      "mathlib_spectral_opNorm_equality",
+      "fidelity_taylor_proxy_at_revised_step",
+      "process_fidelity_hs_proxy",
+      "average_gate_fidelity_hs_proxy",
+      "diamond_norm_op_upper_proxy",
+      "haar_average_gate_fidelity_unitary",
+      "diamond_norm_op_characterization",
+      "unitary_qubit_diamond_closed_form",
+      "unitary_choi_diamond_characterization",
+      "unitary_choi_schatten1_diamond",
+      "qubit_pauli_channel_cb_class",
+      "orthogonal_pure_choi_diamond",
+      "qubit_cptp_cb_proved_subclass_mathlib",
+      "multi_step_trotter_composition",
+      "haar_monte_carlo_integral"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "human_review",
+      "lean_proof",
+      "simulation"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.hamiltonian.finite_dim_operator.v1",
+    "profile_sha256": "8885e081664d823b0700f5867fc48e1533a98e69b3fb583f0b053e679354dde7",
+    "proposition": "Hamiltonian simulation claim: a single first-order product-formula step at dt=0.1 achieves a proved entry-modulus error bound of 1/5 (discharged in Lean); historical fidelity 1e-6 at dt=0.1 remains permanently not-applicable (proved-negative); a revised Taylor-proxy fidelity 1e-6 at dt=1/100 is checked.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "contract_declaration",
+      "entry_modulus_achievement"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "hamiltonian"
+  },
+  {
+    "benchmark_id": "small_fermionic_hamiltonian_is_hermitian",
+    "closed_obligations": [
+      "hermiticity"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "lean_proof",
+      "simulation"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.hamiltonian.finite_dim_operator.v1",
+    "profile_sha256": "8885e081664d823b0700f5867fc48e1533a98e69b3fb583f0b053e679354dde7",
+    "proposition": "The Pauli-decomposed Hamiltonian in artifacts/hamiltonian.json represents a Hermitian operator (H = H\u2020).",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "hermiticity"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "hamiltonian"
+  },
+  {
+    "benchmark_id": "swap_from_three_cx",
+    "closed_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge",
+      "qcec_equivalence"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.unitary.v1",
+    "profile_sha256": "dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f",
+    "proposition": "Three CNOT gates in standard order implement SWAP on two qubits.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "lean_kernel_proof",
+      "semantic_bridge",
+      "qcec_equivalence"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "algorithm"
+  },
+  {
+    "benchmark_id": "teleportation_dynamic_feedforward_protocol",
+    "closed_obligations": [
+      "dynamic_ast_fail_closed_mirror",
+      "dynamic_denotation_bridge_metadata",
+      "lean_dynamic_denotation_protocol",
+      "dynamic_denotation_bridge_verify",
+      "arbitrary_pure_state_instrument",
+      "hardware_abstraction_isa_layer"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.dynamic_quantum.instrument_feedforward.v1",
+    "profile_sha256": "63abdbdfeef004e841d7d51b49487122525a34de2be4e2461f80a02fc96f7824",
+    "proposition": "The on-disk teleportation-with-feedforward QASM CanonicalAst measure and if AST nodes are bound to the Lean Measurement.writeZOutcome / ClassicalReg feed-forward denotation, and the protocol recovers an arbitrary normalized pure qubit under the declared four-outcome instrument. This is not a mixed-state CPTP channel theorem.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "dynamic_ast_fail_closed_mirror",
+      "dynamic_denotation_bridge_metadata",
+      "lean_dynamic_denotation_protocol",
+      "dynamic_denotation_bridge_verify",
+      "arbitrary_pure_state_instrument"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "algorithm"
+  },
+  {
+    "benchmark_id": "teleportation_preserves_state_up_to_pauli_correction",
+    "closed_obligations": [
+      "unitary_fragment_matches_ordering",
+      "semantic_bridge",
+      "openqasm_measure_assignment_denotation",
+      "arbitrary_complex_state_transfer_normalized_h",
+      "alice_normed_povm_quarter",
+      "declared_dynamic_fragment_protocol",
+      "dynamic_feedforward_artifact_canonical_ast",
+      "dynamic_feedforward_artifact_protocol_linked",
+      "dynamic_ast_fail_closed_mirror",
+      "dynamic_ast_bridge_metadata"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "human_review",
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "simulation"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.dynamic_quantum.instrument_feedforward.v1",
+    "profile_sha256": "63abdbdfeef004e841d7d51b49487122525a34de2be4e2461f80a02fc96f7824",
+    "proposition": "Under the Lean 4 kernel OpenQASM3 denotation, the measure-free artifact teleport-unitary-prefix.qasm parses to Generated.TeleportationUnitaryPrefix.ops and matches the declared unitary-prefix gate list (bridge-teleport-unitary-prefix-codegen).",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "unitary_fragment_matches_ordering",
+      "semantic_bridge"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "algorithm"
+  },
+  {
+    "benchmark_id": "three_qubit_bit_flip_code_corrects_one_x",
+    "closed_obligations": [
+      "code_definition",
+      "stabilizer_commutation",
+      "syndrome_extraction_circuit_semantics",
+      "lookup_table_decoder",
+      "decoder_correctness",
+      "correction_restores_logical_state",
+      "syndrome_extraction_circuit_semantics",
+      "repeated_round_fault_tolerance",
+      "three_round_majority_fault_tolerance",
+      "five_round_majority_fault_tolerance",
+      "seven_round_majority_fault_tolerance",
+      "spacetime_mwpm_fragment_fault_tolerance",
+      "stim_compatible_dem_adapter",
+      "external_matching_agrees_on_fixture_graph",
+      "stim_invoked_dem_pymatching",
+      "spacetime_mwpm_3qubit_bitflip_R3",
+      "spacetime_mwpm_repetition_d5_R5",
+      "spacetime_mwpm_repetition_d7_R7",
+      "full_spacetime_mwpm"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "lean_proof",
+      "qec_verifier_result"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.qec.assurance_chain.v1",
+    "profile_sha256": "2253c66c0a58f4904ef6134248eb06bcd0187fbda9ccb94b8412ae34db064451",
+    "proposition": "Under the declared single-X Pauli bit-flip error model, the standard lookup-table decoder corrects each single X error with logical preservation verified by Lean 4 kernel proof and brute-force validation.",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "code_definition",
+      "stabilizer_commutation",
+      "syndrome_extraction_circuit_semantics",
+      "lookup_table_decoder",
+      "decoder_correctness",
+      "correction_restores_logical_state"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "qec"
+  },
+  {
+    "benchmark_id": "toffoli_decomposition_equivalence",
+    "closed_obligations": [
+      "source_artifact_parse",
+      "target_artifact_parse",
+      "source_denotation",
+      "target_denotation",
+      "source_target_equivalence",
+      "global_phase_policy",
+      "wire_order_alignment"
+    ],
+    "decision": "demote",
+    "evidence_types": [
+      "internal_denotation_consistency",
+      "lean_proof",
+      "qasm_parse",
+      "qcec_result"
+    ],
+    "final_maturity": "experimental_closed",
+    "prior_maturity": "experimental_closed",
+    "profile_id": "qspecbench.openqasm3.clifford_t_normalized.v1",
+    "profile_sha256": "85b1cd7d534b43db8283e453954b65c465207d680d05631e0db95d0cca8c7b22",
+    "proposition": "Under the normalized Clifford+T denotation (LSB wires, algebraic H/T), the declared H/T/CX decomposition and native CCX artifact have identical denotations (exact equality; global phase phi = 0).",
+    "reasons": [
+      "machine-closed without authenticated independent review"
+    ],
+    "required_obligations": [
+      "source_artifact_parse",
+      "target_artifact_parse",
+      "source_denotation",
+      "target_denotation",
+      "source_target_equivalence",
+      "global_phase_policy",
+      "wire_order_alignment"
+    ],
+    "residual_assumptions": [],
+    "review_status": "unauthenticated_legacy_review",
+    "track": "equivalence"
+  }
+]

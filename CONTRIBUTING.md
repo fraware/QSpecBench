@@ -18,7 +18,11 @@ Thank you for contributing. Every benchmark must include:
    ```
 
    The config is [`.pre-commit-config.yaml`](.pre-commit-config.yaml) (ruff + ruff-format, schema examples, generated-ops integrity, audit YAML parse). CI also runs `ruff check` as a hard gate; local pre-commit catches the same class of issues earlier.
-3. Schema **0.3** is the active dialect for ABRC and elaborator/AST anchors — see [docs/schema_migration_0.3.md](docs/schema_migration_0.3.md) (and [0.2](docs/schema_migration_0.2.md) for earlier fields).
+3. Schema **0.3** is the active dialect. Gold/`reference_claim`/`artifact_bound_reference_claim`
+   promotions are **frozen for v1** without authentic independent reviewers — see
+   [docs/promotion_freeze.md](docs/promotion_freeze.md). Machine-closed packages use
+   `experimental_closed`. Schema migration notes: [docs/schema_migration_0.3.md](docs/schema_migration_0.3.md)
+   (and [0.2](docs/schema_migration_0.2.md) for earlier fields).
 4. Track maintainer roles and CODEOWNERS policy: [GOVERNANCE.md](GOVERNANCE.md).
 5. **Lean proofs are optional locally** ([Lean setup](docs/lean_setup.md)); CI installs elan and
    runs `lake build`. If you add or change Lean evidence:

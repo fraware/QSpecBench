@@ -345,6 +345,7 @@
             "reference_scaffold",
             "reference_contract",
             "reference_artifact",
+            "experimental_closed",
             "reference_claim",
             "artifact_bound_reference_claim",
             "deprecated"
@@ -677,11 +678,25 @@
           "type": "string",
           "enum": [
             "checked_faithful",
+            "kernel_valid_instance",
+            "kernel_valid_strict_weakening",
             "checked_but_semantically_wrong",
             "not_checked",
             "failed_elaboration"
           ],
-          "description": "Kernel-checked + semantically wrong statement = failed formalization (checked_but_semantically_wrong)."
+          "description": "Kernel validity is orthogonal to source-relation. checked_faithful is reserved for equivalent gold targets."
+        },
+        "source_relation": {
+          "type": "string",
+          "enum": ["equivalent", "strict_weakening", "strict_strengthening", "instance", "incomparable", "ambiguous", "not_applicable"]
+        },
+        "faithfulness_status": {
+          "type": "string",
+          "enum": ["equivalent", "strict_weakening", "instance", "not_equivalent", "unadjudicated"]
+        },
+        "formal_status": {
+          "type": "string",
+          "enum": ["kernel_valid", "elaboration_failed", "not_checked"]
         },
         "external_domain_review_required": { "type": "boolean" }
       },

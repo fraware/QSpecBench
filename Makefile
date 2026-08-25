@@ -27,3 +27,9 @@ test:
 
 lint:
 	ruff check tools tests adapters scripts
+
+release-verify:
+	python scripts/release_verify.py --candidate-sha $$(git rev-parse HEAD)
+
+preflight:
+	python -m qspecbench validate benchmarks/ --strict-all --audit-graph

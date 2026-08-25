@@ -1,8 +1,13 @@
 {
   "id": "qspecbench.openqasm3.unitary.v1",
+  "upstream_standard": "OpenQASM",
+  "upstream_version": "3.0",
+  "parser_implementation": "QSpecBench.Quantum.OpenQASM3Parser.parseQasmSourceE",
+  "parser_version": "qspecbench-openqasm-fragment-0.1",
+  "include_policy": "skipped_not_interpreted",
   "accepted_headers": ["OPENQASM 3.0", "OPENQASM 3", "include"],
   "accepted_declarations": ["qubit", "qubit[]"],
-  "gate_set": ["i", "x", "y", "z", "h", "s", "sdg", "t", "tdg", "cx", "ccx", "rx"],
+  "gate_set": ["i", "x", "y", "z", "h", "s", "sdg", "t", "tdg", "cx", "ccx", "rx", "swap"],
   "angle_grammar": "pi_rational",
   "control_flow_support": "none",
   "measurement_support": "none",
@@ -10,5 +15,5 @@
   "wire_order_convention": "legacy_kron_order",
   "global_phase_policy": "exact",
   "unsupported_syntax_behavior": "fail_closed",
-  "notes": "Unitary gate-subset profile for kernel-checked artifact bridges."
+  "notes": "Legacy unitary profile for existing artifact bridges. Include lines are skipped, not semantically interpreted. RX remains a declared legacy surface with parser-path caveats; promoted RX semantics require an explicit bound profile/bridge and must not rely on declaration alone."
 }

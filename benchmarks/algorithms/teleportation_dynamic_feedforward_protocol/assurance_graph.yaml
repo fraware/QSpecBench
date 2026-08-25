@@ -1,0 +1,98 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: teleportation_dynamic_feedforward_protocol
+proposition:
+  id: teleportation_dynamic_feedforward_protocol_v3
+  version: 1
+  text: The on-disk teleportation-with-feedforward QASM CanonicalAst measure and if
+    AST nodes are bound to the Lean Measurement.writeZOutcome / ClassicalReg feed-forward
+    denotation, and the protocol recovers an arbitrary normalized pure qubit under
+    the declared four-outcome instrument. This is not a mixed-state CPTP channel theorem.
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.dynamic_quantum.instrument_feedforward.v1
+  content_sha256: 63abdbdfeef004e841d7d51b49487122525a34de2be4e2461f80a02fc96f7824
+  content_version: '1'
+  parser: null
+  unsupported_behavior: fail_closed
+  upstream_standard: null
+  upstream_version: null
+  wire_order: null
+  global_phase_policy: null
+  measurement_semantics: null
+  reset_semantics: null
+  control_flow_semantics: null
+obligations:
+- id: dynamic_ast_fail_closed_mirror
+  required: true
+  statement: Artifact parses fail-closed into the declared dynamic AST.
+- id: dynamic_denotation_bridge_metadata
+  required: true
+  statement: Dynamic denotation metadata pins Measurement/ClassicalReg.
+- id: lean_dynamic_denotation_protocol
+  required: true
+  statement: Kernel-checked measure+if feed-forward protocol link.
+- id: dynamic_denotation_bridge_verify
+  required: true
+  statement: Dynamic denotation bridge certificate with denotation_match.
+- id: arbitrary_pure_state_instrument
+  required: true
+  statement: Arbitrary normalized pure-state instrument correctness and branch completeness.
+evidence_edges:
+- evidence_id: qasm_dynamic_feedforward
+  supports:
+  - dynamic_ast_fail_closed_mirror
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/teleportation_with_feedforward.qasm
+- evidence_id: lean_dynamic_feedforward
+  supports:
+  - lean_dynamic_denotation_protocol
+  - dynamic_denotation_bridge_metadata
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/dynamic_denotation_bridge.lean
+- evidence_id: dynamic_denotation_bridge_verify
+  supports:
+  - dynamic_denotation_bridge_verify
+  trust_class: kernel_checked
+  adapter_id: qspecbench.bridge.dynamic_denotation.v1
+  result_path: evidence/dynamic_denotation_bridge_verify.result.json
+- evidence_id: lean_arbitrary_pure_instrument
+  supports:
+  - arbitrary_pure_state_instrument
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/arbitrary_pure_instrument.lean
+- evidence_id: dynamic_ast_bridge_verify
+  supports:
+  - dynamic_ast_fail_closed_mirror
+  trust_class: kernel_checked
+  adapter_id: qspecbench.bridge.dynamic_ast.v1
+  result_path: evidence/dynamic_ast_bridge_verify.result.json
+- evidence_id: hardware_isa_abstraction
+  supports:
+  - dynamic_ast_fail_closed_mirror
+  trust_class: externally_trusted
+  adapter_id: qspecbench.bridge.hardware_isa.v1
+  result_path: evidence/hardware_isa_abstraction.result.json
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: mixed_state_cptp_channel
+  status: out_of_scope
+  statement: Mixed-state density-operator / CPTP channel identity is not claimed.
+- id: 16a380c51a81
+  status: out_of_scope
+  statement: full OpenQASM3 dynamic circuit semantics
+- id: b930125add3a
+  status: out_of_scope
+  statement: hardware execution semantics / device fidelity / pulse schedules
+- id: bcdab792c9a4
+  status: out_of_scope
+  statement: matrix KERNEL_BRIDGE for measure+if
+derived_maturity: experimental_closed

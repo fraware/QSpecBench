@@ -272,7 +272,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: reference_claim
+  maturity: experimental_closed
   reviews:
     formal_evidence_review:
       status: approved
@@ -301,6 +301,9 @@ qec_status:
   repeated_round_claim: out_of_scope
 references: []
 proof_obligations:
+- id: code_definition
+  status: passing
+  notes: Stabilizer JSON structure plus algebraic identity of the three-qubit bit-flip code
 - id: stabilizer_commutation
   status: passing
   notes: Bit-flip stabilizer commutation
@@ -398,13 +401,17 @@ claim_scope:
     standard lookup-table decoder corrects each single X error with logical preservation
     verified by Lean 4 kernel proof and brute-force validation.
   required_obligations:
+  - code_definition
   - stabilizer_commutation
+  - syndrome_extraction_circuit_semantics
   - lookup_table_decoder
   - decoder_correctness
   - correction_restores_logical_state
 proved_scope:
   checked_obligations:
+  - code_definition
   - stabilizer_commutation
+  - syndrome_extraction_circuit_semantics
   - lookup_table_decoder
   - decoder_correctness
   - correction_restores_logical_state
@@ -429,7 +436,8 @@ headline_claim_status:
     2x7 DEM MWPM fragment; Stim-invoked DEM certificates; repetition_code:memory
     d=3/5/7 spacetime members. full_spacetime_mwpm discharged ONLY under declared
     universe stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01. unbounded_all_codes_mwpm
-    is permanently not_applicable (open-ended family). Maturity reference_claim.
+    is permanently not_applicable (open-ended family). Maturity experimental_closed;
+    not independently reviewed.
   checked_under:
   - stabilizer_tableau
   - lookup_table_decoder
@@ -673,7 +681,9 @@ authorship:
 claim_identity:
   proposition_id: three_qubit_bit_flip_code_corrects_one_x_v1
   postcondition_obligation_ids:
+  - code_definition
   - stabilizer_commutation
+  - syndrome_extraction_circuit_semantics
   - lookup_table_decoder
   - decoder_correctness
   - correction_restores_logical_state

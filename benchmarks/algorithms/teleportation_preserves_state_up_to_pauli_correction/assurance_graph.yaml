@@ -1,0 +1,97 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: teleportation_preserves_state_up_to_pauli_correction
+proposition:
+  id: teleportation_preserves_state_up_to_pauli_correction_v2
+  version: 1
+  text: Under the Lean 4 kernel OpenQASM3 denotation, the measure-free artifact teleport-unitary-prefix.qasm
+    parses to Generated.TeleportationUnitaryPrefix.ops and matches the declared unitary-prefix
+    gate list (bridge-teleport-unitary-prefix-codegen).
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.dynamic_quantum.instrument_feedforward.v1
+  content_sha256: 63abdbdfeef004e841d7d51b49487122525a34de2be4e2461f80a02fc96f7824
+  content_version: '1'
+  parser: null
+  unsupported_behavior: fail_closed
+  upstream_standard: null
+  upstream_version: null
+  wire_order: null
+  global_phase_policy: null
+  measurement_semantics: null
+  reset_semantics: null
+  control_flow_semantics: null
+obligations:
+- id: unitary_fragment_matches_ordering
+  required: true
+  statement: unitary_fragment_matches_ordering
+- id: semantic_bridge
+  required: true
+  statement: semantic_bridge
+evidence_edges:
+- evidence_id: qasm_syntax
+  supports:
+  - unitary_fragment_matches_ordering
+  - semantic_bridge
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/teleportation.qasm
+- evidence_id: lean_teleportation
+  supports:
+  - semantic_bridge
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/teleportation.lean
+- evidence_id: lean_teleport_unitary_prefix_bridge
+  supports:
+  - semantic_bridge
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/teleport_unitary_prefix_bridge.lean
+- evidence_id: bridge_verify
+  supports:
+  - semantic_bridge
+  trust_class: heuristic
+  adapter_id: qspecbench.bridge.verify.v1
+  result_path: evidence/bridge_verify.result.json
+- evidence_id: informal_derivation
+  supports:
+  - semantic_bridge
+  trust_class: externally_trusted
+  adapter_id: qspecbench.human_review.v1
+  result_path: notes/informal_derivation.md
+- evidence_id: dynamic_basis_check
+  supports:
+  - semantic_bridge
+  trust_class: heuristic
+  adapter_id: qspecbench.python.simulation.v1
+  result_path: evidence/dynamic_simulation_basis_check.json
+- evidence_id: lean_measurement_scaffold
+  supports:
+  - semantic_bridge
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/measurement_scaffold.lean
+- evidence_id: feedforward_artifact_parse
+  supports:
+  - semantic_bridge
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/teleportation_with_feedforward.qasm
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: dcdd24945add
+  status: out_of_scope
+  statement: classical feed-forward control semantics in QASM
+- id: 48afe5e1d721
+  status: out_of_scope
+  statement: full OpenQASM dynamic-circuit operational semantics
+- id: a260bb54ec09
+  status: out_of_scope
+  statement: Python denotation of the full teleportation.qasm artifact
+derived_maturity: experimental_closed

@@ -8,9 +8,10 @@ H = H/√2; global phase φ = 0).
 
 ## Why this matters
 
-Compiler equivalence representative for Clifford circuits; mirrors the honest promotion
+Compiler equivalence representative for Clifford circuits; mirrors the honest machine-closure
 path used by `toffoli_decomposition_equivalence` (normalized kernel-checked source/target
-pair, elaborator-bound theorem, BridgeMetadata pin).
+pair, elaborator-bound theorem, BridgeMetadata pin). Formerly ABRC as of v0.2.x; demoted for
+v1 — not gold / independently reviewed.
 
 ## Objects
 
@@ -47,7 +48,7 @@ hardware semantics.
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 

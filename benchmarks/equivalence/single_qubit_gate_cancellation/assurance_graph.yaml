@@ -1,0 +1,71 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: single_qubit_gate_cancellation
+proposition:
+  id: single_qubit_gate_cancellation_v1
+  version: 1
+  text: Consecutive inverse single-qubit gates on the same wire cancel to identity.
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.openqasm3.unitary.v1
+  content_sha256: dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f
+  content_version: qspecbench-openqasm-fragment-0.1
+  parser: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSourceE
+  unsupported_behavior: fail_closed
+  upstream_standard: OpenQASM
+  upstream_version: '3.0'
+  wire_order: legacy_kron_order
+  global_phase_policy: exact
+  measurement_semantics: none
+  reset_semantics: none
+  control_flow_semantics: none
+obligations:
+- id: lean_kernel_proof
+  required: true
+  statement: lean_kernel_proof
+- id: semantic_bridge
+  required: true
+  statement: semantic_bridge
+evidence_edges:
+- evidence_id: lean_hadamard_cancel
+  supports:
+  - lean_kernel_proof
+  - semantic_bridge
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/hadamard_cancel.lean
+- evidence_id: qasm_parse_source
+  supports:
+  - semantic_bridge
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/source.qasm
+- evidence_id: qasm_parse_target
+  supports:
+  - semantic_bridge
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/target.qasm
+- evidence_id: qcec_equivalence
+  supports:
+  - semantic_bridge
+  trust_class: externally_trusted
+  adapter_id: qspecbench.mqt.qcec.v1
+  result_path: artifacts/source.qasm
+- evidence_id: bridge_verify
+  supports:
+  - semantic_bridge
+  trust_class: heuristic
+  adapter_id: qspecbench.bridge.verify.v1
+  result_path: evidence/bridge_verify.result.json
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: de515cc13100
+  status: out_of_scope
+  statement: OpenQASM H normalization factor links to integer matrix model
+derived_maturity: experimental_closed

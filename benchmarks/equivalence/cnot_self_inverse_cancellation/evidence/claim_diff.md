@@ -1,8 +1,8 @@
 # Claim diff: cnot_self_inverse_cancellation
 
-<!-- scope_fingerprint: 9766cee1c3daab4e115cc14398d21626ca896590f39c0b4c88548bf81c57a838 -->
+<!-- scope_fingerprint: 3e4576807b9723697ff334c43539deffe97b6069fa6f1ce1ac9b218838d422fe -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

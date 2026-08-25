@@ -48,7 +48,7 @@ def test_seed_qec_lean_stabilizer_scaffold_passes():
 def test_hamiltonian_lean_evidence_end_to_end():
     """F-058: Hamiltonian track Lean evidence passes through the runner."""
     spec = yaml.safe_load((HAMILTONIAN / "spec.yaml").read_text(encoding="utf-8"))
-    assert spec["status"]["maturity"] == "reference_claim"
+    assert spec["status"]["maturity"] == "experimental_closed"
     lean = [e for e in spec["evidence"] if e["type"] == "lean_proof" and e["status"] == "passing"]
     assert len(lean) >= 1
 

@@ -1,8 +1,8 @@
 # Claim diff: extract_teleportation_correctness_statement
 
-<!-- scope_fingerprint: 09779774fb37e8686edd6cd3a5bdc3ff8c6f1602ef101807fdf3b241acda8f8f -->
+<!-- scope_fingerprint: ef02231f53ecdea19840d5ca02dab6b01fbe57048d78aa8f2c2d8ce36c184414 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

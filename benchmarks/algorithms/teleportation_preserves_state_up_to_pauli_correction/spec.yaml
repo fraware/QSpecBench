@@ -176,7 +176,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: artifact_bound_reference_claim
+  maturity: experimental_closed
   reviews:
     formal_evidence_review:
       status: approved
@@ -270,7 +270,8 @@ proved_scope:
   unproved_obligations: []
 headline_claim_status:
   status: checked
-  notes: 'Headline ABRC remains unitary-prefix proposition v2 (artifact_bound_reference_claim).
+  notes: 'Headline is the unitary-prefix proposition (experimental_closed, demoted from
+    artifact_bound_reference_claim). Not independently reviewed.
     Proposition v3 infrastructure: claimed_link kernel_checked_dynamic_ast_semantics
     + fail-closed dynamic AST mirror + bridge_teleport_dynamic_ast_metadata + teleport_dynamic_feedforward_artifact_protocol_linked.
     Not full-protocol / matrix KERNEL_BRIDGE ABRC; not OpenQASM3/hardware/python full-QASM.'

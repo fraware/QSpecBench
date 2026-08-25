@@ -1,0 +1,17 @@
+{
+  "benchmark_id": "qiskit_optimize_1q_gates_hxx_identity",
+  "generated_at": "2026-06-27T17:18:29.775325+00:00",
+  "tooling_version": "0.2.0",
+  "artifacts": [
+    {
+      "path": "artifacts/source.qasm",
+      "sha256": "ef022773134724a54f86931c3e90bebd416e5a0e8ccd30367433d2f59ede40d9",
+      "role": "source"
+    },
+    {
+      "path": "artifacts/target.qasm",
+      "sha256": "b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60",
+      "role": "target"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: qiskit_optimize_1q_gates_hxx_identity
+proposition:
+  id: qiskit_optimize_1q_gates_hxx_identity_v1
+  version: 1
+  text: Under the QSpecBench OpenQASM fragment denotation, the committed H;X;X source
+    and the target emitted by the named public compiler pass qiskit.transpiler.passes.Optimize1qGates
+    (pinned provenance) have identical denotations. This is a concrete compiler-instance
+    claim, not a general Qiskit correctness theorem, and it is machine-closed without
+    independent review.
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.openqasm3.unitary.v1
+  content_sha256: dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f
+  content_version: qspecbench-openqasm-fragment-0.1
+  parser: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSourceE
+  unsupported_behavior: fail_closed
+  upstream_standard: OpenQASM
+  upstream_version: '3.0'
+  wire_order: legacy_kron_order
+  global_phase_policy: exact
+  measurement_semantics: none
+  reset_semantics: none
+  control_flow_semantics: none
+obligations:
+- id: source_artifact_parse
+  required: true
+  statement: Source OpenQASM fragment parses fail-closed.
+- id: target_artifact_parse
+  required: true
+  statement: Target OpenQASM fragment parses fail-closed.
+- id: source_target_equivalence
+  required: true
+  statement: Source and target have identical normalized complex denotations.
+- id: compiler_provenance
+  required: true
+  statement: Target bytes are the named public Optimize1qGates instance, hash-bound.
+evidence_edges:
+- evidence_id: qasm_parse_source
+  supports:
+  - source_artifact_parse
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/source.qasm
+- evidence_id: qasm_parse_target
+  supports:
+  - target_artifact_parse
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/target.qasm
+- evidence_id: lean_source_opt
+  supports:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_target_equivalence
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/source_optimized.lean
+- evidence_id: qcec_equivalence
+  supports:
+  - source_target_equivalence
+  trust_class: externally_trusted
+  adapter_id: qspecbench.mqt.qcec.v1
+  result_path: artifacts/source.qasm
+- evidence_id: compiler_provenance
+  supports:
+  - compiler_provenance
+  trust_class: independently_checkable
+  adapter_id: qspecbench.qiskit.optimize_1q_gates.v1
+  result_path: artifacts/compiler_provenance.json
+- evidence_id: bridge_verify
+  supports:
+  - source_target_equivalence
+  trust_class: heuristic
+  adapter_id: qspecbench.bridge.verify.v1
+  result_path: evidence/bridge_verify.result.json
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: one_qubit_no_ancilla
+  status: accepted_hypothesis
+  statement: Wire/ancilla alignment is the declared 1-qubit fragment with no ancilla.
+- id: exact_phase_policy
+  status: accepted_hypothesis
+  statement: Equivalence is exact under the unitary.v1 global-phase policy, not up-to-phase.
+- id: not_general_qiskit
+  status: out_of_scope
+  statement: Not a general Qiskit or Optimize1qGates correctness theorem.
+- id: da2be01ab6b0
+  status: out_of_scope
+  statement: semantic correctness of circuit vs claim
+derived_maturity: experimental_closed

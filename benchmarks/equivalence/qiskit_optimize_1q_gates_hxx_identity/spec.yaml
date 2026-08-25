@@ -1,0 +1,210 @@
+qspecbench_version: '0.3'
+id: qiskit_optimize_1q_gates_hxx_identity
+title: Qiskit Optimize1qGates H;X;X identity
+track: equivalence
+domain: circuit_equivalence
+claim_type: unitary_equivalence
+difficulty: intermediate
+informal_claim:
+  statement: >-
+    Under the QSpecBench OpenQASM fragment denotation, the committed H;X;X source
+    and the target emitted by the named public compiler pass qiskit.transpiler.passes.Optimize1qGates
+    (pinned provenance) have identical denotations. This is a concrete compiler-instance
+    claim, not a general Qiskit correctness theorem, and it is machine-closed without
+    independent review.
+  source: null
+  reference_key: null
+semantic_level:
+  primary: circuit
+  secondary: []
+objects:
+- name: source
+  type: circuit
+  path: artifacts/source.qasm
+  format: qasm3
+  role: source
+- name: target
+  type: circuit
+  path: artifacts/target.qasm
+  format: qasm3
+  role: target
+specification:
+  mode: exact
+  preconditions:
+  - declared qubit ordering
+  postconditions:
+  - optimized circuit equivalent to source
+  invariants: []
+  approximation:
+    enabled: false
+    metric: null
+    bound: null
+  resources:
+    enabled: false
+    qubits: null
+    gates: null
+    depth: null
+    t_count: null
+    t_depth: null
+    ancilla: null
+    measurements: null
+    other: []
+assumptions:
+  mathematical:
+  - standard finite-dimensional quantum semantics
+  physical: []
+  tool: []
+  artifact: []
+  unverified: []
+evidence:
+- id: qasm_parse_source
+  type: qasm_parse
+  path: artifacts/source.qasm
+  checker: qasm parser adapter
+  status: passing
+  notes: Syntax only; semantic claim not verified.
+- id: qasm_parse_target
+  type: qasm_parse
+  path: artifacts/target.qasm
+  checker: qasm parser adapter
+  status: passing
+  notes: Syntax only; semantic claim not verified.
+- id: qcec_equivalence
+  type: qcec_result
+  path: artifacts/source.qasm
+  secondary_path: artifacts/target.qasm
+  checker: QCEC equivalence tool
+  status: passing
+  notes: External equivalence check on declared QASM pair.
+- id: lean_source_opt
+  type: lean_proof
+  path: evidence/source_optimized.lean
+  checker: Lean 4 kernel
+  status: passing
+  notes: Kernel-checked small-instance equivalence scaffold.
+- id: compiler_provenance
+  type: internal_denotation_consistency
+  path: artifacts/compiler_provenance.json
+  adapter: qspecbench.qiskit.optimize_1q_gates.v1
+  checker: qiskit Optimize1qGates provenance
+  status: passing
+  notes: Hash-bound Qiskit Optimize1qGates provenance; regeneration checked when qiskit is installed.
+- id: bridge_verify
+  type: internal_denotation_consistency
+  path: evidence/bridge_verify.result.json
+  adapter: qspecbench.bridge.verify.v1
+  checker: verify-bridge CLI
+  status: passing
+  notes: Python denotation-consistency on the committed H;X;X source; supporting, not semantic authority.
+trust_boundary:
+  checked_by:
+  - QASM syntax parse
+  - Lean 4 kernel scaffold
+  - verify-bridge matrix match
+  trusted_kernels:
+  - Lean 4 kernel
+  trusted_external_tools:
+  - QCEC
+  untrusted_components: []
+  assumptions_not_checked:
+  - semantic correctness of circuit vs claim
+status:
+  informal_claim: complete
+  machine_spec: complete
+  artifacts: complete
+  evidence: complete
+  ci: passing
+  maturity: experimental_closed
+acceptable_evidence:
+- type: qasm_parse
+  checker: qasm parser adapter
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: qcec_result
+  checker: QCEC equivalence tool
+  required_for_claim: false
+  trust_level: externally_trusted
+- type: lean_proof
+  checker: Lean 4 kernel
+  required_for_claim: false
+  trust_level: checked
+- type: internal_denotation_consistency
+  checker: verify-bridge CLI
+  path: null
+  required_for_claim: false
+  trust_level: heuristic
+references: []
+proof_obligations:
+- id: source_artifact_parse
+  status: passing
+  notes: OpenQASM fragment parse
+- id: target_artifact_parse
+  status: passing
+  notes: OpenQASM fragment parse
+- id: source_target_equivalence
+  status: passing
+  notes: Lean H;X;X denotation plus QCEC supporting
+- id: compiler_provenance
+  status: passing
+  notes: Hash-bound Qiskit Optimize1qGates provenance
+claim_scope:
+  headline_claim_id: qiskit_optimize_1q_gates_hxx_identity_headline
+  headline_claim_text: >-
+    Under the QSpecBench OpenQASM fragment denotation, the committed H;X;X source
+    and the Optimize1qGates target have identical denotations for this pinned compiler instance.
+  required_obligations:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_target_equivalence
+  - compiler_provenance
+proved_scope:
+  checked_obligations:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_target_equivalence
+  - compiler_provenance
+  unproved_obligations: []
+headline_claim_status:
+  status: checked
+  notes: Machine-closed experimental package; not independently reviewed.
+  checked_under:
+  - openqasm_fragment
+  - qiskit_optimize_1q_gates_instance
+  not_checked_under:
+  - general_qiskit_correctness
+  - full_openqasm3
+formal_claims:
+- id: formal_lean_hxx
+  evidence_id: lean_source_opt
+  formal_system: lean
+  module: QSpecBench.Research.CompilerFlagship
+  theorem: QSpecBench.Research.CompilerFlagship.compiler_generated_artifact_pair_semantically_equivalent
+  supports:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_target_equivalence
+  does_not_support:
+  - general_qiskit_correctness
+  benchmark_anchor: qiskit_optimize_1q_gates_hxx_identity
+  proposition_id: qiskit_optimize_1q_gates_hxx_identity_v1
+claim_identity:
+  proposition_id: qiskit_optimize_1q_gates_hxx_identity_v1
+  postcondition_obligation_ids:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_target_equivalence
+  - compiler_provenance
+provenance:
+  generated_at: '2026-06-27T17:18:29.775325+00:00'
+  artifacts:
+  - path: artifacts/source.qasm
+    sha256: ef022773134724a54f86931c3e90bebd416e5a0e8ccd30367433d2f59ede40d9
+    role: source
+  - path: artifacts/target.qasm
+    sha256: b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60
+    role: target
+semantics_base: openqasm_fragment
+openqasm_profile: qspecbench.openqasm3.unitary.v1
+authorship:
+  author: fraware
+  merging_maintainer: fraware

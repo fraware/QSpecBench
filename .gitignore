@@ -1,11 +1,13 @@
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
 .eggs/
 dist/
 build/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
 .venv/
 venv/
 *.egg
@@ -16,3 +18,17 @@ pytest_last.txt
 .coverage.*
 htmlcov/
 *.tmp
+*.bak
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local / ephemeral release and verification scratch (not normative)
+docs/release/
+/artifacts/
+
+# Lean-QEC cold-verify workdirs and logs (adapter may write under artifacts/)
+**/qspecbench-lean-qec-*/

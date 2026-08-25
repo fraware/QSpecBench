@@ -1,0 +1,75 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: swap_from_three_cx
+proposition:
+  id: swap_from_three_cx_v1
+  version: 1
+  text: Three CNOT gates in standard order implement SWAP on two qubits.
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.openqasm3.unitary.v1
+  content_sha256: dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f
+  content_version: qspecbench-openqasm-fragment-0.1
+  parser: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSourceE
+  unsupported_behavior: fail_closed
+  upstream_standard: OpenQASM
+  upstream_version: '3.0'
+  wire_order: legacy_kron_order
+  global_phase_policy: exact
+  measurement_semantics: none
+  reset_semantics: none
+  control_flow_semantics: none
+obligations:
+- id: lean_kernel_proof
+  required: true
+  statement: lean_kernel_proof
+- id: semantic_bridge
+  required: true
+  statement: semantic_bridge
+- id: qcec_equivalence
+  required: true
+  statement: qcec_equivalence
+evidence_edges:
+- evidence_id: qasm_parse_source
+  supports:
+  - lean_kernel_proof
+  - semantic_bridge
+  - qcec_equivalence
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/source.qasm
+- evidence_id: qasm_parse_target
+  supports:
+  - qcec_equivalence
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/target.qasm
+- evidence_id: qcec_equivalence
+  supports:
+  - qcec_equivalence
+  trust_class: externally_trusted
+  adapter_id: qspecbench.mqt.qcec.v1
+  result_path: artifacts/source.qasm
+- evidence_id: lean_swap_bridge
+  supports:
+  - qcec_equivalence
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/swap_bridge.lean
+- evidence_id: bridge_verify
+  supports:
+  - qcec_equivalence
+  trust_class: heuristic
+  adapter_id: qspecbench.bridge.verify.v1
+  result_path: evidence/bridge_verify.result.json
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: 508be2e6cd50
+  status: out_of_scope
+  statement: unitary equivalence beyond declared gate subset
+derived_maturity: experimental_closed

@@ -1,8 +1,8 @@
 # Claim diff: bell_state_preparation
 
-<!-- scope_fingerprint: fedce8a7892e80125d52602f01146d8976e4397403d4ed2dc68a54237a344c71 -->
+<!-- scope_fingerprint: 583de3723c613d68b02db9b2f2b8e3945327ea0ee0fc9c07e13f1160d05967fa -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

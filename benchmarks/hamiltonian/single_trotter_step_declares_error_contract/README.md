@@ -31,7 +31,7 @@ Approximate mode with metric `entry_modulus` and bound `0.2` at dt=0.1.
 
 ## Status
 
-Current maturity: **reference_claim**.
+Current maturity: **experimental_closed**.
 
 ## Known gaps
 

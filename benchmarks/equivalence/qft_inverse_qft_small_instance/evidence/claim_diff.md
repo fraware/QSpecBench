@@ -1,8 +1,8 @@
 # Claim diff: qft_inverse_qft_small_instance
 
-<!-- scope_fingerprint: 026e4ab510ceda58f45ef7f52a5ab17da94610d8a462b73346e63fb32a85966c -->
+<!-- scope_fingerprint: d37c231599ee474897f98dbc060e6fa69787a5f41b6a5f74299e54b254e23a3b -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

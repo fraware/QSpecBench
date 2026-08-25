@@ -21,10 +21,13 @@ Maturity = Literal[
     "reference_scaffold",
     "reference_contract",
     "reference_artifact",
+    "experimental_closed",
     "reference_claim",
     "artifact_bound_reference_claim",
     "deprecated",
 ]
+
+EXPERIMENTAL_CLOSED_LEVEL = "experimental_closed"
 
 REFERENCE_SCAFFOLD_LEVELS: frozenset[str] = frozenset(
     {"reference_scaffold", "reference_contract", "reference_artifact"}

@@ -7,6 +7,7 @@ from typing import Any
 
 from qspecbench.adapter_registry import validate_evidence_adapter_binding
 from qspecbench.artifacts import claim_path_escape_error, resolve_claim_path
+from qspecbench.evidence_adapter_bindings import validate_evidence_adapter_bindings_sidecar
 from qspecbench.models import REFERENCE_CLAIM_LEVEL
 
 
@@ -32,6 +33,7 @@ def validate_evidence_rules(spec: dict[str, Any], claim_dir: Path) -> list[str]:
 
     errors: list[str] = []
     errors.extend(validate_evidence_adapter_binding(spec))
+    errors.extend(validate_evidence_adapter_bindings_sidecar(spec, claim_dir))
     errors.extend(validate_evidence_paths(spec, claim_dir))
     errors.extend(validate_dynamic_simulation_evidence(claim_dir, spec))
     errors.extend(validate_qasm_extraction(spec))

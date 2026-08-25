@@ -29,6 +29,7 @@
 
 ## Honest scope
 
-Maturity: `artifact_bound_reference_claim` under the **narrowed** informal claim
-(normalized CT denotation, exact equality). Residual not-checked labels include
+Maturity: `experimental_closed` under the **narrowed** informal claim
+(normalized CT denotation, exact equality; formerly ABRC as of v0.2.x, demoted for v1).
+Residual not-checked labels include
 unnormalized pair equality and default Python 3-qubit legacy Kron.

@@ -18,7 +18,7 @@ QEC JSON validator, formal proofs, simulation (heuristic), external QEC verifier
 
 ## Good first claims
 
-- `three_qubit_bit_flip_code_corrects_one_x` (intermediate, reference_claim)
+- `three_qubit_bit_flip_code_corrects_one_x` (intermediate, experimental_closed; former `reference_claim` demoted for v1)
 - `shor_code_stabilizer_commutation` (intermediate, reference_scaffold)
 
 ## Examples
@@ -36,7 +36,7 @@ QEC JSON validator, formal proofs, simulation (heuristic), external QEC verifier
 | surface_code_distance_three_stabilizer_sanity | intermediate | reference_scaffold | Auto-synced from spec.yaml |
 | surface_code_single_pauli_error_correction | intermediate | reference_scaffold | Auto-synced from spec.yaml |
 | surface_code_single_round_syndrome_extraction | intermediate | reference_scaffold | Auto-synced from spec.yaml |
-| three_qubit_bit_flip_code_corrects_one_x | intermediate | reference_claim | Auto-synced from spec.yaml |
+| three_qubit_bit_flip_code_corrects_one_x | intermediate | experimental_closed | Auto-synced from spec.yaml |
 | three_qubit_phase_flip_code_corrects_one_z | intermediate | reference_scaffold | Auto-synced from spec.yaml |
 
 ## Known limitations
@@ -45,4 +45,7 @@ Decoder correctness is often **assumed** explicitly. Separate code definition fr
 
 ## Reference promotion
 
-See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md). Partial protocol claims (`bb84_sifted_key_partial_claim`) and simulation-only sanity checks (`detector_model_sanity_check`) remain **usable** by design.
+See [docs/reference_benchmarks.md](../../docs/reference_benchmarks.md). Gold/`reference_claim`
+promotion is frozen for v1 (live inventory 0). Partial protocol claims
+(`bb84_sifted_key_partial_claim`) and simulation-only sanity checks
+(`detector_model_sanity_check`) remain **usable** by design.

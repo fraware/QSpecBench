@@ -1,0 +1,19 @@
+{
+  "schema": "qspecbench.semantic_profile.v1",
+  "id": "qspecbench.qec.assurance_chain.v1",
+  "profile_kind": "qec",
+  "profile_version": "1",
+  "upstream": null,
+  "interpretation": {
+    "code_definition": "code/family identity and stabilizer/CSS validity are explicit obligations",
+    "distance": "distance/certificate evidence supports only the declared distance proposition",
+    "syndrome_extraction": "circuit semantics is a distinct obligation from distance",
+    "noise_model": "physical/error model is explicit proposition data",
+    "decoder": "decoder contract and implementation evidence are distinct from code distance",
+    "correction": "correction relation and logical-state preservation are explicit obligations",
+    "rounds": "finite repeated-round claims bind exact round/noise/code universe"
+  },
+  "parser_or_interpreter": null,
+  "unsupported_behavior": "fail_closed",
+  "notes": "Prevents a distance certificate or finite Stim/PyMatching run from silently implying end-to-end or all-code QEC correctness."
+}

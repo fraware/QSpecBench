@@ -1,8 +1,8 @@
 # Claim diff: single_trotter_step_declares_error_contract
 
-<!-- scope_fingerprint: 147f94dfff999b94228495c088f123eaef8abd9f8ffda53aa5892b5b3d8af147 -->
+<!-- scope_fingerprint: d35bdd1c91ae58071eae65a31d407d030cb14149634e221211050e75dd8293c2 -->
 
-**Maturity:** reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

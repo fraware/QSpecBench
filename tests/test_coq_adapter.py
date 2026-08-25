@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from qspecbench.evidence_runner import EVIDENCE_TYPE_ADAPTERS
+from qspecbench.adapter_registry import EVIDENCE_TYPE_ADAPTERS
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -57,7 +57,7 @@ def test_second_assistant_adapters_declared():
         assert f"adapter: {adapter}_proof" in text or f"{adapter}_proof" in text
 
 
-def test_evidence_runner_maps_coq_types():
+def test_adapter_registry_maps_coq_types():
     assert EVIDENCE_TYPE_ADAPTERS["coq_proof"] == "coq"
     assert EVIDENCE_TYPE_ADAPTERS["rocq_proof"] == "rocq"
     assert EVIDENCE_TYPE_ADAPTERS["isabelle_proof"] == "isabelle"

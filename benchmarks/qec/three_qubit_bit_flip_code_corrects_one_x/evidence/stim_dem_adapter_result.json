@@ -1,7 +1,7 @@
 {
   "ok": true,
-  "path": "C:\\Users\\mateo\\QSpecBench\\benchmarks\\qec\\three_qubit_bit_flip_code_corrects_one_x\\artifacts\\stim_compatible_dem_2x7.json",
-  "sha256": "8d264334c44db414bb7d5c08fa0a6b911f464ac338e2367499adbaa31e4900b1",
+  "path": "artifacts/stim_compatible_dem_2x7.json",
+  "sha256": "90df90e6244cd41a466c00934949acb41fa8745bd14b8563e4732ff67f27ba90",
   "name": "DeclaredSpacetimeMwpmFragmentModel",
   "in_model_faults": [
     "none",

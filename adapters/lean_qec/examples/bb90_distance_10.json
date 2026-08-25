@@ -1,0 +1,43 @@
+{
+  "schema": "qspecbench.lean_qec_import.v1",
+  "adapter_id": "qspecbench.lean_qec.distance.v1",
+  "upstream_repository": "https://github.com/VerifiedQC/Lean-QEC.git",
+  "upstream_commit": "e0b90148694cf6b9c8482b21dbd911f2d8f13493",
+  "lean_toolchain": "leanprover/lean4:v4.30.0-rc2",
+  "source_path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean",
+  "source_git_blob_sha": "8414ff1fb50f888998188f6e53020e95eb7891ca",
+  "module": "LeanQEC.Stabilizer.Examples.BB.BB90",
+  "theorem": "BB90_dist_10",
+  "theorem_statement_fragment": "theorem BB90_dist_10 : 10 ≤ BB90_css.toBSM.distance",
+  "proposition_relation": "equivalent",
+  "supported_obligations": ["qec_distance_lower_bound"],
+  "not_supported_obligations": [
+    "syndrome_extraction_circuit_semantics",
+    "physical_noise_model",
+    "decoder_correctness",
+    "correction_logical_preservation",
+    "repeated_round_fault_tolerance"
+  ],
+  "required_lfs_objects": [
+    {
+      "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_X_rank-53-2.lrat",
+      "sha256": "476001eff284cb159c47dcfc5ca2b7aa24dd37047bb65d1356de4e56e81acdf0",
+      "size": 16168
+    },
+    {
+      "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_Z_rank-65-2.lrat",
+      "sha256": "daabb6bd089baabb3205cdbf3e052e6dc07e30b4c2c15d5b8b902bfcdd451062",
+      "size": 16140
+    },
+    {
+      "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_dist_z-120-2.lrat",
+      "sha256": "9012a060920edb6d1c3f25bb67e69052ac4609dcc500777816caf86fecd7e3b3",
+      "size": 105004579
+    },
+    {
+      "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_dist_x-131-2.lrat",
+      "sha256": "95acb11153b008759fd672d56638a5a6c4522210d4b2d101e2116e87c2868803",
+      "size": 104586131
+    }
+  ]
+}

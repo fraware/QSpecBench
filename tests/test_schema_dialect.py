@@ -131,7 +131,7 @@ def test_same_reviewer_both_axes_rejected(tmp_path):
     claim = tmp_path / "bench"
     (claim / "reviews").mkdir(parents=True)
     payload = {
-        "reviewer": "rkothari-formal",
+        "reviewer": "alice-quant",
         "decision": "approved",
     }
     for name in ("formal_review.json", "domain_review.json"):
@@ -145,14 +145,14 @@ def test_same_reviewer_both_axes_rejected(tmp_path):
             "reviews": {
                 "formal_evidence_review": {
                     "status": "approved",
-                    "reviewer": "rkothari-formal",
+                    "reviewer": "alice-quant",
                     "review_artifact_path": "reviews/formal_review.json",
                     "review_artifact_sha256": digest,
                     "review_commit": "abc",
                 },
                 "domain_semantics_review": {
                     "status": "approved",
-                    "reviewer": "rkothari-formal",
+                    "reviewer": "alice-quant",
                     "review_artifact_path": "reviews/domain_review.json",
                     "review_artifact_sha256": digest,
                     "review_commit": "abc",
@@ -236,10 +236,10 @@ def test_native_ccx_and_toffoli_split_claims():
         "The declared native CCX artifact denotes the standard three-qubit Toffoli "
         "unitary under the declared finite matrix semantics."
     )
-    assert native["status"]["maturity"] == "artifact_bound_reference_claim"
+    assert native["status"]["maturity"] == "experimental_closed"
     assert " ".join(native["informal_claim"]["statement"].split()) == claim
     assert " ".join(native["claim_scope"]["headline_claim_text"].split()) == claim
-    assert decomp["status"]["maturity"] == "artifact_bound_reference_claim"
+    assert decomp["status"]["maturity"] == "experimental_closed"
     assert decomp["headline_claim_status"]["status"] == "checked"
     assert "normalized Clifford+T" in decomp["informal_claim"]["statement"]
     assert decomp["proved_scope"]["unproved_obligations"] == []
