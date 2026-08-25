@@ -1,5 +1,13 @@
 # Research and infrastructure roadmap
 
+> **v1 maturity banner (read first).** Phase tables below are a **historical** engineering
+> ledger (v0.2.x). Phrases like “ABRC done”, “9 ABRC / 6 RC”, or “live corpus ABRC” describe
+> pre-demotion gold labels and are **superseded by the v1 demotion**: live
+> `reference_claim` / `artifact_bound_reference_claim` / gold promoted inventory is **0**.
+> Machine-closed packages are `experimental_closed` only. For live counts use
+> [generated_status.md](generated_status.md), [promotion_freeze.md](promotion_freeze.md), and
+> [release_audit_v1.md](release_audit_v1.md). Do not skim phase tables as current gold status.
+
 QSpecBench separates **infrastructure** (schema, validators, honest labels) from **scientific
 results** (full protocol proofs). The dashboard counts each honestly.
 
@@ -74,7 +82,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 | Compiler dual-manifest | **Partial** — Clifford target hashes wired |
 | Second proof assistant | **Partial** — stub adapters + expanded smoke tests |
 | Section D research milestone | **Partial** — teleportation dynamic pilot; Grover amplitude_lift documented blocked |
-| Docs / dashboard | **Done** — roadmap + regenerated `status.md` (final sync: 9 ABRC / 6 RC) |
+| Docs / dashboard | **Done** (historical) — roadmap + regenerated `status.md` (as of v0.2.x sync: 9 ABRC / 6 RC; **superseded by v1 demotion** → live gold inventory 0) |
 
 ## Phase 5 status (2026-06-27)
 
@@ -88,7 +96,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 | QEC external witness validation | **Partial** — witness cross-checks in `qec_external.py` |
 | CLI `dynamic-simulate` | **Done** |
 | Operational semantics doc | **Done** — `docs/operational_semantics.md` |
-| Protocol `reference_claim` | **Superseded (scoped)** — dynamic sibling ABRC via `kernel_checked_dynamic_ast_semantics`; parent unitary-prefix ABRC; full matrix KERNEL_BRIDGE still not claimed |
+| Protocol `reference_claim` | **Superseded (scoped, historical ABRC labels)** — dynamic sibling + unitary-prefix machine closure; full matrix KERNEL_BRIDGE still not claimed; gold ABRC demoted for v1 |
 
 ### Phase 5 blockers
 
@@ -116,7 +124,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
 2. Kernel-checked projective measurement update in Lean
-3. ~~Teleportation `reference_claim`~~ — see working-tree sync (scoped ABRC pair)
+3. ~~Teleportation `reference_claim`~~ — see working-tree sync (scoped machine-closure pair; former ABRC demoted for v1)
 4. Int-scaffold / operational wire model alignment for verify-bridge (documented gap)
 5. Compiler source→target equivalence proofs (Clifford)
 6. Second proof assistant kernel in CI
@@ -137,7 +145,7 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 
 1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
 2. Kernel-checked projective measurement on arbitrary amplitudes (Fin 4 basis states done)
-3. ~~Teleportation `reference_claim`~~ — see working-tree sync (scoped ABRC pair)
+3. ~~Teleportation `reference_claim`~~ — see working-tree sync (scoped machine-closure pair; former ABRC demoted for v1)
 4. Full int-scaffold / operational alignment for verify-bridge on multi-qubit circuits
 5. Fifth kernel bridge — **Done** (`swap_from_three_cx` codegen hash wiring + manifest promotion)
 6. Compiler source→target equivalence proofs (Clifford checklist open)
@@ -154,8 +162,8 @@ Until then, validators fail closed unless `semantics_base=dynamic_circuit` and
 | Item | Notes |
 |------|-------|
 | Kernel-checked codegen-trace bridges | **Done** — 6 bridges (CNOT, H-X-H, H-H, Bell prep, swap, Toffoli) |
-| Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics |
-| QEC correction `reference_claim` | **Done (narrow)** — `three_qubit_bit_flip_code_corrects_one_x` lookup-table scope |
+| Teleportation `reference_claim` | Full protocol + measurement feed-forward semantics (gold label frozen/empty for v1) |
+| QEC correction `reference_claim` | **Done (narrow, historical)** — `three_qubit_bit_flip_code_corrects_one_x` lookup-table scope; later demoted to `experimental_closed` for v1 |
 | Distance proofs | **Partial** — bruteforce `distance_result` wired for `distance_certificate_small_css_code` |
 | Hamiltonian corpus v0.2.0 | Migrate remaining untyped `hamiltonian.json` artifacts |
 | README status auto-sync | Extend `scripts/sync_readme_maturity.py` to pull dashboard summary block |
@@ -167,8 +175,8 @@ These require new mathematics or substantial formalization effort:
 
 | Claim area | Example benchmark | What a real proof requires |
 |------------|-------------------|----------------------------|
-| Teleportation protocol | `teleportation_preserves_state_up_to_pauli_correction` (+ sibling `teleportation_dynamic_feedforward_protocol`) | Scoped ABRC done (unitary-prefix + dynamic AST); remaining: arbitrary-state matrix KERNEL_BRIDGE / full OpenQASM3 dynamic |
-| QEC correction | `three_qubit_bit_flip_code_corrects_one_x` | `reference_claim` with Stim MWPM universe; `syndrome_extraction_circuit_semantics` checked |
+| Teleportation protocol | `teleportation_preserves_state_up_to_pauli_correction` (+ sibling `teleportation_dynamic_feedforward_protocol`) | Scoped machine closure done (unitary-prefix + dynamic AST; former ABRC demoted for v1); remaining: arbitrary-state matrix KERNEL_BRIDGE / full OpenQASM3 dynamic |
+| QEC correction | `three_qubit_bit_flip_code_corrects_one_x` | Machine-closed `experimental_closed` (former `reference_claim`) with Stim MWPM universe; `syndrome_extraction_circuit_semantics` checked |
 | Algorithm correctness | Grover, Deutsch–Jozsa, phase estimation | Full algorithm specs, not scaffold nontriviality |
 | No-cloning | `no_cloning_negative_claim` | Arbitrary states and linear maps, not permutation-matrix scaffold |
 | Hamiltonian analytics | Trotter contracts | Analytic error bounds, not declared positive constants |
@@ -186,16 +194,16 @@ honesty rule.
 | Measurement scaffold (2-qubit) | **Partial** — `TwoQubitZOutcome`, sequential syndrome stub; no Fin (2^n) amplitude update |
 | Int-scaffold wire-index gap | **Documented** — `docs/operational_semantics.md` + `test_int_scaffold_vs_operational_h_on_q0_three_qubits` |
 | Feed-forward teleportation tests | **Done** — `test_teleportation_feedforward_artifact_basis_check` + supplementary artifact |
-| Toffoli / circuit_identity kernel bridge | **Superseded (scoped)** — normalized Clifford+T ABRC on `toffoli_decomposition_equivalence`; native CCX ABRC separate; unnormalized `denotateOps3C` pair equality remains out of scope |
-| ~~Clifford source→target kernel proof~~ | **Done (scoped)** — `clifford_simplification_preserves_unitary` ABRC under `denotateOps1C_normalized` for the declared H-H-S -> S instance; general n-qubit Clifford source→target remains open (see [research_tracks.md](research_tracks.md)) |
+| Toffoli / circuit_identity kernel bridge | **Superseded (scoped)** — normalized Clifford+T machine closure on `toffoli_decomposition_equivalence`; native CCX separate; unnormalized `denotateOps3C` pair equality remains out of scope (former ABRC demoted for v1) |
+| ~~Clifford source→target kernel proof~~ | **Done (scoped)** — `clifford_simplification_preserves_unitary` under `denotateOps1C_normalized` for the declared H-H-S -> S instance (former ABRC → `experimental_closed`); general n-qubit Clifford source→target remains open (see [research_tracks.md](research_tracks.md)) |
 | Coq second-assistant CI | **Partial** — `test_coq_adapter.py` + `QSPECBENCH_COQ=1` documented; no coqc in default matrix |
 
 ### Phase 8 blockers (updated)
 
 1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
 2. Kernel-checked projective measurement update on state vectors in Lean (Fin scaffolds + reset/if/else/for/while fuel exist; full amplitude model open)
-3. ~~Teleportation ABRC~~ — **Done (scoped):** unitary-prefix parent + dynamic-feedforward sibling ABRC; full arbitrary-state matrix KERNEL_BRIDGE still out of scope
-4. ~~Toffoli codegen kernel~~ — **Done (scoped):** normalized decomposition ABRC + native CCX ABRC
+3. ~~Teleportation ABRC~~ — **Done (scoped, historical label):** unitary-prefix parent + dynamic-feedforward sibling machine closure; demoted for v1; full arbitrary-state matrix KERNEL_BRIDGE still out of scope
+4. ~~Toffoli codegen kernel~~ — **Done (scoped, historical ABRC):** normalized decomposition + native CCX machine closure; demoted for v1
 5. Compiler source→target equivalence proofs (Clifford)
 6. Second proof assistant kernel in default CI
 
@@ -210,14 +218,14 @@ honesty rule.
 | Release bundle SBOM-lite + verify integration | **Done** |
 | QEC witness syndrome hash export | **Done** — `qec_witness.py` |
 | Coq optional CI job | **Done** — repo var `QSPECBENCH_COQ=1` |
-| Toffoli decomposition / circuit_identity full kernel | **Done (scoped)** — `toffoli_decomposition_equivalence` ABRC under `denotateOps3C_normalized` (φ=0, LSB); layout-identity / unnormalized pair equality still open / N/A |
+| Toffoli decomposition / circuit_identity full kernel | **Done (scoped)** — `toffoli_decomposition_equivalence` under `denotateOps3C_normalized` (φ=0, LSB; former ABRC demoted for v1); layout-identity / unnormalized pair equality still open / N/A |
 
 ### Phase 9 blockers
 
 1. Lean byte-level QASM parser kernel (bytes→AST still Python-side)
 2. Kernel-checked projective measurement on arbitrary amplitudes
-3. ~~Teleportation `reference_claim`~~ — replaced by scoped ABRC pair (see Phase 8 / working-tree sync)
-4. ~~Decomposed Toffoli target~~ — normalized ABRC closed; unnormalized equality permanently out of scope
+3. ~~Teleportation `reference_claim`~~ — replaced by scoped machine-closure pair (former ABRC demoted for v1; see Phase 8 / working-tree sync)
+4. ~~Decomposed Toffoli target~~ — normalized machine closure closed (former ABRC demoted for v1); unnormalized equality permanently out of scope
 5. Compiler source→target equivalence proofs (Clifford)
 6. Wire-order alignment proof (`wire_order_bridge_theorem` reserved)
 
@@ -227,14 +235,14 @@ honesty rule.
 |------|--------|
 | Bytes→AST Lean parser kernel | **Partial** — embedded `*KernelArtifactSource` sync + `parseQasmSourceToOps` theorems; `ast_authority: lean_mirror` closed for six kernel bridges |
 | Arbitrary-amplitude projective measurement in Lean | **Blocked** |
-| Teleportation / Grover `reference_claim` | **Partial** — teleport ABRC pair done (scoped); Grover `amplitude_lift` still blocked on measurement semantics |
+| Teleportation / Grover `reference_claim` | **Partial** — teleport machine-closure pair done (scoped; former ABRC demoted for v1); Grover `amplitude_lift` still blocked on measurement semantics |
 | ~~Clifford source→target kernel proof~~ | **Done (scoped)** — see Phase 8 update above |
 | Second proof assistant in default CI | **Partial** — optional Coq job only |
 | Pinned dependency lockfiles in release SBOM | **Done** — `uv.lock` pinned; SBOM-lite lists lockfile + declared deps |
-| `artifact_bound_reference_claim` replication | **Done (expanded)** — **9** ABRC in live corpus (six at v0.2.3 + normalized Toffoli + both teleports); see dashboard |
+| `artifact_bound_reference_claim` replication | **Done (expanded, historical)** — as of v0.2.x: **9** ABRC (six at v0.2.3 + normalized Toffoli + both teleports); **superseded by v1 demotion** → live gold inventory 0 |
 | Phase 3 elaborator hash authority | **Done** — `ExportTheoremTypesCheck.lean` + export cache; schema **0.3** |
 | Stim MWPM declared universe | **Done (scoped)** — `full_spacetime_mwpm` under `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01`; `unbounded_all_codes_mwpm` = `not_applicable` |
-| Dynamic control fuel (reset / if / else / for / while) | **Partial** — Lean ClassicalReg + fuel-bounded while/for fragments; sibling dynamic ABRC uses measure+if profile |
+| Dynamic control fuel (reset / if / else / for / while) | **Partial** — Lean ClassicalReg + fuel-bounded while/for fragments; sibling dynamic package uses measure+if profile |
 | Evidence.All OOM split | **Done** — root `QSpecBench.lean` does not import `Evidence.All`; build separately via `lake build QSpecBench.Evidence.All` |
 
 ### Phase 10 blockers
@@ -244,7 +252,7 @@ honesty rule.
 3. Int-scaffold vs operational wire model proof gap (CNOT 2-qubit wire-order lemma only)
 4. QEC decoder correctness beyond lookup-table / declared syndrome-extraction scope; bit-flip `syndrome_extraction_circuit_semantics` **checked**
 5. Analytic Hamiltonian simulation bounds; **`general_cb_arbitrary_cptp_mathlib` permanently narrowed (v3)** to proved subclass `qubit_cptp_cb_proved_subclass_mathlib`
-6. ~~Toffoli target-side kernel equivalence (unnormalized)~~ — **N/A / out of scope**; normalized ABRC is the honest closure
+6. ~~Toffoli target-side kernel equivalence (unnormalized)~~ — **N/A / out of scope**; normalized machine closure is the honest closure (former ABRC demoted for v1)
 
 ## Working-tree sync (post Phase 10 — 2026-07)
 
@@ -252,23 +260,33 @@ Truth/doc sync for live corpus (not a new tagged release). See [definition_of_co
 
 | Goal | Status |
 |------|--------|
-| Normalized Toffoli ABRC | **Done** — `toffoli_decomposition_equivalence` |
-| Dynamic teleport sibling ABRC | **Done** — `teleportation_dynamic_feedforward_protocol` (`kernel_checked_dynamic_ast_semantics`) |
-| Unitary-prefix teleport ABRC | **Done** — `teleportation_preserves_state_up_to_pauli_correction` |
-| Stim MWPM universe + unbounded N/A | **Done** — bit-flip QEC `reference_claim` residuals documented |
-| reset / if / else / for / while fuel | **Partial** — Lean fragments + dynamic ABRC profile; not full OpenQASM3 |
+| Normalized Toffoli machine closure (former ABRC) | **Done** — `toffoli_decomposition_equivalence` (demoted for v1) |
+| Dynamic teleport sibling (former ABRC) | **Done** — `teleportation_dynamic_feedforward_protocol` (demoted for v1) |
+| Unitary-prefix teleport (former ABRC) | **Done** — `teleportation_preserves_state_up_to_pauli_correction` (demoted for v1) |
+| Stim MWPM universe + unbounded N/A | **Done** — bit-flip QEC residuals documented (former `reference_claim` → `experimental_closed`) |
+| reset / if / else / for / while fuel | **Partial** — Lean fragments + dynamic profile; not full OpenQASM3 |
 | Evidence.All separate from default lake target | **Done** — OOM mitigation in `lean/QSpecBench.lean` |
-| Dashboard ABRC/RC counts | **9 ABRC / 6 RC** at this sync point (regenerate `docs/status.md`) |
+| Dashboard ABRC/RC counts | Historical sync point only — regenerate `docs/status.md` / `docs/generated_status.md` for live counts (expect **0** gold) |
 
-## Working-tree sync (public-release doc polish — 2026-07)
+## Working-tree sync (v1 completion — 2026-08)
 
-Further corpus growth since the sync above: Clifford source→target ABRC closure
-(`clifford_simplification_preserves_unitary`) and three additional `ai_formalization`
-`reference_claim` promotions (`formalize_small_hamiltonian_hermiticity_statement`,
-`formalize_stabilizer_commutation_statement`, `extract_teleportation_correctness_statement`)
-alongside the existing `formalize_bit_flip_code_corrects_one_x` pilot. Live count is now
-**10 ABRC / 9 `reference_claim`** — see [docs/status.md](status.md) (source of truth,
-regenerate via `qspecbench dashboard benchmarks/ --out docs/status.md`),
-[GOVERNANCE.md](../GOVERNANCE.md), and [reference_benchmarks.md](reference_benchmarks.md).
+v1 owner decision demotes the former gold inventory. Live counts (regenerate; do not hand-edit):
 
-## P1 deferred (post-P0)
+- `experimental_closed`: 21 (machine closure; not independent review)
+- `reference_claim` / `artifact_bound_reference_claim` / gold promoted: **0**
+
+See [generated_status.md](generated_status.md), [promotion_freeze.md](promotion_freeze.md),
+[release_audit_v1.md](release_audit_v1.md), and [definition_of_completion.md](definition_of_completion.md).
+Historical phase tables above retain pre-demotion narrative and must not be read as current gold status.
+
+```bash
+qspecbench dashboard benchmarks/ --out docs/status.md
+python -c "from pathlib import Path; from qspecbench.generated_status import write_status_snapshot; write_status_snapshot(Path('benchmarks'), Path('docs/generated_status.md'))"
+```
+
+## Working-tree sync (public-release doc polish — 2026-07, historical)
+
+Further corpus growth after an earlier sync: Clifford source→target closure
+(`clifford_simplification_preserves_unitary`) and additional `ai_formalization`
+packages. Those packages later carried gold labels that were **demoted for v1**.
+Do not treat the former “10 ABRC / 9 RC” figure as current — regenerate status.

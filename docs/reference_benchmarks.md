@@ -2,128 +2,91 @@
 
 Reference levels are **scoped**. A benchmark may have reproducible checked evidence for *part* of its
 claim (`reference_scaffold`, `reference_contract`, `reference_artifact`) while the full informal
-headline claim is still unproved. The headline claim is only considered proved at `reference_claim`.
+headline claim is still unproved. The headline claim is only considered a **gold**
+`reference_claim` / `artifact_bound_reference_claim` when required evidence **and** authenticated
+independent review are present.
 
-## Scoped reference levels
+## v1 promotion freeze
+
+Owner decision: authentic independent reviewers will not exist in time for v1.
+See [promotion_freeze.md](promotion_freeze.md) and [governance_verification.md](governance_verification.md).
+
+| Label | v1 status |
+|-------|-----------|
+| `reference_claim` | **Unreachable** — inventory empty |
+| `artifact_bound_reference_claim` | **Unreachable** — inventory empty |
+| `experimental_closed` | Allowed for machine closure without independent review |
+
+Do not invent reviewer identities. Do not treat `unauthenticated_legacy_review` alias YAML as gold.
+
+## Scoped maturity levels
 
 | Level | Meaning |
 |-------|---------|
-| `reference_scaffold` | Passing CI + at least one checked-evidence obligation; headline only partially checked. |
-| `reference_contract` | Same, where the checked evidence is a declared contract (resource/error bound) rather than a proof of the bound. |
-| `reference_artifact` | Same, where the checked evidence is artifact-structural (e.g. stabilizer commutation). |
-| `reference_claim` | Headline claim fully proved (see requirements below). |
-| `artifact_bound_reference_claim` | Headline checked and explicitly bound to named artifact SHA256 anchors plus checker chain. Live pilots listed below. |
+| `reference_scaffold` | Passing evidence path for at least one checked obligation; headline only partially checked. |
+| `reference_contract` | Checked evidence is a declared contract (resource/error bound) rather than a proof of a stronger bound. |
+| `reference_artifact` | Checked evidence is artifact-structural (e.g. stabilizer commutation). |
+| `experimental_closed` | Total required-obligation closure under declared semantics **without** authenticated independent review. |
+| `reference_claim` | Headline claim fully proved **and** authentic independent review (frozen for v1). |
+| `artifact_bound_reference_claim` | `reference_claim` plus explicit artifact SHA256 / checker-chain binding (frozen for v1). |
 
-### `artifact_bound_reference_claim` promotion checklist
+### Future `artifact_bound_reference_claim` checklist (post-freeze)
 
-All items required before setting `status.maturity: artifact_bound_reference_claim`:
+All items required before setting `status.maturity: artifact_bound_reference_claim` once real reviewers exist:
 
 | Requirement | Validator gate |
 |---|---|
-| Dual named reviews (`formal_evidence_review`, `domain_semantics_review`) | Hard fail if missing or bootstrap-only |
+| Dual authenticated reviews (`formal_evidence_review`, `domain_semantics_review`) under review-attestation v2 | Hard fail if missing, aliased, or bootstrap-only |
 | `headline_claim_status.status: checked` | Hard fail |
 | Empty `proved_scope.unproved_obligations` | Hard fail |
-| `semantic_bridge.claimed_link` one of `kernel_checked_codegen_trace`, `kernel_checked_artifact_semantics`, `kernel_checked_dynamic_ast_semantics`, or `kernel_checked_dynamic_denotation` | Hard fail |
-| Bridge hash anchors (artifact / gate-trace / Lean AST / generated Lean / theorem hashes; or dynamic AST anchors for the dynamic link) | Hard fail |
-| Passing `bridge_verify` or `dynamic_ast_bridge_verify` evidence | Hard fail |
-| Lean `BridgeMetadata` / `DynamicAstBridgeMetadata` literals match manifest (Python cross-check) | CI test |
+| `semantic_bridge.claimed_link` one of the registered kernel-checked links | Hard fail |
+| Bridge hash anchors | Hard fail |
+| Passing bridge verify evidence | Hard fail |
+| Lean metadata literals match manifest | CI test |
 | README documents artifact binding scope | Maintainer review |
 
-**Assigned ABRC benchmarks (10 — regenerate via dashboard):**
+**Assigned ABRC / RC inventory at v1:** **none**. Formerly listed pilots were demoted to
+`experimental_closed` or lower. Regenerate live lists via the dashboard.
 
-| Benchmark ID | Track | Scope note |
-|---|---|---|
-| `cnot_self_inverse_cancellation` | equivalence | codegen-trace / artifact semantics |
-| `hadamard_conjugates_x_to_z` | equivalence | codegen-trace |
-| `single_qubit_gate_cancellation` | equivalence | codegen-trace |
-| `clifford_simplification_preserves_unitary` | equivalence | normalized Clifford source vs. target denotation (`denotateOps1C_normalized`) |
-| `native_ccx_artifact_denotes_toffoli_unitary` | equivalence | native CCX denotation only |
-| `toffoli_decomposition_equivalence` | equivalence | normalized Clifford+T (`denotateOps3C_normalized`) |
-| `bell_state_preparation` | algorithms | codegen-trace |
-| `swap_from_three_cx` | algorithms | source–target exact denotation |
-| `teleportation_preserves_state_up_to_pauli_correction` | algorithms | unitary-prefix proposition v2 |
-| `teleportation_dynamic_feedforward_protocol` | algorithms | `kernel_checked_dynamic_denotation` sibling (promoted from `kernel_checked_dynamic_ast_semantics`) |
+## Universal requirements (any scoped reference / machine-closure level)
 
-## Universal requirements (any scoped reference level)
-
-- `status.ci: passing`
-- At least one passing evidence entry with `trust_level: checked` (`lean_proof`, `sat_certificate`, or `smt_certificate`)
-- Complete `trust_boundary` with honest `assumptions_not_checked`
-- README claim card documents scope limits (decoder assumed, global phase, etc.)
+- Honest `trust_boundary` with `assumptions_not_checked`
+- README claim card documents scope limits
 - Every `evidence.type` is declared in `acceptable_evidence`
+- Observed CI state must be read from the workflow run for the exact commit
 
-## Additional requirements for `reference_claim`
+## Additional requirements for gold `reference_claim` (when unfrozen)
 
-- `claim_scope` (headline_claim_id, headline_claim_text, required_obligations) is declared
-- `proved_scope.checked_obligations` covers every required obligation; none remain in `unproved_obligations`
-- `headline_claim_status.status: checked`
-- `headline_claim_status.checked_under` lists semantic bases (e.g. `qspecbench.openqasm3.int_scaffold.v0`, `finite_matrix_model`)
-- `headline_claim_status.not_checked_under` lists explicit limits (e.g. `full_openqasm3`, `hardware_semantics`)
-- Every `acceptable_evidence` entry with `required_for_claim: true` has a passing evidence entry of that type
-
-## QASM + Lean equivalence claims
-
-- `expected/semantic_bridge.json` declaring `artifact_gate_model`, `lean_module`, `lean_theorem`, `normalization`
-- Passing `bridge_verify` evidence when `claimed_link` is `python_denotation_consistency` or `manifest_checked_theorem_binding`
-- OpenQASM artifact parses and matrix matches `QSpecBench.Quantum.OpenQASM3` denotation (for Python bridge links)
-- `python_denotation_consistency`: Python matrix vs denotation only
-- `manifest_checked_theorem_binding`: manifest entry + SHA256 anchors + structured Lean evidence anchor (see `cnot_self_inverse_cancellation`)
-- `kernel_checked_artifact_semantics` / `kernel_checked_codegen_trace`: ABRC hash chain + kernel proof (see pilots above)
-- `kernel_checked_dynamic_ast_semantics`: measure+if CanonicalAst ABRC; **never** matrix KERNEL_BRIDGE for dynamics
-- `kernel_checked_dynamic_denotation`: measure+if AST → Measurement/ClassicalReg denotation; matrix path fail-closed if measure/if would be dropped; parent unitary-prefix ABRC unchanged
-
-## QEC claim scope (v0.2)
-
-`qec_claim_scope` uses granular fields: `code_schema`, `code_definition_semantics`, `stabilizer_commutation`,
-`syndrome_table`, `correction_table`, `decoder_algorithm`, `logical_preservation_small_code`,
-`logical_preservation_general`, and `distance.status`. Mark `stabilizer_commutation: checked` only when
-Lean evidence validates commutation. Mark `distance.status: checked` only with `distance_result` from
-the QEC adapter bruteforce run.
-
-## Track stacks
-
-| Track | Scaffold exemplar stack |
-|-------|--------------------------|
-| equivalence | Lean kernel proof + semantic bridge + (QCEC or SAT cert on small instance) |
-| algorithms | Lean relational/unitary proof on fixed instance OR simulation + human review with documented oracle |
-| qec | Stabilizer JSON validation + Lean commutation (decoder/correction may remain assumed at scaffold level) |
-| hamiltonian | Lean `Hermitian` or matrix equality on declared Pauli model |
-| ai_formalization | Kernel-checked draft + semantic rubric score >= 4 + named reviewer role |
-
-For a QEC `reference_claim`, the correction claim must be backed by checked correction evidence (not an
-assumed lookup table); stabilizer commutation alone supports at most `reference_scaffold` /
-`reference_artifact`.
+- `claim_scope` declared
+- `proved_scope.checked_obligations` covers every required obligation
+- `headline_claim_status.status: checked` with honest `checked_under` / `not_checked_under`
+- Every `required_for_claim` evidence type has a passing entry
+- Two authenticated, independent review-attestation v2 records
 
 ## Anti-patterns (do not promote)
 
 - Simulation-only evidence labeled as checked proof
-- `reference_claim` while any required headline obligation is unproved
-- `correction_claim: checked` without checked decoder/correction evidence
+- `reference_claim` / ABRC while gold freeze is active
+- Treating alias reviewers as authenticated independence
 - `headline_claim_status: checked` on a scaffold-level benchmark
-- `claimed_link: python_denotation_consistency` without passing verify-bridge
-- Reporting manifest bindings or Python consistency as kernel-checked artifact semantics
-- AI draft passing without independent kernel check and human review
 - Claiming unnormalized Toffoli pair equality or matrix KERNEL_BRIDGE for measure+if dynamics
+- Calling `experimental_closed` “independently reviewed” or “community-grade”
 
-## Promotion workflow
+## Promotion workflow (when gold is unfrozen)
 
 1. Open a reference promotion proposal (issue template)
 2. Add evidence until the track stack is satisfied
-3. Run `qspecbench validate`, `qspecbench check-evidence`, `lake build`
-4. Maintainer review of `trust_boundary` honesty
+3. Collect authenticated review-attestation v2 records from distinct public identities
+4. Run `qspecbench validate`, `qspecbench check-evidence`, `lake build`
+5. Maintainer review of `trust_boundary` honesty
 
-## Current corpus (declared internal scope)
+## Current corpus
 
-Regenerate counts: `qspecbench dashboard benchmarks/ --out docs/status.md`
+Regenerate counts (do not hand-edit):
 
-At last final sync (see [status.md](status.md)):
+```bash
+qspecbench dashboard benchmarks/ --out docs/status.md
+python -c "from pathlib import Path; from qspecbench.generated_status import write_status_snapshot; write_status_snapshot(Path('benchmarks'), Path('docs/generated_status.md'))"
+```
 
-- **`reference_claim`:** 9 benchmarks (includes 4 `ai_formalization` pilots: `formalize_bit_flip_code_corrects_one_x`,
-  `formalize_small_hamiltonian_hermiticity_statement`, `formalize_stabilizer_commutation_statement`,
-  `extract_teleportation_correctness_statement`)
-- **`artifact_bound_reference_claim`:** 10 benchmarks (listed above)
-- **`manifest_checked_theorem_binding` bridges:** see dashboard
-- **`python_denotation_consistency` bridges:** see dashboard
-- **`kernel_checked_artifact_semantics` / codegen-trace:** see dashboard
-
-DoD checklist: [definition_of_completion.md](definition_of_completion.md).
+See [generated_status.md](generated_status.md) and [definition_of_completion.md](definition_of_completion.md).

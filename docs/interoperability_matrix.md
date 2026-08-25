@@ -1,28 +1,37 @@
 # Interoperability and compatibility matrix
 
-This matrix distinguishes evidence paths that ship today from optional, planned, or disabled integrations. Presence in this table is not evidence of theorem correctness.
+> Do not edit manually. Regenerate from `qspecbench.interoperability`.
 
-| Ecosystem | Repository status | Version policy | Trust / scope | Full-vision action |
-|---|---|---|---|---|
-| Lean 4 / Mathlib | active, default kernel path | current repo toolchain is pinned; preserve exact historical toolchain per release | kernel checks formal theorems under declared axioms/semantics | keep theorem/elaborator exports hash-bound |
-| MQT QCEC | active external checker | historical corpus evidence remains pinned to `mqt.qcec==3.6.0`; newer compatibility must be a separate lane | externally trusted supporting equivalence evidence | typed request/result + explicit version/config/digest |
-| Stim / PyMatching | active for declared QEC universes | pinned extras in `pyproject.toml` | finite simulation/decoder evidence only for declared code/noise/round universe | typed adapter IDs; never infer family/all-code correctness |
-| QBricks | shipping adapter, not full-vision authority | external binary identity must be recorded when executed | externally trusted | protocol conformance + exact artifact/tool binding |
-| ZX | shipping certificate adapter | checker/version must be recorded | independently checkable only to exact certificate proposition | protocol conformance; proposition relation explicit |
-| Coq | optional, not default CI | opt-in local/custom-job | second-kernel evidence only when actually compiled | do not count unexecuted smoke files as evidence |
-| Rocq | fail-closed/optional stub | no default passing path | not checked unless concrete executable integration exists | activate only for a driving benchmark |
-| Isabelle | fail-closed/optional stub | no default passing path | not checked unless concrete executable integration exists | activate only for a driving benchmark |
-| Lean-QEC | **planned; integration scaffold in `adapters/lean_qec/`** | version-isolated import first | theorem/certificate may support only explicit QEC obligations | issue #18 |
-| Lean-Quantum / Lean-QIT | planned | version-isolated theorem/certificate import first | preserve upstream proposition, semantics and toolchain | evaluate for dynamic/channel/operator foundations before dependency unification |
+This matrix distinguishes evidence paths that ship today from optional, planned, or
+disabled integrations. Presence in this table is not evidence of theorem correctness,
+independent review, or unmodified upstream reproduction.
+
+Controlled statuses: `active_default_ci`, `active_conditional_ci`, `active_manual`,
+`integration_scaffold`, `planned`, `deprecated`.
+
+| Ecosystem | Status | Version policy | Trust / scope |
+|---|---|---|---|
+| Lean 4 / Mathlib | `active_default_ci` | current repo toolchain; historical evidence pinned per release | kernel_checked theorems under declared axioms/semantics |
+| MQT QCEC | `active_default_ci` | historical corpus pinned to recorded mqt.qcec version | externally_trusted supporting equivalence; not semantic authority |
+| Stim / PyMatching | `active_conditional_ci` | pinned extras in pyproject.toml | simulation/decoder evidence only for declared code/noise/round universes |
+| Qiskit Optimize1qGates | `active_manual` | provenance records package version; regeneration when installed | independently_checkable compiler provenance; not a general Qiskit theorem |
+| QBricks | `integration_scaffold` | external binary identity recorded when executed | externally_trusted |
+| ZX | `integration_scaffold` | checker/version recorded on certificates | independently_checkable only to the exact certificate proposition |
+| Coq | `active_manual` | opt-in local/custom-job | second-kernel evidence only when actually compiled |
+| Rocq | `integration_scaffold` | no default passing path | not checked unless a concrete executable integration exists |
+| Isabelle | `integration_scaffold` | no default passing path | not checked unless a concrete executable integration exists |
+| Lean-QEC | `active_conditional_ci` | adapter qspecbench.lean_qec.distance.v1 v2.0.0; workflow asserts acceptance vs reproduction | distance-only (BB90_dist_10). Native acceptance may use the authorized LRAT-trimmer fallback; that is not unmodified upstream-default reproduction. Cold default may still fail; the job must not be skipped. |
+| Lean-Quantum / Lean-QIT | `planned` | version-isolated theorem/certificate import first | preserve upstream proposition, semantics, and toolchain |
+
+## Registered typed adapters
+
+qspecbench.ai.draft.v1, qspecbench.bridge.dynamic_ast.v1, qspecbench.bridge.dynamic_denotation.v1, qspecbench.bridge.hardware_isa.v1, qspecbench.bridge.verify.v1, qspecbench.coq.kernel.v1, qspecbench.dynamic_simulation.v1, qspecbench.human_review.v1, qspecbench.isabelle.kernel.v1, qspecbench.lean.kernel.v1, qspecbench.lean_qec.distance.v1, qspecbench.matrix_certificate.v1, qspecbench.mqt.qcec.v1, qspecbench.openqasm.parse.v1, qspecbench.python.simulation.v1, qspecbench.qbricks.external.v1, qspecbench.qec.generic.v1, qspecbench.qec.stim_matching.v1, qspecbench.qiskit.optimize_1q_gates.v1, qspecbench.rocq.kernel.v1, qspecbench.sat.certificate.v1, qspecbench.smt.certificate.v1, qspecbench.zx.certificate.v1
 
 ## Compatibility doctrine
 
 1. Never silently upgrade a tool version recorded in historical evidence.
-2. A newer compatibility lane answers “does the benchmark still work under this tool version?”; it does not rewrite the evidence identity of an older release.
-3. Prefer certificate/theorem exports across incompatible toolchains.
-4. Bind exact external repository commit/toolchain when importing formal results.
-5. Record proposition relation. An external theorem that is an instance or weakening is not an equivalent substitute for the advertised QSpecBench proposition.
-6. A registered adapter has an explicit trust ceiling; no adapter may promote itself by returning a stronger label.
-7. Do not add integrations only to increase the count of supported proof systems.
-
-Issue #22 tracks the remaining executable compatibility lanes and conformance work.
+2. A newer compatibility lane does not rewrite the evidence identity of an older release.
+3. Bind exact external repository commit/toolchain when importing formal results.
+4. Record proposition relation. An instance or weakening is not an equivalent substitute.
+5. A registered adapter has an explicit trust ceiling; no adapter may promote itself.
+6. Lean-QEC may be `active_conditional_ci` while remaining honestly failing on cold default.

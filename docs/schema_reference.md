@@ -152,9 +152,9 @@ At least one list must be non-empty.
 | `informal_claim`, `machine_spec` | `missing`, `draft`, `complete` |
 | `artifacts`, `evidence` | `missing`, `partial`, `complete` |
 | `ci` | `not_applicable`, `failing`, `passing` |
-| `maturity` | `seed`, `usable`, `reference_scaffold`, `reference_contract`, `reference_artifact`, `reference_claim`, `artifact_bound_reference_claim`, `deprecated` |
+| `maturity` | `seed`, `usable`, `reference_scaffold`, `reference_contract`, `reference_artifact`, `experimental_closed`, `reference_claim`, `artifact_bound_reference_claim`, `deprecated` |
 
-Any scoped reference level requires `ci: passing` and passing checked evidence (`lean_proof`, `smt_certificate`, `sat_certificate`). `reference_claim` additionally requires `claim_scope`, a `proved_scope` covering every required obligation, `headline_claim_status: checked`, and passing evidence for each `required_for_claim` acceptable-evidence type. Scaffold-level benchmarks must not declare `headline_claim_status: checked`. See [reference benchmarks](reference_benchmarks.md) and [versioning](versioning.md).
+Any scoped reference level requires honest evidence paths. `experimental_closed` is machine closure without authenticated independent review. Gold `reference_claim` / `artifact_bound_reference_claim` additionally require authentic independent review and are frozen for v1 ([promotion freeze](promotion_freeze.md)). Scaffold-level benchmarks must not declare `headline_claim_status: checked`. See [reference benchmarks](reference_benchmarks.md) and [versioning](versioning.md).
 
 ## `qec_status` (optional)
 
@@ -167,7 +167,8 @@ Any scoped reference level requires `ci: passing` and passing checked evidence (
 - `ai_draft` must be untrusted; `simulation` cannot be checked
 - Every `evidence.type` must be declared in `acceptable_evidence`
 - Scoped reference levels require `ci: passing` and a passing checked-evidence entry
-- `reference_claim` requires all required headline obligations checked and required evidence passing
+- `reference_claim` / ABRC require all required headline obligations checked, required evidence passing, **and** authentic independent review (frozen for v1)
+- `experimental_closed` is machine closure only; it is not gold
 - Scaffold-level benchmarks cannot declare `headline_claim_status: checked`
 - Deprecated README must mention deprecation
 - Artifacts/evidence paths must resolve
