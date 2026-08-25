@@ -1,12 +1,14 @@
 adapter_name: lean_qec
 adapter_id: qspecbench.lean_qec.distance.v1
-adapter_version: 1.0.0
+adapter_version: 2.0.0
 status: executable_version_isolated
 registered: true
 protocol: qspecbench.adapter_request.v1_to_adapter_result.v1
 supported_evidence_types:
   - qec_verifier_result
 trust_ceiling: kernel_checked
+acceptance_trust_class: proof_assistant_native_checked
+acceptance_trust_class_relation: subtype_of_kernel_checked
 implementation: parse_result.py
 network_policy: explicit_opt_in_only
 activation_environment: QSPECBENCH_LEAN_QEC_VERIFY=1

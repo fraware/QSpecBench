@@ -83,6 +83,9 @@ def test_lean_qec_manifest_pins_all_bb90_lrat_dependencies() -> None:
     assert payload["ok"] is True
     assert payload["skipped"] is True
     assert payload["verification_mode"] == "cold_root_project_olean_build"
+    assert payload["adapter_version"] == "2.0.0"
+    assert payload["acceptance"]["status"] == "not_checked"
+    assert payload["reproduction"]["upstream_default_attempted"] is False
     assert payload["project_build_cache_restored"] is False
     assert payload["build_target"] == "+LeanQEC.Stabilizer.Examples.BB.BB90:olean"
     assert payload["required_lfs_objects"] == objects
@@ -160,3 +163,23 @@ def test_diagnostics_preserve_middle_fatal_context() -> None:
     assert len(diagnostics["stdout_tail"]) <= 100
     assert any("PANIC: synthetic" in line for line in diagnostics["diagnostic_context"])
     assert any("error: build failed" in line for line in diagnostics["diagnostic_context"])
+
+
+def test_workdir_env_resolves_and_rejects_empty(tmp_path: Path, monkeypatch) -> None:
+    from adapters.lean_qec.parse_result import WORKDIR_ENV, _resolve_checkout_parent
+
+    monkeypatch.delenv(WORKDIR_ENV, raising=False)
+    assert _resolve_checkout_parent() is None
+
+    target = tmp_path / "lean-qec-work"
+    monkeypatch.setenv(WORKDIR_ENV, str(target))
+    resolved = _resolve_checkout_parent()
+    assert resolved == target.resolve()
+    assert resolved.is_dir()
+
+    monkeypatch.setenv(WORKDIR_ENV, "   ")
+    try:
+        _resolve_checkout_parent()
+        raise AssertionError("expected empty WORKDIR to fail closed")
+    except ValueError as exc:
+        assert WORKDIR_ENV in str(exc)

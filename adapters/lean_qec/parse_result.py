@@ -13,11 +13,42 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+try:
+    from adapters.lean_qec.acceptance import (
+        ADAPTER_VERSION,
+        FALLBACK_REASON_CODE,
+        apply_authorized_fallback,
+        assert_result_honesty,
+        cached_lake_target_restored,
+        classify_build_failure,
+        empty_acceptance,
+        empty_reproduction,
+        encode_fallback_configuration,
+        lakefile_contains_forbidden_kernel_bypass,
+        structured_result,
+    )
+except ImportError:  # script invocation: python adapters/lean_qec/parse_result.py
+    from acceptance import (  # type: ignore[no-redef]
+        ADAPTER_VERSION,
+        FALLBACK_REASON_CODE,
+        apply_authorized_fallback,
+        assert_result_honesty,
+        cached_lake_target_restored,
+        classify_build_failure,
+        empty_acceptance,
+        empty_reproduction,
+        encode_fallback_configuration,
+        lakefile_contains_forbidden_kernel_bypass,
+        structured_result,
+    )
+
 SCHEMA = "qspecbench.lean_qec_import.v1"
 ADAPTER_ID = "qspecbench.lean_qec.distance.v1"
 VERIFY_ENV = "QSPECBENCH_LEAN_QEC_VERIFY"
 LOG_DIR_ENV = "QSPECBENCH_LEAN_QEC_LOG_DIR"
+WORKDIR_ENV = "QSPECBENCH_LEAN_QEC_WORKDIR"
 VERIFICATION_MODE = "cold_root_project_olean_build"
+LAKEFILE_NAME = "lakefile.lean"
 _FATAL_PATTERN = re.compile(
     r"(?i)(error:|panic|fatal|stack overflow|out of memory|memory exhausted|"
     r"segmentation fault|killed|uncaught exception|internal error|maximum recursion|"
@@ -94,6 +125,31 @@ def _persist_process_logs(
         f"{stage}_stderr_sha256": _sha256(stderr_path),
         f"{stage}_stderr_bytes": stderr_path.stat().st_size,
     }
+
+
+def _resolve_checkout_parent() -> Path | None:
+    """Optional isolated checkout root; unset keeps system tempfile default.
+
+    Fail-closed: empty/whitespace values and non-directory targets are rejected.
+    Relative paths resolve against the process cwd (typically the repo root).
+    """
+    raw = os.environ.get(WORKDIR_ENV)
+    if raw is None:
+        return None
+    configured = raw.strip()
+    if not configured:
+        raise ValueError(f"{WORKDIR_ENV} is set but empty")
+    root = Path(configured)
+    if not root.is_absolute():
+        root = Path.cwd() / root
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ValueError(f"{WORKDIR_ENV} cannot be created: {root}: {exc}") from exc
+    resolved = root.resolve()
+    if not resolved.is_dir():
+        raise ValueError(f"{WORKDIR_ENV} is not a directory: {resolved}")
+    return resolved
 
 
 def _diagnostics(
@@ -223,7 +279,7 @@ def _base_result(manifest: dict[str, Any]) -> dict[str, Any]:
     build_target = f"+{manifest['module']}:olean"
     return {
         "adapter_id": ADAPTER_ID,
-        "adapter_version": "1.0.0",
+        "adapter_version": ADAPTER_VERSION,
         "verification_mode": VERIFICATION_MODE,
         "project_build_cache_restored": False,
         "build_target": build_target,
@@ -239,6 +295,29 @@ def _base_result(manifest: dict[str, Any]) -> dict[str, Any]:
         "proposition_relation": manifest["proposition_relation"],
         "required_lfs_objects": manifest["required_lfs_objects"],
     }
+
+
+def _fail_structured(
+    message: str,
+    base: dict[str, Any],
+    *,
+    extra: dict[str, Any] | None = None,
+    acceptance: dict[str, Any] | None = None,
+    reproduction: dict[str, Any] | None = None,
+) -> tuple[int, dict[str, Any]]:
+    payload = structured_result(
+        ok=False,
+        skipped=False,
+        kernel_checked=False,
+        acceptance=acceptance or empty_acceptance(status="failing"),
+        reproduction=reproduction or empty_reproduction(),
+        extra={**base, "error": message, **(extra or {})},
+    )
+    honesty = assert_result_honesty(payload)
+    if honesty:
+        payload["honesty_errors"] = honesty
+        payload["ok"] = False
+    return 1, payload
 
 
 def _verify_checkout(
@@ -437,76 +516,252 @@ def _materialize_lfs(
     return verified_pointers, verified_objects, None
 
 
+def _wipe_target_artifacts(repo: Path) -> None:
+    """Failed default-target artifacts must not be reused by the fallback rebuild."""
+    lake = repo / ".lake"
+    if not lake.is_dir():
+        return
+    for child in lake.iterdir():
+        if child.name == "packages":
+            continue
+        if child.is_dir():
+            import shutil
+
+            shutil.rmtree(child, ignore_errors=True)
+        else:
+            child.unlink(missing_ok=True)
+
+
 def verify_manifest(manifest_path: Path) -> tuple[int, dict[str, Any]]:
     manifest = _load_manifest(manifest_path)
     base = _base_result(manifest)
 
     if os.environ.get(VERIFY_ENV) != "1":
-        return 0, {
-            "ok": True,
-            "skipped": True,
-            "skip_reason": f"external kernel build requires explicit {VERIFY_ENV}=1",
-            **base,
-        }
+        return 0, structured_result(
+            ok=True,
+            skipped=True,
+            kernel_checked=False,
+            acceptance=empty_acceptance(status="not_checked"),
+            reproduction=empty_reproduction(),
+            extra={
+                **base,
+                "skip_reason": f"external kernel build requires explicit {VERIFY_ENV}=1",
+            },
+        )
 
-    with tempfile.TemporaryDirectory(prefix="qspecbench-lean-qec-") as tmp:
+    checkout_parent = _resolve_checkout_parent()
+    with tempfile.TemporaryDirectory(
+        prefix="qspecbench-lean-qec-",
+        dir=str(checkout_parent) if checkout_parent is not None else None,
+    ) as tmp:
         repo = Path(tmp) / "Lean-QEC"
         repo.mkdir()
 
         checkout_identity, checkout_error = _verify_checkout(manifest, repo)
         if checkout_error is not None:
-            return 1, checkout_error
+            return _fail_structured(
+                str(checkout_error.get("error") or "checkout failed"),
+                base,
+                extra={**checkout_error, **checkout_identity},
+            )
+
+        lakefile_path = repo / LAKEFILE_NAME
+        if not lakefile_path.is_file():
+            return _fail_structured("upstream lakefile.lean missing", base, extra=checkout_identity)
+        original_lakefile = lakefile_path.read_text(encoding="utf-8")
+        lakefile_sha_before = hashlib.sha256(original_lakefile.encode("utf-8")).hexdigest()
+        if lakefile_contains_forbidden_kernel_bypass(original_lakefile):
+            return _fail_structured(
+                "forbidden kernel-bypass / unsound option in upstream lakefile",
+                base,
+                extra={"lakefile_sha256_before_delta": lakefile_sha_before, **checkout_identity},
+            )
+
+        if cached_lake_target_restored(
+            {"lake_build_cache_present": (repo / ".lake" / "build").exists()}
+        ):
+            return _fail_structured(
+                "cached .lake target restore is forbidden before cold execution",
+                base,
+                extra={
+                    "project_build_cache_restored": True,
+                    "lakefile_sha256_before_delta": lakefile_sha_before,
+                    **checkout_identity,
+                },
+            )
 
         verified_pointers, verified_lfs, lfs_error = _materialize_lfs(manifest, repo)
         if lfs_error is not None:
-            return 1, {
-                **lfs_error,
-                "verified_lfs_pointers": verified_pointers,
-                **checkout_identity,
-            }
+            return _fail_structured(
+                str(lfs_error.get("error") or "LFS materialization failed"),
+                base,
+                extra={
+                    **lfs_error,
+                    "verified_lfs_pointers": verified_pointers,
+                    **checkout_identity,
+                },
+            )
+
+        extra_certs = [
+            path
+            for path in repo.rglob("*.lrat")
+            if path.is_file()
+            and path.relative_to(repo).as_posix()
+            not in {item["path"] for item in manifest["required_lfs_objects"]}
+            and path.stat().st_size > 1024
+        ]
+        if extra_certs:
+            return _fail_structured(
+                "undeclared LRAT certificate present in checkout",
+                base,
+                extra={
+                    "undeclared_certificates": [p.relative_to(repo).as_posix() for p in extra_certs],
+                    **checkout_identity,
+                },
+            )
 
         cache = _run(["lake", "exe", "cache", "get"], repo, timeout=1200)
         cache_logs = _persist_process_logs("mathlib-cache", cache)
         if cache.returncode != 0:
-            return 1, {
-                "ok": False,
-                "error": "upstream lake cache fetch failed",
-                **_diagnostics(cache),
-                **cache_logs,
-                "verified_lfs_pointers": verified_pointers,
-                "verified_lfs_objects": verified_lfs,
-                **checkout_identity,
-                **base,
-            }
+            return _fail_structured(
+                "upstream lake cache fetch failed",
+                base,
+                extra={
+                    **_diagnostics(cache),
+                    **cache_logs,
+                    "verified_lfs_pointers": verified_pointers,
+                    "verified_lfs_objects": verified_lfs,
+                    **checkout_identity,
+                },
+            )
 
         build_target = str(base["build_target"])
         build_command = ["lake", "build", build_target]
-        build = _run(build_command, repo, timeout=3600)
-        build_logs = _persist_process_logs("bb90-olean-build", build)
-        if build.returncode != 0:
-            return 1, {
-                "ok": False,
-                "error": "upstream Lean OLean build failed",
-                **_diagnostics(build),
-                **build_logs,
+        default_build = _run(build_command, repo, timeout=3600)
+        default_logs = _persist_process_logs("bb90-olean-build", default_build)
+        reproduction = {
+            "upstream_default_attempted": True,
+            "upstream_default_reproduced": default_build.returncode == 0,
+            "fallback_used": False,
+            "fallback_reason_code": None,
+            "fallback_configuration_sha256": None,
+        }
+
+        if default_build.returncode == 0:
+            payload = structured_result(
+                ok=True,
+                skipped=False,
+                kernel_checked=True,
+                acceptance={
+                    "status": "passing",
+                    "trust_class": "proof_assistant_native_checked",
+                    "kernel_typechecking_bypassed": False,
+                },
+                reproduction=reproduction,
+                extra={
+                    **base,
+                    **checkout_identity,
+                    "verified_lfs_pointers": verified_pointers,
+                    "verified_lfs_objects": verified_lfs,
+                    "build_command": build_command,
+                    "lakefile_sha256_before_delta": lakefile_sha_before,
+                    **default_logs,
+                },
+            )
+            honesty = assert_result_honesty(payload)
+            if honesty:
+                payload["ok"] = False
+                payload["honesty_errors"] = honesty
+                return 1, payload
+            return 0, payload
+
+        kind = classify_build_failure(default_build.stdout, default_build.stderr)
+        if kind != "lrat_trimmer":
+            return _fail_structured(
+                "upstream Lean OLean build failed",
+                base,
+                extra={
+                    **_diagnostics(default_build),
+                    **default_logs,
+                    "verified_lfs_pointers": verified_pointers,
+                    "verified_lfs_objects": verified_lfs,
+                    "build_command": build_command,
+                    "lakefile_sha256_before_delta": lakefile_sha_before,
+                    "failure_class": kind,
+                    **checkout_identity,
+                },
+                reproduction=reproduction,
+            )
+
+        try:
+            fallback_lakefile = apply_authorized_fallback(original_lakefile)
+        except ValueError as exc:
+            return _fail_structured(
+                f"authorized LRAT-trimmer fallback cannot be applied: {exc}",
+                base,
+                extra={
+                    **default_logs,
+                    "lakefile_sha256_before_delta": lakefile_sha_before,
+                    **checkout_identity,
+                },
+                reproduction=reproduction,
+            )
+        lakefile_path.write_text(fallback_lakefile, encoding="utf-8")
+        fallback_sha = encode_fallback_configuration(fallback_lakefile)
+        _wipe_target_artifacts(repo)
+        fallback_build = _run(build_command, repo, timeout=3600)
+        fallback_logs = _persist_process_logs("bb90-olean-build-fallback", fallback_build)
+        reproduction = {
+            "upstream_default_attempted": True,
+            "upstream_default_reproduced": False,
+            "fallback_used": True,
+            "fallback_reason_code": FALLBACK_REASON_CODE,
+            "fallback_configuration_sha256": fallback_sha,
+        }
+        if fallback_build.returncode != 0:
+            return _fail_structured(
+                "authorized LRAT-trimmer fallback build failed",
+                base,
+                extra={
+                    **_diagnostics(fallback_build),
+                    **fallback_logs,
+                    **default_logs,
+                    "verified_lfs_pointers": verified_pointers,
+                    "verified_lfs_objects": verified_lfs,
+                    "build_command": build_command,
+                    "lakefile_sha256_before_delta": lakefile_sha_before,
+                    **checkout_identity,
+                },
+                reproduction=reproduction,
+            )
+
+        payload = structured_result(
+            ok=True,
+            skipped=False,
+            kernel_checked=True,
+            acceptance={
+                "status": "passing",
+                "trust_class": "proof_assistant_native_checked",
+                "kernel_typechecking_bypassed": False,
+            },
+            reproduction=reproduction,
+            extra={
+                **base,
+                **checkout_identity,
                 "verified_lfs_pointers": verified_pointers,
                 "verified_lfs_objects": verified_lfs,
                 "build_command": build_command,
-                **checkout_identity,
-                **base,
-            }
-
-        return 0, {
-            "ok": True,
-            "skipped": False,
-            "kernel_checked": True,
-            "verified_lfs_pointers": verified_pointers,
-            "verified_lfs_objects": verified_lfs,
-            "build_command": build_command,
-            **build_logs,
-            **checkout_identity,
-            **base,
-        }
+                "lakefile_sha256_before_delta": lakefile_sha_before,
+                **default_logs,
+                **fallback_logs,
+            },
+        )
+        honesty = assert_result_honesty(payload)
+        if honesty:
+            payload["ok"] = False
+            payload["honesty_errors"] = honesty
+            return 1, payload
+        return 0, payload
 
 
 def main() -> int:

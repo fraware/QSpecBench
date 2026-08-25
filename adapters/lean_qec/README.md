@@ -56,6 +56,12 @@ context extracted from the complete logs, so a long stack trace cannot silently 
 causal error. A failed cold build is reported as a failed reproduction attempt; it is not evidence
 that the mathematical theorem is false.
 
+When `QSPECBENCH_LEAN_QEC_WORKDIR` is set, the isolated checkout is created under that directory
+instead of the process tempfile root (for example `artifacts/lean-qec/work` on a volume with enough
+free space for Git-LFS materialization and the cold Lake build). An empty value or a non-directory
+target fails closed. The directory is still a throwaway `qspecbench-lean-qec-*` temporary tree and
+is removed when verification finishes.
+
 ## Scope discipline
 
 A successful result can support only a **distance lower-bound** obligation. It does not support:
