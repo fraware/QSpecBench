@@ -1,8 +1,8 @@
 # Claim diff: teleportation_dynamic_feedforward_protocol
 
-<!-- scope_fingerprint: 5a6a97a5b2c7edd1e49c588e6cea1a2e2e35b869e5091cf4e924dd1798223ead -->
+<!-- scope_fingerprint: e00dea073039f40a818db59d526d5977c620e259c22af33caad8c83b18130310 -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)
@@ -16,12 +16,14 @@ The on-disk teleportation-with-feedforward QASM CanonicalAst measure and if AST 
 - dynamic_denotation_bridge_metadata
 - lean_dynamic_denotation_protocol
 - dynamic_denotation_bridge_verify
+- arbitrary_pure_state_instrument
 
 ## Checked obligations
 - [x] dynamic_ast_fail_closed_mirror
 - [x] dynamic_denotation_bridge_metadata
 - [x] lean_dynamic_denotation_protocol
 - [x] dynamic_denotation_bridge_verify
+- [x] arbitrary_pure_state_instrument
 - [x] hardware_abstraction_isa_layer
 
 ## Unproved / open obligations

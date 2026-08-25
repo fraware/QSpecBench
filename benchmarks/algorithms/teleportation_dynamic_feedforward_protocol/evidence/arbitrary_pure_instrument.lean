@@ -1,0 +1,10 @@
+import QSpecBench.Research.DynamicTeleportation
+
+/- QSpecBench evidence:
+benchmark_id = "teleportation_dynamic_feedforward_protocol"
+obligation_id = "arbitrary_pure_state_instrument"
+theorem = "QSpecBench.Research.DynamicTeleportation.artifact_bound_arbitrary_pure_state_instrument_correct"
+-/
+
+#check QSpecBench.Research.DynamicTeleportation.arbitrary_pure_state_instrument_correct
+#check QSpecBench.Research.DynamicTeleportation.artifact_bound_arbitrary_pure_state_instrument_correct
