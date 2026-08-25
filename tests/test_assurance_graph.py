@@ -109,6 +109,15 @@ def test_assurance_graph_accepts_closed_graph(tmp_path: Path) -> None:
     assert errors == []
 
 
+def test_untrusted_evidence_cannot_discharge_required_obligations(tmp_path: Path) -> None:
+    graph = _graph()
+    graph["evidence_edges"][0]["trust_class"] = "untrusted"
+    claim_dir = _write_repo(tmp_path, graph)
+    errors, warnings = validate_assurance_graph_rules(_spec(), claim_dir)
+    assert any("lack a passing explicit evidence edge" in error for error in errors)
+    assert any("is untrusted and cannot discharge obligations" in warning for warning in warnings)
+
+
 def test_assurance_graph_rejects_semantic_profile_contradiction(tmp_path: Path) -> None:
     graph = _graph()
     graph["semantic_profile"]["wire_order"] = "legacy_kron_order"
