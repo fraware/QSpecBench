@@ -224,8 +224,10 @@ def generate_dashboard(root: Path) -> str:
         "Auto-generated benchmark status overview.",
         "",
         "Evidence headline note: most reference-scaffold benchmarks demonstrate the QSpecBench "
-        "evidence format and trust-boundary discipline; a checked headline claim is reserved for "
-        "`reference_claim` benchmarks whose full informal claim is proved.",
+        "evidence format and trust-boundary discipline; a checked headline may appear on "
+        "`experimental_closed` (machine closure) or, when gold is unfrozen, on "
+        "`reference_claim` / ABRC packages with authentic independent review "
+        "(live gold inventory is empty for v1).",
         "",
         "## Versions",
         "",

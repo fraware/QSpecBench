@@ -20,6 +20,12 @@ console = Console()
 @app.command()
 def validate(
     target: Path = typer.Argument(..., help="Benchmark directory or single claim path"),
+    strict_all: bool = typer.Option(False, "--strict-all", help="Treat migration warnings as errors"),
+    audit_graph: bool = typer.Option(
+        False,
+        "--audit-graph",
+        help="Fail closed on assurance-graph migration warnings and require graphs for machine-closed claims",
+    ),
 ) -> None:
     """Validate schema, layout, paths, and trust rules."""
     results = validate_path(target)
@@ -29,16 +35,33 @@ def validate(
 
     failed = 0
     for result in results:
+        warnings = list(result.warnings)
+        if audit_graph:
+            # Machine-closed / promoted maturities already error without graphs.
+            # Elevate remaining assurance migration warnings so --audit-graph is not a no-op.
+            graph_warnings = [
+                warn
+                for warn in warnings
+                if "assurance" in warn.lower() or "assurance_graph" in warn.lower()
+            ]
+            if graph_warnings:
+                result.errors.extend(graph_warnings)
+                warnings = [warn for warn in warnings if warn not in graph_warnings]
+                result = type(result)(result.spec_path, result.errors, warnings)
+        if strict_all and warnings:
+            result.errors.extend(warnings)
+            warnings = []
+            result = type(result)(result.spec_path, result.errors, warnings)
         if result.ok:
             console.print(f"[green]OK[/green] {result.spec_path}")
-            for warn in result.warnings:
+            for warn in warnings:
                 console.print(f"  [yellow]warn[/yellow] {warn}")
         else:
             failed += 1
             console.print(f"[red]FAIL[/red] {result.spec_path}")
             for err in result.errors:
                 console.print(f"  - {err}")
-            for warn in result.warnings:
+            for warn in warnings:
                 console.print(f"  [yellow]warn[/yellow] {warn}")
 
     if failed:
@@ -464,6 +487,18 @@ def list_benchmarks(
             if evidence not in types and evidence not in acceptable:
                 continue
         console.print(row["id"])
+
+
+@app.command("migration-report")
+def migration_report_cmd(
+    target: Path = typer.Argument(Path("benchmarks"), help="Benchmarks root"),
+    out: Path = typer.Option(Path("docs/audits"), "--out", help="Output directory"),
+) -> None:
+    """Emit the reproducible formerly-promoted-claim migration report."""
+    from qspecbench.migration_report import write_report
+
+    written = write_report(target, out)
+    console.print(f"Wrote {written['markdown']} ({written['rows']} rows, sha256={written['sha256'][:16]}…)")
 
 
 def main() -> None:
