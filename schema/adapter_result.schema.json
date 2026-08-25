@@ -13,7 +13,9 @@
     "semantic_profile_id": {"type": "string", "minLength": 1},
     "status": {"type": "string", "enum": ["passing", "failing", "partial", "not_checked"]},
     "supported_obligations": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "trust_class": {"type": "string", "enum": ["kernel_checked", "independently_checkable", "externally_trusted", "simulation", "human_review", "heuristic", "untrusted"]},
+    "trust_class": {"type": "string", "enum": ["kernel_checked", "proof_assistant_native_checked", "independently_checkable", "externally_trusted", "simulation", "human_review", "heuristic", "untrusted"]},
+    "semantic_profile_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "semantic_profile_version": {"type": ["string", "null"]},
     "tool": {
       "type": "object",
       "properties": {

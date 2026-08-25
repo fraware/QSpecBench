@@ -20,7 +20,11 @@ from typing import Any
 import yaml
 
 from qspecbench.adapter_protocol import validate_adapter_request, validate_adapter_result
-from qspecbench.typed_adapter_registry import get_typed_adapter
+from qspecbench.semantic_profiles import ProfileError, graph_profile_binding
+from qspecbench.typed_adapter_registry import (
+    get_typed_adapter,
+    proof_assistant_native_checked_is_kernel_subtype,
+)
 
 GRAPH_FILENAME = "assurance_graph.yaml"
 
@@ -146,6 +150,17 @@ def build_adapter_request(
             f"assurance edge {evidence_id!r} must declare one or more supported obligations"
         )
 
+    profile_binding = {"content_sha256": None, "content_version": None}
+    try:
+        profile_binding = graph_profile_binding(graph)
+        if profile_binding["id"] != str(semantic_profile_id):
+            raise AdapterRuntimeError(
+                f"semantic profile id {semantic_profile_id!r} does not match bound "
+                f"{profile_binding['id']!r}"
+            )
+    except ProfileError as exc:
+        raise AdapterRuntimeError(str(exc)) from exc
+
     if artifact is None:
         raise AdapterRuntimeError(
             f"assurance-backed evidence {evidence_id!r} requires a concrete primary input path"
@@ -161,6 +176,8 @@ def build_adapter_request(
         "benchmark_id": str(benchmark_id),
         "proposition_id": str(proposition_id),
         "semantic_profile_id": str(semantic_profile_id),
+        "semantic_profile_sha256": profile_binding.get("content_sha256"),
+        "semantic_profile_version": profile_binding.get("content_version"),
         "inputs": inputs,
         "requested_obligations": list(requested),
     }
@@ -231,9 +248,12 @@ def normalize_adapter_result(
             "notes": migration_note,
         }
 
-    if result.get("trust_class") != typed.trust_ceiling:
+    claimed = result.get("trust_class")
+    if claimed != typed.trust_ceiling and not proof_assistant_native_checked_is_kernel_subtype(
+        str(claimed), typed.trust_ceiling
+    ):
         raise AdapterRuntimeError(
-            f"adapter result trust_class {result.get('trust_class')!r} does not exactly match "
+            f"adapter result trust_class {claimed!r} does not exactly match "
             f"registered trust class {typed.trust_ceiling!r} for {adapter_id!r}"
         )
 

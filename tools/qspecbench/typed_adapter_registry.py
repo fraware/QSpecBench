@@ -22,7 +22,7 @@ class TypedAdapterSpec:
 
 _TYPED: tuple[TypedAdapterSpec, ...] = (
     TypedAdapterSpec("qspecbench.lean.kernel.v1", "1.0.0", "lean/parse_result.py", "kernel_checked", ("lean_proof", "proof_assistant_proof")),
-    TypedAdapterSpec("qspecbench.lean_qec.distance.v1", "1.0.0", "lean_qec/parse_result.py", "kernel_checked", ("qec_verifier_result",)),
+    TypedAdapterSpec("qspecbench.lean_qec.distance.v1", "2.0.0", "lean_qec/parse_result.py", "kernel_checked", ("qec_verifier_result",)),
     TypedAdapterSpec("qspecbench.coq.kernel.v1", "1.0.0", "coq/parse_result.py", "kernel_checked", ("coq_proof",)),
     TypedAdapterSpec("qspecbench.rocq.kernel.v1", "1.0.0", "rocq/parse_result.py", "kernel_checked", ("rocq_proof",)),
     TypedAdapterSpec("qspecbench.isabelle.kernel.v1", "1.0.0", "isabelle/parse_result.py", "kernel_checked", ("isabelle_proof",)),
@@ -34,7 +34,7 @@ _TYPED: tuple[TypedAdapterSpec, ...] = (
     TypedAdapterSpec("qspecbench.sat.certificate.v1", "1.0.0", "sat_certificate/parse_result.py", "independently_checkable", ("sat_certificate",)),
     TypedAdapterSpec("qspecbench.smt.certificate.v1", "1.0.0", "smt/parse_result.py", "independently_checkable", ("smt_certificate",)),
     TypedAdapterSpec("qspecbench.mqt.qcec.v1", "1.0.0", "qcec/parse_result.py", "externally_trusted", ("qcec_result",)),
-    TypedAdapterSpec("qspecbench.compiler.peephole.v1", "1.0.0", "compiler_peephole/parse_result.py", "independently_checkable", ("internal_denotation_consistency",)),
+    TypedAdapterSpec("qspecbench.qiskit.optimize_1q_gates.v1", "1.0.0", "qiskit_compiler/parse_result.py", "independently_checkable", ("internal_denotation_consistency",)),
     TypedAdapterSpec("qspecbench.bridge.verify.v1", "1.0.0", "bridge/parse_result.py", "heuristic", ("bridge_verify", "python_denotation_consistency_check", "internal_denotation_consistency")),
     TypedAdapterSpec("qspecbench.bridge.dynamic_ast.v1", "1.0.0", "bridge/dynamic_ast_check.py", "kernel_checked", ("internal_denotation_consistency",)),
     TypedAdapterSpec("qspecbench.bridge.dynamic_denotation.v1", "1.0.0", "bridge/dynamic_denotation_check.py", "kernel_checked", ("internal_denotation_consistency",)),
@@ -47,6 +47,32 @@ _TYPED: tuple[TypedAdapterSpec, ...] = (
 )
 
 TYPED_ADAPTERS: dict[str, TypedAdapterSpec] = {item.adapter_id: item for item in _TYPED}
+
+# Trust-class lattice used for overclaim detection. Higher is stronger.
+# ``proof_assistant_native_checked`` is a subtype of ``kernel_checked`` (same rank):
+# it is the Lean-QEC acceptance class and does not outrank ordinary kernel checking.
+TRUST_CLASS_RANK: dict[str, int] = {
+    "untrusted": 0,
+    "heuristic": 1,
+    "simulation": 2,
+    "human_review": 3,
+    "externally_trusted": 4,
+    "independently_checkable": 5,
+    "kernel_checked": 6,
+    "proof_assistant_native_checked": 6,
+}
+
+PROOF_ASSISTANT_NATIVE_CHECKED = "proof_assistant_native_checked"
+KERNEL_CHECKED = "kernel_checked"
+
+
+def proof_assistant_native_checked_is_kernel_subtype(claimed: str, ceiling: str) -> bool:
+    """Documented relationship: native-checked is a subtype of kernel_checked, not an alias.
+
+    Historical ``kernel_checked=true`` JSON remains readable and is not reinterpreted as
+    ``acceptance.trust_class=proof_assistant_native_checked``.
+    """
+    return claimed == PROOF_ASSISTANT_NATIVE_CHECKED and ceiling == KERNEL_CHECKED
 
 # Defaults exist only for the repository-wide ordinary interpretation of an evidence type.
 # Dynamic bridge, compiler provenance, Stim/PyMatching, and external Lean-QEC distance cases
