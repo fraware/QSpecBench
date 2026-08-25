@@ -18,6 +18,7 @@ from pathlib import Path
 
 from qspecbench.adapter_registry import validate_adapter_name
 from qspecbench.artifacts import claim_path_escape_error, resolve_claim_path
+from qspecbench.evidence_adapter_bindings import bound_adapter_id
 from qspecbench.evidence_sandbox import run_sandboxed, uses_evidence_sandbox
 from qspecbench.evidence_schedule import (
     EvidenceClass,
@@ -256,7 +257,10 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
         return _result_error(eid, rel_path, str(exc))
 
     raw_command = entry.get("command")
-    adapter_name = entry.get("adapter")
+    try:
+        adapter_name = bound_adapter_id(entry, claim_dir)
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        return _result_error(eid, rel_path, f"typed adapter binding: {exc}")
     evidence_type = str(entry.get("type", ""))
     command: str | None = None
 
