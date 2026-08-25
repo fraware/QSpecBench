@@ -14,10 +14,14 @@ The checked integration manifest pins:
 - source: `LeanQEC/Stabilizer/Examples/BB/BB90.lean`;
 - source Git blob: `8414ff1fb50f888998188f6e53020e95eb7891ca`;
 - theorem: `BB90_dist_10`;
-- proposition supported: the BB90 CSS-code distance lower bound `10 ≤ distance`.
+- proposition supported: the BB90 CSS-code distance lower bound `10 ≤ distance`;
+- every LRAT certificate read by the BB90 module, with its Git-LFS SHA-256 object ID and exact byte size.
 
 At the pinned source, the theorem is proved by two SAT distance obligations (`BB90_dist_z` and
 `BB90_dist_x`) using LRAT-backed `bv_check`, followed by the verified SAT-to-distance translation.
+The source also reads LRAT certificates for the two rank obligations. Because upstream stores these
+proof certificates through Git LFS, source-commit identity alone is insufficient to reproduce the
+kernel build: the certificate bytes are part of the evidence dependency closure.
 
 ## Execution
 
@@ -35,9 +39,13 @@ Verification mode:
 1. creates an isolated temporary checkout;
 2. fetches only the exact upstream commit;
 3. checks the commit, toolchain, source Git blob identity, and theorem declaration;
-4. runs `lake exe cache get` in the upstream repository;
-5. builds the exact module `LeanQEC.Stabilizer.Examples.BB.BB90`;
-6. emits structured JSON binding all verified identities.
+4. materializes only the four manifest-declared LRAT Git-LFS objects and verifies each exact SHA-256 and byte size;
+5. runs `lake exe cache get` in the upstream repository;
+6. builds the exact module `LeanQEC.Stabilizer.Examples.BB.BB90`;
+7. emits structured JSON binding all verified identities and materialized proof-certificate hashes.
+
+Failure diagnostics preserve bounded output from both the beginning and end of stdout/stderr so a
+large Lean stack trace cannot silently displace the first causal error.
 
 ## Scope discipline
 

@@ -1,0 +1,107 @@
+from __future__ import annotations
+
+import copy
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+SCRIPT = REPO / "adapters" / "lean_qec" / "parse_result.py"
+MANIFEST = REPO / "adapters" / "lean_qec" / "examples" / "bb90_distance_10.json"
+VERIFY_ENV = "QSPECBENCH_LEAN_QEC_VERIFY"
+
+
+def _run_manifest(path: Path) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    env.pop(VERIFY_ENV, None)
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), str(path)],
+        cwd=REPO,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=30,
+    )
+
+
+def _payload(proc: subprocess.CompletedProcess[str]) -> dict:
+    assert proc.stdout.strip(), proc.stderr
+    return json.loads(proc.stdout.splitlines()[-1])
+
+
+def test_lean_qec_manifest_pins_all_bb90_lrat_dependencies() -> None:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    objects = manifest["required_lfs_objects"]
+    assert objects == [
+        {
+            "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_X_rank-53-2.lrat",
+            "sha256": "476001eff284cb159c47dcfc5ca2b7aa24dd37047bb65d1356de4e56e81acdf0",
+            "size": 16168,
+        },
+        {
+            "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_Z_rank-65-2.lrat",
+            "sha256": "daabb6bd089baabb3205cdbf3e052e6dc07e30b4c2c15d5b8b902bfcdd451062",
+            "size": 16140,
+        },
+        {
+            "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_dist_z-120-2.lrat",
+            "sha256": "9012a060920edb6d1c3f25bb67e69052ac4609dcc500777816caf86fecd7e3b3",
+            "size": 105004579,
+        },
+        {
+            "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_dist_x-131-2.lrat",
+            "sha256": "95acb11153b008759fd672d56638a5a6c4522210d4b2d101e2116e87c2868803",
+            "size": 104586131,
+        },
+    ]
+
+    proc = _run_manifest(MANIFEST)
+    payload = _payload(proc)
+    assert proc.returncode == 0, payload
+    assert payload["ok"] is True
+    assert payload["skipped"] is True
+    assert payload["required_lfs_objects"] == objects
+
+
+def test_lean_qec_manifest_rejects_missing_lfs_dependency_list(tmp_path: Path) -> None:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    manifest["required_lfs_objects"] = []
+    path = tmp_path / "missing_lfs.json"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    proc = _run_manifest(path)
+    payload = _payload(proc)
+    assert proc.returncode == 1
+    assert payload["ok"] is False
+    assert "required_lfs_objects must be a non-empty list" in payload["error"]
+
+
+def test_lean_qec_manifest_rejects_unsafe_lfs_path(tmp_path: Path) -> None:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    forged = copy.deepcopy(manifest)
+    forged["required_lfs_objects"][0]["path"] = "../certificate.lrat"
+    path = tmp_path / "unsafe_lfs.json"
+    path.write_text(json.dumps(forged), encoding="utf-8")
+
+    proc = _run_manifest(path)
+    payload = _payload(proc)
+    assert proc.returncode == 1
+    assert payload["ok"] is False
+    assert "invalid required LFS path" in payload["error"]
+
+
+def test_lean_qec_manifest_rejects_malformed_lfs_hash(tmp_path: Path) -> None:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    forged = copy.deepcopy(manifest)
+    forged["required_lfs_objects"][0]["sha256"] = "not-a-sha256"
+    path = tmp_path / "bad_lfs_hash.json"
+    path.write_text(json.dumps(forged), encoding="utf-8")
+
+    proc = _run_manifest(path)
+    payload = _payload(proc)
+    assert proc.returncode == 1
+    assert payload["ok"] is False
+    assert "invalid required LFS sha256" in payload["error"]
