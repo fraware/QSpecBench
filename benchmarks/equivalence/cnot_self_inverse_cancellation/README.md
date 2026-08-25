@@ -42,7 +42,7 @@ Honest limits: int-scaffold matrix model only; not full OpenQASM 3; not general 
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics` bridge label).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics` bridge label).
 
 ## Known gaps
 

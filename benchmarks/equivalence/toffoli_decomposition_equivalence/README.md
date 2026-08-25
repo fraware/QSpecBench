@@ -46,7 +46,7 @@ Not claimed: unnormalized `denotateOps3C` pair equality; default Python 3-qubit 
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 

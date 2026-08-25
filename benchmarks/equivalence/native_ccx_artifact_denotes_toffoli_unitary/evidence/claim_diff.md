@@ -1,8 +1,8 @@
 # Claim diff: native_ccx_artifact_denotes_toffoli_unitary
 
-<!-- scope_fingerprint: 6e24d7cf636ae707ca2e721daf3d5eb0876aea7524409cad018d5439c279b074 -->
+<!-- scope_fingerprint: f491eb3389851a75b4990a66f24a981cf3b0c7449638db8e1d0fa946d4379baa -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

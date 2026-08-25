@@ -1,8 +1,8 @@
 # Claim diff: toffoli_decomposition_equivalence
 
-<!-- scope_fingerprint: 39bc42c7cd2b594dcc6e4e967a6c677fff4cc4efdf14f5de34739b45367a4734 -->
+<!-- scope_fingerprint: c911bc067708933f68a8d48de7323be6fef57db0aa4cca61a3aad1c822f5903f -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

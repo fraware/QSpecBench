@@ -26,7 +26,7 @@ Explicit in `spec.yaml` trust_boundary; no unsupported verification claims.
 
 ## Status
 
-Current maturity: **reference_claim**.
+Current maturity: **experimental_closed**.
 
 ## Known gaps
 

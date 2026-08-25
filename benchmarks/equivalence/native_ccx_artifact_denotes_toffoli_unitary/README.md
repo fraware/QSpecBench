@@ -36,7 +36,7 @@ Honest limits: native CCX source artifact only; H/T/CX decomposition equivalence
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 

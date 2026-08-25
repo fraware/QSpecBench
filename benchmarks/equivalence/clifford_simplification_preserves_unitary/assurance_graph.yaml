@@ -1,0 +1,99 @@
+schema: qspecbench.assurance_graph.v1
+benchmark_id: clifford_simplification_preserves_unitary
+proposition:
+  id: clifford_simplification_preserves_unitary_v1
+  version: 1
+  text: Clifford simplification of the declared H-H-S source trace to the S-only target
+    circuit preserves the unitary exactly under the normalized 1-qubit complex denotation
+    (algebraic H = H/√2; global phase φ = 0).
+  source_claim_id: null
+  relation_to_source: not_applicable
+  relation_notes: null
+semantic_profile:
+  id: qspecbench.openqasm3.unitary.v1
+  content_sha256: dcd5173cacd02fa5f2b002d92d2d05e12b7f3ba8c267cb76a8e4cbd711636f8f
+  content_version: qspecbench-openqasm-fragment-0.1
+  parser: QSpecBench.Quantum.OpenQASM3Parser.parseQasmSourceE
+  unsupported_behavior: fail_closed
+  upstream_standard: OpenQASM
+  upstream_version: '3.0'
+  wire_order: legacy_kron_order
+  global_phase_policy: exact
+  measurement_semantics: none
+  reset_semantics: none
+  control_flow_semantics: none
+obligations:
+- id: source_artifact_parse
+  required: true
+  statement: source_artifact_parse
+- id: target_artifact_parse
+  required: true
+  statement: target_artifact_parse
+- id: source_denotation
+  required: true
+  statement: source_denotation
+- id: target_denotation
+  required: true
+  statement: target_denotation
+- id: source_target_equivalence
+  required: true
+  statement: source_target_equivalence
+- id: global_phase_policy
+  required: true
+  statement: global_phase_policy
+- id: wire_order_alignment
+  required: true
+  statement: wire_order_alignment
+evidence_edges:
+- evidence_id: qasm_parse_source
+  supports:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/source.qasm
+- evidence_id: qasm_parse_target
+  supports:
+  - wire_order_alignment
+  trust_class: externally_trusted
+  adapter_id: qspecbench.openqasm.parse.v1
+  result_path: artifacts/target.qasm
+- evidence_id: qcec_equivalence
+  supports:
+  - wire_order_alignment
+  trust_class: externally_trusted
+  adapter_id: qspecbench.mqt.qcec.v1
+  result_path: artifacts/source.qasm
+- evidence_id: lean_clifford_pair_bridge
+  supports:
+  - wire_order_alignment
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/clifford_pair_bridge.lean
+- evidence_id: bridge_verify
+  supports:
+  - wire_order_alignment
+  trust_class: heuristic
+  adapter_id: qspecbench.bridge.verify.v1
+  result_path: evidence/bridge_verify.result.json
+review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review, not
+    v2 independent review.
+- id: e5920292cc32
+  status: out_of_scope
+  statement: unnormalized denotateOps1C exact pair equality (scaled by factor 2)
+- id: 44c56a67a890
+  status: out_of_scope
+  statement: full_openqasm3
+- id: 4d0918acd127
+  status: out_of_scope
+  statement: hardware_semantics
+derived_maturity: experimental_closed

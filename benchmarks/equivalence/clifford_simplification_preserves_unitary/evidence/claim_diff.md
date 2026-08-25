@@ -1,8 +1,8 @@
 # Claim diff: clifford_simplification_preserves_unitary
 
-<!-- scope_fingerprint: 3a6aba321dbe2036fc614c22e093b1d51ddf789798e9027c17e831859e45608a -->
+<!-- scope_fingerprint: 94221f2b6c2573aa0d2f3c949388a01ecb372c96bfe5cb1e403485f2cf074c22 -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

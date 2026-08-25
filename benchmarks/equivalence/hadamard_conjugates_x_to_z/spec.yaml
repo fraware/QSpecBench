@@ -125,7 +125,7 @@ status:
   artifacts: complete
   evidence: complete
   ci: passing
-  maturity: artifact_bound_reference_claim
+  maturity: experimental_closed
   reviews:
     formal_evidence_review:
       status: approved

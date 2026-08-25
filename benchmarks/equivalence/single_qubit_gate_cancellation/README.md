@@ -38,7 +38,7 @@ Honest limits: int-scaffold H-H cancellation; OpenQASM H normalization factor no
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 

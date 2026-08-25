@@ -3,10 +3,9 @@ benchmark_id: toffoli_decomposition_equivalence
 proposition:
   id: toffoli_decomposition_equivalence_v1
   version: 1
-  text: >-
-    Under the normalized Clifford+T denotation (LSB wires, algebraic H/T), the
-    declared H/T/CX decomposition and native CCX artifact have identical
-    denotations (exact equality; global phase phi = 0).
+  text: Under the normalized Clifford+T denotation (LSB wires, algebraic H/T), the
+    declared H/T/CX decomposition and native CCX artifact have identical denotations
+    (exact equality; global phase phi = 0).
   source_claim_id: null
   relation_to_source: not_applicable
   relation_notes: This is a direct source-target circuit equivalence proposition.
@@ -21,52 +20,63 @@ semantic_profile:
   control_flow_semantics: null
   parser: Lean parseQasmSourceE / normalized Clifford+T bridge
   unsupported_behavior: fail_closed
+  content_sha256: 85b1cd7d534b43db8283e453954b65c465207d680d05631e0db95d0cca8c7b22
+  content_version: qspecbench-openqasm-fragment-0.1
 obligations:
-  - id: source_artifact_parse
-    required: true
-    statement: Source artifact parses into the declared normalized gate sequence.
-  - id: target_artifact_parse
-    required: true
-    statement: Target artifact parses into the declared normalized gate sequence.
-  - id: source_denotation
-    required: true
-    statement: Source denotation equals the canonical CCX denotation.
-  - id: target_denotation
-    required: true
-    statement: Target denotation equals the canonical CCX denotation.
-  - id: source_target_equivalence
-    required: true
-    statement: Source and target denotations are exactly equal.
-  - id: global_phase_policy
-    required: true
-    statement: Exact equality witnesses global phase zero.
-  - id: wire_order_alignment
-    required: true
-    statement: Both denotations use the declared LSB wire order.
+- id: source_artifact_parse
+  required: true
+  statement: Source artifact parses into the declared normalized gate sequence.
+- id: target_artifact_parse
+  required: true
+  statement: Target artifact parses into the declared normalized gate sequence.
+- id: source_denotation
+  required: true
+  statement: Source denotation equals the canonical CCX denotation.
+- id: target_denotation
+  required: true
+  statement: Target denotation equals the canonical CCX denotation.
+- id: source_target_equivalence
+  required: true
+  statement: Source and target denotations are exactly equal.
+- id: global_phase_policy
+  required: true
+  statement: Exact equality witnesses global phase zero.
+- id: wire_order_alignment
+  required: true
+  statement: Both denotations use the declared LSB wire order.
 evidence_edges:
-  - evidence_id: lean_toffoli_pair_bridge
-    supports:
-      - source_artifact_parse
-      - target_artifact_parse
-      - source_denotation
-      - target_denotation
-      - source_target_equivalence
-      - global_phase_policy
-      - wire_order_alignment
-    trust_class: kernel_checked
-    adapter_id: qspecbench.lean.kernel.v1
-    result_path: evidence/toffoli_pair_bridge.lean
-  - evidence_id: qcec_equivalence
-    supports:
-      - source_target_equivalence
-    trust_class: externally_trusted
-    adapter_id: qspecbench.mqt.qcec.v1
-    result_path: null
-  - evidence_id: bridge_verify
-    supports:
-      - source_artifact_parse
-      - source_denotation
-    trust_class: heuristic
-    adapter_id: qspecbench.bridge.verify.v1
-    result_path: evidence/bridge_verify.result.json
+- evidence_id: lean_toffoli_pair_bridge
+  supports:
+  - source_artifact_parse
+  - target_artifact_parse
+  - source_denotation
+  - target_denotation
+  - source_target_equivalence
+  - global_phase_policy
+  - wire_order_alignment
+  trust_class: kernel_checked
+  adapter_id: qspecbench.lean.kernel.v1
+  result_path: evidence/toffoli_pair_bridge.lean
+- evidence_id: qcec_equivalence
+  supports:
+  - source_target_equivalence
+  trust_class: externally_trusted
+  adapter_id: qspecbench.mqt.qcec.v1
+  result_path: null
+- evidence_id: bridge_verify
+  supports:
+  - source_artifact_parse
+  - source_denotation
+  trust_class: heuristic
+  adapter_id: qspecbench.bridge.verify.v1
+  result_path: evidence/bridge_verify.result.json
 review_attestations: []
+assumptions:
+- id: unauthenticated_legacy_review
+  status: out_of_scope
+  statement: Alias dual reviews are historical unauthenticated_legacy_review.
+- id: normalized_clifford_t_only
+  status: accepted_hypothesis
+  statement: Proposition is normalized Clifford+T / LSB / exact phase; not the legacy
+    unitary profile.
+derived_maturity: experimental_closed

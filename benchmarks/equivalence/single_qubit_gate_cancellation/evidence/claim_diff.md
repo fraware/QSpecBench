@@ -1,8 +1,8 @@
 # Claim diff: single_qubit_gate_cancellation
 
-<!-- scope_fingerprint: a99ecd37357c238c2fc214d9b8d61b07752d261cbda4fb0a638becc934e56327 -->
+<!-- scope_fingerprint: 881d6d34ebb0ddde2f7598ada12481ca64fb4f0a121cb2b18bb169221c2a7f23 -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

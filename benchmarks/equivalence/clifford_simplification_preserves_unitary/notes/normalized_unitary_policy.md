@@ -35,5 +35,6 @@ AST hashes.
 
 `claimed_link` is `kernel_checked_artifact_semantics` (dual-manifest source/target codegen +
 elaborator-bound normalized pair theorem + BridgeMetadata pin). Maturity is
-**artifact_bound_reference_claim**. Residual not-checked labels: unnormalized `denotateOps1C`
-exact pair equality (factor 2), `full_openqasm3`, `hardware_semantics`.
+**experimental_closed** (formerly ABRC as of v0.2.x; demoted for v1). Residual not-checked
+labels: unnormalized `denotateOps1C` exact pair equality (factor 2), `full_openqasm3`,
+`hardware_semantics`.

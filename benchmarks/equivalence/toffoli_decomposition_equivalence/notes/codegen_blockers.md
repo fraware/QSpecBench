@@ -15,5 +15,6 @@
 
 ## Honest scope
 
-Headline claim remains **artifact_bound_reference_claim** (source CCX only); QCEC pair check is supplementary. See
+Headline claim is machine-closed `experimental_closed` (source CCX + normalized pair;
+formerly ABRC as of v0.2.x, demoted for v1); QCEC pair check is supplementary. See
 `notes/pair_equivalence_policy.md` and `evidence/source_target_pair_open.lean`.
