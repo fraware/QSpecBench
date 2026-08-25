@@ -104,4 +104,5 @@ def test_lean_qec_manifest_rejects_malformed_lfs_hash(tmp_path: Path) -> None:
     payload = _payload(proc)
     assert proc.returncode == 1
     assert payload["ok"] is False
-    assert "invalid required LFS sha256" in payload["error"]
+    assert "required LFS sha256" in payload["error"]
+    assert "64-character lowercase hexadecimal digest" in payload["error"]
