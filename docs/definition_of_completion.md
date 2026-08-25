@@ -85,8 +85,10 @@ The external reproduction program is explicitly excluded from the current execut
 
 The following principles are permanent even after Levels A–D improve:
 
-- Device `hardware_semantics`, pulse schedules, and fidelity are not implied by a software ISA abstraction.
-- A finite Stim/PyMatching declared universe is not all-code fault tolerance.
+- The open-ended QEC obligation `unbounded_all_codes_mwpm` remains outside checked scope; finite code/distance/decoder evidence does not discharge it.
+- Device `hardware_semantics`, `device_fidelity`, and `pulse_schedule_semantics` are not implied by a software ISA abstraction.
+- Unnormalized `denotateOps3C` Toffoli equality remains outside the normalized Clifford+T proposition; the normalization choice must stay explicit.
+- A finite Stim/PyMatching declared universe such as `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01` is not all-code fault tolerance.
 - A distance certificate is not syndrome-extraction-circuit correctness.
 - A QCEC result is externally trusted supporting evidence unless its trust model is strengthened; it does not by itself define the semantic proposition.
 - A kernel-checked theorem establishes the formal theorem under its assumptions, not the faithfulness of the theorem to a natural-language source claim.

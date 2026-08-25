@@ -197,7 +197,7 @@ QSpecBench remains a **scoped research benchmark and assurance infrastructure**,
 | Unnormalized `denotateOps3C` Toffoli equality | Out of scope for the normalized Clifford+T decomposition proposition |
 | QBricks / ZX | Adapters exist; trust remains tied to the actual executed evidence/certificate |
 | Rocq / Isabelle skip stubs | Never counted as checked evidence |
-| Full industrial Stim/Blossom all-codes | Outside the declared finite evidence universe |
+| `stim_repetition_memory_odd_d_le_7_R_eq_d_p0p01` | Declared finite Stim/PyMatching repetition-code universe only; not an all-codes or unbounded fault-tolerance claim |
 
 Details: [research_tracks.md](docs/research_tracks.md), [definition_of_completion.md](docs/definition_of_completion.md).
 
