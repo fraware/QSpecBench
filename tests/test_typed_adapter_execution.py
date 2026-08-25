@@ -6,7 +6,8 @@ import inspect
 from pathlib import Path
 
 from qspecbench import evidence_runner
-from qspecbench.evidence_runner import _default_adapter_command
+from qspecbench.evidence_adapter_bindings import bound_adapter_id
+from qspecbench.evidence_runner import _check_one_entry, _default_adapter_command
 from qspecbench.typed_adapter_registry import default_typed_adapter, get_typed_adapter
 from qspecbench.validate import load_spec
 
@@ -21,17 +22,17 @@ def test_runner_has_no_checker_string_execution_dispatch() -> None:
     assert 'entry.get("checker")' not in source
 
 
-def test_dynamic_sidecar_selects_typed_semantic_adapters() -> None:
+def test_dynamic_entries_select_typed_semantic_adapters() -> None:
     claim = REPO / "benchmarks/algorithms/teleportation_dynamic_feedforward_protocol"
     spec = load_spec(claim / "spec.yaml")
     evidence = {item["id"]: item for item in spec["evidence"]}
-    assert evidence["dynamic_denotation_bridge_verify"]["adapter"] == (
+    assert bound_adapter_id(evidence["dynamic_denotation_bridge_verify"], claim) == (
         "qspecbench.bridge.dynamic_denotation.v1"
     )
-    assert evidence["dynamic_ast_bridge_verify"]["adapter"] == (
+    assert bound_adapter_id(evidence["dynamic_ast_bridge_verify"], claim) == (
         "qspecbench.bridge.dynamic_ast.v1"
     )
-    assert evidence["hardware_isa_abstraction"]["adapter"] == (
+    assert bound_adapter_id(evidence["hardware_isa_abstraction"], claim) == (
         "qspecbench.bridge.hardware_isa.v1"
     )
 
@@ -50,7 +51,30 @@ def test_qec_sidecar_selects_stim_matching_adapter() -> None:
         "stim_declared_repetition_universe",
         "stim_pymatching_bitflip_spacetime_d7_R7",
     ):
-        assert evidence[evidence_id]["adapter"] == "qspecbench.qec.stim_matching.v1"
+        assert bound_adapter_id(evidence[evidence_id], claim) == (
+            "qspecbench.qec.stim_matching.v1"
+        )
+
+
+def test_surface_qec_sidecar_is_execution_authoritative() -> None:
+    claim = REPO / "benchmarks/qec/surface_code_distance_three_stabilizer_sanity"
+    spec = load_spec(claim / "spec.yaml")
+    entry = next(item for item in spec["evidence"] if item["id"] == "stim_declared_surface_universe")
+    assert bound_adapter_id(entry, claim) == "qspecbench.qec.stim_matching.v1"
+    result = _check_one_entry(entry, claim, dry_run=True)
+    assert result.ok
+    assert result.command is not None
+    assert "adapters/qec/stim_matching_check.py" in result.command.replace("\\", "/")
+
+
+def test_bitflip_qec_sidecar_is_execution_authoritative() -> None:
+    claim = REPO / "benchmarks/qec/three_qubit_bit_flip_code_corrects_one_x"
+    spec = load_spec(claim / "spec.yaml")
+    entry = next(item for item in spec["evidence"] if item["id"] == "stim_dem_adapter_result")
+    result = _check_one_entry(entry, claim, dry_run=True)
+    assert result.ok
+    assert result.command is not None
+    assert "adapters/qec/stim_matching_check.py" in result.command.replace("\\", "/")
 
 
 def test_typed_adapter_command_uses_registry_implementation_not_checker() -> None:
