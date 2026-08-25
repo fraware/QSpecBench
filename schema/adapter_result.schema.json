@@ -13,7 +13,7 @@
     "semantic_profile_id": {"type": "string", "minLength": 1},
     "status": {"type": "string", "enum": ["passing", "failing", "partial", "not_checked"]},
     "supported_obligations": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "trust_class": {"type": "string", "enum": ["kernel_checked", "independently_checkable", "externally_trusted", "simulation", "human_review", "heuristic"]},
+    "trust_class": {"type": "string", "enum": ["kernel_checked", "independently_checkable", "externally_trusted", "simulation", "human_review", "heuristic", "untrusted"]},
     "tool": {
       "type": "object",
       "properties": {
