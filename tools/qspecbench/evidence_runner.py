@@ -20,6 +20,7 @@ from typing import Any
 from qspecbench.adapter_registry import validate_adapter_name
 from qspecbench.adapter_runtime import (
     AdapterRuntimeError,
+    assurance_edge_for_evidence,
     build_adapter_request,
     normalize_adapter_result,
 )
@@ -254,7 +255,7 @@ def _result_error(
 
 
 def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRunResult:
-    """Execute one evidence entry using typed adapter identity or an ordinary typed default."""
+    """Execute one evidence entry using graph/sidecar/default typed adapter identity."""
     eid = str(entry.get("id", "?"))
     rel_path = str(entry.get("path", ""))
     artifact: Path | None = None
@@ -272,21 +273,30 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
     raw_command = entry.get("command")
     try:
         explicit_adapter = bound_adapter_id(entry, claim_dir)
-    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        assurance_edge = assurance_edge_for_evidence(claim_dir, eid)
+    except (OSError, json.JSONDecodeError, ValueError, AdapterRuntimeError) as exc:
         return _result_error(eid, rel_path, f"typed adapter binding: {exc}")
 
     evidence_type = str(entry.get("type", ""))
     execution_adapter = explicit_adapter
-    if execution_adapter is None and artifact is not None and entry.get("status") == "passing":
+    if assurance_edge is not None:
+        graph_adapter = assurance_edge.get("adapter_id")
+        if not graph_adapter:
+            return _result_error(
+                eid,
+                rel_path,
+                f"assurance edge {eid!r} must declare adapter_id",
+            )
+        if explicit_adapter is not None and explicit_adapter != graph_adapter:
+            return _result_error(
+                eid,
+                rel_path,
+                f"typed sidecar/entry adapter {explicit_adapter!r} contradicts assurance edge "
+                f"adapter {graph_adapter!r}",
+            )
+        execution_adapter = str(graph_adapter)
+    elif execution_adapter is None and artifact is not None and entry.get("status") == "passing":
         execution_adapter = _default_adapter_id(evidence_type, artifact)
-
-    if (claim_dir / "assurance_graph.yaml").is_file() and raw_command and execution_adapter is None:
-        return _result_error(
-            eid,
-            rel_path,
-            "assurance-backed evidence cannot execute an untyped raw command",
-            str(raw_command),
-        )
 
     runtime_request: dict[str, Any] | None = None
     if execution_adapter is not None:
@@ -313,6 +323,13 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
         except ValueError as exc:
             return _result_error(eid, rel_path, str(exc))
     elif raw_command:
+        if assurance_edge is not None:
+            return _result_error(
+                eid,
+                rel_path,
+                "assurance-edge evidence cannot execute an untyped raw command",
+                str(raw_command),
+            )
         raw_errors = _raw_command_errors(claim_dir)
         if raw_errors:
             return EvidenceRunResult(
