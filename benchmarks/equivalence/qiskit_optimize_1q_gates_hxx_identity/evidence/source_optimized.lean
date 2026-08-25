@@ -1,0 +1,14 @@
+import QSpecBench.Research.CompilerFlagship
+
+/- QSpecBench evidence:
+benchmark_id = "qiskit_optimize_1q_gates_hxx_identity"
+obligation_id = "source_target_equivalence"
+theorem = "QSpecBench.Research.CompilerFlagship.compiler_generated_artifact_pair_semantically_equivalent"
+artifact_sha256 = "ef022773134724a54f86931c3e90bebd416e5a0e8ccd30367433d2f59ede40d9"
+gate_trace_sha256 = "d84bdb1127c20f727286a024caef27d228cc25dbde53fa1e85e80763e820f0c1"
+-/
+
+#check QSpecBench.Research.CompilerFlagship.source_artifact_fail_closed_parse
+#check QSpecBench.Research.CompilerFlagship.target_artifact_fail_closed_parse
+#check QSpecBench.Research.CompilerFlagship.source_target_normalized_complex_denotation_eq
+#check QSpecBench.Research.CompilerFlagship.compiler_generated_artifact_pair_semantically_equivalent
