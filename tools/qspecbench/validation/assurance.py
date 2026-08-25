@@ -173,13 +173,20 @@ def validate_assurance_graph_rules(
                 f"assurance graph edge {evidence_id} cannot discharge obligations with status={evidence.get('status')}"
             )
             continue
+        edge_supports: list[str] = []
         for obligation_id in edge.get("supports", []):
             if obligation_id not in obligation_ids:
                 errors.append(
                     f"assurance graph edge {evidence_id} supports unknown obligation: {obligation_id}"
                 )
             else:
-                supported.add(obligation_id)
+                edge_supports.append(obligation_id)
+        if edge.get("trust_class") == "untrusted":
+            warnings.append(
+                f"assurance graph edge {evidence_id} is untrusted and cannot discharge obligations"
+            )
+            continue
+        supported.update(edge_supports)
 
     orphaned = sorted(graph_required - supported)
     if orphaned:
