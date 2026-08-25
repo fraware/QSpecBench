@@ -59,6 +59,9 @@ def test_review_separation_rejects_author_as_reviewer():
     spec = load_spec(claim / "spec.yaml")
     author = (spec.get("authorship") or {}).get("author")
     assert author
+    # Force a gold/reference maturity so the independent-review gate applies;
+    # corpus packages may be experimental_closed after v1 demotion.
+    spec.setdefault("status", {})["maturity"] = "reference_claim"
     spec["status"]["reviews"]["formal_evidence_review"]["reviewer"] = author
     errors = validate_promotion_reviews(spec, claim)
     assert any("cannot be the benchmark author" in e for e in errors)

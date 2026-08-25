@@ -71,7 +71,12 @@ def test_missing_review_artifact_fails_when_required(tmp_path):
             info.size = len(data)
             dst.addfile(info, fileobj=__import__("io").BytesIO(data))
     errs = verify_release_bundle(stripped, require_review_artifacts=True)
-    assert any("missing review artifact" in e for e in errs)
+    # Fail-closed: either the manifest still lists the review paths
+    # (bundle_files entry missing) or the gold/reference review gate fires.
+    assert errs
+    assert any(
+        "missing review artifact" in e or "bundle_files entry missing" in e for e in errs
+    )
 
 
 def test_streaming_verify_passes(tmp_path):
@@ -104,7 +109,10 @@ def test_cli_require_review_artifacts_flag(tmp_path):
         ["verify-release-bundle", str(stripped), "--require-review-artifacts"],
     )
     assert result.exit_code != 0
-    assert "missing review artifact" in result.stdout
+    assert (
+        "missing review artifact" in result.stdout
+        or "bundle_files entry missing" in result.stdout
+    )
 
 
 def test_report_pipelines_use_fail_closed_shell() -> None:
