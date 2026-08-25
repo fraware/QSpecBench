@@ -278,56 +278,23 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
         return _result_error(eid, rel_path, f"typed adapter binding: {exc}")
 
     evidence_type = str(entry.get("type", ""))
-    execution_adapter = explicit_adapter
-    if assurance_edge is not None:
-        graph_adapter = assurance_edge.get("adapter_id")
-        if not graph_adapter:
-            return _result_error(
-                eid,
-                rel_path,
-                f"assurance edge {eid!r} must declare adapter_id",
-            )
-        if explicit_adapter is not None and explicit_adapter != graph_adapter:
-            return _result_error(
-                eid,
-                rel_path,
-                f"typed sidecar/entry adapter {explicit_adapter!r} contradicts assurance edge "
-                f"adapter {graph_adapter!r}",
-            )
-        execution_adapter = str(graph_adapter)
-    elif execution_adapter is None and artifact is not None and entry.get("status") == "passing":
-        execution_adapter = _default_adapter_id(evidence_type, artifact)
-
+    execution_adapter: str | None = None
     runtime_request: dict[str, Any] | None = None
-    if execution_adapter is not None:
-        try:
-            runtime_request = build_adapter_request(
-                entry,
-                claim_dir,
-                adapter_id=str(execution_adapter),
-                artifact=artifact,
-                secondary=secondary,
-            )
-        except AdapterRuntimeError as exc:
-            return _result_error(eid, rel_path, f"adapter request: {exc}")
-
     command: str | None = None
-    if execution_adapter and artifact:
-        try:
-            command = _default_adapter_command(
-                evidence_type,
-                artifact,
-                adapter_override=str(execution_adapter),
-                secondary=secondary,
-            )
-        except ValueError as exc:
-            return _result_error(eid, rel_path, str(exc))
-    elif raw_command:
+
+    if raw_command:
         if assurance_edge is not None:
             return _result_error(
                 eid,
                 rel_path,
                 "assurance-edge evidence cannot execute an untyped raw command",
+                str(raw_command),
+            )
+        if explicit_adapter is not None:
+            return _result_error(
+                eid,
+                rel_path,
+                "raw command cannot be combined with an explicit typed adapter",
                 str(raw_command),
             )
         raw_errors = _raw_command_errors(claim_dir)
@@ -338,9 +305,51 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
                 command=str(raw_command),
                 exit_code=1,
                 errors=raw_errors + ["warning: raw commands are a maintainer escape hatch only"],
-                adapter_request=runtime_request,
             )
         command = str(raw_command)
+    else:
+        execution_adapter = explicit_adapter
+        if assurance_edge is not None:
+            graph_adapter = assurance_edge.get("adapter_id")
+            if not graph_adapter:
+                return _result_error(
+                    eid,
+                    rel_path,
+                    f"assurance edge {eid!r} must declare adapter_id",
+                )
+            if explicit_adapter is not None and explicit_adapter != graph_adapter:
+                return _result_error(
+                    eid,
+                    rel_path,
+                    f"typed sidecar/entry adapter {explicit_adapter!r} contradicts assurance edge "
+                    f"adapter {graph_adapter!r}",
+                )
+            execution_adapter = str(graph_adapter)
+        elif execution_adapter is None and artifact is not None and entry.get("status") == "passing":
+            execution_adapter = _default_adapter_id(evidence_type, artifact)
+
+        if execution_adapter is not None:
+            try:
+                runtime_request = build_adapter_request(
+                    entry,
+                    claim_dir,
+                    adapter_id=str(execution_adapter),
+                    artifact=artifact,
+                    secondary=secondary,
+                )
+            except AdapterRuntimeError as exc:
+                return _result_error(eid, rel_path, f"adapter request: {exc}")
+
+        if execution_adapter and artifact:
+            try:
+                command = _default_adapter_command(
+                    evidence_type,
+                    artifact,
+                    adapter_override=str(execution_adapter),
+                    secondary=secondary,
+                )
+            except ValueError as exc:
+                return _result_error(eid, rel_path, str(exc))
 
     if not command:
         return EvidenceRunResult(
