@@ -1,9 +1,10 @@
 """Runtime binding for the typed AdapterRequest/AdapterResult protocol.
 
-Only assurance-graph-backed evidence uses this module. Legacy schema-0.3 claims without an
-``assurance_graph.yaml`` remain on the migration path, but once a graph is present, adapter
-execution is bound fail-closed to its proposition, semantic profile, evidence edge, obligations,
-input hashes, adapter identity and trust class.
+Only assurance-graph evidence edges use this module. Legacy schema-0.3 claims without an
+``assurance_graph.yaml`` remain on the migration path, and auxiliary evidence that is not an
+assurance edge remains outside obligation closure. Once an evidence edge exists, execution is
+bound fail-closed to its proposition, semantic profile, obligations, input hashes, adapter
+identity and trust class.
 
 Legacy adapter stdout can be normalized into the typed result envelope during migration. In
 that case obligation support is the assurance edge/request authored by QSpecBench, not a claim
@@ -49,6 +50,23 @@ def _load_graph(claim_dir: Path) -> dict[str, Any] | None:
     return graph
 
 
+def assurance_edge_for_evidence(claim_dir: Path, evidence_id: str) -> dict[str, Any] | None:
+    """Return the unique assurance edge for evidence, or ``None`` for auxiliary evidence."""
+    graph = _load_graph(claim_dir)
+    if graph is None:
+        return None
+    matching_edges = [
+        edge
+        for edge in graph.get("evidence_edges", []) or []
+        if isinstance(edge, dict) and edge.get("evidence_id") == evidence_id
+    ]
+    if len(matching_edges) > 1:
+        raise AdapterRuntimeError(
+            f"assurance graph contains duplicate evidence edges for {evidence_id!r}"
+        )
+    return matching_edges[0] if matching_edges else None
+
+
 def _relative_input(claim_dir: Path, path: Path, role: str) -> dict[str, Any]:
     resolved_claim = claim_dir.resolve()
     resolved_path = path.resolve()
@@ -69,30 +87,17 @@ def build_adapter_request(
     artifact: Path | None,
     secondary: Path | None = None,
 ) -> dict[str, Any] | None:
-    """Build and validate the request for an assurance-backed evidence edge.
+    """Build and validate the request for the entry's assurance edge.
 
-    Returns ``None`` for legacy claims without an assurance graph. A present graph is
-    authoritative: missing or contradictory identity is an error rather than a fallback.
+    Returns ``None`` when the claim has no graph or this evidence entry is auxiliary and has no
+    graph edge. A present edge is authoritative: missing or contradictory identity is an error.
     """
-    graph = _load_graph(claim_dir)
-    if graph is None:
-        return None
-
     evidence_id = str(entry.get("id") or "")
     if not evidence_id:
-        raise AdapterRuntimeError("assurance-backed evidence entry has no id")
-
-    matching_edges = [
-        edge
-        for edge in graph.get("evidence_edges", []) or []
-        if isinstance(edge, dict) and edge.get("evidence_id") == evidence_id
-    ]
-    if len(matching_edges) != 1:
-        raise AdapterRuntimeError(
-            f"assurance graph must contain exactly one evidence edge for {evidence_id!r}; "
-            f"found {len(matching_edges)}"
-        )
-    edge = matching_edges[0]
+        raise AdapterRuntimeError("evidence entry has no id")
+    edge = assurance_edge_for_evidence(claim_dir, evidence_id)
+    if edge is None:
+        return None
 
     graph_adapter = edge.get("adapter_id")
     if not graph_adapter:
@@ -118,6 +123,9 @@ def build_adapter_request(
             f"trust class {typed.trust_ceiling!r} for {adapter_id!r}"
         )
 
+    graph = _load_graph(claim_dir)
+    if graph is None:  # unreachable after a present edge, retained defensively
+        raise AdapterRuntimeError("assurance graph disappeared during request construction")
     proposition = graph.get("proposition") or {}
     semantic_profile = graph.get("semantic_profile") or {}
     proposition_id = proposition.get("id")
