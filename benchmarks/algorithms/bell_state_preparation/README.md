@@ -36,7 +36,7 @@ Honest limits: int-scaffold Bell prep; global phase and OpenQASM H normalization
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 

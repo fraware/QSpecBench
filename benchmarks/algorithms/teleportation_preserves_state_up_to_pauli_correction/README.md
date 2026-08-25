@@ -6,13 +6,15 @@ Under the Lean 4 kernel OpenQASM3 denotation, the measure-free artifact teleport
 
 ## Why this matters
 
-Artifact-bound kernel ABRC for the measure-free teleport unitary prefix (Path B narrowing).
-Full dynamic OpenQASM measure+if feed-forward remains out of ABRC headline scope.
+Machine-closed kernel binding for the measure-free teleport unitary prefix (Path B narrowing).
+Formerly labeled ABRC as of v0.2.x; **demoted for v1** to `experimental_closed` (not gold /
+independently reviewed). Full dynamic OpenQASM measure+if feed-forward remains out of
+headline scope.
 
 ## Objects
 
-- `artifacts/teleport_unitary_prefix.qasm` — measure-free H/CX prefix (ABRC source)
-- `artifacts/teleportation.qasm` — full protocol reference (non-ABRC)
+- `artifacts/teleport_unitary_prefix.qasm` — measure-free H/CX prefix (headline source)
+- `artifacts/teleportation.qasm` — full protocol reference (out of headline scope)
 
 ## Specification
 
@@ -22,7 +24,7 @@ Exact gate-list denotation under Lean OpenQASM3 kernel bridge.
 
 - Lean kernel bridge + BridgeMetadata/elaborator pins
 - verify-bridge kernel_checked_artifact_semantics
-- Dual hash-bound formal/domain reviews for proposition v2
+- Dual hash-bound formal/domain reviews for proposition v2 (retained as unauthenticated legacy; not v1 gold)
 
 ## Trust boundary
 
@@ -32,11 +34,12 @@ Exact gate-list denotation under Lean OpenQASM3 kernel bridge.
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim**.
+Current maturity: **experimental_closed**.
 
 ## Known gaps
 
-Full dynamic teleport protocol ABRC remains future work (measure+if outside gate-only chain).
+Full dynamic teleport protocol with gold/ABRC promotion remains future work after the freeze
+(measure+if outside gate-only chain; sibling package is also `experimental_closed`).
 
 ## References
 

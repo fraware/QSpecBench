@@ -38,7 +38,7 @@ Honest limits: declared gate subset only; not general n-qubit or full OpenQASM 3
 
 ## Status
 
-Current maturity: **artifact_bound_reference_claim** (`kernel_checked_artifact_semantics`).
+Current maturity: **experimental_closed** (`kernel_checked_artifact_semantics`).
 
 ## Known gaps
 

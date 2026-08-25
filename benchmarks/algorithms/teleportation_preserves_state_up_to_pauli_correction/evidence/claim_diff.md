@@ -1,8 +1,8 @@
 # Claim diff: teleportation_preserves_state_up_to_pauli_correction
 
-<!-- scope_fingerprint: 34a61be02bf60260f8be508e994e583f8cd4460ceb78920305286e4fb3ac7980 -->
+<!-- scope_fingerprint: 938390ca2f0a4c86a43f0f2430e0ba149127b9b11006ceca4d34ef2f0c97872c -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)

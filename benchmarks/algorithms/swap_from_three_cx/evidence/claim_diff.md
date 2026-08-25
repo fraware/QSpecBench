@@ -1,8 +1,8 @@
 # Claim diff: swap_from_three_cx
 
-<!-- scope_fingerprint: bea8a2f96b895bebd0189116f2d689aa235795fbc109e2a92c835c6ba79d5d15 -->
+<!-- scope_fingerprint: a5fffa12ac70040cdba2174fe1a9a66ae37bebd4cddbf67cc05616483326f2f2 -->
 
-**Maturity:** artifact_bound_reference_claim
+**Maturity:** experimental_closed
 **Headline status:** checked
 
 ## Informal claim (README/spec)
