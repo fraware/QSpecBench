@@ -16,6 +16,11 @@ def _write_repo(tmp_path: Path, graph: dict) -> Path:
     )
     profile = {
         "id": "qspecbench.openqasm3.test.v1",
+        "upstream_standard": "OpenQASM",
+        "upstream_version": "3.0",
+        "parser_implementation": "test parser",
+        "parser_version": "1.0.0",
+        "include_policy": "rejected",
         "accepted_headers": ["OPENQASM 3.0"],
         "accepted_declarations": ["qubit"],
         "gate_set": ["x"],
