@@ -1,0 +1,10 @@
+{
+  "compiler_id": "qiskit.transpiler.passes.Optimize1qGates",
+  "compiler_package": "qiskit",
+  "qiskit_version": "1.4.2",
+  "pass_config": {"pass": "Optimize1qGates", "seed": 0},
+  "source_path": "artifacts/source.qasm",
+  "target_path": "artifacts/target.qasm",
+  "source_sha256": "ef022773134724a54f86931c3e90bebd416e5a0e8ccd30367433d2f59ede40d9",
+  "target_sha256": "b0b1111a0363f9d90a405a33fbe23352771e64a85909ebb91758f8d82ecf6e60"
+}

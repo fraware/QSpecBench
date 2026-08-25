@@ -28,8 +28,7 @@ Thumbs.db
 
 # Local / ephemeral release and verification scratch (not normative)
 docs/release/
-artifacts/
-artifacts/lean-qec/
+/artifacts/
 
 # Lean-QEC cold-verify workdirs and logs (adapter may write under artifacts/)
 **/qspecbench-lean-qec-*/

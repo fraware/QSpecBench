@@ -1,0 +1,21 @@
+{
+  "id": "xz_product_formula_instance",
+  "type": "pauli_hamiltonian",
+  "representation": {
+    "source": "pauli_sum",
+    "target": "2x2_complex_matrix"
+  },
+  "terms": [
+    {"coeff": 1.0, "operators": "X"},
+    {"coeff": 1.0, "operators": "Z"}
+  ],
+  "parameters": {
+    "t": "pi/4",
+    "metric": "frobenius_majorant_of_entry_modulus",
+    "space": "C^2"
+  },
+  "claims": {
+    "general_operator_norm_lie_trotter": false,
+    "frobenius_majorant_instance": true
+  }
+}
