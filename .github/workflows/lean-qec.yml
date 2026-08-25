@@ -1,0 +1,84 @@
+name: Lean-QEC interoperability
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/lean-qec.yml"
+      - "adapters/lean_qec/**"
+      - "tools/qspecbench/typed_adapter_registry.py"
+      - "schema/adapter_request.schema.json"
+      - "schema/adapter_result.schema.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lean-qec-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bb90-distance-kernel-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Install elan
+        run: |
+          set -euo pipefail
+          ELAN_VERSION=v4.2.3
+          ELAN_SHA256=df0b2b3a439961ffcbb3985214365ffe40f49bc871df04dff268c7d8e21ca8b2
+          curl -sSfL "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz" -o /tmp/elan.tar.gz
+          echo "${ELAN_SHA256}  /tmp/elan.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/elan.tar.gz -C /tmp
+          /tmp/elan-init -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Verify pinned BB90 distance theorem in upstream toolchain
+        env:
+          QSPECBENCH_LEAN_QEC_VERIFY: "1"
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/lean-qec
+          python adapters/lean_qec/parse_result.py \
+            adapters/lean_qec/examples/bb90_distance_10.json \
+            | tee artifacts/lean-qec/bb90-distance-result.json
+
+      - name: Assert exact verified scope
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("artifacts/lean-qec/bb90-distance-result.json")
+          result = json.loads(path.read_text(encoding="utf-8"))
+          assert result.get("ok") is True, result
+          assert result.get("skipped") is False, result
+          assert result.get("kernel_checked") is True, result
+          assert result.get("adapter_id") == "qspecbench.lean_qec.distance.v1", result
+          assert result.get("upstream_commit") == "e0b90148694cf6b9c8482b21dbd911f2d8f13493", result
+          assert result.get("actual_commit") == result.get("upstream_commit"), result
+          assert result.get("lean_toolchain") == "leanprover/lean4:v4.30.0-rc2", result
+          assert result.get("actual_toolchain") == result.get("lean_toolchain"), result
+          assert result.get("source_git_blob_sha") == "8414ff1fb50f888998188f6e53020e95eb7891ca", result
+          assert result.get("actual_source_git_blob_sha") == result.get("source_git_blob_sha"), result
+          assert result.get("theorem") == "BB90_dist_10", result
+          assert result.get("supported_obligations") == ["qec_distance_lower_bound"], result
+          assert "syndrome_extraction_circuit_semantics" in result.get("not_supported_obligations", []), result
+          print("Lean-QEC BB90 distance-only kernel check verified")
+          PY
+
+      - name: Upload Lean-QEC verification result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lean-qec-bb90-${{ github.sha }}
+          path: artifacts/lean-qec/
+          if-no-files-found: warn
+          retention-days: 14
