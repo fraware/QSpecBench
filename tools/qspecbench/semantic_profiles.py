@@ -224,7 +224,7 @@ def _dynamic_v2_consistency_errors(profile: dict[str, Any]) -> list[str]:
         errors.append(f"{profile_id}: accepted_headers must pin OPENQASM 3.0")
     if interpretation.get("include_policy") != "skipped_not_interpreted":
         errors.append(f"{profile_id}: include_policy must be skipped_not_interpreted")
-    if interpretation.get("declaration_subset") != ["qubit[n] name", "bit[n] name"]:
+    if interpretation.get("declaration_subset") != ["qubit[n] q", "bit[n] name"]:
         errors.append(f"{profile_id}: declaration_subset must match executable v2 grammar")
     if not interpretation.get("parameter_grammar"):
         errors.append(f"{profile_id}: parameter_grammar must be explicit")
@@ -298,9 +298,9 @@ def cross_consistency_errors(profile: dict[str, Any]) -> list[str]:
             errors.append(f"{profile_id}: parser_version must pin canonical interpreter v2")
         if profile.get("accepted_headers") != ["OPENQASM 3.0"]:
             errors.append(f"{profile_id}: accepted_headers must pin OPENQASM 3.0")
-        if profile.get("accepted_declarations") != ["qubit", "qubit[]"]:
+        if profile.get("accepted_declarations") != ["qubit[n] q"]:
             errors.append(
-                f"{profile_id}: accepted_declarations must match vector-qubit grammar"
+                f"{profile_id}: accepted_declarations must match exact qubit register grammar"
             )
         if profile_wire_order_convention(profile) != "openqasm_little_endian_wire_order":
             errors.append(f"{profile_id}: wire order must be little-endian/LSB")
