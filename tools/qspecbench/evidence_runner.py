@@ -1,9 +1,9 @@
 """Run declared evidence checks for a benchmark claim.
 
-Execution routing is deliberately independent of the human-readable ``checker`` field.
-A stable typed adapter id, when present, selects the implementation. Evidence types with one
-ordinary repository-wide interpretation may use the typed default registry. Legacy directory
-adapter names remain accepted only as a compatibility surface while specs migrate.
+Execution routing is deliberately independent of the human-readable ``checker`` field and of
+legacy adapter-directory names. A stable typed adapter id selects the implementation. Evidence
+types with one ordinary repository-wide interpretation may use the typed default registry;
+historical spec aliases must canonicalize to a typed identity before they reach this module.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from qspecbench.adapter_registry import validate_adapter_name
 from qspecbench.adapter_runtime import (
     AdapterRuntimeError,
     assurance_edge_for_evidence,
@@ -154,25 +153,25 @@ def _adapter_command(
     evidence_type: str | None = None,
     secondary: Path | None = None,
 ) -> str:
-    """Resolve a typed adapter id (preferred) or legacy directory adapter name.
+    """Resolve an exact registered typed adapter id to its implementation.
 
-    ``checker`` is intentionally absent from this function: prose metadata has no execution
-    authority.
+    ``checker`` and historical adapter-directory names are intentionally absent from execution
+    authority. Compatibility aliases must be canonicalized by ``bound_adapter_id`` before this
+    function is called.
     """
     typed = get_typed_adapter(adapter_name)
-    if typed is not None:
-        if evidence_type is not None and evidence_type not in typed.supported_evidence_types:
-            raise ValueError(
-                f"typed adapter {adapter_name!r} does not support evidence type {evidence_type!r}"
-            )
-        script = ADAPTERS_ROOT / typed.implementation
-    elif adapter_name.startswith("qspecbench."):
-        raise ValueError(f"unknown typed adapter id {adapter_name!r}")
-    else:
-        errors = validate_adapter_name(adapter_name)
-        if errors:
-            raise ValueError("; ".join(errors))
-        script = ADAPTERS_ROOT / adapter_name / "parse_result.py"
+    if typed is None:
+        if adapter_name.startswith("qspecbench."):
+            raise ValueError(f"unknown typed adapter id {adapter_name!r}")
+        raise ValueError(
+            f"legacy adapter directory {adapter_name!r} is not an executable identity; "
+            "canonicalize it to a registered qspecbench.* typed adapter id first"
+        )
+    if evidence_type is not None and evidence_type not in typed.supported_evidence_types:
+        raise ValueError(
+            f"typed adapter {adapter_name!r} does not support evidence type {evidence_type!r}"
+        )
+    script = ADAPTERS_ROOT / typed.implementation
 
     if not script.is_file():
         raise ValueError(f"adapter implementation does not exist: {script.relative_to(REPO_ROOT)}")
