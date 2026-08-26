@@ -27,11 +27,12 @@ from qspecbench.qasm_matrix import UnsupportedQasmError, _register_size, cell_to
 
 _PROFILE_VERSION = "statevector_projective_v2"
 _HEADER = "OPENQASM 3.0"
-_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*\d+\s*\]\s+[A-Za-z_]\w*\s*;?$")
-_BIT_DECL = re.compile(r"^bit\s*\[\s*\d+\s*\]\s+[A-Za-z_]\w*\s*;?$")
+_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;?$")
+_BIT_DECL = re.compile(r"^bit\s*\[\s*(\d+)\s*\]\s+([A-Za-z_]\w*)\s*;?$")
+_CLASSICAL_REF = re.compile(r"^([A-Za-z_]\w*)\[(\d+)\]$")
 _IF_LINE = re.compile(r"^if\s*\(([^)]+)\)\s*(.+);?\s*$", re.IGNORECASE)
 _PREDICATE = re.compile(
-    r"^([A-Za-z_]\w*(?:\[\d+\])?)\s*==\s*1$",
+    r"^([A-Za-z_]\w*\[\d+\])\s*==\s*1$",
     re.IGNORECASE,
 )
 
@@ -46,7 +47,11 @@ def _clean_lines(text: str) -> list[str]:
 
 
 def _validate_header(lines: list[str]) -> None:
-    headers = [line.rstrip(";").strip() for line in lines if line.lower().startswith("openqasm")]
+    headers = [
+        line.rstrip(";").strip()
+        for line in lines
+        if line.lower().startswith("openqasm")
+    ]
     if headers != [_HEADER]:
         raise UnsupportedQasmError(
             "dynamic profile requires exactly one 'OPENQASM 3.0;' header; "
@@ -60,6 +65,23 @@ def _classical_key(registers: dict[str, int]) -> str:
         key=lambda name: int(match.group()) if (match := re.search(r"\d+", name)) else 0,
     )
     return ",".join(str(registers[name]) for name in ordered)
+
+
+def _require_declared_bit(reference: str, bit_widths: dict[str, int]) -> None:
+    match = _CLASSICAL_REF.fullmatch(reference)
+    if match is None:
+        raise UnsupportedQasmError(
+            f"dynamic profile requires indexed classical-bit references, got {reference!r}"
+        )
+    name, raw_index = match.groups()
+    width = bit_widths.get(name)
+    if width is None:
+        raise UnsupportedQasmError(f"classical bit register {name!r} is not declared")
+    index = int(raw_index)
+    if index >= width:
+        raise UnsupportedQasmError(
+            f"classical bit {reference!r} outside declared bit[{width}] {name}"
+        )
 
 
 def simulate_instrument_feedforward_v2(
@@ -81,6 +103,8 @@ def simulate_instrument_feedforward_v2(
 
     state = _initial_state(n_qubits, initial_amplitudes)
     classical: dict[str, int] = {}
+    bit_widths: dict[str, int] = {}
+    seen_qubit_declaration = False
     steps: list[dict[str, Any]] = []
 
     for line in lines:
@@ -90,12 +114,40 @@ def simulate_instrument_feedforward_v2(
         if lower.startswith("include"):
             steps.append({"kind": "include_skipped", "line": line})
             continue
-        if _QUBIT_DECL.match(line) or _BIT_DECL.match(line):
+
+        qubit_declaration = _QUBIT_DECL.fullmatch(line)
+        if qubit_declaration:
+            if seen_qubit_declaration:
+                raise UnsupportedQasmError("dynamic profile permits one qubit register q")
+            declared_qubits = int(qubit_declaration.group(1))
+            if declared_qubits != n_qubits:
+                raise UnsupportedQasmError("inconsistent qubit register declaration")
+            seen_qubit_declaration = True
             continue
+        if lower.startswith("qubit"):
+            raise UnsupportedQasmError(
+                "dynamic profile requires declaration 'qubit[n] q;'"
+            )
+
+        bit_declaration = _BIT_DECL.fullmatch(line)
+        if bit_declaration:
+            width = int(bit_declaration.group(1))
+            name = bit_declaration.group(2)
+            if width <= 0:
+                raise UnsupportedQasmError("bit register width must be positive")
+            if name in bit_widths:
+                raise UnsupportedQasmError(f"duplicate bit register {name!r}")
+            bit_widths[name] = width
+            continue
+        if lower.startswith("bit"):
+            raise UnsupportedQasmError(
+                "dynamic profile requires declaration 'bit[n] name;'"
+            )
 
         measurement = _MEASURE_LINE.match(line)
         if measurement:
             register, qref = measurement.group(1), measurement.group(2)
+            _require_declared_bit(register, bit_widths)
             qubit_match = re.search(r"\[(\d+)\]", qref)
             if qubit_match is None:
                 qubit_match = re.search(r"q(\d+)", qref.lower())
@@ -127,10 +179,11 @@ def simulate_instrument_feedforward_v2(
             predicate = _PREDICATE.fullmatch(predicate_text)
             if predicate is None:
                 raise UnsupportedQasmError(
-                    "dynamic profile supports only single-bit predicates '<bit> == 1'; "
+                    "dynamic profile supports only indexed predicates '<bit> == 1'; "
                     f"got {predicate_text!r}"
                 )
             register = predicate.group(1)
+            _require_declared_bit(register, bit_widths)
             if register not in classical:
                 raise UnsupportedQasmError(
                     f"classical predicate references unset measurement bit {register!r}"
@@ -153,7 +206,16 @@ def simulate_instrument_feedforward_v2(
             )
             continue
 
-        if lower.startswith(("reset ", "for ", "while ", "else", "gate ", "def ", "defcal")):
+        unsupported_prefixes = (
+            "reset ",
+            "for ",
+            "while ",
+            "else",
+            "gate ",
+            "def ",
+            "defcal",
+        )
+        if lower.startswith(unsupported_prefixes):
             raise UnsupportedQasmError(
                 f"unsupported executable construct under dynamic profile v2: {line!r}"
             )
@@ -166,12 +228,17 @@ def simulate_instrument_feedforward_v2(
         )
         steps.append({"kind": "gate", "line": line})
 
+    if not seen_qubit_declaration:
+        raise UnsupportedQasmError("dynamic profile requires declaration 'qubit[n] q;'")
+
     if pauli_corrections:
         key = _classical_key(classical)
         operations = pauli_corrections.get(key, [])
         for operation, qubit in operations:
             if qubit < 0 or qubit >= n_qubits:
-                raise ValueError(f"correction qubit {qubit} outside {n_qubits}-qubit register")
+                raise ValueError(
+                    f"correction qubit {qubit} outside {n_qubits}-qubit register"
+                )
             if operation == "X":
                 state = _apply_pauli_x(state, n_qubits, qubit)
             elif operation == "Z":
