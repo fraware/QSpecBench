@@ -1,0 +1,42 @@
+{
+  "id": "qspecbench.openqasm3.unitary_lsb.v2",
+  "upstream_standard": "OpenQASM",
+  "upstream_version": "3.0",
+  "parser_implementation": "qspecbench.canonical_qasm.extract_lsb_unitary",
+  "parser_version": "qspecbench-openqasm-lsb-unitary-2",
+  "include_policy": "skipped_not_interpreted",
+  "accepted_headers": [
+    "OPENQASM 3.0"
+  ],
+  "accepted_declarations": [
+    "qubit",
+    "qubit[]"
+  ],
+  "gate_set": [
+    "h",
+    "x",
+    "y",
+    "z",
+    "s",
+    "sdg",
+    "t",
+    "tdg",
+    "cx",
+    "cz",
+    "swap",
+    "ccx",
+    "rx",
+    "ry",
+    "rz",
+    "u",
+    "cp"
+  ],
+  "angle_grammar": "symbolic_restricted",
+  "control_flow_support": "none",
+  "measurement_support": "none",
+  "reset_support": "none",
+  "wire_order_convention": "openqasm_little_endian_wire_order",
+  "global_phase_policy": "exact",
+  "unsupported_syntax_behavior": "fail_closed",
+  "notes": "Canonical Python unitary profile. q[i] is basis-index bit weight 2^i (LSB). Hadamard is normalized by 1/sqrt(2). Includes are skipped syntactically and are not library-semantic imports. This profile is distinct from legacy unitary.v1 and does not reinterpret historical evidence."
+}
