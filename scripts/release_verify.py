@@ -89,6 +89,7 @@ def main() -> int:
         )
         return 2
     steps = [
+        [sys.executable, "scripts/check_release_contract.py", "--strict-qualification"],
         [sys.executable, "-m", "qspecbench", "validate", "benchmarks/", "--strict-all", "--audit-graph"],
         [sys.executable, "-c", "from qspecbench.generated_status import generate_status_snapshot; from pathlib import Path; expected=Path('docs/generated_status.md').read_text(encoding='utf-8'); actual=generate_status_snapshot(Path('benchmarks')); assert actual==expected, 'generated_status drift'"],
         [sys.executable, "-c", "from qspecbench.interoperability import generate_interoperability_matrix; from pathlib import Path; expected=Path('docs/interoperability_matrix.md').read_text(encoding='utf-8'); actual=generate_interoperability_matrix(); assert actual==expected, 'interoperability_matrix drift'"],
@@ -101,7 +102,18 @@ def main() -> int:
         )],
     ]
     if not args.skip_tests:
-        steps.append([sys.executable, "-m", "pytest", "tests/test_v1_substrate.py", "tests/test_typed_adapter_execution.py", "tests/test_lean_qec_fsm.py", "-q"])
+        steps.append(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/test_v1_substrate.py",
+                "tests/test_typed_adapter_execution.py",
+                "tests/test_lean_qec_fsm.py",
+                "tests/test_release_contract.py",
+                "-q",
+            ]
+        )
     for cmd in steps:
         code = _run(cmd)
         if code != 0:
