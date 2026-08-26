@@ -228,6 +228,11 @@ def _dynamic_v2_consistency_errors(profile: dict[str, Any]) -> list[str]:
         errors.append(f"{profile_id}: declaration_subset must match executable v2 grammar")
     if not interpretation.get("parameter_grammar"):
         errors.append(f"{profile_id}: parameter_grammar must be explicit")
+    numeric_semantics = str(interpretation.get("numeric_semantics") or "")
+    if "Fraction" not in numeric_semantics or "rational" not in numeric_semantics:
+        errors.append(
+            f"{profile_id}: numeric_semantics must disclose Fraction-based rational approximation"
+        )
     if profile_wire_order_convention(profile) != "openqasm_little_endian_wire_order":
         errors.append(f"{profile_id}: wire_order must state the LSB basis-index convention")
     if interpretation.get("hadamard_normalization") != "1/sqrt(2)":
@@ -291,10 +296,21 @@ def cross_consistency_errors(profile: dict[str, Any]) -> list[str]:
             )
         if profile.get("parser_version") != "qspecbench-openqasm-lsb-unitary-2":
             errors.append(f"{profile_id}: parser_version must pin canonical interpreter v2")
+        if profile.get("accepted_headers") != ["OPENQASM 3.0"]:
+            errors.append(f"{profile_id}: accepted_headers must pin OPENQASM 3.0")
+        if profile.get("accepted_declarations") != ["qubit", "qubit[]"]:
+            errors.append(
+                f"{profile_id}: accepted_declarations must match vector-qubit grammar"
+            )
         if profile_wire_order_convention(profile) != "openqasm_little_endian_wire_order":
             errors.append(f"{profile_id}: wire order must be little-endian/LSB")
         if profile_global_phase_policy(profile) != "exact":
             errors.append(f"{profile_id}: global_phase_policy must be exact")
+        numeric_semantics = str(profile.get("numeric_semantics") or "")
+        if "Fraction" not in numeric_semantics or "rational" not in numeric_semantics:
+            errors.append(
+                f"{profile_id}: numeric_semantics must disclose Fraction-based rational approximation"
+            )
         if profile.get("angle_grammar") != "symbolic_restricted":
             errors.append(f"{profile_id}: angle_grammar must be symbolic_restricted")
         for field in ("control_flow_support", "measurement_support", "reset_support"):
