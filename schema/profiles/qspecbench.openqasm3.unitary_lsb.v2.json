@@ -9,8 +9,7 @@
     "OPENQASM 3.0"
   ],
   "accepted_declarations": [
-    "qubit",
-    "qubit[]"
+    "qubit[n] q"
   ],
   "gate_set": [
     "h",
@@ -40,5 +39,5 @@
   "global_phase_policy": "exact",
   "numeric_semantics": "complex amplitudes represented as pairs of Python Fraction values; irrational and trigonometric coefficients are deterministically rationalized by the qasm_matrix implementation, including 1/sqrt(2), so exact equality is exact only within that encoded rational model",
   "unsupported_syntax_behavior": "fail_closed",
-  "notes": "Canonical Python unitary profile. q[i] is basis-index bit weight 2^i (LSB). Hadamard is normalized by the interpreter's deterministic rational approximation to 1/sqrt(2). Includes are skipped syntactically and are not library-semantic imports. This profile is distinct from legacy unitary.v1 and does not reinterpret historical evidence."
+  "notes": "Canonical Python unitary profile. q[i] is basis-index bit weight 2^i (LSB). Exactly one vector qubit register named q is accepted. Hadamard is normalized by the interpreter's deterministic rational approximation to 1/sqrt(2). Includes are skipped syntactically and are not library-semantic imports. This profile is distinct from legacy unitary.v1 and does not reinterpret historical evidence."
 }
