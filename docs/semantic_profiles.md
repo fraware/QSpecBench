@@ -3,16 +3,16 @@
 QSpecBench treats a semantic profile as part of the claim, not as descriptive metadata.
 A promoted claim is meaningful only relative to one executable interpretation of its
 artifacts. The profile therefore fixes the language/version, supported grammar,
-semantic conventions, parser or interpreter implementation, and unsupported-syntax
-behavior that participate in the evidence chain.
+semantic conventions, parser or interpreter implementation, numerical representation,
+and unsupported-syntax behavior that participate in the evidence chain.
 
 ## Immutability and versioning
 
 Published profile identifiers are immutable contracts. If an implementation,
 wire-order convention, gate meaning, parameter grammar, include policy, measurement
-model, or trust boundary changes, the change requires a new profile identifier or
-version. Historical profiles remain registered so old evidence can still be
-reproduced; they are not silently reinterpreted under newer semantics.
+model, numeric representation, or trust boundary changes, the change requires a new
+profile identifier or version. Historical profiles remain registered so old evidence
+can still be reproduced; they are not silently reinterpreted under newer semantics.
 
 Two historical profiles are intentionally reproducibility-only for future promotion:
 
@@ -32,16 +32,19 @@ promotable evidence. Its executable interpreter is
 
 The contract is deliberately narrow:
 
-- exact upstream header: OpenQASM 3.0;
+- exactly one upstream header: `OPENQASM 3.0;`;
 - include statements are skipped syntactically and are not interpreted as library
   semantics;
-- vector `qubit[n]` declarations only;
+- exactly one vector qubit declaration of the form `qubit[n] q;`, with positive `n`;
 - an explicit finite gate subset and restricted angle grammar;
 - `q[i]` is basis-index bit weight `2^i` (little-endian/LSB);
-- Hadamard is normalized by `1/sqrt(2)`;
-- unitary equality uses exact global phase;
+- Hadamard and trigonometric coefficients use the implementation's deterministic
+  rational approximation model based on Python `Fraction` values;
+- `global_phase_policy: exact` means exact equality within that encoded rational
+  model; it does not assert exact algebraic-real arithmetic;
 - measurement, reset, and classical control are rejected;
-- unsupported executable syntax fails closed.
+- unsupported executable syntax fails closed;
+- comments cannot influence declaration discovery or register size.
 
 The legacy matrix extractor remains available for historical artifacts. It is not the
 canonical v2 interpreter.
@@ -54,18 +57,23 @@ profile. Its interpreter is
 
 It models only a bounded deterministic execution fragment:
 
-- exact OpenQASM 3.0 header;
-- vector qubit and bit declarations;
+- exactly one `OPENQASM 3.0;` header;
+- exactly one `qubit[n] q;` register, with positive `n` and `n <= 4`;
+- explicit positive-width `bit[n] name;` declarations;
 - the registered bounded gate subset under the same LSB wire convention as the
   canonical static interpreter;
 - computational-basis projective measurements with state collapse;
-- indexed or scalar measured-bit predicates of the form `<bit> == 1`;
+- measurement destinations must be declared, in-range indexed classical bits;
+- indexed measured-bit predicates of the form `<bit> == 1`, and predicates must
+  reference a bit actually populated by measurement;
 - supported gate actions in the conditional body;
 - optional explicit Pauli X/Z correction tables;
-- at most four qubits;
+- the same declared `Fraction`-based rational approximation model as the Python gate
+  engine, including deterministic rationalization during normalization;
 - no reset, loops, `else`, arbitrary classical expressions, full branch enumeration,
   density-operator/channel semantics, or hardware semantics;
-- nondeterministic measurement at the single-execution entry point fails closed.
+- nondeterministic measurement at the single-execution entry point fails closed;
+- comments cannot influence declaration discovery or register size.
 
 This profile does not prove arbitrary-input teleportation correctness. A benchmark
 must still discharge the proposition-specific mathematical and assurance obligations
@@ -78,7 +86,7 @@ For a promoted package, the following must be mutually consistent:
 1. `spec.yaml` semantic profile selection;
 2. `assurance_graph.yaml` `semantic_profile.id`;
 3. the registered profile content and version;
-4. parser/interpreter capability and fail-closed behavior;
+4. parser/interpreter grammar, numerical model, capability, and fail-closed behavior;
 5. semantic-bridge wire order;
 6. semantic-bridge phase policy when the profile is unitary and phase policy applies.
 
