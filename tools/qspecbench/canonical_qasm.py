@@ -12,6 +12,7 @@ approximation to ``1/sqrt(2)``. Unsupported syntax fails closed.
 
 from __future__ import annotations
 
+import math
 import re
 from fractions import Fraction
 from pathlib import Path
@@ -20,24 +21,19 @@ from typing import Any
 from qspecbench.qasm_matrix import (
     ComplexMatrix,
     UnsupportedQasmError,
-    _CP_LINE,
-    _GATE_LINE,
     _RX_LINE,
     _RY_LINE,
     _RZ_LINE,
     _SQRT2_HALF,
     _U_LINE,
     _ccx,
+    _cell,
     _cnot,
-    _cp,
-    _cz,
     _eye,
     _kron,
     _line_skip_category,
     _mat_mul,
     _parse_angle,
-    _parse_angle_list,
-    _parse_qubit_args,
     _parse_qubit_index,
     _rx_matrix,
     _ry_matrix,
@@ -73,7 +69,24 @@ CANONICAL_GATE_SET: frozenset[str] = frozenset(
     }
 )
 _HEADER = "OPENQASM 3.0"
+_QREF = r"(q\[\d+\]|q\d+)"
 _QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;?$")
+_SINGLE_GATE_LINE = re.compile(
+    rf"^\s*(h|x|y|z|s|t|sdg|tdg)\s+{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
+_TWO_GATE_LINE = re.compile(
+    rf"^\s*(cx|cnot|cz|swap)\s+{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
+_CCX_LINE = re.compile(
+    rf"^\s*ccx\s+{_QREF}\s*,\s*{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
+_CP_LINE_STRICT = re.compile(
+    rf"^\s*cp\s*\(\s*([^)]+)\s*\)\s+{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
 
 
 def _clean_lines(text: str) -> list[str]:
@@ -115,15 +128,15 @@ def _declared_qubit_count(lines: list[str]) -> int:
 
 
 def _scale_matrix(matrix: ComplexMatrix, factor: Fraction) -> ComplexMatrix:
-    return [[(re * factor, im * factor) for re, im in row] for row in matrix]
+    return [[(re_part * factor, im_part * factor) for re_part, im_part in row] for row in matrix]
 
 
 def embed_single_lsb(n_qubits: int, qubit: int, op: ComplexMatrix) -> ComplexMatrix:
     """Embed a 2x2 operator with ``q[i]`` equal to basis-index bit ``i``.
 
     The right-most Kronecker factor is therefore wire ``q[0]``. This convention is
-    consistent with the permutation implementations of CX/CCX/SWAP in
-    :mod:`qspecbench.qasm_matrix` and with the operational dynamic simulator.
+    consistent with the permutation implementations of CX/CCX/SWAP in the legacy
+    module and with the v2 operational dynamic interpreter.
     """
     if qubit < 0 or qubit >= n_qubits:
         raise ValueError(f"qubit index {qubit} out of range for {n_qubits} qubits")
@@ -141,69 +154,116 @@ def _single_gate_lsb(n_qubits: int, gate: str, qubit: int) -> ComplexMatrix:
     return embed_single_lsb(n_qubits, qubit, op)
 
 
+def _require_distinct(gate: str, qubits: tuple[int, ...]) -> None:
+    if len(set(qubits)) != len(qubits):
+        raise UnsupportedQasmError(
+            f"{gate.upper()} requires distinct qubit operands, got {qubits}"
+        )
+
+
+def _controlled_phase_lsb(
+    n_qubits: int,
+    control: int,
+    target: int,
+    theta: float,
+) -> ComplexMatrix:
+    """Controlled phase on every basis state where both selected LSB wires are 1."""
+    _require_distinct("cp", (control, target))
+    dim = 1 << n_qubits
+    result = _eye(dim)
+    phase = _cell(
+        Fraction(math.cos(theta)).limit_denominator(10**12),
+        Fraction(math.sin(theta)).limit_denominator(10**12),
+    )
+    for index in range(dim):
+        if ((index >> control) & 1) and ((index >> target) & 1):
+            result[index][index] = phase
+    return result
+
+
+def _cz_lsb(n_qubits: int, control: int, target: int) -> ComplexMatrix:
+    """CZ on every basis state where both selected LSB wires are 1."""
+    _require_distinct("cz", (control, target))
+    dim = 1 << n_qubits
+    result = _eye(dim)
+    for index in range(dim):
+        if ((index >> control) & 1) and ((index >> target) & 1):
+            result[index][index] = _cell(-1)
+    return result
+
+
+def _parse_u_angles(text: str) -> tuple[float, float, float]:
+    parts = [part.strip() for part in text.split(",")]
+    if len(parts) != 3 or any(not part for part in parts):
+        raise UnsupportedQasmError(f"U expects exactly three non-empty angles: {text!r}")
+    return (_parse_angle(parts[0]), _parse_angle(parts[1]), _parse_angle(parts[2]))
+
+
 def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
-    """Interpret one supported OpenQASM gate line under canonical LSB semantics."""
-    rx = _RX_LINE.match(line)
+    """Interpret one supported gate statement under canonical LSB semantics."""
+    rx = _RX_LINE.fullmatch(line)
     if rx:
         q = _parse_qubit_index(rx.group(2), n_qubits)
         return embed_single_lsb(n_qubits, q, _rx_matrix(_parse_angle(rx.group(1))))
 
-    ry = _RY_LINE.match(line)
+    ry = _RY_LINE.fullmatch(line)
     if ry:
         q = _parse_qubit_index(ry.group(2), n_qubits)
         return embed_single_lsb(n_qubits, q, _ry_matrix(_parse_angle(ry.group(1))))
 
-    rz = _RZ_LINE.match(line)
+    rz = _RZ_LINE.fullmatch(line)
     if rz:
         q = _parse_qubit_index(rz.group(2), n_qubits)
         return embed_single_lsb(n_qubits, q, _rz_matrix(_parse_angle(rz.group(1))))
 
-    u = _U_LINE.match(line)
+    u = _U_LINE.fullmatch(line)
     if u:
-        angles = _parse_angle_list(u.group(1))
-        if len(angles) != 3:
-            raise ValueError(f"U expects three angles: {line}")
+        theta, phi, lam = _parse_u_angles(u.group(1))
         q = _parse_qubit_index(u.group(2), n_qubits)
-        return embed_single_lsb(
-            n_qubits,
-            q,
-            _u_matrix(angles[0], angles[1], angles[2]),
-        )
+        return embed_single_lsb(n_qubits, q, _u_matrix(theta, phi, lam))
 
-    cp = _CP_LINE.match(line)
+    cp = _CP_LINE_STRICT.fullmatch(line)
     if cp:
-        args = _parse_qubit_args(cp.group(2), n_qubits)
-        if len(args) != 2:
-            raise ValueError(f"CP expects two qubit arguments: {line}")
-        return _cp(n_qubits, args[0], args[1], _parse_angle(cp.group(1)))
-
-    match = _GATE_LINE.match(line)
-    if not match:
-        raise UnsupportedQasmError(
-            f"unsupported QASM gate under canonical LSB semantics: {line!r}"
+        control = _parse_qubit_index(cp.group(2), n_qubits)
+        target = _parse_qubit_index(cp.group(3), n_qubits)
+        return _controlled_phase_lsb(
+            n_qubits,
+            control,
+            target,
+            _parse_angle(cp.group(1)),
         )
 
-    gate = match.group(1).lower()
-    args = _parse_qubit_args(match.group(2), n_qubits)
-    if gate in {"cx", "cnot"}:
-        if len(args) != 2:
-            raise ValueError(f"CX expects two arguments: {line}")
-        return _cnot(n_qubits, args[0], args[1])
-    if gate == "ccx":
-        if len(args) != 3:
-            raise ValueError(f"CCX expects three arguments: {line}")
-        return _ccx(n_qubits, args[0], args[1], args[2])
-    if gate == "swap":
-        if len(args) != 2:
-            raise ValueError(f"SWAP expects two arguments: {line}")
-        return _swap(n_qubits, args[0], args[1])
-    if gate == "cz":
-        if len(args) != 2:
-            raise ValueError(f"CZ expects two arguments: {line}")
-        return _cz(n_qubits, args[0], args[1])
-    if len(args) != 1:
-        raise ValueError(f"single-qubit gate expects one argument: {line}")
-    return _single_gate_lsb(n_qubits, gate, args[0])
+    ccx = _CCX_LINE.fullmatch(line)
+    if ccx:
+        c1 = _parse_qubit_index(ccx.group(1), n_qubits)
+        c2 = _parse_qubit_index(ccx.group(2), n_qubits)
+        target = _parse_qubit_index(ccx.group(3), n_qubits)
+        _require_distinct("ccx", (c1, c2, target))
+        return _ccx(n_qubits, c1, c2, target)
+
+    two = _TWO_GATE_LINE.fullmatch(line)
+    if two:
+        gate = two.group(1).lower()
+        first = _parse_qubit_index(two.group(2), n_qubits)
+        second = _parse_qubit_index(two.group(3), n_qubits)
+        _require_distinct(gate, (first, second))
+        if gate in {"cx", "cnot"}:
+            return _cnot(n_qubits, first, second)
+        if gate == "swap":
+            return _swap(n_qubits, first, second)
+        if gate == "cz":
+            return _cz_lsb(n_qubits, first, second)
+        raise AssertionError(f"unreachable two-qubit gate {gate!r}")
+
+    single = _SINGLE_GATE_LINE.fullmatch(line)
+    if single:
+        gate = single.group(1).lower()
+        qubit = _parse_qubit_index(single.group(2), n_qubits)
+        return _single_gate_lsb(n_qubits, gate, qubit)
+
+    raise UnsupportedQasmError(
+        f"unsupported or malformed QASM gate under canonical LSB semantics: {line!r}"
+    )
 
 
 def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
