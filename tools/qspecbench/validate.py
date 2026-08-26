@@ -36,6 +36,7 @@ from qspecbench.validation.qec import (  # noqa: F401 — re-export for tests
 from qspecbench.validation.result import ValidationResult, load_spec
 from qspecbench.validation.reviews import validate_review_rules
 from qspecbench.validation.schema import validate_openqasm_profile, validate_schema_rules
+from qspecbench.validation.semantic_authority import validate_semantic_authority
 
 # Back-compat aliases used by older tests / scripts.
 _infer_qec_witness_claim_kind = infer_qec_witness_claim_kind
@@ -66,6 +67,9 @@ def validate_spec_dict(
     assurance_errors, assurance_warnings = validate_assurance_graph_rules(spec, claim_dir)
     errors.extend(assurance_errors)
     warnings.extend(assurance_warnings)
+    authority_errors, authority_warnings = validate_semantic_authority(spec, claim_dir)
+    errors.extend(authority_errors)
+    warnings.extend(authority_warnings)
     errors.extend(validate_assurance_profile_conformance(spec, claim_dir))
     warnings.extend(validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
