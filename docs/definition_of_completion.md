@@ -4,6 +4,8 @@ QSpecBench must not use one checklist to collapse engineering readiness, governa
 
 Until the relevant level below is actually satisfied, public language should remain scoped. A passing theorem, a valid schema, or a populated CODEOWNERS file cannot substitute for independent review or scientific adequacy.
 
+The canonical machine-readable v1 qualification policy is [release_v1_contract.yaml](release_v1_contract.yaml), under `schema/release_contract.schema.json`. It selects a non-empty release corpus independently of whether any benchmark has yet reached reference maturity and defines the five Level-C capability slots. Empty reference/gold inventory is therefore never interpreted as completion.
+
 Regenerate live corpus counts with:
 
 ```bash
@@ -11,11 +13,19 @@ qspecbench dashboard benchmarks/ --out docs/status.md
 python -c "from pathlib import Path; from qspecbench.generated_status import write_status_snapshot; write_status_snapshot(Path('benchmarks'), Path('docs/generated_status.md'))"
 ```
 
+Structural release-contract validation during development:
+
+```bash
+python scripts/check_release_contract.py
+```
+
 Exact-head release verification (when cutting a candidate):
 
 ```bash
 python scripts/release_verify.py --candidate-sha "$(git rev-parse HEAD)"
 ```
+
+The release verifier invokes `scripts/check_release_contract.py --strict-qualification`, so it intentionally fails until every required Level-C capability is populated by a genuinely reference-qualified package and the selected release corpus has the required assurance sidecars.
 
 The dependency-ordered full-vision gates are documented in [full_vision_execution.md](full_vision_execution.md).
 v1 ship/revise decision: [release_audit_v1.md](release_audit_v1.md) (currently **revise**).
@@ -30,9 +40,9 @@ v1 ship/revise decision: [release_audit_v1.md](release_audit_v1.md) (currently *
 | A2 | Lean evidence aggregate builds on exact release commit | `lake build QSpecBench.Evidence.All` in CI | Implemented gate; exact current PR/head result must be verified |
 | A3 | Evidence checks execute under pinned dependencies and fail closed | `qspecbench check-evidence`, lockfiles/workflows | Implemented machinery; exact current PR/head result must be verified |
 | A4 | Release bundle is built from and verifies against the exact commit | `.github/workflows/release.yml`, release-bundle verifier | Implemented machinery; no new release is claimed merely by editing metadata |
-| A5 | Promotion state is derivable from explicit obligation→evidence closure | `assurance_graph.yaml` + validator | **In migration** — contract/pilot established; issue #13 tracks corpus-wide migration |
+| A5 | Promotion/release state is derivable from explicit obligation→evidence closure over a non-empty corpus | `release_v1_contract.yaml` + `assurance_graph.yaml` + validators | **In migration** — non-vacuous release contract established; issue #13 tracks release-corpus graph closure |
 | A6 | Semantic profile is authoritative and cross-consistent | registered profiles + assurance validator | **In migration** — issue #14 |
-| A7 | Adapter results bind proposition/semantics/input hashes/obligations | typed AdapterRequest/AdapterResult | **In migration** — issue #15 |
+| A7 | Adapter results bind proposition/semantics/input hashes/obligations through typed registered execution identities | typed AdapterRequest/AdapterResult + conformance tests | **Typed-adapter migration merged in #30**; exact-head conformance still required for every release candidate |
 | A8 | Generated documentation cannot drift from corpus state | generated status/dashboard drift tests | Implemented for generated surfaces; regenerate before release |
 | A9 | Lean-QEC cold native acceptance (distance-only adapter) | `QSPECBENCH_LEAN_QEC_VERIFY=1` structured result | **Demonstrated for the pinned BB90 state** — exact-head PR workflow at `cce598d94acdd368d77001e790eb0847353d914e` produced `ok=true`, `kernel_checked=true`, `acceptance.status=passing`, `kernel_typechecking_bypassed=false`, `upstream_default_reproduced=true`, and `fallback_used=false`; every release candidate must independently rerun and pass this lane at its own exact SHA |
 
@@ -57,7 +67,7 @@ Engineering readiness is not community-grade governance. Machine-closed `experim
 
 ## Level C — scientific reference suite
 
-The repository contains selected real checked claims under declared scopes. The full scientific reference-suite target is stronger than any single machine-closed package.
+The repository contains selected real checked claims under declared scopes. The full scientific reference-suite target is stronger than any single machine-closed package. The five criteria below correspond one-to-one to the required capabilities in `docs/release_v1_contract.yaml`; a capability remains unsatisfied until a benchmark is explicitly assigned and strict qualification verifies reference maturity, corpus membership, assurance closure, and required independent reviews.
 
 | # | Criterion | Required scientific result | Current status |
 |---|-----------|----------------------------|----------------|
@@ -124,6 +134,6 @@ v1 completion branch (regenerate to confirm):
 - checked headlines under declared scope: 21
 - benchmarks with some checked evidence: 48
 
-These counts are descriptive corpus state. They do **not** establish Level B community governance or Level C scientific-reference-suite completion.
+These counts are descriptive corpus state. They do **not** establish Level B community governance or Level C scientific-reference-suite completion. The canonical release contract uses the 21 `experimental_closed` packages as part of the non-vacuous release-assurance corpus even while the reference inventory is zero.
 
 Public implementation blockers and migration work are tracked in issues #12–#18.
