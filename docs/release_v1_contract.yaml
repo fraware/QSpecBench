@@ -1,0 +1,53 @@
+schema_version: 1
+release_id: qspecbench-v1.0
+
+authoritative_documents:
+  - docs/full_vision_execution.md
+  - docs/release_v1_criteria.md
+  - docs/definition_of_completion.md
+
+# This is deliberately broader than the promoted-reference set. A release-corpus
+# assurance migration must not become vacuously complete merely because no claim
+# has yet reached reference maturity.
+release_corpus:
+  maturity_selectors:
+    - experimental_closed
+    - reference_claim
+    - artifact_bound_reference_claim
+  include_benchmark_ids: []
+  exclude_benchmark_ids: []
+  require_nonempty: true
+  require_assurance_graph: true
+
+# qualified_benchmark_ids is intentionally empty until a package actually meets
+# the Level-C scientific, semantic, assurance, and governance requirements. The
+# strict release gate must fail while any required capability is underfilled.
+reference_suite:
+  required_capabilities:
+    compiler_transformation_equivalence:
+      track: equivalence
+      minimum_qualified: 1
+      qualified_benchmark_ids: []
+    arbitrary_input_dynamic_protocol:
+      track: algorithm
+      minimum_qualified: 1
+      qualified_benchmark_ids: []
+    operator_level_hamiltonian_approximation:
+      track: hamiltonian
+      minimum_qualified: 1
+      qualified_benchmark_ids: []
+    meaningful_qec_assurance:
+      track: qec
+      minimum_qualified: 1
+      qualified_benchmark_ids: []
+    externally_adjudicated_ai_formalization:
+      track: ai_formalization
+      minimum_qualified: 1
+      qualified_benchmark_ids: []
+
+promotion:
+  reference_maturities:
+    - reference_claim
+    - artifact_bound_reference_claim
+  independent_review_attestations_required: 2
+  require_distinct_reviewers: true
