@@ -54,12 +54,15 @@ def _yaml_mapping(path: Path) -> dict[str, Any]:
     return data
 
 
+def _schema_sort_key(error: Any) -> tuple[str, ...]:
+    return tuple(str(part) for part in error.absolute_path)
+
+
 def _schema_errors(contract: dict[str, Any], schema_path: Path) -> list[str]:
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema)
     errors = []
-    key = lambda item: tuple(str(part) for part in item.absolute_path)
-    for error in sorted(validator.iter_errors(contract), key=key):
+    for error in sorted(validator.iter_errors(contract), key=_schema_sort_key):
         location = ".".join(str(part) for part in error.absolute_path) or "<root>"
         errors.append(f"release contract schema: {location}: {error.message}")
     return errors
