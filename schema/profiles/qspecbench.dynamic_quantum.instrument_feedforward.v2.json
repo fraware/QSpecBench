@@ -15,7 +15,7 @@
     ],
     "include_policy": "skipped_not_interpreted",
     "declaration_subset": [
-      "qubit[n] name",
+      "qubit[n] q",
       "bit[n] name"
     ],
     "state_model": "bounded pure-state statevector; at most 4 qubits",
@@ -44,9 +44,9 @@
     "parameter_grammar": "restricted numeric/pi literals implemented by qasm_matrix._parse_angle; U requires exactly three comma-separated supported angles",
     "hadamard_normalization": "1/sqrt(2)",
     "global_phase_policy": "not_applicable_to_instrument_semantics; unitary gate actions retain represented complex phase within the declared rational approximation model",
-    "measurement": "c[i] = measure q[j] computational-basis projective measurement with explicit collapse; nondeterministic outcomes fail closed",
-    "classical_state": "explicit scalar or indexed measurement-bit names populated before use",
-    "feedforward": "if (<measured-bit> == 1) <supported gate>; indexed bits such as c[1] are supported; no else or loops",
+    "measurement": "c[i] = measure q[j] computational-basis projective measurement with explicit collapse; the destination must be a declared in-range indexed bit; nondeterministic outcomes fail closed",
+    "classical_state": "explicit indexed measurement-bit names populated before use",
+    "feedforward": "if (<measured-bit> == 1) <supported gate>; indexed bits such as c[1] are supported; predicates must reference declared measured bits; no else or loops",
     "reset": "unsupported and rejected",
     "branch_completeness": "single deterministic execution only; nondeterministic branch enumeration is outside this profile",
     "resource_bound": "MAX_OPERATIONAL_QUBITS = 4"
@@ -57,5 +57,5 @@
     "trust_role": "externally_trusted bounded operational interpreter; not kernel-checked"
   },
   "unsupported_behavior": "fail_closed",
-  "notes": "Executable bounded operational profile for deterministic-branch dynamic fragments. It is not full OpenQASM dynamic-circuit semantics, density-operator/channel semantics, hardware semantics, or an arbitrary-input teleportation proof. Includes are skipped syntactically and are not semantically imported."
+  "notes": "Executable bounded operational profile for deterministic-branch dynamic fragments. Exactly one vector qubit register named q is accepted; bit registers are explicitly declared and bounds-checked. It is not full OpenQASM dynamic-circuit semantics, density-operator/channel semantics, hardware semantics, or an arbitrary-input teleportation proof. Includes are skipped syntactically and are not semantically imported."
 }
