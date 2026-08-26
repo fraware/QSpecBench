@@ -1,11 +1,20 @@
-"""Registered evidence adapters (fail-closed)."""
+"""Legacy adapter-directory inventory and fail-closed evidence capability checks.
+
+Directory names are retained only for repository layout/backward-compatibility bookkeeping.
+They are not executable identities. Runtime execution must resolve to a versioned typed adapter
+from :mod:`qspecbench.typed_adapter_registry`.
+"""
 
 from __future__ import annotations
 
 import re
 from typing import Any
 
-# Canonical adapter directory names under adapters/.
+from qspecbench.typed_adapter_registry import default_typed_adapter
+
+# Canonical historical adapter directory names under adapters/. These names do not grant
+# execution authority; evidence_runner's compatibility fallback calls validate_adapter_name(),
+# which deliberately rejects every directory identity.
 REGISTERED_ADAPTERS: frozenset[str] = frozenset(
     {
         "qasm",
@@ -33,6 +42,7 @@ REGISTERED_ADAPTERS: frozenset[str] = frozenset(
 # Evidence types without a shipping adapter: fail closed if used as passing evidence.
 UNSUPPORTED_EVIDENCE_TYPES: frozenset[str] = frozenset()
 
+# Historical directory mapping retained for migration reporting/layout compatibility only.
 EVIDENCE_TYPE_ADAPTERS: dict[str, str] = {
     "qasm_parse": "qasm",
     "qec_verifier_result": "qec",
@@ -59,31 +69,41 @@ _FORBIDDEN_ADAPTER_CHARS = re.compile(r"[/\\.:]|(\.\.)")
 
 
 def validate_adapter_name(name: str) -> list[str]:
-    errors: list[str] = []
+    """Reject directory names as execution identities.
+
+    This function remains as the fail-closed guard used by the legacy fallback in
+    ``evidence_runner``. A valid historical directory name is still not a typed protocol
+    identity and therefore cannot select code for execution.
+    """
     if not name or not name.strip():
         return ["adapter name is empty"]
     if _FORBIDDEN_ADAPTER_CHARS.search(name):
-        errors.append(f"adapter name contains forbidden path characters: {name!r}")
+        return [f"adapter name contains forbidden path characters: {name!r}"]
     if name not in REGISTERED_ADAPTERS:
-        errors.append(f"unknown adapter {name!r}; not in registry")
-    return errors
+        return [f"unknown adapter {name!r}; not in legacy directory inventory"]
+    return [
+        f"legacy adapter directory {name!r} is not an executable identity; "
+        "use a registered qspecbench.* typed adapter id"
+    ]
 
 
 def adapter_for_evidence_type(evidence_type: str) -> str | None:
+    """Return the historical directory mapping for migration/reporting only."""
     if evidence_type in UNSUPPORTED_EVIDENCE_TYPES:
         return None
     return EVIDENCE_TYPE_ADAPTERS.get(evidence_type)
 
 
 def validate_evidence_adapter_binding(spec: dict[str, Any]) -> list[str]:
-    """Reject unsupported evidence types and ensure an ordinary adapter exists.
+    """Reject unsupported evidence types and require a shipping typed default.
 
-    Stable typed adapter identity is validated separately. This legacy registry intentionally
-    does not use the descriptive ``checker`` field and does not override explicit typed bindings.
+    Explicit specialized typed bindings are validated separately against the typed registry and
+    assurance graph. This check establishes that every passing evidence class has an ordinary
+    registered typed implementation without granting authority to a directory name.
     """
     errors: list[str] = []
     for entry in spec.get("evidence", []) or []:
-        etype = entry.get("type")
+        etype = str(entry.get("type") or "")
         if etype in UNSUPPORTED_EVIDENCE_TYPES:
             errors.append(
                 f"evidence {entry.get('id')!r} type {etype!r} has no shipping adapter "
@@ -92,13 +112,11 @@ def validate_evidence_adapter_binding(spec: dict[str, Any]) -> list[str]:
             continue
         if entry.get("status") != "passing":
             continue
-        adapter = adapter_for_evidence_type(str(etype))
-        if not adapter:
+        typed = default_typed_adapter(etype)
+        if typed is None:
             errors.append(
-                f"evidence {entry.get('id')!r} type {etype!r} has no registered adapter"
+                f"evidence {entry.get('id')!r} type {etype!r} has no registered typed adapter"
             )
-            continue
-        errors.extend(validate_adapter_name(adapter))
     for entry in spec.get("acceptable_evidence", []) or []:
         etype = entry.get("type")
         if etype in UNSUPPORTED_EVIDENCE_TYPES and entry.get("required_for_claim"):
