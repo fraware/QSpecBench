@@ -7,11 +7,12 @@ matrix path. New promotable Python unitary evidence should use
 
 The canonical convention is explicit: OpenQASM wire ``q[i]`` is bit weight ``2**i``
 in the basis-state index. Hadamard is normalized by ``1/sqrt(2)``. Unsupported
-executable syntax fails closed.
+syntax fails closed.
 """
 
 from __future__ import annotations
 
+import re
 from fractions import Fraction
 from pathlib import Path
 from typing import Any
@@ -27,7 +28,6 @@ from qspecbench.qasm_matrix import (
     _SQRT2_HALF,
     _U_LINE,
     _ccx,
-    _cell,
     _cnot,
     _cp,
     _cz,
@@ -62,6 +62,7 @@ CANONICAL_GATE_SET: frozenset[str] = frozenset(
         "t",
         "tdg",
         "cx",
+        "cnot",
         "cz",
         "swap",
         "ccx",
@@ -72,6 +73,26 @@ CANONICAL_GATE_SET: frozenset[str] = frozenset(
         "cp",
     }
 )
+_HEADER = "OPENQASM 3.0"
+_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*\d+\s*\]\s+[A-Za-z_]\w*\s*;?$")
+
+
+def _clean_lines(text: str) -> list[str]:
+    lines: list[str] = []
+    for raw in text.splitlines():
+        line = raw.split("//", 1)[0].strip()
+        if line:
+            lines.append(line)
+    return lines
+
+
+def _validate_header(lines: list[str]) -> None:
+    headers = [line.rstrip(";").strip() for line in lines if line.lower().startswith("openqasm")]
+    if headers != [_HEADER]:
+        raise UnsupportedQasmError(
+            "canonical unitary profile requires exactly one 'OPENQASM 3.0;' header; "
+            f"found {headers!r}"
+        )
 
 
 def _scale_matrix(matrix: ComplexMatrix, factor: Fraction) -> ComplexMatrix:
@@ -169,25 +190,31 @@ def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
 def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
     """Extract a normalized unitary under the canonical little-endian profile.
 
-    Declarations are structural and ignored after register-size extraction. Include
-    statements are skipped but not interpreted as library imports. Measurement,
-    reset, classical control, and all unknown executable syntax fail closed.
+    Only the exact OpenQASM 3.0 header, vector qubit declaration, documented gate
+    subset, and restricted angle grammar are accepted. Include statements are
+    skipped but not interpreted as library imports. All other syntax fails closed.
     """
     text = qasm_path.read_text(encoding="utf-8")
+    lines = _clean_lines(text)
+    _validate_header(lines)
     n_qubits = _register_size(text)
     require_dense_matrix(n_qubits)
     unitary = _eye(1 << n_qubits)
     gates_applied: list[str] = []
 
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line or line.startswith("//") or line.lower().startswith("openqasm"):
+    for line in lines:
+        lower = line.lower()
+        if lower.startswith("openqasm"):
             continue
-        if line.lower().startswith("include"):
+        if lower.startswith("include"):
             continue
 
         category = _line_skip_category(line)
         if category == "declaration":
+            if _QUBIT_DECL.fullmatch(line) is None:
+                raise UnsupportedQasmError(
+                    f"unsupported declaration under canonical unitary profile: {line!r}"
+                )
             continue
         if category is not None:
             raise UnsupportedQasmError(
