@@ -12,9 +12,9 @@ from typing import Any
 
 from qspecbench.typed_adapter_registry import default_typed_adapter
 
-# Canonical historical adapter directory names under adapters/. These names do not grant
-# execution authority; evidence_runner's compatibility fallback calls validate_adapter_name(),
-# which deliberately rejects every directory identity.
+# Canonical historical adapter directory names under adapters/. This registry validates layout
+# and compatibility names only. The evidence runner never treats a directory name as executable
+# identity; execution is selected exclusively through the typed registry.
 REGISTERED_ADAPTERS: frozenset[str] = frozenset(
     {
         "qasm",
@@ -69,22 +69,15 @@ _FORBIDDEN_ADAPTER_CHARS = re.compile(r"[/\\.:]|(\.\.)")
 
 
 def validate_adapter_name(name: str) -> list[str]:
-    """Reject directory names as execution identities.
-
-    This function remains as the fail-closed guard used by the legacy fallback in
-    ``evidence_runner``. A valid historical directory name is still not a typed protocol
-    identity and therefore cannot select code for execution.
-    """
+    """Validate a historical adapter-directory name for layout/compatibility use only."""
+    errors: list[str] = []
     if not name or not name.strip():
         return ["adapter name is empty"]
     if _FORBIDDEN_ADAPTER_CHARS.search(name):
-        return [f"adapter name contains forbidden path characters: {name!r}"]
+        errors.append(f"adapter name contains forbidden path characters: {name!r}")
     if name not in REGISTERED_ADAPTERS:
-        return [f"unknown adapter {name!r}; not in legacy directory inventory"]
-    return [
-        f"legacy adapter directory {name!r} is not an executable identity; "
-        "use a registered qspecbench.* typed adapter id"
-    ]
+        errors.append(f"unknown adapter {name!r}; not in registry")
+    return errors
 
 
 def adapter_for_evidence_type(evidence_type: str) -> str | None:
@@ -115,7 +108,8 @@ def validate_evidence_adapter_binding(spec: dict[str, Any]) -> list[str]:
         typed = default_typed_adapter(etype)
         if typed is None:
             errors.append(
-                f"evidence {entry.get('id')!r} type {etype!r} has no registered typed adapter"
+                f"evidence {entry.get('id')!r} type {etype!r} has no registered adapter "
+                "(typed registry)"
             )
     for entry in spec.get("acceptable_evidence", []) or []:
         etype = entry.get("type")
