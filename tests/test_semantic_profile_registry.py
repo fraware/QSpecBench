@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
+import jsonschema
 import yaml
 
-from qspecbench.schema import REPO_ROOT
+from qspecbench.schema import REPO_ROOT, SCHEMA_DIR
 from qspecbench.semantic_profiles import all_registered_profile_ids, load_registered_profile
 
 
@@ -18,12 +20,23 @@ def _graph_profile_id(graph_path: Path) -> str | None:
     return value or None
 
 
-def test_registered_profile_filenames_and_ids_are_bijective() -> None:
+def _profile_schema(profile_id: str) -> dict:
+    name = (
+        "openqasm_profile.schema.json"
+        if profile_id.startswith("qspecbench.openqasm3.")
+        else "semantic_profile.schema.json"
+    )
+    return json.loads((SCHEMA_DIR / name).read_text(encoding="utf-8"))
+
+
+def test_registered_profile_filenames_ids_and_schemas_are_consistent() -> None:
     ids = all_registered_profile_ids()
     assert ids
     for profile_id in ids:
         profile = load_registered_profile(profile_id)
         assert profile["id"] == profile_id
+        public_payload = {key: value for key, value in profile.items() if not key.startswith("_")}
+        jsonschema.Draft202012Validator(_profile_schema(profile_id)).validate(public_payload)
 
 
 def test_all_corpus_semantic_profile_identifiers_resolve() -> None:
