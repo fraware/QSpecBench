@@ -135,7 +135,7 @@ python scripts/sync_readme_maturity.py
 python scripts/release_verify.py --candidate-sha "$(git rev-parse HEAD)"
 ```
 
-Lean-QEC distance interoperability (`BB90_dist_10`) is **opt-in** and **honestly not green** until cold native acceptance succeeds on a host with enough disk:
+Lean-QEC distance interoperability (`BB90_dist_10`) is opt-in for local runs. The pinned upstream BB90 state has demonstrated cold native acceptance in the repository workflow with `ok=true`, `kernel_checked=true`, `acceptance.status=passing`, `kernel_typechecking_bypassed=false`, `upstream_default_reproduced=true`, and `fallback_used=false`. This is evidence for the pinned theorem state, not a blanket release claim: every release candidate must independently rerun and pass the Lean-QEC lane at its own exact SHA.
 
 ```bash
 export QSPECBENCH_LEAN_QEC_VERIFY=1
@@ -213,7 +213,7 @@ QSpecBench versions the schema, the tooling, and the benchmark corpus separately
 | **Corpus** (benchmark suite) | 0.2.0 |
 | **Release tag** | v0.2.3 |
 
-**Release honesty:** tag `v0.2.3` is historical and predates this working tree. The v1 completion branch demotes the former gold inventory: **RC/ABRC count is 0**; machine-closed packages are `experimental_closed` (see [generated status](docs/generated_status.md), [release audit](docs/release_audit_v1.md), [promotion freeze](docs/promotion_freeze.md)). Historical dual hash-bound review artifacts may remain as `unauthenticated_legacy_review`; they are **not** authenticated independent reviewer identity (issue #12). Lean-QEC distance interoperability remains honestly not green until cold native acceptance on an exact head. Independent third-party cold-host reproduction (issue #9) is out of v1 scope. Do not call a branch release-reproduced without exact-head CI and bundle verification.
+**Release honesty:** tag `v0.2.3` is historical and predates this working tree. The v1 completion branch demotes the former gold inventory: **RC/ABRC count is 0**; machine-closed packages are `experimental_closed` (see [generated status](docs/generated_status.md), [release audit](docs/release_audit_v1.md), [promotion freeze](docs/promotion_freeze.md)). Historical dual hash-bound review artifacts may remain as `unauthenticated_legacy_review`; they are **not** authenticated independent reviewer identity (issue #12). The pinned Lean-QEC BB90 distance state has demonstrated cold native kernel acceptance; every future release candidate must still pass the exact-head Lean-QEC interoperability workflow. Independent third-party cold-host reproduction (issue #9) is out of v1 scope. Do not call a branch release-reproduced without exact-head CI and bundle verification.
 
 ### Permanent residuals (not a complete FV standard)
 

@@ -62,18 +62,23 @@ jobs:
           result = json.loads(path.read_text(encoding="utf-8"))
           acceptance = result.get("acceptance") or {}
           reproduction = result.get("reproduction") or {}
+          expected_commit = "c9c85603ab522b9f7df6315ed51513bcfb95fd90"
 
           assert result.get("adapter_id") == "qspecbench.lean_qec.distance.v1", result
           assert result.get("adapter_version") == "2.0.0", result
           assert result.get("verification_mode") == "cold_root_project_olean_build", result
           assert result.get("project_build_cache_restored") is False, result
           assert result.get("build_target") == "+LeanQEC.Stabilizer.Examples.BB.BB90:olean", result
-          assert result.get("upstream_commit") == "e0b90148694cf6b9c8482b21dbd911f2d8f13493", result
+          assert result.get("upstream_commit") == expected_commit, result
+          assert result.get("actual_commit") == expected_commit, result
           assert result.get("lean_toolchain") == "leanprover/lean4:v4.30.0-rc2", result
+          assert result.get("actual_toolchain") == "leanprover/lean4:v4.30.0-rc2", result
           assert result.get("source_git_blob_sha") == "8414ff1fb50f888998188f6e53020e95eb7891ca", result
+          assert result.get("actual_source_git_blob_sha") == "8414ff1fb50f888998188f6e53020e95eb7891ca", result
           assert result.get("theorem") == "BB90_dist_10", result
           assert result.get("supported_obligations") == ["qec_distance_lower_bound"], result
           assert "syndrome_extraction_circuit_semantics" in result.get("not_supported_obligations", []), result
+          assert result.get("kernel_checked") is True, result
           assert acceptance.get("kernel_typechecking_bypassed") is False, result
           assert acceptance.get("trust_class") in {
               "proof_assistant_native_checked",

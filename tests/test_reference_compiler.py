@@ -56,7 +56,7 @@ def _load_lean_qec_adapter_module():
 def test_lean_qec_manifest_is_concrete_and_scope_limited() -> None:
     manifest_path = REPO / "adapters/lean_qec/examples/bb90_distance_10.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert manifest["upstream_commit"] == "e0b90148694cf6b9c8482b21dbd911f2d8f13493"
+    assert manifest["upstream_commit"] == "c9c85603ab522b9f7df6315ed51513bcfb95fd90"
     assert manifest["lean_toolchain"] == "leanprover/lean4:v4.30.0-rc2"
     assert manifest["source_git_blob_sha"] == "8414ff1fb50f888998188f6e53020e95eb7891ca"
     assert manifest["theorem"] == "BB90_dist_10"

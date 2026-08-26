@@ -67,13 +67,13 @@ def test_lean_qec_manifest_pins_all_bb90_lrat_dependencies() -> None:
         },
         {
             "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_dist_z-120-2.lrat",
-            "sha256": "9012a060920edb6d1c3f25bb67e69052ac4609dcc500777816caf86fecd7e3b3",
-            "size": 105004579,
+            "sha256": "5b57f7b053fb0b83fbe5fe2ca2e3b49b603d4d948747b4d1b8b2575d24c2fa8a",
+            "size": 105004897,
         },
         {
             "path": "LeanQEC/Stabilizer/Examples/BB/BB90.lean-BB90_dist_x-131-2.lrat",
-            "sha256": "95acb11153b008759fd672d56638a5a6c4522210d4b2d101e2116e87c2868803",
-            "size": 104586131,
+            "sha256": "666681d8d0995b3729e70e17b050c5547d078aec7851242038191e8f9ad48a4a",
+            "size": 104586338,
         },
     ]
 

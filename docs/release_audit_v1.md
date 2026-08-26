@@ -2,7 +2,7 @@
 
 Decision: **revise**
 
-This tree is the v1 engineering substrate plus honest demotion of the former gold claims and four machine-closed experimental flagship packages. It is not yet an immutable tagged release.
+This tree is the v1 engineering substrate plus honest demotion of the former gold claims and four machine-closed experimental flagship packages. It is not yet an immutable tagged release and does not yet satisfy the full v1 contract in [release_v1_criteria.md](release_v1_criteria.md).
 
 ## Required audit list
 
@@ -10,39 +10,46 @@ This tree is the v1 engineering substrate plus honest demotion of the former gol
 |---|---|
 | Empty/demoted gold inventory | Met in this tree (RC/ABRC count is 0) |
 | Flagship machine-closure | Compiler (Qiskit Optimize1qGates H;X;X instance), dynamic teleportation (arbitrary pure-state instrument, not mixed-state CPTP), Hamiltonian (Frobenius-majorant X,Z instance at t=pi/4; not a general operator-norm Lie-Trotter theorem), three-qubit bit-flip layered QEC are packaged as `experimental_closed` under declared domains |
-| Lean-QEC structured result | Adapter emits acceptance vs reproduction; workflow asserts structured fields and fails closed unless `acceptance.status=passing`. Cold default / authorized-fallback native acceptance is **not** proven on this working tree; lane remains honestly failing until an exact-head cold run produces a passing structured result |
-| Branch-protection evidence | Admin residual; see `docs/governance_verification.md` |
+| Lean-QEC structured result | **Demonstrated for the pinned BB90 state.** Exact-head PR workflow at `cce598d94acdd368d77001e790eb0847353d914e` produced `ok=true`, `kernel_checked=true`, `acceptance.status=passing`, `kernel_typechecking_bypassed=false`, `upstream_default_reproduced=true`, and `fallback_used=false` against upstream commit `c9c85603ab522b9f7df6315ed51513bcfb95fd90`. This evidence does not transfer to a future release-candidate SHA; that candidate must rerun and pass the lane. |
+| Branch-protection evidence | Unverified from this audit path; see `docs/governance_verification.md` |
 | #9 exclusion | Explicit; not claimed |
-| Residual: no independent reviewers | Explicit |
+| Residual: no independent reviewers | Explicit; community-grade governance remains unmet |
 
 ## Ship gate
 
-Only `ship` tags `v1.0.0`. This audit remains `revise`. Engineering substrate checks (validate --strict-all --audit-graph, generated-doc drift, migration-report digest, focused substrate tests) can pass on this tree while ship gates below are unmet.
+Only `ship` tags `v1.0.0`. This audit remains `revise`. Engineering substrate checks and Lean-QEC interoperability can pass while other release-contract gates remain unmet. The stronger contract in [release_v1_criteria.md](release_v1_criteria.md) remains authoritative; this audit must not redefine v1 downward merely to make the tree shippable.
 
 ## Revise taxonomy
 
-### (A) By-design governance / scope residuals
+### (A) Governance / scope residuals
 
-These are intentional under the owner mandate. Do not invent reviewers, change live admin protection from this code path, or close #9.
+These are explicit current facts. They remain blockers wherever the v1 contract requires the corresponding governance property; they must not be silently reclassified as engineering success.
 
-1. **No independent reviewers** — gold/RC/ABRC inventory stays empty; alias YAML is `unauthenticated_legacy_review` only.
-2. **Branch protection admin-only** — live `main` settings are a repository-admin step; `docs/governance_verification.md` does not claim they are enabled.
-3. **Issue #9 out of scope** — independent third-party cold-host reproduction remains `post-v1`.
-4. **Lean-QEC not greened without cold proof** — do not skip, delete, or simulate the workflow; fallback is authorized only on the complete LRAT-trimmer signature.
+1. **No independent reviewers** — gold/RC/ABRC inventory stays empty; alias YAML is `unauthenticated_legacy_review` only. Community-grade governance is not met.
+2. **Branch protection not independently verified here** — `docs/governance_verification.md` does not claim trust-critical protection and required code-owner review are enabled.
+3. **Issue #9 out of scope** — independent third-party cold-host reproduction remains `post-v1` and is not counted as completed.
+4. **Lean-QEC evidence is exact-head evidence** — cold native acceptance is now demonstrated for `cce598d94acdd368d77001e790eb0847353d914e`, but a later release candidate must independently rerun and pass the same fail-closed lane. Do not transfer a prior SHA's result to a new candidate.
 
-### (B) Remaining engineering blockers
+### (B) Remaining engineering / release-contract blockers
 
-1. **Lean-QEC cold native acceptance** — exact-head cold run of `adapters/lean_qec/parse_result.py` under `QSPECBENCH_LEAN_QEC_VERIFY=1` must emit `ok=true`, `acceptance.status=passing`, `kernel_typechecking_bypassed=false`, with either `upstream_default_reproduced=true` or authorized `fallback_used=true` (complete LRAT-trimmer signature only). Until that structured result exists for the candidate SHA, the Lean-QEC CI job remains an honest fail and this audit stays `revise`.
+1. **Canonical release-gate convergence** — the documented strict candidate checks, CI validation, and tag/release workflow must converge on one fail-closed release contract rather than separate partially overlapping gates. In particular, final release automation must enforce strict corpus/assurance-graph validation and the candidate verification contract rather than relying on ordinary validation or a smoke bundle alone.
+2. **SBOM requirement** — the current release tooling provides dependency/SBOM-lite metadata, but the v1 contract requires a real release SBOM. A stub or summary is not sufficient.
+3. **Migration closure** — Level A still marks obligation→evidence closure, authoritative semantic profiles, and typed adapter result binding as migration work (#13–#15). These gates must be proven corpus-wide or explicitly resolved under the release contract before v1.
+4. **Immutable release evidence** — no `v1.0.0` exact-head candidate has yet completed the final bundle/provenance/archive path required by the v1 contract. A green development PR is not an immutable release.
 
-Local cold attempts on this host (25 Aug 2026):
+### (C) Scientific / governance contract blockers
 
-- First attempt: structured failure at required LFS materialization into `%TEMP%` (`There is not enough space on the disk` for ~210MB LRAT objects). Build not attempted.
-- After adding `QSPECBENCH_LEAN_QEC_WORKDIR` and reclaiming disk: LFS materialization and pointer verification succeeded; failure moved to **disk exhaustion during elan toolchain install / lake cache** (`No space left on device` / incomplete `leanprover/lean4:v4.30.0-rc2` extract). Upstream default build and authorized LRAT-trimmer fallback were **not** reached.
+The repository's v1 criteria make scientific depth and governance separate release gates, not optional prose. Current evidence therefore keeps this audit at `revise` even after Lean-QEC becomes green:
 
-These are honest pre-acceptance **disk** failures, not a green result and not evidence that the LRAT-trimmer fallback path is established. Prefer a host with several free gigabytes (toolchain + Mathlib cache + LFS), using `QSPECBENCH_LEAN_QEC_WORKDIR=artifacts/lean-qec/work` and `QSPECBENCH_LEAN_QEC_LOG_DIR=artifacts/lean-qec/logs`.
+- Level B community governance remains incomplete: independent maintainers/reviewers, anti-self-promotion enforcement, and authenticated independent review are not established end-to-end.
+- Level C remains scoped rather than complete: compiler, dynamic-protocol, QEC, and Hamiltonian flagships have meaningful machine-closed instances under declared domains, but the stronger reference-suite targets remain narrower/partial as documented in [definition_of_completion.md](definition_of_completion.md); AI formalization is not gold or independently adjudicated.
 
-No other non-design engineering blockers are currently known on this tree after local substrate verification.
+## Lean-QEC acceptance history
+
+Local cold attempts on 25 Aug 2026 failed before theorem acceptance because of host disk exhaustion: first during required LFS materialization, then during elan/toolchain/lake-cache installation after LFS verification succeeded. Those failures were infrastructure failures, not mathematical disproofs and not green evidence.
+
+On 26 Aug 2026, after correcting the provenance pin to the immediately pre-corruption upstream commit `c9c85603ab522b9f7df6315ed51513bcfb95fd90` while preserving the theorem source blob, Lean toolchain, and dependency graph, the exact-head PR workflow at `cce598d94acdd368d77001e790eb0847353d914e` completed the cold root-project `olean` build and emitted native kernel acceptance with no fallback. This establishes the pinned BB90 distance evidence path for that exact QSpecBench head; it does not establish broader QEC obligations such as syndrome-extraction semantics, physical noise, decoder correctness, logical-preservation correction, or repeated-round fault tolerance.
 
 ## Public language
 
-Do not say verified, independently reviewed, community-grade, or reproduced except where the corresponding gate is actually met.
+Do not say independently reviewed, community-grade, full-reference-suite complete, or release-reproduced except where the corresponding gate is actually met. For Lean-QEC, it is now accurate to say that the pinned `BB90_dist_10` distance theorem has demonstrated cold native kernel acceptance on the exact PR head cited above; do not generalize that result to other QEC obligations or later release SHAs.
