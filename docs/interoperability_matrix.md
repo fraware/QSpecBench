@@ -25,7 +25,7 @@ Controlled statuses: `active_default_ci`, `active_conditional_ci`, `active_manua
 
 ## Registered typed adapters
 
-qspecbench.ai.draft.v1, qspecbench.bridge.dynamic_ast.v1, qspecbench.bridge.dynamic_denotation.v1, qspecbench.bridge.hardware_isa.v1, qspecbench.bridge.verify.v1, qspecbench.coq.kernel.v1, qspecbench.dynamic_simulation.v1, qspecbench.human_review.v1, qspecbench.isabelle.kernel.v1, qspecbench.lean.kernel.v1, qspecbench.lean_qec.distance.v1, qspecbench.matrix_certificate.v1, qspecbench.mqt.qcec.v1, qspecbench.openqasm.parse.v1, qspecbench.python.simulation.v1, qspecbench.qbricks.external.v1, qspecbench.qec.generic.v1, qspecbench.qec.stim_matching.v1, qspecbench.qiskit.optimize_1q_gates.v1, qspecbench.rocq.kernel.v1, qspecbench.sat.certificate.v1, qspecbench.smt.certificate.v1, qspecbench.zx.certificate.v1
+qspecbench.ai.draft.v1, qspecbench.bridge.dynamic_ast.v1, qspecbench.bridge.dynamic_denotation.v1, qspecbench.bridge.hardware_isa.v1, qspecbench.bridge.verify.v1, qspecbench.compiler.peephole.v1, qspecbench.coq.kernel.v1, qspecbench.dynamic_simulation.v1, qspecbench.human_review.v1, qspecbench.isabelle.kernel.v1, qspecbench.lean.kernel.v1, qspecbench.lean_qec.distance.v1, qspecbench.matrix_certificate.v1, qspecbench.mqt.qcec.v1, qspecbench.openqasm.parse.v1, qspecbench.python.simulation.v1, qspecbench.qbricks.external.v1, qspecbench.qec.generic.v1, qspecbench.qec.stim_matching.v1, qspecbench.qiskit.optimize_1q_gates.v1, qspecbench.rocq.kernel.v1, qspecbench.sat.certificate.v1, qspecbench.smt.certificate.v1, qspecbench.zx.certificate.v1
 
 ## Compatibility doctrine
 
