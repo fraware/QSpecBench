@@ -39,7 +39,6 @@ from qspecbench.qasm_matrix import (
     _parse_angle_list,
     _parse_qubit_args,
     _parse_qubit_index,
-    _register_size,
     _rx_matrix,
     _ry_matrix,
     _rz_matrix,
@@ -97,6 +96,22 @@ def _validate_header(lines: list[str]) -> None:
             "canonical unitary profile requires exactly one 'OPENQASM 3.0;' header; "
             f"found {headers!r}"
         )
+
+
+def _declared_qubit_count(lines: list[str]) -> int:
+    declarations = [
+        match
+        for line in lines
+        if (match := _QUBIT_DECL.fullmatch(line)) is not None
+    ]
+    if len(declarations) != 1:
+        raise UnsupportedQasmError(
+            "canonical unitary profile requires exactly one declaration 'qubit[n] q;'"
+        )
+    n_qubits = int(declarations[0].group(1))
+    if n_qubits <= 0:
+        raise UnsupportedQasmError("qubit register width must be positive")
+    return n_qubits
 
 
 def _scale_matrix(matrix: ComplexMatrix, factor: Fraction) -> ComplexMatrix:
@@ -201,11 +216,10 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
     text = qasm_path.read_text(encoding="utf-8")
     lines = _clean_lines(text)
     _validate_header(lines)
-    n_qubits = _register_size(text)
+    n_qubits = _declared_qubit_count(lines)
     require_dense_matrix(n_qubits)
     unitary = _eye(1 << n_qubits)
     gates_applied: list[str] = []
-    seen_qubit_declaration = False
 
     for line in lines:
         lower = line.lower()
@@ -216,20 +230,11 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
 
         category = _line_skip_category(line)
         if category == "declaration":
-            declaration = _QUBIT_DECL.fullmatch(line)
-            if declaration is None:
+            if _QUBIT_DECL.fullmatch(line) is None:
                 raise UnsupportedQasmError(
                     "canonical unitary profile requires declaration 'qubit[n] q;'; "
                     f"got {line!r}"
                 )
-            if seen_qubit_declaration:
-                raise UnsupportedQasmError(
-                    "canonical unitary profile permits exactly one qubit register q"
-                )
-            declared_qubits = int(declaration.group(1))
-            if declared_qubits != n_qubits:
-                raise UnsupportedQasmError("inconsistent qubit register declaration")
-            seen_qubit_declaration = True
             continue
         if category is not None:
             raise UnsupportedQasmError(
@@ -239,11 +244,6 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
         op = gate_matrix_lsb(n_qubits, line)
         unitary = _mat_mul(op, unitary)
         gates_applied.append(line)
-
-    if not seen_qubit_declaration:
-        raise UnsupportedQasmError(
-            "canonical unitary profile requires declaration 'qubit[n] q;'"
-        )
 
     return {
         "source": str(qasm_path),
