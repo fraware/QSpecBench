@@ -40,6 +40,34 @@ def validate_adapter_request(payload: dict[str, Any], start: Path) -> list[str]:
     return errors
 
 
+def _validate_runner_execution_binding(
+    payload: dict[str, Any], request: dict[str, Any]
+) -> list[str]:
+    """Bind runner-observed requested limits to the originating request exactly."""
+    execution = payload.get("runner_execution")
+    if execution is None:
+        return []
+    if not isinstance(execution, dict):
+        return ["adapter result runner_execution must be an object"]
+
+    requested_limits = request.get("limits") or {}
+    observed_limits = execution.get("limits") or {}
+    if not isinstance(requested_limits, dict) or not isinstance(observed_limits, dict):
+        return ["adapter result runner_execution limits are malformed"]
+
+    errors: list[str] = []
+    if set(observed_limits) != set(requested_limits):
+        errors.append("adapter result runner_execution limit keys do not match request limits")
+        return errors
+    for name, value in requested_limits.items():
+        observation = observed_limits.get(name)
+        if not isinstance(observation, dict) or observation.get("requested") != value:
+            errors.append(
+                f"adapter result runner_execution requested {name} does not match request"
+            )
+    return errors
+
+
 def validate_adapter_result(
     payload: dict[str, Any], start: Path, request: dict[str, Any] | None = None
 ) -> list[str]:
@@ -54,7 +82,13 @@ def validate_adapter_result(
     if request is None:
         return errors
 
-    for key in ("adapter_id", "adapter_version", "benchmark_id", "proposition_id", "semantic_profile_id"):
+    for key in (
+        "adapter_id",
+        "adapter_version",
+        "benchmark_id",
+        "proposition_id",
+        "semantic_profile_id",
+    ):
         if payload.get(key) != request.get(key):
             errors.append(f"adapter result {key} does not match request")
 
@@ -66,13 +100,17 @@ def validate_adapter_result(
             + ", ".join(sorted(supported - requested))
         )
 
-    request_hashes = {item.get("sha256") for item in request.get("inputs", []) if item.get("sha256")}
+    request_hashes = {
+        item.get("sha256") for item in request.get("inputs", []) if item.get("sha256")
+    }
     result_hashes = set(payload.get("input_hashes") or [])
     if result_hashes != request_hashes:
         errors.append("adapter result input_hashes do not exactly match request inputs")
 
     if payload.get("status") == "passing" and not supported:
         errors.append("passing adapter result must support at least one requested obligation")
+
+    errors.extend(_validate_runner_execution_binding(payload, request))
     return errors
 
 

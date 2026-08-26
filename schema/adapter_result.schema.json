@@ -30,11 +30,47 @@
       "minItems": 1,
       "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
     },
+    "runner_execution": {
+      "type": "object",
+      "required": ["wall_time_seconds", "timed_out", "exit_code", "limits"],
+      "properties": {
+        "wall_time_seconds": {"type": "number", "minimum": 0},
+        "timed_out": {"type": "boolean"},
+        "exit_code": {"type": ["integer", "null"]},
+        "limits": {
+          "type": "object",
+          "properties": {
+            "timeout_seconds": {
+              "$ref": "#/$defs/limitObservation"
+            },
+            "memory_mb": {
+              "$ref": "#/$defs/limitObservation"
+            },
+            "cpu_seconds": {
+              "$ref": "#/$defs/limitObservation"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "result_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
     "certificate_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
     "started_at": {"type": ["string", "null"]},
     "finished_at": {"type": ["string", "null"]},
     "notes": {"type": ["string", "null"]}
+  },
+  "$defs": {
+    "limitObservation": {
+      "type": "object",
+      "required": ["requested", "status"],
+      "properties": {
+        "requested": {"type": "integer", "minimum": 1},
+        "status": {"type": "string", "enum": ["enforced", "attempted", "unavailable", "not_requested"]}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

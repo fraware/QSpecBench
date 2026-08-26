@@ -13,8 +13,9 @@
     "semantic_profile_id": {"type": "string", "minLength": 1},
     "tool": {
       "type": "object",
+      "required": ["name"],
       "properties": {
-        "name": {"type": "string"},
+        "name": {"type": "string", "minLength": 1},
         "version": {"type": ["string", "null"]},
         "digest": {"type": ["string", "null"]}
       },
@@ -35,6 +36,8 @@
       }
     },
     "requested_obligations": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "expected_outputs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
     "semantic_profile_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
     "semantic_profile_version": {"type": ["string", "null"]},
     "config": {"type": "object"},

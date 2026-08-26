@@ -13,7 +13,8 @@ CONTROLLED_STATUSES = (
     "deprecated",
 )
 
-# Workflow/registry truth. Lean-QEC is truthful CI, not a claimed green default.
+# Workflow/registry truth. Conditional means the expensive lane is path/schedule scoped; it does
+# not mean the pinned theorem has never passed.
 ECOSYSTEM_ROWS: tuple[tuple[str, str, str, str], ...] = (
     (
         "Lean 4 / Mathlib",
@@ -72,8 +73,8 @@ ECOSYSTEM_ROWS: tuple[tuple[str, str, str, str], ...] = (
     (
         "Lean-QEC",
         "active_conditional_ci",
-        "adapter qspecbench.lean_qec.distance.v1 v2.0.0; workflow asserts acceptance vs reproduction",
-        "distance-only (BB90_dist_10). Native acceptance may use the authorized LRAT-trimmer fallback; that is not unmodified upstream-default reproduction. Cold default may still fail; the job must not be skipped.",
+        "adapter qspecbench.lean_qec.distance.v1 v2.0.0; exact upstream commit/toolchain/LFS objects pinned",
+        "distance-only (BB90_dist_10). The pinned upstream-default path has demonstrated cold native kernel acceptance with no fallback; every release candidate must rerun the lane at its own exact SHA. Authorized fallback remains explicit and fail-closed if ever needed.",
     ),
     (
         "Lean-Quantum / Lean-QIT",
@@ -119,7 +120,7 @@ def generate_interoperability_matrix() -> str:
             "3. Bind exact external repository commit/toolchain when importing formal results.",
             "4. Record proposition relation. An instance or weakening is not an equivalent substitute.",
             "5. A registered adapter has an explicit trust ceiling; no adapter may promote itself.",
-            "6. Lean-QEC may be `active_conditional_ci` while remaining honestly failing on cold default.",
+            "6. Lean-QEC cold acceptance is exact-SHA evidence: a prior passing run never substitutes for rerunning a later release candidate.",
             "",
         ]
     )
