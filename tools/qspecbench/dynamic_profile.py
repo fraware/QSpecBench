@@ -2,9 +2,10 @@
 
 This module defines the v2 profile boundary rather than changing the historical
 ``simulate_dynamic_circuit`` entry point. The supported language is intentionally
-small and explicit: exact OpenQASM 3.0 header, vector qubit/bit declarations,
-QSpecBench's bounded gate subset, computational-basis measurements, and single-bit
-``== 1`` feed-forward. Everything else fails closed.
+small and explicit: exact OpenQASM 3.0 header, one ``qubit[n] q`` declaration,
+explicit vector bit declarations, QSpecBench's bounded gate subset,
+computational-basis measurements, and indexed single-bit ``== 1`` feed-forward.
+Everything else fails closed.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from qspecbench.dynamic_simulator import (
     _initial_state,
     _measure_qubit,
 )
-from qspecbench.qasm_matrix import UnsupportedQasmError, _register_size, cell_to_json
+from qspecbench.qasm_matrix import UnsupportedQasmError, cell_to_json
 
 _PROFILE_VERSION = "statevector_projective_v2"
 _HEADER = "OPENQASM 3.0"
@@ -59,11 +60,35 @@ def _validate_header(lines: list[str]) -> None:
         )
 
 
+def _declared_qubit_count(lines: list[str]) -> int:
+    declarations = [
+        match
+        for line in lines
+        if (match := _QUBIT_DECL.fullmatch(line)) is not None
+    ]
+    if len(declarations) != 1:
+        raise UnsupportedQasmError(
+            "dynamic profile requires exactly one declaration 'qubit[n] q;'"
+        )
+    n_qubits = int(declarations[0].group(1))
+    if n_qubits <= 0:
+        raise UnsupportedQasmError("qubit register width must be positive")
+    if n_qubits > MAX_OPERATIONAL_QUBITS:
+        raise ValueError(
+            f"dynamic profile supports at most {MAX_OPERATIONAL_QUBITS} qubits"
+        )
+    return n_qubits
+
+
+def _classical_sort_key(reference: str) -> tuple[str, int]:
+    match = _CLASSICAL_REF.fullmatch(reference)
+    if match is None:
+        return (reference, -1)
+    return (match.group(1), int(match.group(2)))
+
+
 def _classical_key(registers: dict[str, int]) -> str:
-    ordered = sorted(
-        registers,
-        key=lambda name: int(match.group()) if (match := re.search(r"\d+", name)) else 0,
-    )
+    ordered = sorted(registers, key=_classical_sort_key)
     return ",".join(str(registers[name]) for name in ordered)
 
 
@@ -94,17 +119,11 @@ def simulate_instrument_feedforward_v2(
     text = qasm_path.read_text(encoding="utf-8")
     lines = _clean_lines(text)
     _validate_header(lines)
-
-    n_qubits = _register_size(text)
-    if n_qubits > MAX_OPERATIONAL_QUBITS:
-        raise ValueError(
-            f"dynamic profile supports at most {MAX_OPERATIONAL_QUBITS} qubits"
-        )
+    n_qubits = _declared_qubit_count(lines)
 
     state = _initial_state(n_qubits, initial_amplitudes)
     classical: dict[str, int] = {}
     bit_widths: dict[str, int] = {}
-    seen_qubit_declaration = False
     steps: list[dict[str, Any]] = []
 
     for line in lines:
@@ -115,14 +134,7 @@ def simulate_instrument_feedforward_v2(
             steps.append({"kind": "include_skipped", "line": line})
             continue
 
-        qubit_declaration = _QUBIT_DECL.fullmatch(line)
-        if qubit_declaration:
-            if seen_qubit_declaration:
-                raise UnsupportedQasmError("dynamic profile permits one qubit register q")
-            declared_qubits = int(qubit_declaration.group(1))
-            if declared_qubits != n_qubits:
-                raise UnsupportedQasmError("inconsistent qubit register declaration")
-            seen_qubit_declaration = True
+        if _QUBIT_DECL.fullmatch(line):
             continue
         if lower.startswith("qubit"):
             raise UnsupportedQasmError(
@@ -135,6 +147,8 @@ def simulate_instrument_feedforward_v2(
             name = bit_declaration.group(2)
             if width <= 0:
                 raise UnsupportedQasmError("bit register width must be positive")
+            if name == "q":
+                raise UnsupportedQasmError("bit register name 'q' conflicts with qubit register")
             if name in bit_widths:
                 raise UnsupportedQasmError(f"duplicate bit register {name!r}")
             bit_widths[name] = width
@@ -228,9 +242,6 @@ def simulate_instrument_feedforward_v2(
         )
         steps.append({"kind": "gate", "line": line})
 
-    if not seen_qubit_declaration:
-        raise UnsupportedQasmError("dynamic profile requires declaration 'qubit[n] q;'")
-
     if pauli_corrections:
         key = _classical_key(classical)
         operations = pauli_corrections.get(key, [])
@@ -257,6 +268,7 @@ def simulate_instrument_feedforward_v2(
         "simulation_model": _PROFILE_VERSION,
         "n_qubits": n_qubits,
         "wire_order": "openqasm_little_endian_wire_order",
+        "numeric_semantics": "Fraction-based rational approximation",
         "classical_registers": classical,
         "steps": steps,
         "final_amplitudes": {
