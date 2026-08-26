@@ -6,8 +6,8 @@ matrix path. New promotable Python unitary evidence should use
 ``extract_lsb_unitary`` and the ``qspecbench.openqasm3.unitary_lsb.v2`` profile.
 
 The canonical convention is explicit: OpenQASM wire ``q[i]`` is bit weight ``2**i``
-in the basis-state index. Hadamard is normalized by ``1/sqrt(2)``. Unsupported
-syntax fails closed.
+in the basis-state index. Hadamard is normalized by a deterministic rational
+approximation to ``1/sqrt(2)``. Unsupported syntax fails closed.
 """
 
 from __future__ import annotations
@@ -74,7 +74,7 @@ CANONICAL_GATE_SET: frozenset[str] = frozenset(
     }
 )
 _HEADER = "OPENQASM 3.0"
-_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*\d+\s*\]\s+[A-Za-z_]\w*\s*;?$")
+_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;?$")
 
 
 def _clean_lines(text: str) -> list[str]:
@@ -87,7 +87,11 @@ def _clean_lines(text: str) -> list[str]:
 
 
 def _validate_header(lines: list[str]) -> None:
-    headers = [line.rstrip(";").strip() for line in lines if line.lower().startswith("openqasm")]
+    headers = [
+        line.rstrip(";").strip()
+        for line in lines
+        if line.lower().startswith("openqasm")
+    ]
     if headers != [_HEADER]:
         raise UnsupportedQasmError(
             "canonical unitary profile requires exactly one 'OPENQASM 3.0;' header; "
@@ -190,8 +194,8 @@ def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
 def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
     """Extract a normalized unitary under the canonical little-endian profile.
 
-    Only the exact OpenQASM 3.0 header, vector qubit declaration, documented gate
-    subset, and restricted angle grammar are accepted. Include statements are
+    Only the exact OpenQASM 3.0 header, one ``qubit[n] q`` declaration, documented
+    gate subset, and restricted angle grammar are accepted. Include statements are
     skipped but not interpreted as library imports. All other syntax fails closed.
     """
     text = qasm_path.read_text(encoding="utf-8")
@@ -201,6 +205,7 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
     require_dense_matrix(n_qubits)
     unitary = _eye(1 << n_qubits)
     gates_applied: list[str] = []
+    seen_qubit_declaration = False
 
     for line in lines:
         lower = line.lower()
@@ -211,10 +216,20 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
 
         category = _line_skip_category(line)
         if category == "declaration":
-            if _QUBIT_DECL.fullmatch(line) is None:
+            declaration = _QUBIT_DECL.fullmatch(line)
+            if declaration is None:
                 raise UnsupportedQasmError(
-                    f"unsupported declaration under canonical unitary profile: {line!r}"
+                    "canonical unitary profile requires declaration 'qubit[n] q;'; "
+                    f"got {line!r}"
                 )
+            if seen_qubit_declaration:
+                raise UnsupportedQasmError(
+                    "canonical unitary profile permits exactly one qubit register q"
+                )
+            declared_qubits = int(declaration.group(1))
+            if declared_qubits != n_qubits:
+                raise UnsupportedQasmError("inconsistent qubit register declaration")
+            seen_qubit_declaration = True
             continue
         if category is not None:
             raise UnsupportedQasmError(
@@ -225,12 +240,18 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
         unitary = _mat_mul(op, unitary)
         gates_applied.append(line)
 
+    if not seen_qubit_declaration:
+        raise UnsupportedQasmError(
+            "canonical unitary profile requires declaration 'qubit[n] q;'"
+        )
+
     return {
         "source": str(qasm_path),
         "n_qubits": n_qubits,
         "gate_model": "openqasm3_complex_unitary_normalized_lsb_v2",
         "wire_order": CANONICAL_WIRE_ORDER,
         "global_phase_policy": "exact",
+        "numeric_semantics": "Fraction-based rational approximation",
         "gates_applied": gates_applied,
         "matrix": [
             [cell_to_json(unitary[i][j]) for j in range(len(unitary))]
