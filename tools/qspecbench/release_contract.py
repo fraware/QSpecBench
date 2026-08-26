@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-import json
 
-from jsonschema import Draft202012Validator
 import yaml
+from jsonschema import Draft202012Validator
 
 DEFAULT_CONTRACT = Path("docs/release_v1_contract.yaml")
 DEFAULT_SCHEMA = Path("schema/release_contract.schema.json")
@@ -58,7 +58,8 @@ def _schema_errors(contract: dict[str, Any], schema_path: Path) -> list[str]:
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema)
     errors = []
-    for error in sorted(validator.iter_errors(contract), key=lambda item: list(item.path)):
+    key = lambda item: tuple(str(part) for part in item.absolute_path)
+    for error in sorted(validator.iter_errors(contract), key=key):
         location = ".".join(str(part) for part in error.absolute_path) or "<root>"
         errors.append(f"release contract schema: {location}: {error.message}")
     return errors
@@ -183,7 +184,8 @@ def validate_release_contract(
         proposition_id = identity.get("proposition_id") if isinstance(identity, dict) else None
         if not isinstance(proposition_id, str) or not proposition_id.strip():
             errors.append(f"{record.benchmark_id}: missing claim_identity.proposition_id")
-        if policy["require_assurance_graph"] and not (record.path / "assurance_graph.yaml").is_file():
+        graph_path = record.path / "assurance_graph.yaml"
+        if policy["require_assurance_graph"] and not graph_path.is_file():
             errors.append(f"{record.benchmark_id}: missing assurance_graph.yaml")
 
     assigned: set[str] = set()
