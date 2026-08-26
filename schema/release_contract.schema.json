@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qspecbench.org/schema/release_contract.schema.json",
+  "title": "QSpecBench release contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "release_id",
+    "authoritative_documents",
+    "release_corpus",
+    "reference_suite",
+    "promotion"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "release_id": {"type": "string", "minLength": 1},
+    "authoritative_documents": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "release_corpus": {
+      "type": "object",
+      "required": [
+        "maturity_selectors",
+        "include_benchmark_ids",
+        "exclude_benchmark_ids",
+        "require_nonempty",
+        "require_assurance_graph"
+      ],
+      "properties": {
+        "maturity_selectors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "seed",
+              "usable",
+              "reference_scaffold",
+              "reference_contract",
+              "reference_artifact",
+              "experimental_closed",
+              "reference_claim",
+              "artifact_bound_reference_claim",
+              "deprecated"
+            ]
+          }
+        },
+        "include_benchmark_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+        },
+        "exclude_benchmark_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+        },
+        "require_nonempty": {"type": "boolean", "const": true},
+        "require_assurance_graph": {"type": "boolean", "const": true}
+      },
+      "additionalProperties": false
+    },
+    "reference_suite": {
+      "type": "object",
+      "required": ["required_capabilities"],
+      "properties": {
+        "required_capabilities": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/capability"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "promotion": {
+      "type": "object",
+      "required": [
+        "reference_maturities",
+        "independent_review_attestations_required",
+        "require_distinct_reviewers"
+      ],
+      "properties": {
+        "reference_maturities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["reference_claim", "artifact_bound_reference_claim"]
+          }
+        },
+        "independent_review_attestations_required": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "require_distinct_reviewers": {"type": "boolean", "const": true}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "capability": {
+      "type": "object",
+      "required": ["track", "minimum_qualified", "qualified_benchmark_ids"],
+      "properties": {
+        "track": {
+          "type": "string",
+          "enum": ["algorithm", "equivalence", "qec", "hamiltonian", "ai_formalization"]
+        },
+        "minimum_qualified": {"type": "integer", "minimum": 1},
+        "qualified_benchmark_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
