@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 
 import yaml
@@ -29,6 +30,20 @@ def test_new_executable_profiles_are_cross_consistent() -> None:
     for profile_id in (CANONICAL_LSB_UNITARY_PROFILE, DYNAMIC_INSTRUMENT_PROFILE_V2):
         profile = load_registered_profile(profile_id)
         assert cross_consistency_errors(profile) == []
+
+
+def test_static_v2_requires_numeric_semantic_disclosure() -> None:
+    profile = deepcopy(load_registered_profile(CANONICAL_LSB_UNITARY_PROFILE))
+    profile.pop("numeric_semantics")
+    errors = cross_consistency_errors(profile)
+    assert any("numeric_semantics" in error for error in errors)
+
+
+def test_dynamic_v2_requires_numeric_semantic_disclosure() -> None:
+    profile = deepcopy(load_registered_profile(DYNAMIC_INSTRUMENT_PROFILE_V2))
+    profile["interpretation"].pop("numeric_semantics")
+    errors = cross_consistency_errors(profile)
+    assert any("numeric_semantics" in error for error in errors)
 
 
 def test_promoted_claim_rejects_legacy_ambiguous_unitary_profile(tmp_path: Path) -> None:
