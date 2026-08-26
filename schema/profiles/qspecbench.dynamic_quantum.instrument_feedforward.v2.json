@@ -1,0 +1,50 @@
+{
+  "schema": "qspecbench.semantic_profile.v1",
+  "id": "qspecbench.dynamic_quantum.instrument_feedforward.v2",
+  "profile_kind": "dynamic_quantum",
+  "profile_version": "2",
+  "upstream": {
+    "standard": "OpenQASM",
+    "version": "3.0",
+    "repository": null,
+    "commit": null
+  },
+  "interpretation": {
+    "state_model": "bounded pure-state statevector; at most 4 qubits",
+    "wire_order": "q[i] is basis-index bit weight 2^i (LSB)",
+    "gate_subset": [
+      "h",
+      "x",
+      "y",
+      "z",
+      "s",
+      "t",
+      "sdg",
+      "tdg",
+      "cx",
+      "cnot",
+      "cz",
+      "swap",
+      "ccx",
+      "rx",
+      "ry",
+      "rz",
+      "u",
+      "cp"
+    ],
+    "hadamard_normalization": "1/sqrt(2)",
+    "measurement": "computational-basis projective measurement with explicit collapse; simulate_dynamic_circuit rejects nondeterministic outcomes",
+    "classical_state": "explicit named classical bits populated by measurement",
+    "feedforward": "single-bit predicates of the form register == 1; optional explicit Pauli X/Z correction table",
+    "reset": "unsupported as an operational semantic action",
+    "branch_completeness": "not provided by simulate_dynamic_circuit; nondeterministic branch enumeration is outside this profile",
+    "resource_bound": "MAX_OPERATIONAL_QUBITS = 4"
+  },
+  "parser_or_interpreter": {
+    "implementation": "qspecbench.dynamic_simulator.simulate_dynamic_circuit",
+    "version": "statevector_projective_v0",
+    "trust_role": "externally_trusted operational simulator; not kernel-checked"
+  },
+  "unsupported_behavior": "fail_closed",
+  "notes": "Executable bounded operational profile for deterministic-branch dynamic fragments. It is not a full OpenQASM dynamic-circuit semantics, density-operator/channel semantics, hardware semantics, or arbitrary-input teleportation proof."
+}
