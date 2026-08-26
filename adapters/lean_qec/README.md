@@ -9,13 +9,27 @@ distance theorem as syndrome-extraction, decoder, correction, or fault-tolerance
 The checked integration manifest pins:
 
 - repository: `https://github.com/VerifiedQC/Lean-QEC.git`;
-- commit: `e0b90148694cf6b9c8482b21dbd911f2d8f13493`;
+- commit: `c9c85603ab522b9f7df6315ed51513bcfb95fd90`;
 - upstream toolchain: `leanprover/lean4:v4.30.0-rc2`;
 - source: `LeanQEC/Stabilizer/Examples/BB/BB90.lean`;
 - source Git blob: `8414ff1fb50f888998188f6e53020e95eb7891ca`;
 - theorem: `BB90_dist_10`;
 - proposition supported: the BB90 CSS-code distance lower bound `10 ≤ distance`;
 - every LRAT certificate read by the BB90 module, with its Git-LFS SHA-256 object ID and exact byte size.
+
+The pin intentionally uses the parent of upstream commit `5a0f9904bdce4b995a7abc1503cce363802c4857`
+(`reconfigure lrat file endings`). A cold QSpecBench run against a later upstream commit reached the
+pinned Lean toolchain but failed replay of `BB90_dist_z` with `The LRAT certificate could not be
+verified` and LRAT-trimmer panics. Upstream Lean-QEC issue #29 independently reports that commit
+`5a0f990` line-ending-normalized binary BB distance certificates and records the pre-change BB90
+object IDs. QSpecBench therefore binds the immutable pre-change commit rather than broadening a
+local fallback or modifying certificate bytes after checkout.
+
+This repin does not substitute nearby evidence. At `c9c85603ab522b9f7df6315ed51513bcfb95fd90`,
+the BB90 source has the same Git blob as the later pin, and the Lean toolchain, `lakefile.lean`, and
+`lake-manifest.json` are unchanged. The two BB90 rank-certificate objects are unchanged as well; only
+the two distance-certificate objects differ, and the manifest binds their exact pre-change LFS
+SHA-256 IDs and byte sizes. A passing result still requires a fresh cold build of this exact state.
 
 At the pinned source, the theorem is proved by two SAT distance obligations (`BB90_dist_z` and
 `BB90_dist_x`) using LRAT-backed `bv_check`, followed by the verified SAT-to-distance translation.
