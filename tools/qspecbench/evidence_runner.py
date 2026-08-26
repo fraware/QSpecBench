@@ -1,9 +1,8 @@
 """Run declared evidence checks for a benchmark claim.
 
-Execution routing is deliberately independent of the human-readable ``checker`` field.
-A stable typed adapter id, when present, selects the implementation. Evidence types with one
-ordinary repository-wide interpretation may use the typed default registry. Legacy directory
-adapter names remain accepted only as a compatibility surface while specs migrate.
+Execution routing is independent of human-readable checker strings and legacy adapter-directory
+names. A stable typed adapter id selects either a repository-owned Python implementation or, when
+explicitly operator-enabled, an installed Python-module adapter entry point.
 """
 
 from __future__ import annotations
@@ -13,11 +12,11 @@ import os
 import shlex
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from qspecbench.adapter_registry import validate_adapter_name
 from qspecbench.adapter_runtime import (
     AdapterRuntimeError,
     assurance_edge_for_evidence,
@@ -26,7 +25,12 @@ from qspecbench.adapter_runtime import (
 )
 from qspecbench.artifacts import claim_path_escape_error, resolve_claim_path
 from qspecbench.evidence_adapter_bindings import bound_adapter_id
-from qspecbench.evidence_sandbox import run_sandboxed, uses_evidence_sandbox
+from qspecbench.evidence_sandbox import (
+    run_sandboxed_with_metadata,
+    sandbox_requested_limits,
+    sandbox_timeout_execution,
+    uses_evidence_sandbox,
+)
 from qspecbench.evidence_schedule import (
     EvidenceClass,
     batches_by_class,
@@ -35,7 +39,11 @@ from qspecbench.evidence_schedule import (
     schedule_evidence,
 )
 from qspecbench.schema import REPO_ROOT
-from qspecbench.typed_adapter_registry import default_typed_adapter, get_typed_adapter
+from qspecbench.typed_adapter_registry import (
+    AdapterRegistryError,
+    default_typed_adapter,
+    get_typed_adapter,
+)
 from qspecbench.validate import load_spec
 
 ADAPTERS_ROOT = REPO_ROOT / "adapters"
@@ -54,6 +62,7 @@ class EvidenceRunResult:
     errors: list[str] = field(default_factory=list)
     adapter_request: dict[str, Any] | None = None
     adapter_result: dict[str, Any] | None = None
+    runner_execution: dict[str, Any] | None = None
 
     @property
     def ok(self) -> bool:
@@ -154,29 +163,41 @@ def _adapter_command(
     evidence_type: str | None = None,
     secondary: Path | None = None,
 ) -> str:
-    """Resolve a typed adapter id (preferred) or legacy directory adapter name.
+    """Resolve one exact typed identity without accepting benchmark-controlled code paths."""
+    try:
+        typed = get_typed_adapter(adapter_name)
+    except AdapterRegistryError as exc:
+        raise ValueError(str(exc)) from exc
+    if typed is None:
+        if adapter_name.startswith("qspecbench."):
+            raise ValueError(f"unknown typed adapter id {adapter_name!r}")
+        raise ValueError(
+            f"legacy adapter directory {adapter_name!r} is not an executable identity; "
+            "canonicalize it to a registered qspecbench.* typed adapter id first"
+        )
+    if evidence_type is not None and evidence_type not in typed.supported_evidence_types:
+        raise ValueError(
+            f"typed adapter {adapter_name!r} does not support evidence type {evidence_type!r}"
+        )
 
-    ``checker`` is intentionally absent from this function: prose metadata has no execution
-    authority.
-    """
-    typed = get_typed_adapter(adapter_name)
-    if typed is not None:
-        if evidence_type is not None and evidence_type not in typed.supported_evidence_types:
+    if typed.execution_kind == "repo_python":
+        script = (ADAPTERS_ROOT / typed.implementation).resolve()
+        try:
+            script.relative_to(ADAPTERS_ROOT.resolve())
+        except ValueError as exc:
+            raise ValueError(f"adapter implementation escapes adapters root: {script}") from exc
+        if not script.is_file():
             raise ValueError(
-                f"typed adapter {adapter_name!r} does not support evidence type {evidence_type!r}"
+                f"adapter implementation does not exist: {script.relative_to(REPO_ROOT)}"
             )
-        script = ADAPTERS_ROOT / typed.implementation
-    elif adapter_name.startswith("qspecbench."):
-        raise ValueError(f"unknown typed adapter id {adapter_name!r}")
+        cmd = f"{sys.executable} {script} {{path}}"
+    elif typed.execution_kind == "python_module":
+        cmd = f"{sys.executable} -m {typed.implementation} {{path}}"
     else:
-        errors = validate_adapter_name(adapter_name)
-        if errors:
-            raise ValueError("; ".join(errors))
-        script = ADAPTERS_ROOT / adapter_name / "parse_result.py"
-
-    if not script.is_file():
-        raise ValueError(f"adapter implementation does not exist: {script.relative_to(REPO_ROOT)}")
-    cmd = f"{sys.executable} {script} {{path}}"
+        raise ValueError(
+            f"typed adapter {adapter_name!r} has unsupported execution kind "
+            f"{typed.execution_kind!r}"
+        )
     if secondary is not None:
         cmd = f"{cmd} {{path2}}"
     return cmd
@@ -205,11 +226,7 @@ def _default_adapter_command(
     adapter_name = adapter_override or _default_adapter_id(evidence_type, artifact_path)
     if not adapter_name:
         return None
-    return _adapter_command(
-        adapter_name,
-        evidence_type=evidence_type,
-        secondary=secondary,
-    )
+    return _adapter_command(adapter_name, evidence_type=evidence_type, secondary=secondary)
 
 
 def _resolve_secondary_path(entry: dict, claim_dir: Path) -> Path | None:
@@ -245,11 +262,19 @@ def _evidence_timeout(evidence_type: str, cmd: list[str]) -> int:
     return 120
 
 
+def _execution_limits(evidence_type: str, command: str | None) -> dict[str, int]:
+    timeout = _evidence_timeout(evidence_type, [command or ""])
+    if uses_evidence_sandbox(evidence_type):
+        return sandbox_requested_limits(timeout=timeout)
+    return {"timeout_seconds": timeout}
+
+
 def _result_error(
     evidence_id: str,
     path: str,
     error: str,
     command: str | None = None,
+    runner_execution: dict[str, Any] | None = None,
 ) -> EvidenceRunResult:
     return EvidenceRunResult(
         evidence_id=evidence_id,
@@ -257,6 +282,7 @@ def _result_error(
         command=command,
         exit_code=1,
         errors=[error],
+        runner_execution=runner_execution,
     )
 
 
@@ -334,18 +360,6 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
         elif execution_adapter is None and artifact is not None and entry.get("status") == "passing":
             execution_adapter = _default_adapter_id(evidence_type, artifact)
 
-        if execution_adapter is not None:
-            try:
-                runtime_request = build_adapter_request(
-                    entry,
-                    claim_dir,
-                    adapter_id=str(execution_adapter),
-                    artifact=artifact,
-                    secondary=secondary,
-                )
-            except AdapterRuntimeError as exc:
-                return _result_error(eid, rel_path, f"adapter request: {exc}")
-
         if execution_adapter and artifact:
             try:
                 command = _default_adapter_command(
@@ -356,6 +370,19 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
                 )
             except ValueError as exc:
                 return _result_error(eid, rel_path, str(exc))
+
+        if execution_adapter is not None:
+            try:
+                runtime_request = build_adapter_request(
+                    entry,
+                    claim_dir,
+                    adapter_id=str(execution_adapter),
+                    artifact=artifact,
+                    secondary=secondary,
+                    limits=_execution_limits(evidence_type, command),
+                )
+            except (AdapterRuntimeError, AdapterRegistryError) as exc:
+                return _result_error(eid, rel_path, f"adapter request: {exc}")
 
     if not command:
         return EvidenceRunResult(
@@ -394,10 +421,17 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             adapter_request=runtime_request,
         )
 
+    timeout = _evidence_timeout(evidence_type, cmd)
+    started = time.monotonic()
     try:
-        timeout = _evidence_timeout(evidence_type, cmd)
         if uses_evidence_sandbox(evidence_type):
-            proc = run_sandboxed(cmd, claim_dir=claim_dir, timeout=timeout)
+            sandboxed = run_sandboxed_with_metadata(
+                cmd,
+                claim_dir=claim_dir,
+                timeout=timeout,
+            )
+            proc = sandboxed.process
+            runner_execution = sandboxed.runner_execution()
         else:
             proc = subprocess.run(
                 cmd,
@@ -409,6 +443,15 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
                 shell=(sys.platform == "win32" and cmd[0].endswith(".sh")),
                 timeout=timeout,
             )
+            runner_execution = {
+                "wall_time_seconds": max(0.0, time.monotonic() - started),
+                "timed_out": False,
+                "exit_code": proc.returncode,
+                "limits": {
+                    "timeout_seconds": {"requested": timeout, "status": "enforced"}
+                },
+            }
+
         result = EvidenceRunResult(
             evidence_id=eid,
             path=rel_path,
@@ -417,6 +460,7 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             stdout=proc.stdout.strip(),
             stderr=proc.stderr.strip(),
             adapter_request=runtime_request,
+            runner_execution=runner_execution,
         )
         if proc.returncode != 0:
             result.errors.append(f"command failed with exit {proc.returncode}")
@@ -435,8 +479,9 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
                     payload,
                     claim_dir,
                     request=runtime_request,
+                    runner_execution=runner_execution,
                 )
-            except AdapterRuntimeError as exc:
+            except (AdapterRuntimeError, AdapterRegistryError) as exc:
                 result.errors.append(f"adapter result: {exc}")
                 result.exit_code = 1
                 return result
@@ -466,8 +511,25 @@ def _check_one_entry(entry: dict, claim_dir: Path, dry_run: bool) -> EvidenceRun
             result.exit_code = 1
         return result
     except subprocess.TimeoutExpired:
-        timeout = _evidence_timeout(evidence_type, cmd)
-        return _result_error(eid, rel_path, f"command timed out after {timeout}s", " ".join(cmd))
+        wall = max(0.0, time.monotonic() - started)
+        if uses_evidence_sandbox(evidence_type):
+            execution = sandbox_timeout_execution(timeout=timeout, wall_time_seconds=wall)
+        else:
+            execution = {
+                "wall_time_seconds": wall,
+                "timed_out": True,
+                "exit_code": None,
+                "limits": {
+                    "timeout_seconds": {"requested": timeout, "status": "enforced"}
+                },
+            }
+        return _result_error(
+            eid,
+            rel_path,
+            f"command timed out after {timeout}s",
+            " ".join(cmd),
+            runner_execution=execution,
+        )
     except (ValueError, OSError) as exc:
         return _result_error(eid, rel_path, str(exc), " ".join(cmd))
 

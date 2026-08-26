@@ -20,12 +20,12 @@ Controlled statuses: `active_default_ci`, `active_conditional_ci`, `active_manua
 | Coq | `active_manual` | opt-in local/custom-job | second-kernel evidence only when actually compiled |
 | Rocq | `integration_scaffold` | no default passing path | not checked unless a concrete executable integration exists |
 | Isabelle | `integration_scaffold` | no default passing path | not checked unless a concrete executable integration exists |
-| Lean-QEC | `active_conditional_ci` | adapter qspecbench.lean_qec.distance.v1 v2.0.0; workflow asserts acceptance vs reproduction | distance-only (BB90_dist_10). Native acceptance may use the authorized LRAT-trimmer fallback; that is not unmodified upstream-default reproduction. Cold default may still fail; the job must not be skipped. |
+| Lean-QEC | `active_conditional_ci` | adapter qspecbench.lean_qec.distance.v1 v2.0.0; exact upstream commit/toolchain/LFS objects pinned | distance-only (BB90_dist_10). The pinned upstream-default path has demonstrated cold native kernel acceptance with no fallback; every release candidate must rerun the lane at its own exact SHA. Authorized fallback remains explicit and fail-closed if ever needed. |
 | Lean-Quantum / Lean-QIT | `planned` | version-isolated theorem/certificate import first | preserve upstream proposition, semantics, and toolchain |
 
 ## Registered typed adapters
 
-qspecbench.ai.draft.v1, qspecbench.bridge.dynamic_ast.v1, qspecbench.bridge.dynamic_denotation.v1, qspecbench.bridge.hardware_isa.v1, qspecbench.bridge.verify.v1, qspecbench.coq.kernel.v1, qspecbench.dynamic_simulation.v1, qspecbench.human_review.v1, qspecbench.isabelle.kernel.v1, qspecbench.lean.kernel.v1, qspecbench.lean_qec.distance.v1, qspecbench.matrix_certificate.v1, qspecbench.mqt.qcec.v1, qspecbench.openqasm.parse.v1, qspecbench.python.simulation.v1, qspecbench.qbricks.external.v1, qspecbench.qec.generic.v1, qspecbench.qec.stim_matching.v1, qspecbench.qiskit.optimize_1q_gates.v1, qspecbench.rocq.kernel.v1, qspecbench.sat.certificate.v1, qspecbench.smt.certificate.v1, qspecbench.zx.certificate.v1
+qspecbench.ai.draft.v1, qspecbench.bridge.dynamic_ast.v1, qspecbench.bridge.dynamic_denotation.v1, qspecbench.bridge.hardware_isa.v1, qspecbench.bridge.verify.v1, qspecbench.compiler.peephole.v1, qspecbench.coq.kernel.v1, qspecbench.dynamic_simulation.v1, qspecbench.human_review.v1, qspecbench.isabelle.kernel.v1, qspecbench.lean.kernel.v1, qspecbench.lean_qec.distance.v1, qspecbench.matrix_certificate.v1, qspecbench.mqt.qcec.v1, qspecbench.openqasm.parse.v1, qspecbench.python.simulation.v1, qspecbench.qbricks.external.v1, qspecbench.qec.generic.v1, qspecbench.qec.stim_matching.v1, qspecbench.qiskit.optimize_1q_gates.v1, qspecbench.rocq.kernel.v1, qspecbench.sat.certificate.v1, qspecbench.smt.certificate.v1, qspecbench.zx.certificate.v1
 
 ## Compatibility doctrine
 
@@ -34,4 +34,4 @@ qspecbench.ai.draft.v1, qspecbench.bridge.dynamic_ast.v1, qspecbench.bridge.dyna
 3. Bind exact external repository commit/toolchain when importing formal results.
 4. Record proposition relation. An instance or weakening is not an equivalent substitute.
 5. A registered adapter has an explicit trust ceiling; no adapter may promote itself.
-6. Lean-QEC may be `active_conditional_ci` while remaining honestly failing on cold default.
+6. Lean-QEC cold acceptance is exact-SHA evidence: a prior passing run never substitutes for rerunning a later release candidate.

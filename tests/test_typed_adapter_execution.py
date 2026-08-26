@@ -5,10 +5,19 @@ from __future__ import annotations
 import inspect
 from pathlib import Path
 
+import pytest
+import yaml
+
 from qspecbench import evidence_runner
+from qspecbench.adapter_registry import REGISTERED_ADAPTERS
 from qspecbench.evidence_adapter_bindings import bound_adapter_id
 from qspecbench.evidence_runner import _check_one_entry, _default_adapter_command
-from qspecbench.typed_adapter_registry import default_typed_adapter, get_typed_adapter
+from qspecbench.typed_adapter_registry import (
+    LEGACY_TYPED_ADAPTER_ALIASES,
+    default_typed_adapter,
+    get_typed_adapter,
+    resolve_typed_adapter_identity,
+)
 from qspecbench.validate import load_spec
 
 REPO = Path(__file__).resolve().parents[1]
@@ -91,3 +100,55 @@ def test_registry_has_unambiguous_defaults() -> None:
     assert default_typed_adapter("lean_proof").adapter_id == "qspecbench.lean.kernel.v1"
     assert default_typed_adapter("qcec_result").adapter_id == "qspecbench.mqt.qcec.v1"
     assert get_typed_adapter("qspecbench.qec.stim_matching.v1") is not None
+
+
+def test_legacy_spec_alias_canonicalizes_before_execution(tmp_path: Path) -> None:
+    entry = {
+        "id": "legacy_compiler_evidence",
+        "type": "internal_denotation_consistency",
+        "adapter": "compiler_peephole",
+    }
+    assert bound_adapter_id(entry, tmp_path) == "qspecbench.compiler.peephole.v1"
+    resolved = resolve_typed_adapter_identity(
+        "compiler_peephole", evidence_type="internal_denotation_consistency"
+    )
+    assert resolved is not None
+    assert resolved.adapter_id == "qspecbench.compiler.peephole.v1"
+
+
+def test_legacy_directory_cannot_directly_select_execution() -> None:
+    with pytest.raises(ValueError, match="not an executable identity"):
+        _default_adapter_command(
+            "internal_denotation_consistency",
+            Path("artifact.json"),
+            adapter_override="compiler_peephole",
+        )
+
+
+def test_legacy_inventory_has_total_typed_alias_mapping() -> None:
+    assert REGISTERED_ADAPTERS <= LEGACY_TYPED_ADAPTER_ALIASES.keys()
+    for legacy_name in sorted(REGISTERED_ADAPTERS):
+        typed_id = LEGACY_TYPED_ADAPTER_ALIASES[legacy_name]
+        assert get_typed_adapter(typed_id) is not None, legacy_name
+
+
+def test_manifest_declared_typed_identities_are_registered() -> None:
+    """A manifest that declares typed identity must agree with the executable registry.
+
+    Legacy manifests may omit adapter_id because their command fields are descriptive only;
+    repository-wide directory/implementation coverage is enforced by adapter conformance tests.
+    """
+    missing: list[str] = []
+    declared = 0
+    for adapter_dir in sorted(p for p in (REPO / "adapters").iterdir() if p.is_dir()):
+        if adapter_dir.name.startswith("__"):
+            continue
+        manifest = yaml.safe_load((adapter_dir / "adapter.yaml").read_text(encoding="utf-8"))
+        adapter_id = str((manifest or {}).get("adapter_id") or "")
+        if not adapter_id:
+            continue
+        declared += 1
+        if get_typed_adapter(adapter_id) is None:
+            missing.append(f"{adapter_dir.name}: unregistered adapter_id {adapter_id!r}")
+    assert declared > 0
+    assert not missing, "adapter manifests declare unknown typed identities:\n" + "\n".join(missing)
