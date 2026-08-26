@@ -34,7 +34,7 @@ v1 ship/revise decision: [release_audit_v1.md](release_audit_v1.md) (currently *
 | A6 | Semantic profile is authoritative and cross-consistent | registered profiles + assurance validator | **In migration** — issue #14 |
 | A7 | Adapter results bind proposition/semantics/input hashes/obligations | typed AdapterRequest/AdapterResult | **In migration** — issue #15 |
 | A8 | Generated documentation cannot drift from corpus state | generated status/dashboard drift tests | Implemented for generated surfaces; regenerate before release |
-| A9 | Lean-QEC cold native acceptance (distance-only adapter) | `QSPECBENCH_LEAN_QEC_VERIFY=1` structured result | **Not met on this tree** — see [release_audit_v1.md](release_audit_v1.md); workflow must fail closed honestly |
+| A9 | Lean-QEC cold native acceptance (distance-only adapter) | `QSPECBENCH_LEAN_QEC_VERIFY=1` structured result | **Demonstrated for the pinned BB90 state** — exact-head PR workflow at `cce598d94acdd368d77001e790eb0847353d914e` produced `ok=true`, `kernel_checked=true`, `acceptance.status=passing`, `kernel_typechecking_bypassed=false`, `upstream_default_reproduced=true`, and `fallback_used=false`; every release candidate must independently rerun and pass this lane at its own exact SHA |
 
 Engineering readiness is not community-grade governance. Machine-closed `experimental_closed` packages do not satisfy gold/reference promotion.
 
@@ -103,7 +103,7 @@ The following principles are permanent even after Levels A–D improve:
 - A kernel-checked theorem establishes the formal theorem under its assumptions, not the faithfulness of the theorem to a natural-language source claim.
 - Entry-wise numerical error, finite sampling, or `N * epsilon` bookkeeping is not an operator-level Hamiltonian approximation theorem.
 - QBricks/ZX/Coq/Rocq/Isabelle adapters or stubs are not badges of completeness; trust depends on the actual executed evidence path.
-- Lean-QEC interoperability is distance-only (`BB90_dist_10`); cold native acceptance is not claimed until a structured passing result exists for the candidate SHA.
+- Lean-QEC interoperability is distance-only (`BB90_dist_10`); a passing cold native result for one exact SHA does not transfer to another release candidate, which must independently rerun and pass the lane.
 - Corpus-executed code uses constrained execution paths but is not a general sandbox product.
 
 Never resolve a missing guarantee by renaming it into checked scope. Narrow the proposition or leave the obligation open.
