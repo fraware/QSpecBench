@@ -46,6 +46,7 @@ def test_single_and_controlled_gates_share_one_wire_order(tmp_path: Path) -> Non
     # |00> --X(q0)--> |01> --CX(q0,q1)--> |11> under q[i] = bit weight 2**i.
     assert _one_output_row(matrix, 0) == 3
     assert data["wire_order"] == "openqasm_little_endian_wire_order"
+    assert data["numeric_semantics"] == "Fraction-based rational approximation"
 
 
 def test_static_and_dynamic_v2_agree_on_shared_fragment(tmp_path: Path) -> None:
@@ -82,9 +83,25 @@ def test_canonical_unitary_profile_rejects_wrong_upstream_version(tmp_path: Path
         extract_lsb_unitary(path)
 
 
-def test_canonical_unitary_profile_rejects_undeclared_declaration_subset(
-    tmp_path: Path,
-) -> None:
+def test_canonical_unitary_profile_rejects_non_qubit_declarations(tmp_path: Path) -> None:
     path = _write_qasm(tmp_path, "bit[1] c;\nx q[0];\n")
-    with pytest.raises(UnsupportedQasmError, match="unsupported declaration"):
+    with pytest.raises(UnsupportedQasmError, match="requires declaration 'qubit\\[n\\] q;'"):
+        extract_lsb_unitary(path)
+
+
+def test_canonical_unitary_profile_rejects_wrong_qubit_register_name(tmp_path: Path) -> None:
+    path = tmp_path / "wrong-register.qasm"
+    path.write_text(
+        "OPENQASM 3.0;\n"
+        "qubit[2] r;\n"
+        "x q[0];\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(UnsupportedQasmError, match="requires declaration 'qubit\\[n\\] q;'"):
+        extract_lsb_unitary(path)
+
+
+def test_canonical_unitary_profile_rejects_duplicate_qubit_register(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "qubit[2] q;\nx q[0];\n")
+    with pytest.raises(UnsupportedQasmError, match="exactly one qubit register q"):
         extract_lsb_unitary(path)
