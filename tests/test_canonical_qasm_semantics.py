@@ -63,6 +63,7 @@ def test_static_and_dynamic_v2_agree_on_shared_fragment(tmp_path: Path) -> None:
     assert set(dynamic["final_amplitudes"]) == {"3"}
     assert dynamic["simulation_model"] == "statevector_projective_v2"
     assert dynamic["wire_order"] == static["wire_order"]
+    assert dynamic["numeric_semantics"] == static["numeric_semantics"]
 
 
 def test_canonical_unitary_profile_fails_closed_on_measurement(tmp_path: Path) -> None:
@@ -97,11 +98,24 @@ def test_canonical_unitary_profile_rejects_wrong_qubit_register_name(tmp_path: P
         "x q[0];\n",
         encoding="utf-8",
     )
-    with pytest.raises(UnsupportedQasmError, match="requires declaration 'qubit\\[n\\] q;'"):
+    with pytest.raises(UnsupportedQasmError, match="exactly one declaration"):
         extract_lsb_unitary(path)
 
 
 def test_canonical_unitary_profile_rejects_duplicate_qubit_register(tmp_path: Path) -> None:
     path = _write_qasm(tmp_path, "qubit[2] q;\nx q[0];\n")
-    with pytest.raises(UnsupportedQasmError, match="exactly one qubit register q"):
+    with pytest.raises(UnsupportedQasmError, match="exactly one declaration"):
         extract_lsb_unitary(path)
+
+
+def test_comments_cannot_spoof_qubit_register_size(tmp_path: Path) -> None:
+    path = tmp_path / "commented-register.qasm"
+    path.write_text(
+        "OPENQASM 3.0;\n"
+        "// qubit[4] q; must not influence parser state\n"
+        "qubit[2] q;\n"
+        "x q[0];\n",
+        encoding="utf-8",
+    )
+    result = extract_lsb_unitary(path)
+    assert result["n_qubits"] == 2
