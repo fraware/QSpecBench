@@ -197,17 +197,22 @@ def _dynamic_v2_consistency_errors(profile: dict[str, Any]) -> list[str]:
         errors.append(f"{profile_id}: profile_kind must be dynamic_quantum")
     if str(profile.get("profile_version")) != "2":
         errors.append(f"{profile_id}: profile_version must be 2")
+
     upstream = profile.get("upstream") or {}
     if upstream.get("standard") != "OpenQASM" or upstream.get("version") != "3.0":
         errors.append(f"{profile_id}: upstream must pin OpenQASM 3.0")
+
     interpreter = profile.get("parser_or_interpreter") or {}
     implementation = interpreter.get("implementation")
-    if implementation != "qspecbench.dynamic_simulator.simulate_dynamic_circuit":
-        errors.append(f"{profile_id}: interpreter must bind simulate_dynamic_circuit")
-    if interpreter.get("version") != "statevector_projective_v0":
+    if implementation != "qspecbench.dynamic_profile.simulate_instrument_feedforward_v2":
         errors.append(
-            f"{profile_id}: interpreter version must be statevector_projective_v0"
+            f"{profile_id}: interpreter must bind simulate_instrument_feedforward_v2"
         )
+    if interpreter.get("version") != "qspecbench-dynamic-instrument-2":
+        errors.append(
+            f"{profile_id}: interpreter version must be qspecbench-dynamic-instrument-2"
+        )
+
     interpretation = profile.get("interpretation") or {}
     gates = {str(g).lower() for g in interpretation.get("gate_subset") or []}
     if gates != CANONICAL_LSB_UNITARY_GATES:
@@ -215,10 +220,26 @@ def _dynamic_v2_consistency_errors(profile: dict[str, Any]) -> list[str]:
             f"{profile_id}: gate_subset {sorted(gates)} must equal executable dynamic "
             f"gate set {sorted(CANONICAL_LSB_UNITARY_GATES)}"
         )
+    if interpretation.get("accepted_headers") != ["OPENQASM 3.0"]:
+        errors.append(f"{profile_id}: accepted_headers must pin OPENQASM 3.0")
+    if interpretation.get("include_policy") != "skipped_not_interpreted":
+        errors.append(f"{profile_id}: include_policy must be skipped_not_interpreted")
+    if interpretation.get("declaration_subset") != ["qubit[n] name", "bit[n] name"]:
+        errors.append(f"{profile_id}: declaration_subset must match executable v2 grammar")
+    if not interpretation.get("parameter_grammar"):
+        errors.append(f"{profile_id}: parameter_grammar must be explicit")
     if profile_wire_order_convention(profile) != "openqasm_little_endian_wire_order":
         errors.append(f"{profile_id}: wire_order must state the LSB basis-index convention")
     if interpretation.get("hadamard_normalization") != "1/sqrt(2)":
         errors.append(f"{profile_id}: Hadamard normalization must be 1/sqrt(2)")
+    if "not_applicable_to_instrument_semantics" not in str(
+        interpretation.get("global_phase_policy") or ""
+    ):
+        errors.append(f"{profile_id}: dynamic global-phase applicability must be explicit")
+    if interpretation.get("reset") != "unsupported and rejected":
+        errors.append(f"{profile_id}: reset policy must be unsupported and rejected")
+    if "indexed bits" not in str(interpretation.get("feedforward") or ""):
+        errors.append(f"{profile_id}: feedforward grammar must include indexed bits")
     if profile.get("unsupported_behavior") != "fail_closed":
         errors.append(f"{profile_id}: unsupported_behavior must be fail_closed")
     return errors
