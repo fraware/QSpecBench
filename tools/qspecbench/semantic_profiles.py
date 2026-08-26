@@ -15,7 +15,7 @@ PROFILES_DIR = REPO_ROOT / "schema" / "profiles"
 # Parser-subset version is intentionally distinct from the upstream OpenQASM standard.
 PARSER_SUBSET_VERSION = "qspecbench-openqasm-fragment-0.1"
 
-# Canonical gate atoms interpreted by the Python matrix extractor (subset parser).
+# Canonical gate atoms interpreted by the legacy Python matrix extractor.
 QASM_MATRIX_GATE_ATOMS: frozenset[str] = frozenset(
     {"h", "x", "y", "z", "s", "t", "sdg", "tdg", "cx", "cnot", "cz", "swap", "ccx"}
 )
@@ -26,6 +26,40 @@ LEAN_NORMALIZED_CLIFFORD_T_GATES: frozenset[str] = frozenset({"h", "t", "tdg", "
 # Lean unitary fragment additionally interprets these atoms on the Python/legacy path.
 LEAN_UNITARY_FRAGMENT_GATES: frozenset[str] = LEAN_NORMALIZED_CLIFFORD_T_GATES | frozenset(
     {"i", "x", "y", "z", "s", "sdg", "rx", "swap"}
+)
+
+CANONICAL_LSB_UNITARY_PROFILE = "qspecbench.openqasm3.unitary_lsb.v2"
+DYNAMIC_INSTRUMENT_PROFILE_V2 = "qspecbench.dynamic_quantum.instrument_feedforward.v2"
+
+CANONICAL_LSB_UNITARY_GATES: frozenset[str] = frozenset(
+    {
+        "h",
+        "x",
+        "y",
+        "z",
+        "s",
+        "sdg",
+        "t",
+        "tdg",
+        "cx",
+        "cnot",
+        "cz",
+        "swap",
+        "ccx",
+        "rx",
+        "ry",
+        "rz",
+        "u",
+        "cp",
+    }
+)
+
+# These IDs remain immutable historical contracts but must not back future promoted claims.
+PROMOTION_FORBIDDEN_PROFILE_IDS: frozenset[str] = frozenset(
+    {
+        "qspecbench.openqasm3.unitary.v1",
+        "qspecbench.dynamic_quantum.instrument_feedforward.v1",
+    }
 )
 
 
@@ -89,7 +123,7 @@ def resolve_profile_binding(
 
 
 def openqasm_honesty_errors(profile: dict[str, Any]) -> list[str]:
-    """The subset parser is not OpenQASM 3. Include remains skipped unless a new profile says otherwise."""
+    """Check that a subset parser is never presented as the full OpenQASM standard."""
     errors: list[str] = []
     profile_id = str(profile.get("id") or "")
     if not profile_id.startswith("qspecbench.openqasm3."):
@@ -115,16 +149,48 @@ def openqasm_honesty_errors(profile: dict[str, Any]) -> list[str]:
     return errors
 
 
-def cross_consistency_errors(profile: dict[str, Any]) -> list[str]:
-    """Gate-set / wire-order / phase-policy must not silently disagree with parsers."""
+def _dynamic_v2_consistency_errors(profile: dict[str, Any]) -> list[str]:
     errors: list[str] = []
+    profile_id = str(profile.get("id") or "")
+    if profile_id != DYNAMIC_INSTRUMENT_PROFILE_V2:
+        return errors
+
+    if profile.get("profile_kind") != "dynamic_quantum":
+        errors.append(f"{profile_id}: profile_kind must be dynamic_quantum")
+    if str(profile.get("profile_version")) != "2":
+        errors.append(f"{profile_id}: profile_version must be 2")
+    upstream = profile.get("upstream") or {}
+    if upstream.get("standard") != "OpenQASM" or upstream.get("version") != "3.0":
+        errors.append(f"{profile_id}: upstream must pin OpenQASM 3.0")
+    interpreter = profile.get("parser_or_interpreter") or {}
+    if interpreter.get("implementation") != "qspecbench.dynamic_simulator.simulate_dynamic_circuit":
+        errors.append(f"{profile_id}: interpreter must bind simulate_dynamic_circuit")
+    if interpreter.get("version") != "statevector_projective_v0":
+        errors.append(f"{profile_id}: interpreter version must be statevector_projective_v0")
+    interpretation = profile.get("interpretation") or {}
+    gates = {str(g).lower() for g in interpretation.get("gate_subset") or []}
+    if gates != CANONICAL_LSB_UNITARY_GATES:
+        errors.append(
+            f"{profile_id}: gate_subset {sorted(gates)} must equal executable dynamic gate set "
+            f"{sorted(CANONICAL_LSB_UNITARY_GATES)}"
+        )
+    if interpretation.get("wire_order") != "q[i] is basis-index bit weight 2^i (LSB)":
+        errors.append(f"{profile_id}: wire_order must state the LSB basis-index convention")
+    if interpretation.get("hadamard_normalization") != "1/sqrt(2)":
+        errors.append(f"{profile_id}: Hadamard normalization must be 1/sqrt(2)")
+    if profile.get("unsupported_behavior") != "fail_closed":
+        errors.append(f"{profile_id}: unsupported_behavior must be fail_closed")
+    return errors
+
+
+def cross_consistency_errors(profile: dict[str, Any]) -> list[str]:
+    """Reject profile metadata that disagrees with its executable implementation."""
+    errors = _dynamic_v2_consistency_errors(profile)
     profile_id = str(profile.get("id") or "")
     if not profile_id.startswith("qspecbench.openqasm3."):
         return errors
+
     gates = {str(g).lower() for g in profile.get("gate_set") or []}
-    unknown = sorted(gates - QASM_MATRIX_GATE_ATOMS - {"i", "rx", "cnot"})
-    # RX is a declared legacy surface; cnot is an alias of cx.
-    _ = unknown  # unknown relative to the Python extractor is reported below per profile family
     if profile_id.endswith("clifford_t_normalized.v1"):
         if gates != LEAN_NORMALIZED_CLIFFORD_T_GATES:
             errors.append(
@@ -137,12 +203,41 @@ def cross_consistency_errors(profile: dict[str, Any]) -> list[str]:
             errors.append(f"{profile_id}: global_phase_policy must be exact")
         if profile.get("include_policy") != "skipped_not_interpreted":
             errors.append(f"{profile_id}: include_policy must remain skipped_not_interpreted")
+
     if profile_id.endswith("unitary.v1"):
         extra = gates - LEAN_UNITARY_FRAGMENT_GATES
         if extra:
-            errors.append(f"{profile_id}: gate_set contains atoms outside the Lean/Python fragment: {sorted(extra)}")
+            errors.append(
+                f"{profile_id}: gate_set contains atoms outside the Lean/Python fragment: "
+                f"{sorted(extra)}"
+            )
         if profile.get("include_policy") != "skipped_not_interpreted":
             errors.append(f"{profile_id}: include_policy must remain skipped_not_interpreted")
+
+    if profile_id == CANONICAL_LSB_UNITARY_PROFILE:
+        if gates != CANONICAL_LSB_UNITARY_GATES:
+            errors.append(
+                f"{profile_id}: gate_set {sorted(gates)} must equal canonical LSB interpreter set "
+                f"{sorted(CANONICAL_LSB_UNITARY_GATES)}"
+            )
+        if profile.get("parser_implementation") != "qspecbench.canonical_qasm.extract_lsb_unitary":
+            errors.append(f"{profile_id}: parser_implementation must bind extract_lsb_unitary")
+        if profile.get("parser_version") != "qspecbench-openqasm-lsb-unitary-2":
+            errors.append(f"{profile_id}: parser_version must pin canonical interpreter v2")
+        if profile.get("wire_order_convention") != "openqasm_little_endian_wire_order":
+            errors.append(f"{profile_id}: wire order must be little-endian/LSB")
+        if profile.get("global_phase_policy") != "exact":
+            errors.append(f"{profile_id}: global_phase_policy must be exact")
+        if profile.get("angle_grammar") != "symbolic_restricted":
+            errors.append(f"{profile_id}: angle_grammar must be symbolic_restricted")
+        for field in ("control_flow_support", "measurement_support", "reset_support"):
+            if profile.get(field) != "none":
+                errors.append(f"{profile_id}: {field} must be none")
+        if profile.get("unsupported_syntax_behavior") != "fail_closed":
+            errors.append(f"{profile_id}: unsupported_syntax_behavior must be fail_closed")
+        if profile.get("include_policy") != "skipped_not_interpreted":
+            errors.append(f"{profile_id}: include_policy must be skipped_not_interpreted")
+
     errors.extend(openqasm_honesty_errors(profile))
     return errors
 
