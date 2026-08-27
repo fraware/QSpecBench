@@ -126,6 +126,24 @@ def test_canonical_unitary_profile_rejects_wrong_upstream_version(tmp_path: Path
         extract_lsb_unitary(path)
 
 
+def test_canonical_unitary_profile_rejects_unterminated_header(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "x q[0];\n", header="OPENQASM 3.0")
+    with pytest.raises(UnsupportedQasmError, match="leading 'OPENQASM 3.0;'"):
+        extract_lsb_unitary(path)
+
+
+def test_canonical_unitary_profile_rejects_unterminated_gate(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "x q[0]\n")
+    with pytest.raises(UnsupportedQasmError, match="unsupported or malformed"):
+        extract_lsb_unitary(path)
+
+
+def test_canonical_unitary_profile_rejects_malformed_include(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "include stdgates.inc;\nx q[0];\n")
+    with pytest.raises(UnsupportedQasmError, match="malformed include"):
+        extract_lsb_unitary(path)
+
+
 def test_canonical_unitary_profile_rejects_non_qubit_declarations(tmp_path: Path) -> None:
     path = _write_qasm(tmp_path, "bit[1] c;\nx q[0];\n")
     with pytest.raises(UnsupportedQasmError, match="requires declaration 'qubit\\[n\\] q;'"):
