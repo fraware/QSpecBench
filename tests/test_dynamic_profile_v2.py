@@ -65,6 +65,12 @@ def test_dynamic_profile_rejects_wrong_upstream_version(tmp_path: Path) -> None:
         simulate_instrument_feedforward_v2(path)
 
 
+def test_dynamic_profile_rejects_unterminated_header(tmp_path: Path) -> None:
+    path = _write(tmp_path, "x q[0];\n", header="OPENQASM 3.0")
+    with pytest.raises(UnsupportedQasmError, match="leading 'OPENQASM 3.0;'"):
+        simulate_instrument_feedforward_v2(path)
+
+
 def test_dynamic_profile_rejects_unsupported_predicate(tmp_path: Path) -> None:
     path = _write(
         tmp_path,
@@ -78,6 +84,16 @@ def test_dynamic_profile_rejects_unsupported_predicate(tmp_path: Path) -> None:
 def test_dynamic_profile_rejects_unset_classical_bit(tmp_path: Path) -> None:
     path = _write(tmp_path, "if (c[0] == 1) x q[1];\n")
     with pytest.raises(UnsupportedQasmError, match="unset measurement bit"):
+        simulate_instrument_feedforward_v2(path)
+
+
+def test_dynamic_profile_rejects_unterminated_conditional(tmp_path: Path) -> None:
+    path = _write(
+        tmp_path,
+        "c[0] = measure q[0];\n"
+        "if (c[0] == 1) x q[1]\n",
+    )
+    with pytest.raises(UnsupportedQasmError, match="malformed conditional"):
         simulate_instrument_feedforward_v2(path)
 
 
@@ -96,6 +112,32 @@ def test_dynamic_profile_rejects_undeclared_measurement_bit(tmp_path: Path) -> N
 def test_dynamic_profile_rejects_out_of_range_measurement_bit(tmp_path: Path) -> None:
     path = _write(tmp_path, "c[1] = measure q[0];\n")
     with pytest.raises(UnsupportedQasmError, match="outside declared bit\\[1\\] c"):
+        simulate_instrument_feedforward_v2(path)
+
+
+def test_dynamic_profile_rejects_legacy_q0_measurement_alias(tmp_path: Path) -> None:
+    path = _write(tmp_path, "c[0] = measure q0;\n")
+    with pytest.raises(UnsupportedQasmError, match="malformed measurement"):
+        simulate_instrument_feedforward_v2(path)
+
+
+def test_dynamic_profile_rejects_unterminated_measurement(tmp_path: Path) -> None:
+    path = _write(tmp_path, "c[0] = measure q[0]\n")
+    with pytest.raises(UnsupportedQasmError, match="malformed measurement"):
+        simulate_instrument_feedforward_v2(path)
+
+
+def test_dynamic_profile_rejects_malformed_include(tmp_path: Path) -> None:
+    path = tmp_path / "bad-include.qasm"
+    path.write_text(
+        "OPENQASM 3.0;\n"
+        "include stdgates.inc;\n"
+        "qubit[2] q;\n"
+        "bit[1] c;\n"
+        "x q[0];\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(UnsupportedQasmError, match="malformed include"):
         simulate_instrument_feedforward_v2(path)
 
 
