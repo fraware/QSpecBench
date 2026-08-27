@@ -36,12 +36,12 @@ v1 ship/revise decision: [release_audit_v1.md](release_audit_v1.md) (currently *
 
 | # | Criterion | How verified | Current status |
 |---|-----------|--------------|----------------|
-| A1 | Schema/layout/trust validation passes on exact release commit | `.github/workflows/validate.yml` | Implemented gate; exact current PR/head result must be verified before merge/release |
-| A2 | Lean evidence aggregate builds on exact release commit | `lake build QSpecBench.Evidence.All` in CI | Implemented gate; exact current PR/head result must be verified |
-| A3 | Evidence checks execute under pinned dependencies and fail closed | `qspecbench check-evidence`, lockfiles/workflows | Implemented machinery; exact current PR/head result must be verified |
+| A1 | Schema/layout/trust validation passes on exact release commit | `.github/workflows/validate.yml` | Implemented gate; exact candidate/main SHA result must be verified before release |
+| A2 | Lean evidence aggregate builds on exact release commit | `lake build QSpecBench.Evidence.All` in CI | Implemented gate; exact release-candidate result must be verified |
+| A3 | Evidence checks execute under pinned dependencies and fail closed | `qspecbench check-evidence`, lockfiles/workflows | Implemented machinery; exact release-candidate result must be verified |
 | A4 | Release bundle is built from and verifies against the exact commit | `.github/workflows/release.yml`, release-bundle verifier | Implemented machinery; no new release is claimed merely by editing metadata |
 | A5 | Promotion/release state is derivable from explicit obligation→evidence closure over a non-empty corpus | `release_v1_contract.yaml` + `assurance_graph.yaml` + validators | **In migration** — non-vacuous release contract established; issue #13 tracks release-corpus graph closure |
-| A6 | Semantic profile is authoritative and cross-consistent | registered profiles + assurance validator | **In migration** — issue #14 |
+| A6 | Semantic profile is authoritative and cross-consistent | registered profiles + assurance validator | **Implemented in #32** — canonical static/dynamic v2 profiles are executable, versioned, strict/fail-closed and cross-validated; historical profile meanings are preserved; exact-head conformance remains required for every release candidate |
 | A7 | Adapter results bind proposition/semantics/input hashes/obligations through typed registered execution identities | typed AdapterRequest/AdapterResult + conformance tests | **Typed-adapter migration merged in #30**; exact-head conformance still required for every release candidate |
 | A8 | Generated documentation cannot drift from corpus state | generated status/dashboard drift tests | Implemented for generated surfaces; regenerate before release |
 | A9 | Lean-QEC cold native acceptance (distance-only adapter) | `QSPECBENCH_LEAN_QEC_VERIFY=1` structured result | **Demonstrated for the pinned BB90 state** — exact-head PR workflow at `cce598d94acdd368d77001e790eb0847353d914e` produced `ok=true`, `kernel_checked=true`, `acceptance.status=passing`, `kernel_typechecking_bypassed=false`, `upstream_default_reproduced=true`, and `fallback_used=false`; every release candidate must independently rerun and pass this lane at its own exact SHA |
@@ -55,7 +55,7 @@ Engineering readiness is not community-grade governance. Machine-closed `experim
 | # | Criterion | How verified | Current status |
 |---|-----------|--------------|----------------|
 | B1 | Real maintainers/reviewers exist beyond the author/merger | CODEOWNERS + public GitHub identities | **Not met** — current trust-critical ownership is interim `@fraware`; role vacancies remain TBA |
-| B2 | Trust-critical branch protection and required code-owner review are enabled | GitHub repository settings | **Not independently verified / not claimed** — see [governance_verification.md](governance_verification.md) |
+| B2 | Trust-critical branch protection and required code-owner review are enabled | GitHub repository settings | **Not met** — live repository inspection on 27 Aug 2026 reports `main` as unprotected (`protected: false`); issue #19 remains open |
 | B3 | Promoted claims cannot be self-reviewed or self-promoted | governance rule + protected branch + validation | **Not met end-to-end** |
 | B4 | Every promoted claim has two authenticated, independent review attestations | `review_attestation_v2` + public review event | **Not met** — legacy alias reviewers are not authenticated identity; issue #12; [promotion freeze](promotion_freeze.md) |
 | B5 | Open audit findings are represented by actual public GitHub issues | GitHub issues | **Partially met** — local `QSB-AUD-*` stubs alone do not satisfy this criterion |
@@ -136,4 +136,4 @@ v1 completion branch (regenerate to confirm):
 
 These counts are descriptive corpus state. They do **not** establish Level B community governance or Level C scientific-reference-suite completion. The canonical release contract uses the 21 `experimental_closed` packages as part of the non-vacuous release-assurance corpus even while the reference inventory is zero.
 
-Public implementation blockers and migration work are tracked in issues #12–#18.
+Open blockers are tracked in public issues #12, #13, and #16–#23. Issues #14 and #15 are closed implementation milestones and must not be counted as remaining migration work.
