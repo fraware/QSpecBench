@@ -15,12 +15,13 @@ from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
+from qspecbench.canonical_qasm import gate_matrix_lsb
 from qspecbench.dynamic_simulator import (
     MAX_OPERATIONAL_QUBITS,
     _MEASURE_LINE,
-    _apply_gate_line,
     _apply_pauli_x,
     _apply_pauli_z,
+    _apply_unitary_matrix,
     _initial_state,
     _measure_qubit,
 )
@@ -109,6 +110,16 @@ def _require_declared_bit(reference: str, bit_widths: dict[str, int]) -> None:
         )
 
 
+def _apply_gate_v2(
+    state: list[tuple[Fraction, Fraction]],
+    n_qubits: int,
+    line: str,
+) -> list[tuple[Fraction, Fraction]]:
+    """Apply one unitary gate using the canonical v2 LSB gate semantics."""
+    statement = line if line.endswith(";") else line + ";"
+    return _apply_unitary_matrix(state, gate_matrix_lsb(n_qubits, statement))
+
+
 def simulate_instrument_feedforward_v2(
     qasm_path: Path,
     *,
@@ -162,11 +173,11 @@ def simulate_instrument_feedforward_v2(
         if measurement:
             register, qref = measurement.group(1), measurement.group(2)
             _require_declared_bit(register, bit_widths)
-            qubit_match = re.search(r"\[(\d+)\]", qref)
+            qubit_match = re.fullmatch(r"q\[(\d+)\]", qref, re.IGNORECASE)
             if qubit_match is None:
-                qubit_match = re.search(r"q(\d+)", qref.lower())
-            if qubit_match is None:
-                raise UnsupportedQasmError(f"cannot resolve measurement wire: {line!r}")
+                raise UnsupportedQasmError(
+                    f"dynamic profile requires indexed qubit reference q[i], got {qref!r}"
+                )
             qubit = int(qubit_match.group(1))
             if qubit < 0 or qubit >= n_qubits:
                 raise UnsupportedQasmError(
@@ -204,11 +215,7 @@ def simulate_instrument_feedforward_v2(
                 )
             applied = classical[register] == 1
             if applied:
-                state = _apply_gate_line(
-                    state,
-                    n_qubits,
-                    body if body.endswith(";") else body + ";",
-                )
+                state = _apply_gate_v2(state, n_qubits, body)
             steps.append(
                 {
                     "kind": "classical_control",
@@ -234,12 +241,7 @@ def simulate_instrument_feedforward_v2(
                 f"unsupported executable construct under dynamic profile v2: {line!r}"
             )
 
-        # Gate parsing/arity/angle handling remains centralized in the operational gate engine.
-        state = _apply_gate_line(
-            state,
-            n_qubits,
-            line if line.endswith(";") else line + ";",
-        )
+        state = _apply_gate_v2(state, n_qubits, line)
         steps.append({"kind": "gate", "line": line})
 
     if pauli_corrections:
