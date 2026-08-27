@@ -64,41 +64,34 @@ CANONICAL_GATE_SET: frozenset[str] = frozenset(
         "cp",
     }
 )
-_HEADER = "OPENQASM 3.0"
+_HEADER = "OPENQASM 3.0;"
 _QREF = r"(q\[\d+\])"
 _ANGLE_ARG = r"([^)]+)"
-_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;?$")
+_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;$")
+_INCLUDE_LINE = re.compile(r'^include\s+"[^"\r\n]+"\s*;$')
 _SINGLE_GATE_LINE = re.compile(
-    rf"^\s*(h|x|y|z|s|t|sdg|tdg)\s+{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*(h|x|y|z|s|t|sdg|tdg)\s+{_QREF}\s*;\s*$"
 )
 _TWO_GATE_LINE = re.compile(
-    rf"^\s*(cx|cnot|cz|swap)\s+{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*(cx|cnot|cz|swap)\s+{_QREF}\s*,\s*{_QREF}\s*;\s*$"
 )
 _CCX_LINE = re.compile(
-    rf"^\s*ccx\s+{_QREF}\s*,\s*{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*ccx\s+{_QREF}\s*,\s*{_QREF}\s*,\s*{_QREF}\s*;\s*$"
 )
 _RX_LINE_STRICT = re.compile(
-    rf"^\s*rx\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*rx\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;\s*$"
 )
 _RY_LINE_STRICT = re.compile(
-    rf"^\s*ry\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*ry\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;\s*$"
 )
 _RZ_LINE_STRICT = re.compile(
-    rf"^\s*rz\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*rz\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;\s*$"
 )
 _U_LINE_STRICT = re.compile(
-    rf"^\s*u\s*\(\s*([^)]+)\s*\)\s+{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*u\s*\(\s*([^)]+)\s*\)\s+{_QREF}\s*;\s*$"
 )
 _CP_LINE_STRICT = re.compile(
-    rf"^\s*cp\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
-    re.IGNORECASE,
+    rf"^\s*cp\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*,\s*{_QREF}\s*;\s*$"
 )
 
 
@@ -112,15 +105,11 @@ def _clean_lines(text: str) -> list[str]:
 
 
 def _validate_header(lines: list[str]) -> None:
-    headers = [
-        line.rstrip(";").strip()
-        for line in lines
-        if line.lower().startswith("openqasm")
-    ]
-    if headers != [_HEADER]:
+    headers = [line for line in lines if line.lower().startswith("openqasm")]
+    if not lines or lines[0] != _HEADER or headers != [_HEADER]:
         raise UnsupportedQasmError(
-            "canonical unitary profile requires exactly one 'OPENQASM 3.0;' header; "
-            f"found {headers!r}"
+            "canonical unitary profile requires exactly one leading 'OPENQASM 3.0;' "
+            f"header; found {headers!r}"
         )
 
 
@@ -162,7 +151,7 @@ def embed_single_lsb(n_qubits: int, qubit: int, op: ComplexMatrix) -> ComplexMat
 
 def _single_gate_lsb(n_qubits: int, gate: str, qubit: int) -> ComplexMatrix:
     op = _single_qubit_gate(gate)
-    if gate.lower() == "h":
+    if gate == "h":
         op = _scale_matrix(op, _SQRT2_HALF)
     return embed_single_lsb(n_qubits, qubit, op)
 
@@ -256,7 +245,7 @@ def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
 
     two = _TWO_GATE_LINE.fullmatch(line)
     if two:
-        gate = two.group(1).lower()
+        gate = two.group(1)
         first = _parse_qubit_index(two.group(2), n_qubits)
         second = _parse_qubit_index(two.group(3), n_qubits)
         _require_distinct(gate, (first, second))
@@ -270,7 +259,7 @@ def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
 
     single = _SINGLE_GATE_LINE.fullmatch(line)
     if single:
-        gate = single.group(1).lower()
+        gate = single.group(1)
         qubit = _parse_qubit_index(single.group(2), n_qubits)
         return _single_gate_lsb(n_qubits, gate, qubit)
 
@@ -282,9 +271,10 @@ def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
 def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
     """Extract a normalized unitary under the canonical little-endian profile.
 
-    Only the exact OpenQASM 3.0 header, one ``qubit[n] q`` declaration, documented
-    gate subset, and restricted angle grammar are accepted. Include statements are
-    skipped but not interpreted as library imports. All other syntax fails closed.
+    Only the exact leading ``OPENQASM 3.0;`` header, one terminated ``qubit[n] q;``
+    declaration, documented gate subset, and restricted angle grammar are accepted.
+    Syntactically valid include statements are skipped but not interpreted as library
+    imports. All other syntax fails closed.
     """
     text = qasm_path.read_text(encoding="utf-8")
     lines = _clean_lines(text)
@@ -296,9 +286,13 @@ def extract_lsb_unitary(qasm_path: Path) -> dict[str, Any]:
 
     for line in lines:
         lower = line.lower()
-        if lower.startswith("openqasm"):
+        if line == _HEADER:
             continue
         if lower.startswith("include"):
+            if _INCLUDE_LINE.fullmatch(line) is None:
+                raise UnsupportedQasmError(
+                    f"malformed include statement under canonical unitary profile: {line!r}"
+                )
             continue
 
         category = _line_skip_category(line)
