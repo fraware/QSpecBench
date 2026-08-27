@@ -21,11 +21,7 @@ from typing import Any
 from qspecbench.qasm_matrix import (
     ComplexMatrix,
     UnsupportedQasmError,
-    _RX_LINE,
-    _RY_LINE,
-    _RZ_LINE,
     _SQRT2_HALF,
-    _U_LINE,
     _ccx,
     _cell,
     _cnot,
@@ -69,7 +65,8 @@ CANONICAL_GATE_SET: frozenset[str] = frozenset(
     }
 )
 _HEADER = "OPENQASM 3.0"
-_QREF = r"(q\[\d+\]|q\d+)"
+_QREF = r"(q\[\d+\])"
+_ANGLE_ARG = r"([^)]+)"
 _QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;?$")
 _SINGLE_GATE_LINE = re.compile(
     rf"^\s*(h|x|y|z|s|t|sdg|tdg)\s+{_QREF}\s*;?\s*$",
@@ -83,8 +80,24 @@ _CCX_LINE = re.compile(
     rf"^\s*ccx\s+{_QREF}\s*,\s*{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
     re.IGNORECASE,
 )
+_RX_LINE_STRICT = re.compile(
+    rf"^\s*rx\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
+_RY_LINE_STRICT = re.compile(
+    rf"^\s*ry\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
+_RZ_LINE_STRICT = re.compile(
+    rf"^\s*rz\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
+_U_LINE_STRICT = re.compile(
+    rf"^\s*u\s*\(\s*([^)]+)\s*\)\s+{_QREF}\s*;?\s*$",
+    re.IGNORECASE,
+)
 _CP_LINE_STRICT = re.compile(
-    rf"^\s*cp\s*\(\s*([^)]+)\s*\)\s+{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
+    rf"^\s*cp\s*\(\s*{_ANGLE_ARG}\s*\)\s+{_QREF}\s*,\s*{_QREF}\s*;?\s*$",
     re.IGNORECASE,
 )
 
@@ -201,22 +214,22 @@ def _parse_u_angles(text: str) -> tuple[float, float, float]:
 
 def gate_matrix_lsb(n_qubits: int, line: str) -> ComplexMatrix:
     """Interpret one supported gate statement under canonical LSB semantics."""
-    rx = _RX_LINE.fullmatch(line)
+    rx = _RX_LINE_STRICT.fullmatch(line)
     if rx:
         q = _parse_qubit_index(rx.group(2), n_qubits)
         return embed_single_lsb(n_qubits, q, _rx_matrix(_parse_angle(rx.group(1))))
 
-    ry = _RY_LINE.fullmatch(line)
+    ry = _RY_LINE_STRICT.fullmatch(line)
     if ry:
         q = _parse_qubit_index(ry.group(2), n_qubits)
         return embed_single_lsb(n_qubits, q, _ry_matrix(_parse_angle(ry.group(1))))
 
-    rz = _RZ_LINE.fullmatch(line)
+    rz = _RZ_LINE_STRICT.fullmatch(line)
     if rz:
         q = _parse_qubit_index(rz.group(2), n_qubits)
         return embed_single_lsb(n_qubits, q, _rz_matrix(_parse_angle(rz.group(1))))
 
-    u = _U_LINE.fullmatch(line)
+    u = _U_LINE_STRICT.fullmatch(line)
     if u:
         theta, phi, lam = _parse_u_angles(u.group(1))
         q = _parse_qubit_index(u.group(2), n_qubits)
