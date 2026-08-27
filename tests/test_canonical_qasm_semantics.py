@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
@@ -11,9 +12,18 @@ from qspecbench.dynamic_profile import simulate_instrument_feedforward_v2
 from qspecbench.qasm_matrix import ComplexMatrix, UnsupportedQasmError, matrix_from_json_rows
 
 
-def _write_qasm(tmp_path: Path, body: str, *, header: str = "OPENQASM 3.0;") -> Path:
+def _write_qasm(
+    tmp_path: Path,
+    body: str,
+    *,
+    header: str = "OPENQASM 3.0;",
+    n_qubits: int = 2,
+) -> Path:
     path = tmp_path / "circuit.qasm"
-    path.write_text(f"{header}\nqubit[2] q;\n{body}", encoding="utf-8")
+    path.write_text(
+        f"{header}\nqubit[{n_qubits}] q;\n{body}",
+        encoding="utf-8",
+    )
     return path
 
 
@@ -66,6 +76,38 @@ def test_static_and_dynamic_v2_agree_on_shared_fragment(tmp_path: Path) -> None:
     assert dynamic["numeric_semantics"] == static["numeric_semantics"]
 
 
+def test_cz_phases_every_matching_basis_state_in_three_qubits(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "cz q[0], q[1];\n", n_qubits=3)
+    static = extract_lsb_unitary(path)
+    matrix = matrix_from_json_rows(static["matrix"])
+
+    assert matrix[3][3] == (Fraction(-1), Fraction(0))
+    assert matrix[7][7] == (Fraction(-1), Fraction(0))
+    assert matrix[4][4] == (Fraction(1), Fraction(0))
+
+    dynamic = simulate_instrument_feedforward_v2(
+        path,
+        initial_amplitudes={7: (Fraction(1), Fraction(0))},
+    )
+    assert dynamic["final_amplitudes"]["7"] == [[-1, 1], [0, 1]]
+
+
+def test_cp_phases_every_matching_basis_state_in_three_qubits(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "cp(pi) q[0], q[1];\n", n_qubits=3)
+    static = extract_lsb_unitary(path)
+    matrix = matrix_from_json_rows(static["matrix"])
+
+    assert matrix[3][3] == (Fraction(-1), Fraction(0))
+    assert matrix[7][7] == (Fraction(-1), Fraction(0))
+    assert matrix[5][5] == (Fraction(1), Fraction(0))
+
+    dynamic = simulate_instrument_feedforward_v2(
+        path,
+        initial_amplitudes={7: (Fraction(1), Fraction(0))},
+    )
+    assert dynamic["final_amplitudes"]["7"] == [[-1, 1], [0, 1]]
+
+
 def test_canonical_unitary_profile_fails_closed_on_measurement(tmp_path: Path) -> None:
     path = _write_qasm(tmp_path, "measure q[0];\n")
     with pytest.raises(UnsupportedQasmError, match="does not interpret 'measurement'"):
@@ -106,6 +148,14 @@ def test_canonical_unitary_profile_rejects_duplicate_qubit_register(tmp_path: Pa
     path = _write_qasm(tmp_path, "qubit[2] q;\nx q[0];\n")
     with pytest.raises(UnsupportedQasmError, match="exactly one declaration"):
         extract_lsb_unitary(path)
+
+
+def test_canonical_and_dynamic_v2_reject_legacy_q0_alias(tmp_path: Path) -> None:
+    path = _write_qasm(tmp_path, "rx(pi/4) q0;\n")
+    with pytest.raises(UnsupportedQasmError, match="unsupported or malformed"):
+        extract_lsb_unitary(path)
+    with pytest.raises(UnsupportedQasmError, match="unsupported or malformed"):
+        simulate_instrument_feedforward_v2(path)
 
 
 def test_comments_cannot_spoof_qubit_register_size(tmp_path: Path) -> None:
