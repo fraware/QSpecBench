@@ -18,7 +18,6 @@ from typing import Any
 from qspecbench.canonical_qasm import gate_matrix_lsb
 from qspecbench.dynamic_simulator import (
     MAX_OPERATIONAL_QUBITS,
-    _MEASURE_LINE,
     _apply_pauli_x,
     _apply_pauli_z,
     _apply_unitary_matrix,
@@ -28,15 +27,16 @@ from qspecbench.dynamic_simulator import (
 from qspecbench.qasm_matrix import UnsupportedQasmError, cell_to_json
 
 _PROFILE_VERSION = "statevector_projective_v2"
-_HEADER = "OPENQASM 3.0"
-_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;?$")
-_BIT_DECL = re.compile(r"^bit\s*\[\s*(\d+)\s*\]\s+([A-Za-z_]\w*)\s*;?$")
+_HEADER = "OPENQASM 3.0;"
+_QUBIT_DECL = re.compile(r"^qubit\s*\[\s*(\d+)\s*\]\s+q\s*;$")
+_BIT_DECL = re.compile(r"^bit\s*\[\s*(\d+)\s*\]\s+([A-Za-z_]\w*)\s*;$")
+_INCLUDE_LINE = re.compile(r'^include\s+"[^"\r\n]+"\s*;$')
 _CLASSICAL_REF = re.compile(r"^([A-Za-z_]\w*)\[(\d+)\]$")
-_IF_LINE = re.compile(r"^if\s*\(([^)]+)\)\s*(.+);?\s*$", re.IGNORECASE)
-_PREDICATE = re.compile(
-    r"^([A-Za-z_]\w*\[\d+\])\s*==\s*1$",
-    re.IGNORECASE,
+_MEASURE_LINE = re.compile(
+    r"^([A-Za-z_]\w*\[\d+\])\s*=\s*measure\s+(q\[\d+\])\s*;$"
 )
+_IF_LINE = re.compile(r"^if\s*\(([^)]+)\)\s*(.+;)\s*$")
+_PREDICATE = re.compile(r"^([A-Za-z_]\w*\[\d+\])\s*==\s*1$")
 
 
 def _clean_lines(text: str) -> list[str]:
@@ -49,14 +49,10 @@ def _clean_lines(text: str) -> list[str]:
 
 
 def _validate_header(lines: list[str]) -> None:
-    headers = [
-        line.rstrip(";").strip()
-        for line in lines
-        if line.lower().startswith("openqasm")
-    ]
-    if headers != [_HEADER]:
+    headers = [line for line in lines if line.lower().startswith("openqasm")]
+    if not lines or lines[0] != _HEADER or headers != [_HEADER]:
         raise UnsupportedQasmError(
-            "dynamic profile requires exactly one 'OPENQASM 3.0;' header; "
+            "dynamic profile requires exactly one leading 'OPENQASM 3.0;' header; "
             f"found {headers!r}"
         )
 
@@ -115,9 +111,8 @@ def _apply_gate_v2(
     n_qubits: int,
     line: str,
 ) -> list[tuple[Fraction, Fraction]]:
-    """Apply one unitary gate using the canonical v2 LSB gate semantics."""
-    statement = line if line.endswith(";") else line + ";"
-    return _apply_unitary_matrix(state, gate_matrix_lsb(n_qubits, statement))
+    """Apply one terminated unitary statement using canonical v2 LSB semantics."""
+    return _apply_unitary_matrix(state, gate_matrix_lsb(n_qubits, line))
 
 
 def simulate_instrument_feedforward_v2(
@@ -139,9 +134,13 @@ def simulate_instrument_feedforward_v2(
 
     for line in lines:
         lower = line.lower()
-        if lower.startswith("openqasm"):
+        if line == _HEADER:
             continue
         if lower.startswith("include"):
+            if _INCLUDE_LINE.fullmatch(line) is None:
+                raise UnsupportedQasmError(
+                    f"malformed include statement under dynamic profile v2: {line!r}"
+                )
             steps.append({"kind": "include_skipped", "line": line})
             continue
 
@@ -169,15 +168,13 @@ def simulate_instrument_feedforward_v2(
                 "dynamic profile requires declaration 'bit[n] name;'"
             )
 
-        measurement = _MEASURE_LINE.match(line)
+        measurement = _MEASURE_LINE.fullmatch(line)
         if measurement:
             register, qref = measurement.group(1), measurement.group(2)
             _require_declared_bit(register, bit_widths)
-            qubit_match = re.fullmatch(r"q\[(\d+)\]", qref, re.IGNORECASE)
+            qubit_match = re.fullmatch(r"q\[(\d+)\]", qref)
             if qubit_match is None:
-                raise UnsupportedQasmError(
-                    f"dynamic profile requires indexed qubit reference q[i], got {qref!r}"
-                )
+                raise AssertionError("strict measurement grammar admitted a non-indexed q reference")
             qubit = int(qubit_match.group(1))
             if qubit < 0 or qubit >= n_qubits:
                 raise UnsupportedQasmError(
@@ -196,8 +193,12 @@ def simulate_instrument_feedforward_v2(
                 }
             )
             continue
+        if "measure" in lower:
+            raise UnsupportedQasmError(
+                f"unsupported or malformed measurement under dynamic profile v2: {line!r}"
+            )
 
-        conditional = _IF_LINE.match(line)
+        conditional = _IF_LINE.fullmatch(line)
         if conditional:
             predicate_text = conditional.group(1).strip()
             body = conditional.group(2).strip()
@@ -226,6 +227,10 @@ def simulate_instrument_feedforward_v2(
                 }
             )
             continue
+        if lower.startswith("if"):
+            raise UnsupportedQasmError(
+                f"unsupported or malformed conditional under dynamic profile v2: {line!r}"
+            )
 
         unsupported_prefixes = (
             "reset ",
