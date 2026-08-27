@@ -32,22 +32,27 @@ promotable evidence. Its executable interpreter is
 
 The contract is deliberately narrow:
 
-- exactly one upstream header: `OPENQASM 3.0;`;
-- include statements are skipped syntactically and are not interpreted as library
-  semantics;
+- exactly one leading upstream header: `OPENQASM 3.0;`;
+- include statements must use the terminated `include "...";` shape; they are then
+  skipped syntactically and are not interpreted as library semantics;
 - exactly one vector qubit declaration of the form `qubit[n] q;`, with positive `n`;
+- executable statements are semicolon-terminated and use indexed `q[i]` references;
+  legacy convenience aliases such as `q0` are outside v2;
 - an explicit finite gate subset and restricted angle grammar;
 - `q[i]` is basis-index bit weight `2^i` (little-endian/LSB);
+- single-qubit and controlled gates share that convention; CZ/CP act on every basis
+  state whose selected control/target bits are both one, including spectator-qubit
+  states in larger registers;
 - Hadamard and trigonometric coefficients use the implementation's deterministic
   rational approximation model based on Python `Fraction` values;
 - `global_phase_policy: exact` means exact equality within that encoded rational
   model; it does not assert exact algebraic-real arithmetic;
 - measurement, reset, and classical control are rejected;
-- unsupported executable syntax fails closed;
+- unsupported or malformed executable syntax fails closed;
 - comments cannot influence declaration discovery or register size.
 
 The legacy matrix extractor remains available for historical artifacts. It is not the
-canonical v2 interpreter.
+canonical v2 interpreter and is intentionally not rewritten by this hardening pass.
 
 ## Bounded dynamic-instrument profile
 
@@ -57,16 +62,18 @@ profile. Its interpreter is
 
 It models only a bounded deterministic execution fragment:
 
-- exactly one `OPENQASM 3.0;` header;
+- exactly one leading `OPENQASM 3.0;` header;
+- only terminated, syntactically recognized include/declaration/executable statements;
 - exactly one `qubit[n] q;` register, with positive `n` and `n <= 4`;
 - explicit positive-width `bit[n] name;` declarations;
-- the registered bounded gate subset under the same LSB wire convention as the
-  canonical static interpreter;
+- the registered bounded gate subset routed through the same canonical LSB gate
+  semantics as the static v2 interpreter;
 - computational-basis projective measurements with state collapse;
-- measurement destinations must be declared, in-range indexed classical bits;
+- measurement destinations must be declared, in-range indexed classical bits and
+  measurement sources must use indexed `q[i]` references;
 - indexed measured-bit predicates of the form `<bit> == 1`, and predicates must
   reference a bit actually populated by measurement;
-- supported gate actions in the conditional body;
+- supported, terminated gate actions in the conditional body;
 - optional explicit Pauli X/Z correction tables;
 - the same declared `Fraction`-based rational approximation model as the Python gate
   engine, including deterministic rationalization during normalization;
