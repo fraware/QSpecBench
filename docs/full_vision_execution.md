@@ -32,6 +32,8 @@ Required:
 - generated status documentation has no drift;
 - security/resource limits remain fail-closed.
 
+Engineering substrate milestones already merged include the typed adapter execution/trust boundary (#30/#15), the non-vacuous release-contract foundation (#31), and executable/cross-consistent semantic-profile authority (#32/#14). These implemented mechanisms do not by themselves satisfy release-corpus closure, governance, scientific reference maturity, or immutable-release requirements.
+
 ### B. Community-grade governance
 
 Required:
@@ -42,7 +44,7 @@ Required:
 - review attestations bind durable reviewer identity, reviewed commit, artifact hashes, accepted obligations, conflicts and public review event;
 - open audit findings are represented by real public issues.
 
-The current interim sole-owner state does **not** satisfy this level.
+The current interim sole-owner state does **not** satisfy this level. Live repository inspection on 27 Aug 2026 also reports `main` as unprotected (`protected: false`), so issue #19 is a concrete unmet governance gate rather than an unknown.
 
 ### C. Scientific reference suite
 
@@ -75,7 +77,9 @@ The external reproduction program is intentionally excluded from the current exe
 
 For v1 qualification, assurance migration is evaluated over the **release corpus**, not merely the promoted-reference set. The canonical contract currently selects `experimental_closed`, `reference_claim`, and `artifact_bound_reference_claim` packages, plus any explicit contract overrides. The selector is required to be non-empty. Consequently, zero reference claims can never make graph migration vacuously complete.
 
-The migration is not complete until every release-corpus package has a closed graph. Reference-suite packages then face the additional reference-maturity and authenticated independent-review requirements. Existing authored `status.ci`, `status.evidence`, `proved_scope.checked_obligations`, and maturity fields remain descriptive legacy fields until derived-state migration is complete.
+The release-corpus graph migration is not complete until every selected package has a closed graph. Reference-suite packages then face the additional reference-maturity and authenticated independent-review requirements. Existing authored `status.ci`, `status.evidence`, `proved_scope.checked_obligations`, and maturity fields remain descriptive legacy fields until derived-state migration is complete.
+
+Semantic-profile authority is no longer part of this remaining migration: PR #32 closed #14 with immutable historical profiles plus strict executable static/dynamic v2 profiles, explicit grammar/numeric semantics, and profile/bridge consistency checks. Typed adapter execution identity is likewise merged through PR #30/#15. The principal current graph/qualification migration is issue #13.
 
 ## Promotion freeze
 
@@ -85,8 +89,8 @@ Until reviewer authentication and release-corpus assurance-graph migration are c
 
 1. exact-head release baseline and CI evidence;
 2. typed adapter execution/trust boundary — **migration merged in #30; preserve by conformance testing**;
-3. canonical non-vacuous release contract and release-corpus assurance migration;
-4. executable semantic profiles;
+3. canonical non-vacuous release contract and release-corpus assurance migration — **contract foundation merged in #31; corpus closure remains #13**;
+4. executable semantic profiles — **implemented and merged in #32; issue #14 closed**;
 5. three scientific flagships: compiler equivalence, dynamic protocol, Hamiltonian approximation;
 6. QEC external-certificate interoperability and family assurance;
 7. AI formalization relation/metric rebuild;
@@ -95,3 +99,7 @@ Until reviewer authentication and release-corpus assurance-graph migration are c
 10. immutable citable release packaging.
 
 Some research and governance work may proceed in parallel, but no downstream phase may be used rhetorically to claim an upstream phase is complete.
+
+## Repository-closeout boundary
+
+Repository integration hygiene is documented in [repository_closeout_2026-08-27.md](repository_closeout_2026-08-27.md). That closeout is allowed to establish a single integrated code state on `main`; it is not allowed to weaken the open exit criteria in Levels B–D or to relabel the v1 audit from `revise` to `ship`.
