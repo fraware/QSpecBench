@@ -18,6 +18,7 @@ from qspecbench.models import validate_spec_trust_slice
 from qspecbench.schema import validate_spec_schema
 from qspecbench.trust import validate_trust_rules
 from qspecbench.validation.assurance import validate_assurance_graph_rules
+from qspecbench.validation.bridge_semantics import validate_bridge_profile_consistency
 from qspecbench.validation.bridges import (  # noqa: F401 — re-export
     validate_semantic_bridge_rules,
 )
@@ -36,6 +37,7 @@ from qspecbench.validation.qec import (  # noqa: F401 — re-export for tests
 from qspecbench.validation.result import ValidationResult, load_spec
 from qspecbench.validation.reviews import validate_review_rules
 from qspecbench.validation.schema import validate_openqasm_profile, validate_schema_rules
+from qspecbench.validation.semantic_authority import validate_semantic_authority
 
 # Back-compat aliases used by older tests / scripts.
 _infer_qec_witness_claim_kind = infer_qec_witness_claim_kind
@@ -63,16 +65,30 @@ def validate_spec_dict(
     errors.extend(validate_review_rules(spec, claim_dir))
     errors.extend(validate_claim_rules(spec, claim_dir))
     errors.extend(validate_evidence_rules(spec, claim_dir))
+
     assurance_errors, assurance_warnings = validate_assurance_graph_rules(spec, claim_dir)
     errors.extend(assurance_errors)
     warnings.extend(assurance_warnings)
+
+    authority_errors, authority_warnings = validate_semantic_authority(spec, claim_dir)
+    errors.extend(authority_errors)
+    warnings.extend(authority_warnings)
+
     errors.extend(validate_assurance_profile_conformance(spec, claim_dir))
     warnings.extend(validate_dynamic_circuit_qubit_limit(claim_dir, spec))
     errors.extend(validate_claim_artifacts(spec, claim_dir))
     errors.extend(validate_qec_witness_file(claim_dir, spec))
+
     bridge_errors, bridge_warnings = validate_semantic_bridge_rules(spec, claim_dir)
     errors.extend(bridge_errors)
     warnings.extend(bridge_warnings)
+
+    semantic_bridge_errors, semantic_bridge_warnings = validate_bridge_profile_consistency(
+        spec,
+        claim_dir,
+    )
+    errors.extend(semantic_bridge_errors)
+    warnings.extend(semantic_bridge_warnings)
     return errors, warnings
 
 

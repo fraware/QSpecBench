@@ -91,6 +91,10 @@
       "type": "string",
       "enum": ["exact", "ignore_global_phase", "declared_phase_policy"]
     },
+    "numeric_semantics": {
+      "type": ["string", "null"],
+      "description": "Arithmetic/approximation model used by the executable denotation"
+    },
     "unsupported_syntax_behavior": {
       "type": "string",
       "enum": ["fail_closed", "skip_documented", "reject_executable"]

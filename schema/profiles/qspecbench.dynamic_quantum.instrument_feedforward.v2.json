@@ -1,0 +1,61 @@
+{
+  "schema": "qspecbench.semantic_profile.v1",
+  "id": "qspecbench.dynamic_quantum.instrument_feedforward.v2",
+  "profile_kind": "dynamic_quantum",
+  "profile_version": "2",
+  "upstream": {
+    "standard": "OpenQASM",
+    "version": "3.0",
+    "repository": null,
+    "commit": null
+  },
+  "interpretation": {
+    "accepted_headers": [
+      "OPENQASM 3.0"
+    ],
+    "include_policy": "skipped_not_interpreted",
+    "declaration_subset": [
+      "qubit[n] q",
+      "bit[n] name"
+    ],
+    "state_model": "bounded pure-state statevector; at most 4 qubits",
+    "numeric_semantics": "complex amplitudes represented as pairs of Python Fraction values; irrational and trigonometric coefficients and post-measurement normalization are deterministically rationalized by the implementation, so arithmetic is exact only within that encoded rational approximation model",
+    "wire_order": "q[i] is basis-index bit weight 2^i (LSB)",
+    "gate_subset": [
+      "h",
+      "x",
+      "y",
+      "z",
+      "s",
+      "t",
+      "sdg",
+      "tdg",
+      "cx",
+      "cnot",
+      "cz",
+      "swap",
+      "ccx",
+      "rx",
+      "ry",
+      "rz",
+      "u",
+      "cp"
+    ],
+    "parameter_grammar": "restricted numeric/pi literals implemented by qasm_matrix._parse_angle; U requires exactly three comma-separated supported angles; executable source statements are semicolon-terminated and unitary wires use indexed q[i] references",
+    "hadamard_normalization": "1/sqrt(2)",
+    "global_phase_policy": "not_applicable_to_instrument_semantics; unitary gate actions retain represented complex phase within the declared rational approximation model",
+    "measurement": "c[i] = measure q[j]; computational-basis projective measurement with explicit collapse; the destination must be a declared in-range indexed bit; nondeterministic outcomes fail closed",
+    "classical_state": "explicit indexed measurement-bit names populated before use",
+    "feedforward": "if (<measured-bit> == 1) <supported terminated gate>; indexed bits such as c[1] are supported; predicates must reference declared measured bits; no else or loops",
+    "reset": "unsupported and rejected",
+    "branch_completeness": "single deterministic execution only; nondeterministic branch enumeration is outside this profile",
+    "resource_bound": "MAX_OPERATIONAL_QUBITS = 4"
+  },
+  "parser_or_interpreter": {
+    "implementation": "qspecbench.dynamic_profile.simulate_instrument_feedforward_v2",
+    "version": "qspecbench-dynamic-instrument-2",
+    "trust_role": "externally_trusted bounded operational interpreter; not kernel-checked"
+  },
+  "unsupported_behavior": "fail_closed",
+  "notes": "Executable bounded operational profile for deterministic-branch dynamic fragments. Source syntax requires a leading OPENQASM 3.0; header, terminated recognized statements, exactly one vector qubit register named q, indexed q[i] wire references, and explicitly declared bounds-checked bit registers. Unitary gate actions are delegated to the canonical LSB v2 gate semantics, including correct CZ/CP behavior with spectator qubits. It is not full OpenQASM dynamic-circuit semantics, density-operator/channel semantics, hardware semantics, or an arbitrary-input teleportation proof. Only syntactically recognized include \"...\"; lines are skipped, and they are not semantically imported."
+}
